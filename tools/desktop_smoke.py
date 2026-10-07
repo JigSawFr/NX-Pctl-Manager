@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Headless UI smoke test of the desktop build (simulated backend).
 
-Starts build-desktop/playguard on an X display (Xvfb), opens every tab,
-the extra-time picker, the per-day editor and a dropdown, and fails if the app dies on the way
-(borealis throws on unknown XML attributes, missing views, …). Screenshots of
-each screen are written to the output folder.
+Starts build-desktop/playguard on an X display (Xvfb), opens every tab, the
+extra-time picker, the per-day editor, a dropdown and the settings backup, and
+fails if the app dies on the way (borealis throws on unknown XML attributes,
+missing views, …). Screenshots of each screen are written to the output folder.
 
 Usage: tools/desktop_smoke.py <out-dir>   (needs DISPLAY, xdotool, ImageMagick)
 Environment knobs of the simulated backend (PLAYGUARD_SIM_*) are passed through.
@@ -97,6 +97,21 @@ shot("22_dropdown")
 key("Escape")
 key("Escape")
 shot("23_back")
+
+# Settings backup: save one, open the list and the restore summary (cancelled).
+key("Escape")              # back to the sidebar
+nav("Down", 4)             # Tools & about
+key("Right")
+nav("Down")                # Back up the settings
+key("Return")
+shot("24_backup_saved")
+nav("Down")                # Restore a backup…
+key("Return")
+shot("25_backup_list")
+key("Return")
+shot("26_backup_restore")
+key("Escape")
+shot("27_back")
 
 proc.terminate()
 try:

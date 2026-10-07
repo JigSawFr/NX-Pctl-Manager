@@ -12,6 +12,7 @@ namespace paths
 std::string data_dir();
 std::string logs_dir();
 std::string profiles_dir();
+std::string backups_dir();
 std::string config_file();
 
 // Root of the SD card: "/" on the console; ./playguard_data/sd on desktop,

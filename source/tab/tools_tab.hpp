@@ -1,4 +1,5 @@
-// ToolsTab — diagnostic export, preferences (language, theme, advanced) and About.
+// ToolsTab — diagnostic export, settings backup / restore, preferences
+// (language, theme, advanced) and About.
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
@@ -18,6 +19,9 @@ class ToolsTab : public TabBase
 
     BRLS_BIND(brls::DetailCell,  export_cell, "tl_export");
     BRLS_BIND(brls::Label,       export_note, "tl_export_note");
+    BRLS_BIND(brls::DetailCell,  backup_save, "tl_backup_save");
+    BRLS_BIND(brls::DetailCell,  backup_restore, "tl_backup_restore");
+    BRLS_BIND(brls::Label,       backup_note, "tl_backup_note");
     BRLS_BIND(brls::DetailCell,  language,    "tl_language");
     BRLS_BIND(brls::DetailCell,  theme,       "tl_theme");
     BRLS_BIND(brls::BooleanCell, auto_relock, "tl_auto_relock");

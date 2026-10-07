@@ -1,6 +1,7 @@
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #include "tab/security_tab.hpp"
 
+#include "action/backup_flow.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
 
@@ -105,9 +106,12 @@ SecurityTab::SecurityTab()
             // Second, separate confirmation with a different button: this cannot be undone.
             brls::sync([this]() {
                 ui::confirm_danger("playguard/security/delete_body2"_i18n, "playguard/security/delete_confirm2"_i18n, [this]() {
-                    Result rc = pctl_delete_parental_controls();
-                    ui::notify_result(rc, "playguard/security/deleted"_i18n, "playguard/security/delete_err"_i18n);
-                    this->refresh();
+                    // A backup first, so the settings can come back (Tools › Restore).
+                    backup_flow::backup_then([this]() {
+                        Result rc = pctl_delete_parental_controls();
+                        ui::notify_result(rc, "playguard/security/deleted"_i18n, "playguard/security/delete_err"_i18n);
+                        this->refresh();
+                    });
                 });
             });
         });
