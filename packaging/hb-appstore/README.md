@@ -23,8 +23,8 @@ Long description:
 
 ## Updates
 
-Once listed, new GitHub releases are detected automatically and published after a manual review. Release checklist:
+Once listed, new GitHub releases are detected automatically and published after a manual review. Releases are automated with [release-please](https://github.com/googleapis/release-please):
 
-1. Bump `VERSION_MAJOR/MINOR/ALTER` in `CMakeLists.txt` and add a `CHANGELOG.md` entry.
-2. Tag `vX.Y.Z` (same version) and push the tag.
-3. CI builds, checks the tag against the version and attaches `playguard.nro`, `playguard.zip` and `SHA256SUMS.txt` to the release.
+1. Merge pull requests with a conventional-commit title (`feat: …`, `fix: …`; checked by `.github/workflows/pr-title.yml`).
+2. release-please keeps a `chore(main): release X.Y.Z` PR open with the next version, the `CHANGELOG.md` entry and the bumped `VERSION_*` lines of `CMakeLists.txt`.
+3. Merging that PR creates the `vX.Y.Z` tag and the GitHub release; `.github/workflows/release-please.yml` then builds and attaches `playguard.nro`, `playguard.zip` and `SHA256SUMS.txt`.

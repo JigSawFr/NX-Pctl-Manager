@@ -1,0 +1,39 @@
+name: release-please
+
+# On every push to main, release-please keeps a "chore(main): release X.Y.Z"
+# pull request up to date (CHANGELOG.md, version in CMakeLists.txt) from the
+# conventional commits. Merging that PR creates the vX.Y.Z tag and the GitHub
+# release; the build below then attaches the .nro / .zip to it. A tag created
+# with GITHUB_TOKEN does not trigger other workflows, hence the direct call
+# instead of a personal access token.
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  assets:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/build.yml
+    with:
+      tag: ${{ needs.release-please.outputs.tag_name }}
