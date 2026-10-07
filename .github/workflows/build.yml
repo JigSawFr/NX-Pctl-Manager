@@ -17,7 +17,8 @@ permissions:
   contents: read
 
 jobs:
-  # Fast checks with no toolchain: C service layer unit tests + resources.
+  # Fast checks with no toolchain: C service layer unit tests (under
+  # AddressSanitizer and UndefinedBehaviorSanitizer) + resources.
   host-tests:
     runs-on: ubuntu-latest
     steps:
@@ -35,6 +36,13 @@ jobs:
   # every screen headlessly: catches borealis XML / view errors without a console.
   desktop-smoke:
     runs-on: ubuntu-latest
+    env:
+      CMAKE_C_COMPILER_LAUNCHER: ccache
+      CMAKE_CXX_COMPILER_LAUNCHER: ccache
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      CCACHE_BASEDIR: ${{ github.workspace }}
+      CCACHE_COMPRESS: "1"
+      CCACHE_MAXSIZE: 400M
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,11 +53,16 @@ jobs:
       - name: Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev \
+          sudo apt-get install -y cmake ccache libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev \
             libxcursor-dev libxi-dev libxkbcommon-dev libwayland-dev wayland-protocols libdbus-1-dev \
             libcurl4-openssl-dev xvfb xdotool imagemagick dbus
+      - uses: actions/cache@v4
+        with:
+          path: .ccache
+          key: ccache-desktop-${{ github.sha }}
+          restore-keys: ccache-desktop-
       - name: Build (desktop simulation)
-        run: make desktop
+        run: make desktop && ccache --show-stats
       - name: Smoke test
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke
       - name: Smoke test (firmware not supported yet, developer mode)
@@ -65,26 +78,48 @@ jobs:
 
   # The real .nro, built in the official devkitPro image (same as ./run.sh),
   # and compat.json (what the app's update check reads from the latest release).
+  # The image is pinned by digest so a release can be rebuilt with the same
+  # toolchain; to move to a newer devkitPro, replace the digest (from
+  # `docker buildx imagetools inspect devkitpro/devkita64:latest`) here and in
+  # "Build identity" below.
   switch:
     runs-on: ubuntu-latest
-    needs: host-tests
+    container: devkitpro/devkita64@sha256:1fc388c3a0d34bd2045a6dadcb1020e069d5f876a187fd705de14b4440c00282
+    env:
+      CMAKE_C_COMPILER_LAUNCHER: ccache
+      CMAKE_CXX_COMPILER_LAUNCHER: ccache
+      CCACHE_COMPRESS: "1"
+      CCACHE_MAXSIZE: 400M
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.tag || github.ref }}
           submodules: true
-      - name: Build .nro / .zip (devkitpro/devkita64)
-        run: docker run --rm -v "$PWD:/project" -w /project devkitpro/devkita64 sh -c "make dist && (dkp-pacman -Q libnx switch-tools switch-curl 2>/dev/null || true) > toolchain.txt"
+      - name: ccache
+        run: apt-get update -qq && apt-get install -y -qq --no-install-recommends ccache
+      - uses: actions/cache@v4
+        with:
+          path: .ccache
+          key: ccache-switch-${{ github.sha }}
+          restore-keys: ccache-switch-
+      - name: Build .nro / .zip
+        run: |
+          export CCACHE_DIR="$GITHUB_WORKSPACE/.ccache" CCACHE_BASEDIR="$GITHUB_WORKSPACE"
+          make dist
+          ccache --show-stats
+          dkp-pacman -Q libnx switch-tools switch-curl switch-glfw switch-mesa > toolchain.txt 2>/dev/null || true
       - name: compat.json
         run: python3 tools/gen_compat.py . compat.json
       - name: Build identity
         run: |
           {
             echo "commit: $(git rev-parse HEAD)"
+            echo "image: devkitpro/devkita64@sha256:1fc388c3a0d34bd2045a6dadcb1020e069d5f876a187fd705de14b4440c00282"
             git submodule status
             cat toolchain.txt
           } > build-info.txt
           sha256sum playguard.nro playguard.zip compat.json > SHA256SUMS.txt
+          cat build-info.txt
           unzip -l playguard.zip
       - uses: actions/upload-artifact@v4
         with:
@@ -95,16 +130,23 @@ jobs:
             compat.json
             build-info.txt
             SHA256SUMS.txt
+      - name: Linker map (what makes the .nro big)
+        uses: actions/upload-artifact@v4
+        with:
+          name: playguard_linker_map
+          path: build/borealis.map
+          retention-days: 14
 
   # Only when called by release-please.yml: check the NACP version matches the
   # tag, then attach the assets to the release. The raw .nro is what sphaira's
   # GitHub updater downloads; the .zip is what the Homebrew App Store
   # (hb-appstore) picks up; compat.json is what PlayGuard's update check reads
-  # (releases/latest/download/compat.json).
+  # (releases/latest/download/compat.json); build-info.txt names the commit,
+  # the submodules and the toolchain the assets were built with.
   release:
     if: inputs.tag
     runs-on: ubuntu-latest
-    needs: [ switch, desktop-smoke ]
+    needs: [ host-tests, switch, desktop-smoke ]
     permissions:
       contents: write
     steps:
@@ -129,4 +171,5 @@ jobs:
             dist/playguard.nro
             dist/playguard.zip
             dist/compat.json
+            dist/build-info.txt
             dist/SHA256SUMS.txt
