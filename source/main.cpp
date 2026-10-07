@@ -10,6 +10,7 @@
 #include "activity/init_error_activity.hpp"
 #include "activity/main_activity.hpp"
 #include "app.hpp"
+#include "tab/activity_tab.hpp"
 #include "tab/clock_tab.hpp"
 #include "tab/dashboard_tab.hpp"
 #include "tab/play_timer_tab.hpp"
@@ -61,6 +62,7 @@ int main(int argc, char* argv[])
     brls::Application::registerXMLView("PtWeekView",      PtWeekView::create);
     brls::Application::registerXMLView("DashboardTab",    DashboardTab::create);
     brls::Application::registerXMLView("PlayTimerTab",    PlayTimerTab::create);
+    brls::Application::registerXMLView("ActivityTab",     ActivityTab::create);
     brls::Application::registerXMLView("RestrictionsTab", RestrictionsTab::create);
     brls::Application::registerXMLView("ClockTab",        ClockTab::create);
     brls::Application::registerXMLView("SecurityTab",     SecurityTab::create);

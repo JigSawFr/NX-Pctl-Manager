@@ -21,7 +21,7 @@ namespace
 {
 std::string line(const std::string& label, const std::string& value)
 {
-    return brls::getStr("playguard/backup/line", label, value);
+    return brls::getStr("playguard/common/line", label, value);
 }
 
 std::string yes_no(bool value)

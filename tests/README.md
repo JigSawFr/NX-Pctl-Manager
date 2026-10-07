@@ -17,6 +17,7 @@ make test
 | `patches/` | `source/util/patches.cpp`: sys-patch `log.ini` parsing, stale logs (other firmware or storage), sigpatch file detection, and the verdict (sys-patch, incomplete, files only, none) on fake SD card trees. |
 | `backup/` | `source/util/backup.cpp`: the settings-backup JSON round trip, values that could not be read left out, every out-of-range or mistyped value refusing the whole file, file naming, newest-first listing and damaged files. Needs the borealis submodule (nlohmann/json). |
 | `duration/` | `source/util/duration.cpp`: duration input (`90`, `1:30`, `2h`, `1h30m`), the 24 h bound and malformed entries (`:30`, `1:60`, `2:001`, `1.5`). |
+| `playlog/` | `source/util/playlog.c`: play time per game from the play-event log: focus / out-of-focus pairs, sessions cut short (HOME menu after a crash, sleep, another game), repeated or stray events, today and 7-day windows across midnight and the week start, steady clock versus a changed user clock, sessions over 24 h dropped, a game still in focus counted until now, the output limit. |
 | `ntp_packet/` | `source/util/ntp_packet.c`: every malformed / unsynchronised NTP reply is rejected; NTP era handling. |
 
 The `pctl_session`, `time_ops` and `ntp_packet` suites started from anbingxi's

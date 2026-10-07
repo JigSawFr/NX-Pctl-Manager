@@ -4,6 +4,7 @@
     "tabs": {
         "dashboard": "Vue d'ensemble",
         "play_timer": "Temps de jeu",
+        "activity": "Activité",
         "restrictions": "Restrictions",
         "clock": "Horloge réseau",
         "security": "Sécurité et appli",
@@ -22,6 +23,7 @@
         "not_set": "Non défini",
         "no_limit": "Pas de limite",
         "zero_minutes": "0 min (pas de jeu)",
+        "line": "{} : {}",
         "minutes": "{} min",
         "hours": "{} h",
         "hours_minutes": "{} h {}",
@@ -245,6 +247,34 @@
         "removed": "Limite de temps de jeu supprimée.",
         "remove_err": "Impossible de supprimer la limite de temps de jeu"
     },
+    "activity": {
+        "section_totals": "Temps de jeu, tous les comptes",
+        "today": "Aujourd'hui",
+        "week": "7 derniers jours",
+        "all_time": "Depuis toujours",
+        "section_games": "Jeux",
+        "period": "Trier par",
+        "periods": {
+            "0": "Aujourd'hui",
+            "1": "7 derniers jours",
+            "2": "Depuis toujours"
+        },
+        "loading": "Lecture des données de jeu de la console…",
+        "none": {
+            "0": "Aucun jeu joué aujourd'hui.",
+            "1": "Aucun jeu joué ces 7 derniers jours.",
+            "2": "Aucun jeu joué pour l'instant."
+        },
+        "err_list": "Impossible de lister les jeux",
+        "err_stats": "Impossible de lire les statistiques de jeu",
+        "err_log": "Impossible de lire le journal d'activité",
+        "deleted_game": "Jeu supprimé ({})",
+        "launches": "Lancements",
+        "first": "Première partie",
+        "last": "Dernière partie",
+        "less_than_minute": "< 1 min",
+        "note": "Lu dans le journal d'activité de la console, pour tous les comptes. Les durées sont approximatives si l'horloge de la console a été modifiée, et PlayGuard ouvert par-dessus un jeu compte comme du temps passé dans ce jeu."
+    },
     "restrictions": {
         "section_level": "Niveau de restriction",
         "level": "Niveau",
@@ -424,7 +454,6 @@
         "credits_line": "Crédits : {}"
     },
     "backup": {
-        "line": "{} : {}",
         "saved": "Réglages sauvegardés : {}",
         "save_err": "Impossible de sauvegarder les réglages",
         "unreadable_console": "les réglages n'ont pas pu être lus",

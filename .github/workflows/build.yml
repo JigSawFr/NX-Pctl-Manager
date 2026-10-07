@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true   # nlohmann/json (bundled with borealis) for the backup tests
-      - name: Unit tests (pctl_ops, time_ops, sysinfo, NTP parser — writable and READ_ONLY)
+      - name: Unit tests (service layer — writable and READ_ONLY — and UI-free helpers)
         run: make test
       - name: Resources (i18n keys, translations, XML layouts)
         run: python3 tools/check_resources.py .

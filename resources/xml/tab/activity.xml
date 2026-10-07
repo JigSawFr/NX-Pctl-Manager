@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Activity: play time per game (today, last 7 days, all time), read from the
+     console's play data for every account. The game cells are added in code. -->
+
+<brls:Box
+    width="auto"
+    height="auto">
+
+    <brls:ScrollingFrame
+        width="auto"
+        height="auto"
+        grow="1.0">
+
+        <brls:Box
+            width="auto"
+            height="auto"
+            axis="column"
+            alignItems="stretch"
+            paddingLeft="@style/brls/tab_frame/content_padding_sides"
+            paddingRight="@style/brls/tab_frame/content_padding_sides"
+            paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
+            paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
+
+            <brls:Header title="@i18n/playguard/activity/section_totals" marginBottom="8"/>
+            <brls:DetailCell id="ac_today" title="@i18n/playguard/activity/today"/>
+            <brls:DetailCell id="ac_week" title="@i18n/playguard/activity/week"/>
+            <brls:Header title="@i18n/playguard/activity/section_games" marginTop="24" marginBottom="8"/>
+            <brls:DetailCell id="ac_period" title="@i18n/playguard/activity/period"/>
+            <brls:Box id="ac_list" width="auto" height="auto" axis="column" alignItems="stretch"/>
+            <brls:Label id="ac_status" text="" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
+            <brls:Label id="ac_note" text="@i18n/playguard/activity/note" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
+
+        </brls:Box>
+
+    </brls:ScrollingFrame>
+
+</brls:Box>

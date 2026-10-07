@@ -2,9 +2,10 @@
 """Headless UI smoke test of the desktop build (simulated backend).
 
 Starts build-desktop/playguard on an X display (Xvfb), opens every tab, the
-extra-time picker, the per-day editor, a dropdown and the settings backup, and
-fails if the app dies on the way (borealis throws on unknown XML attributes,
-missing views, …). Screenshots of each screen are written to the output folder.
+extra-time picker, the per-day editor, a dropdown, the settings backup and a
+game in the Activity tab, and fails if the app dies on the way (borealis throws
+on unknown XML attributes, missing views, …). Screenshots of each screen are
+written to the output folder.
 
 Usage: tools/desktop_smoke.py <out-dir>   (needs DISPLAY, xdotool, ImageMagick)
 Environment knobs of the simulated backend (PLAYGUARD_SIM_*) are passed through.
@@ -72,7 +73,7 @@ else:
     fail("no window after 30 s")
 time.sleep(2)
 
-tabs = ["dashboard", "play_timer", "restrictions", "clock", "security", "tools"]
+tabs = ["dashboard", "play_timer", "activity", "restrictions", "clock", "security", "tools"]
 shot("01_dashboard")
 for i, tab in enumerate(tabs[1:], start=2):
     key("Down")
@@ -100,7 +101,7 @@ shot("23_back")
 
 # Settings backup: save one, open the list and the restore summary (cancelled).
 key("Escape")              # back to the sidebar
-nav("Down", 4)             # Tools & about
+nav("Down", len(tabs) - 2) # Tools & about
 key("Right")
 nav("Down")                # Back up the settings
 key("Return")
@@ -112,6 +113,16 @@ key("Return")
 shot("26_backup_restore")
 key("Escape")
 shot("27_back")
+
+# Activity: one game's details.
+key("Escape")              # back to the sidebar
+nav("Up", len(tabs) - 3)   # Activity
+key("Right")
+nav("Down", 3)             # past Today, Last 7 days and Sort by: the first game
+key("Return")
+shot("28_activity_game")
+key("Escape")
+shot("29_back")
 
 proc.terminate()
 try:

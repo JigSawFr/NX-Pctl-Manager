@@ -4,6 +4,7 @@
     "tabs": {
         "dashboard": "Overview",
         "play_timer": "Play timer",
+        "activity": "Activity",
         "restrictions": "Restrictions",
         "clock": "Network clock",
         "security": "Security & app",
@@ -22,6 +23,7 @@
         "not_set": "Not set",
         "no_limit": "No limit",
         "zero_minutes": "0 min (no play)",
+        "line": "{}: {}",
         "minutes": "{} min",
         "hours": "{} h",
         "hours_minutes": "{} h {}",
@@ -245,6 +247,34 @@
         "removed": "Play-time limit removed.",
         "remove_err": "Could not remove the play-time limit"
     },
+    "activity": {
+        "section_totals": "Play time, all accounts",
+        "today": "Today",
+        "week": "Last 7 days",
+        "all_time": "All time",
+        "section_games": "Games",
+        "period": "Sort by",
+        "periods": {
+            "0": "Today",
+            "1": "Last 7 days",
+            "2": "All time"
+        },
+        "loading": "Reading the console's play data…",
+        "none": {
+            "0": "No game played today.",
+            "1": "No game played in the last 7 days.",
+            "2": "No game played yet."
+        },
+        "err_list": "Could not list the games",
+        "err_stats": "Could not read the play statistics",
+        "err_log": "Could not read the activity log",
+        "deleted_game": "Deleted game ({})",
+        "launches": "Launches",
+        "first": "First played",
+        "last": "Last played",
+        "less_than_minute": "< 1 min",
+        "note": "Read from the console's activity log, for every account. Times are approximate if the console clock was changed, and PlayGuard opened over a game counts as time in that game."
+    },
     "restrictions": {
         "section_level": "Restriction level",
         "level": "Level",
@@ -424,7 +454,6 @@
         "credits_line": "Credits: {}"
     },
     "backup": {
-        "line": "{}: {}",
         "saved": "Settings backed up: {}",
         "save_err": "Could not back up the settings",
         "unreadable_console": "the settings could not be read",
