@@ -189,6 +189,54 @@ static void test_ownership(void)
     assert(model.exit_calls == 2 && model.refs == 0);
 }
 
+/* The Overview's read: one session, 1006 once, nothing it does not show. */
+static void test_overview(void)
+{
+    PctlStatus s;
+    PtState st;
+
+    reset();
+    model.unlocked = true;
+    pctl_overview_fetch(&s, &st);
+    assert(model.init_calls == 1 && model.exit_calls == 1 && model.refs == 0 && model.writes == 0);
+    assert(s.session_rc == 0 && s.safety_level_ok && s.pin_length_ok && s.restriction_enabled_ok);
+    assert(s.temp_unlocked_ok && s.temp_unlocked && s.pairing_active_ok);
+    assert(!s.rating_org_ok && !s.free_comm_count_ok && !s.last_updated_ok && !s.settings_ok && !s.stereo_vision_ok);
+    assert(st.fw_supported && st.session_valid && st.valid && st.enabled_valid && st.restricted_valid);
+    assert(st.temporary_unlocked_valid && st.temporary_unlocked && st.remaining_valid);
+    assert(st.day_min[0] == 0 && st.day_min[6] == 180 && st.bedtime_valid && st.bedtime_hour == 21);
+    assert(!st.alarm_disabled_valid && !st.bedtime_reset_valid);
+    /* status 5 + play timer 3 + 145601 + bedtime 3, against 10 + 1 + 13 in two sessions */
+    assert(model.ipc_calls == 12);
+
+    /* The same values as the two full reads. */
+    PctlStatus full_s;
+    PtState full_pt;
+    pctl_status_fetch(&full_s);
+    pctl_play_timer_query(&full_pt);
+    assert(full_s.safety_level == s.safety_level && full_s.pin_length == s.pin_length);
+    assert(full_pt.remaining_ns == st.remaining_ns && memcmp(full_pt.day_min, st.day_min, sizeof(st.day_min)) == 0);
+    assert(full_pt.temporary_unlocked == st.temporary_unlocked && model.refs == 0);
+
+    /* Below 21.0.0: the status only, no play-timer IPC. */
+    reset_with(MAKEHOSVERSION(20, 5, 0));
+    pctl_overview_fetch(&s, &st);
+    assert(s.safety_level_ok && !st.fw_supported && !st.session_valid && model.ipc_calls == 5 && model.refs == 0);
+
+    /* No session: nothing read, nothing left open. */
+    reset();
+    model.fail_init_call = 1;
+    pctl_overview_fetch(&s, &st);
+    assert(s.session_rc == MOCK_ERROR && st.session_rc == MOCK_ERROR && !st.session_valid);
+    assert(model.ipc_calls == 0 && model.refs == 0);
+
+    /* 1006 failing: neither copy claims to know. */
+    reset();
+    model.fail_command = 1006;
+    pctl_overview_fetch(&s, &st);
+    assert(!s.temp_unlocked_ok && !st.temporary_unlocked_valid && st.valid && model.refs == 0);
+}
+
 static void test_reads(void)
 {
     PtState st;
@@ -559,6 +607,7 @@ int main(void)
 {
     test_ownership();
     test_reads();
+    test_overview();
     test_write_gate();
     test_block_preserved();
     test_unlock_and_relock();

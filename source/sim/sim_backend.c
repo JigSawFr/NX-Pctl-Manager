@@ -207,6 +207,20 @@ void pctl_dump(char *buf, size_t n)
 }
 
 // ---------------------------------------------------------------- time
+void pctl_overview_fetch(PctlStatus *s, PtState *pt)
+{
+    pctl_status_fetch(s);
+    pctl_play_timer_query(pt);
+}
+
+Result time_network_accuracy(bool *accurate)
+{
+    TimeSnapshot s;
+    time_clock_snapshot(&s);
+    *accurate = s.accuracy;
+    return s.accuracy_rc;
+}
+
 void time_clock_snapshot(TimeSnapshot *o)
 {
     memset(o, 0, sizeof(*o));

@@ -6,6 +6,7 @@
 #include "tab/tab_base.hpp"
 #include "util/config.hpp"
 #include "util/duration.hpp"
+#include "util/paths.hpp"
 
 #include <ctime>
 #include <fmt/format.h>
@@ -334,6 +335,21 @@ std::string serial_text(const SysInfo& info, bool reveal)
     std::string masked = s.substr(0, 7);
     for (size_t i = 7; i + 2 < s.size(); i++) masked += "•";
     return masked + s.substr(s.size() - 2);
+}
+
+const patches::Report& patch_report()
+{
+    static bool read = false;
+    static patches::Report report;
+    if (!read) {
+        SysInfo si;
+        sysinfo_get(&si);
+        char fw[16];
+        sysinfo_version_string(si.hos_version, fw, sizeof(fw));
+        report = patches::detect(paths::sd_root(), fw, si.emummc);
+        read = true;
+    }
+    return report;
 }
 
 bool patches_warning(const patches::Report& report)

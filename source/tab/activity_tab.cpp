@@ -18,6 +18,17 @@ namespace
 // reuses the last read instead of walking the activity log again.
 constexpr auto MAX_AGE = std::chrono::seconds(60);
 
+// Shared by every ActivityTab: borealis rebuilds the tab each time the sidebar
+// reaches it, the data (a walk through the whole play log) is not re-read.
+// UI thread only.
+struct
+{
+    std::shared_ptr<PlayStats> stats;   // last read; null before the first
+    std::chrono::steady_clock::time_point read_at;
+    bool busy = false;                  // a read is queued or running
+    ActivityTab* shown = nullptr;       // the tab on screen, if any
+} s_cache;
+
 uint64_t value_of(const GameStat& g, int period)
 {
     switch (period) {
@@ -62,34 +73,40 @@ ActivityTab::ActivityTab()
         this->export_to_sd();
         return true;
     });
+    s_cache.shown = this;
     this->rebuild();
+}
+
+ActivityTab::~ActivityTab()
+{
+    if (s_cache.shown == this) s_cache.shown = nullptr;
 }
 
 void ActivityTab::refresh()
 {
-    if (this->stats && std::chrono::steady_clock::now() - this->read_at < MAX_AGE) return;
+    if (s_cache.stats && std::chrono::steady_clock::now() - s_cache.read_at < MAX_AGE) return;
     this->fetch();
 }
 
 void ActivityTab::fetch()
 {
-    if (this->busy) return;
-    this->busy = true;
-    if (!this->stats) {
+    // Only one read at a time: its result goes to whichever Activity tab is on
+    // screen when it ends.
+    if (s_cache.busy || !s_cache.stats) {
         status->setText("playguard/activity/loading"_i18n);
         status->setTextColor(ui::color_note());
         ui::set_visible(status, true);
     }
-    std::weak_ptr<bool> weak = this->alive;
-    brls::async([this, weak]() {
+    if (s_cache.busy) return;
+    s_cache.busy = true;
+    brls::async([]() {
         auto data = std::make_shared<PlayStats>();
         playstats_fetch(data.get());
-        brls::sync([this, weak, data]() {
-            if (weak.expired()) return;   // the tab was closed meanwhile
-            this->busy    = false;
-            this->stats   = data;
-            this->read_at = std::chrono::steady_clock::now();
-            this->rebuild();
+        brls::sync([data]() {
+            s_cache.busy    = false;
+            s_cache.stats   = data;
+            s_cache.read_at = std::chrono::steady_clock::now();
+            if (s_cache.shown) s_cache.shown->rebuild();
         });
     });
 }
@@ -97,8 +114,8 @@ void ActivityTab::fetch()
 void ActivityTab::rebuild()
 {
     sort->setDetailText(brls::getStr(fmt::format("playguard/activity/periods/{}", this->period)));
-    if (!this->stats) return;
-    const PlayStats& s = *this->stats;
+    if (!s_cache.stats) return;
+    const PlayStats& s = *s_cache.stats;
     const std::string na = "playguard/common/unavailable"_i18n;
 
     uint64_t today_total = 0, week_total = 0;
@@ -157,7 +174,7 @@ void ActivityTab::rebuild()
 void ActivityTab::show_details(const GameStat& g) const
 {
     std::string text = game_name(g) + "\n";
-    if (this->stats && this->stats->windows_ok) {
+    if (s_cache.stats && s_cache.stats->windows_ok) {
         text += line("playguard/activity/today"_i18n, ui::fmt_play_time(g.today_s));
         text += line("playguard/activity/week"_i18n, ui::fmt_play_time(g.week_s));
     }
@@ -174,13 +191,13 @@ void ActivityTab::show_details(const GameStat& g) const
 // numbers, so a spreadsheet can add them up.
 void ActivityTab::export_to_sd() const
 {
-    if (!this->stats) {
+    if (!s_cache.stats) {
         ui::notify("playguard/activity/export_not_ready"_i18n);
         return;
     }
     std::vector<std::string> labels;
     for (int f = 0; f < 4; f++) labels.push_back(brls::getStr(fmt::format("playguard/activity/formats/{}", f)));
-    const std::shared_ptr<PlayStats> data = this->stats;
+    const std::shared_ptr<PlayStats> data = s_cache.stats;
     const int p = this->period;
     ui::pick("playguard/activity/export_title"_i18n, labels, 0, [data, p](int index) {
         const PlayStats& s = *data;

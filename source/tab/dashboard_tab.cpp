@@ -49,12 +49,6 @@ DashboardTab::DashboardTab()
     link(compat, ui::tab::tools);
     link(serial, ui::tab::tools);
     link(game_patches, ui::tab::tools);
-
-    SysInfo si;
-    sysinfo_get(&si);
-    char fw_str[16];
-    sysinfo_version_string(si.hos_version, fw_str, sizeof(fw_str));
-    this->patch_report = patches::detect(paths::sd_root(), fw_str, si.emummc);
 }
 
 void DashboardTab::open_today_limit()
@@ -75,12 +69,13 @@ void DashboardTab::refresh()
 {
     const std::string na = "playguard/common/unavailable"_i18n;
 
+    // Every 5 s: one pctl session with only what this screen shows, and the
+    // network clock's accuracy flag alone.
     PctlStatus s;
-    pctl_status_fetch(&s);
-    pctl_play_timer_query(&this->pt);
+    pctl_overview_fetch(&s, &this->pt);
     const PtState& pt = this->pt;
-    TimeSnapshot ts;
-    time_clock_snapshot(&ts);
+    bool accurate = false;
+    const Result accuracy_rc = time_network_accuracy(&accurate);
     SysInfo si;
     sysinfo_get(&si);
 
@@ -169,12 +164,12 @@ void DashboardTab::refresh()
     level->setDetailText(s.safety_level_ok ? ui::level_name(s.safety_level) : na);
 
     // System: only what needs attention stands out.
-    if (R_FAILED(ts.accuracy_rc)) {
+    if (R_FAILED(accuracy_rc)) {
         clock->setDetailText(na);
         clock->setDetailTextColor(ui::color_neutral());
     } else {
-        clock->setDetailText(ts.accuracy ? "playguard/dashboard/clock_ok"_i18n : "playguard/dashboard/clock_bad"_i18n);
-        clock->setDetailTextColor(ts.accuracy ? ui::color_ok() : ui::color_warn());
+        clock->setDetailText(accurate ? "playguard/dashboard/clock_ok"_i18n : "playguard/dashboard/clock_bad"_i18n);
+        clock->setDetailTextColor(accurate ? ui::color_ok() : ui::color_warn());
     }
     const bool paired = s.pairing_active_ok && s.pairing_active;
     pairing->setDetailText(ui::bool_text(s.pairing_active_ok, s.pairing_active,
@@ -192,11 +187,12 @@ void DashboardTab::refresh()
 
     // Serial number visible on emuMMC, sigpatch files only or sys-patch incomplete.
     const bool serial_issue  = ui::serial_warning(si);
-    const bool patches_issue = ui::patches_warning(this->patch_report);
+    const patches::Report& patch_report = ui::patch_report();
+    const bool patches_issue = ui::patches_warning(patch_report);
     serial->setDetailText("playguard/dashboard/serial_visible"_i18n);
     serial->setDetailTextColor(ui::color_warn());
     c = ui::color_neutral();
-    game_patches->setDetailText(ui::patches_text(this->patch_report, &c));
+    game_patches->setDetailText(ui::patches_text(patch_report, &c));
     game_patches->setDetailTextColor(c);
 
     // When the values were last read (X refreshes now, the timer every 5 s).

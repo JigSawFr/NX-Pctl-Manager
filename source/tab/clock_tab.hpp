@@ -9,6 +9,7 @@
 #include <string>
 
 #include "tab/tab_base.hpp"
+#include "util/pctl_ops_c.hpp"
 
 class ClockTab : public TabBase
 {
@@ -32,6 +33,11 @@ class ClockTab : public TabBase
     std::shared_ptr<bool> alive = std::make_shared<bool>(true);
     bool busy = false;
     bool autosync_off = false;   // "Synchronise Clock via Internet" read as off
+    // The tab ticks every second; the clocks are read every SNAPSHOT_EVERY and
+    // moved forward by the steady clock in between (a snapshot is ~16 IPCs).
+    TimeSnapshot snap = {};
+    std::chrono::steady_clock::time_point snap_at;
+    bool snap_ok = false;
     std::string region_id;
     std::string server;
     Measurement last;

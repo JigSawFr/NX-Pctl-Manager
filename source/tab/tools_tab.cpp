@@ -190,7 +190,7 @@ void ToolsTab::refresh()
     theme->setDetailText(brls::getStr("playguard/tools/themes/" + std::string(THEMES[index_of(THEMES, cfg.theme)])));
     advanced->setOn(cfg.advanced, false);
     auto_relock->setOn(cfg.auto_relock, false);
-    const size_t backups = backup::list().size();
+    const size_t backups = backup_flow::count();
     backup_restore->setDetailText(backups ? brls::getStr("playguard/tools/backup_count", (int)backups) : "");
 
     SysInfo si;
@@ -226,7 +226,7 @@ void ToolsTab::refresh()
                                                                    : "playguard/tools/serial_show"_i18n);
     brls::Application::getGlobalHintsUpdateEvent()->fire();   // redraw the footer hints
 
-    const patches::Report report = patches::detect(paths::sd_root(), fwv, si.emummc);
+    const patches::Report& report = ui::patch_report();
     c = ui::color_neutral();
     game_patches->setDetailText(ui::patches_text(report, &c));
     game_patches->setDetailTextColor(c);

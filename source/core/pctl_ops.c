@@ -126,18 +126,18 @@ static Result run_simple(u32 cmd)
 
 // ---------------------------------------------------------------- status
 
-void pctl_status_fetch(PctlStatus *out)
+// The fields every screen needs; status_read_rest adds the others.
+static void status_read_core(Service *srv, PctlStatus *out)
 {
-    memset(out, 0, sizeof(*out));
-    out->session_rc = pctl_ops_init();
-    if (R_FAILED(out->session_rc)) return;
-    Service *srv = pctlGetServiceSession_Service();
-
     out->safety_level_ok        = R_SUCCEEDED(rd_u32 (srv, 1032, &out->safety_level));
     out->pin_length_ok          = R_SUCCEEDED(rd_u32 (srv, 1206, &out->pin_length));
     out->restriction_enabled_ok = R_SUCCEEDED(rd_bool(srv, 1031, &out->restriction_enabled));
     out->temp_unlocked_ok       = R_SUCCEEDED(rd_bool(srv, 1006, &out->temp_unlocked));
     out->pairing_active_ok      = R_SUCCEEDED(rd_bool(srv, 1403, &out->pairing_active));
+}
+
+static void status_read_rest(Service *srv, PctlStatus *out)
+{
     out->rating_org_ok          = R_SUCCEEDED(rd_u32 (srv, 1037, &out->rating_org));
     out->free_comm_count_ok     = R_SUCCEEDED(rd_u32 (srv, 1039, &out->free_comm_count));
     out->last_updated_ok        = R_SUCCEEDED(rd_u64 (srv, 1406, &out->last_updated));
@@ -151,7 +151,16 @@ void pctl_status_fetch(PctlStatus *out)
     }
     if (hosversionAtLeast(4, 0, 0))
         out->stereo_vision_ok = R_SUCCEEDED(rd_bool(srv, 1062, &out->stereo_vision_restricted));
+}
 
+void pctl_status_fetch(PctlStatus *out)
+{
+    memset(out, 0, sizeof(*out));
+    out->session_rc = pctl_ops_init();
+    if (R_FAILED(out->session_rc)) return;
+    Service *srv = pctlGetServiceSession_Service();
+    status_read_core(srv, out);
+    status_read_rest(srv, out);
     pctl_ops_exit();
 }
 
@@ -395,27 +404,23 @@ static void pt_encode(u16 c[PT_U16_COUNT], const u16 days_min[7])
     }
 }
 
-void pctl_play_timer_query(PtState *out)
+static void pt_init(PtState *out)
 {
     memset(out, 0, sizeof(*out));
     for (int n = 0; n < 7; n++) out->day_min[n] = PT_DAY_NOLIMIT;
     out->fw_supported = pt_fw_supported();
-    if (!out->fw_supported) return;
+}
 
-    out->session_rc = pctl_ops_reinit();
-    if (R_FAILED(out->session_rc)) return;
-    out->session_valid = true;
-    Service *srv = pctlGetServiceSession_Service();
-
+// Everything but 1006 (the caller reads or copies it), 1458 and the bedtime
+// reset time (1958/1959), which only the Play timer tab shows.
+static void pt_read_core(Service *srv, PtState *out)
+{
     out->enabled_rc = rd_bool(srv, 1453, &out->enabled);
     out->enabled_valid = R_SUCCEEDED(out->enabled_rc);
     out->restricted_rc = rd_bool(srv, 1455, &out->restricted);
     out->restricted_valid = R_SUCCEEDED(out->restricted_rc);
-    out->temporary_unlocked_rc = rd_bool(srv, 1006, &out->temporary_unlocked);
-    out->temporary_unlocked_valid = R_SUCCEEDED(out->temporary_unlocked_rc);
     out->remaining_rc = rd_u64(srv, 1454, &out->remaining_ns);
     out->remaining_valid = R_SUCCEEDED(out->remaining_rc);
-    out->alarm_disabled_valid = R_SUCCEEDED(rd_bool(srv, 1458, &out->alarm_disabled));
 
     u16 c[PT_U16_COUNT];
     memset(c, 0, sizeof(c));
@@ -435,11 +440,55 @@ void pctl_play_timer_query(PtState *out)
         out->bedtime_hour = h;
         out->bedtime_minute = m;
     }
+}
+
+static void pt_read_rest(Service *srv, PtState *out)
+{
+    out->alarm_disabled_valid = R_SUCCEEDED(rd_bool(srv, 1458, &out->alarm_disabled));
+    u8 h = 0, m = 0;
     if (hosversionAtLeast(20, 0, 0) && R_SUCCEEDED(rd_u8(srv, 1958, &h)) &&
         R_SUCCEEDED(rd_u8(srv, 1959, &m)) && h < 24 && m < 60) {
         out->bedtime_reset_valid = true;
         out->bedtime_reset_hour = h;
         out->bedtime_reset_minute = m;
+    }
+}
+
+void pctl_play_timer_query(PtState *out)
+{
+    pt_init(out);
+    if (!out->fw_supported) return;
+
+    out->session_rc = pctl_ops_reinit();
+    if (R_FAILED(out->session_rc)) return;
+    out->session_valid = true;
+    Service *srv = pctlGetServiceSession_Service();
+    out->temporary_unlocked_rc = rd_bool(srv, 1006, &out->temporary_unlocked);
+    out->temporary_unlocked_valid = R_SUCCEEDED(out->temporary_unlocked_rc);
+    pt_read_core(srv, out);
+    pt_read_rest(srv, out);
+    pctl_ops_exit();
+}
+
+void pctl_overview_fetch(PctlStatus *status, PtState *pt)
+{
+    memset(status, 0, sizeof(*status));
+    pt_init(pt);
+    status->session_rc = pctl_ops_reinit();
+    if (R_FAILED(status->session_rc)) {
+        pt->session_rc = status->session_rc;
+        return;
+    }
+    Service *srv = pctlGetServiceSession_Service();
+    status_read_core(srv, status);
+    if (pt->fw_supported) {
+        pt->session_rc = status->session_rc;
+        pt->session_valid = true;
+        // 1006 was just read for the status: the same answer.
+        pt->temporary_unlocked_valid = status->temp_unlocked_ok;
+        pt->temporary_unlocked = status->temp_unlocked;
+        pt->temporary_unlocked_rc = status->temp_unlocked_ok ? 0 : NXM_RC_STATE_UNKNOWN;
+        pt_read_core(srv, pt);
     }
     pctl_ops_exit();
 }

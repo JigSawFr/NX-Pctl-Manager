@@ -87,6 +87,10 @@ std::string blank_text(const SysInfo& info, NVGcolor* color = nullptr);
 // As the system sees it; `reveal` false masks the middle ("XAW1000•••••01").
 std::string serial_text(const SysInfo& info, bool reveal);
 bool        patches_warning(const patches::Report& report);
+// The game-patch report of this boot, read from the SD card once per run (it
+// only changes with a reboot): the Overview and Tools no longer rescan it
+// each time they are opened.
+const patches::Report& patch_report();
 std::string patches_text(const patches::Report& report, NVGcolor* color = nullptr);
 // Explanation under the Game patches line ("" when there is nothing to say);
 // *warn tells whether it is a warning (amber) or a plain note.

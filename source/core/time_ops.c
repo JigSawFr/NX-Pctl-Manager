@@ -63,6 +63,20 @@ void time_clock_snapshot(TimeSnapshot *out)
     serviceClose(&root);
 }
 
+Result time_network_accuracy(bool *accurate)
+{
+    *accurate = false;
+    Service root = {0};
+    Result rc = smGetService(&root, "time:s");
+    if (R_SUCCEEDED(rc)) {
+        u8 b = 0;
+        rc = serviceDispatchOut(&root, 200, b);
+        if (R_SUCCEEDED(rc)) *accurate = b != 0;
+    }
+    serviceClose(&root);
+    return rc;
+}
+
 void time_clock_apply(u64 utc_seconds, TimeApply *out)
 {
     memset(out, 0, sizeof(*out));

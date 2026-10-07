@@ -19,6 +19,7 @@ using namespace brls::literals;
 namespace
 {
 constexpr int64_t SAMPLE_LIFETIME_S = 120;
+constexpr auto SNAPSHOT_EVERY = std::chrono::seconds(10);
 
 std::string region_label(const std::string& id)
 {
@@ -75,15 +76,27 @@ ClockTab::ClockTab()
     apply_cell->registerClickAction([this](brls::View*) { this->apply(); return true; });
     // Clocks tick and a measurement expires: keep the screen current.
     this->enable_auto_refresh(1000);
+    // Ⓧ reads the clocks again at once (the timer moves them forward between reads).
+    this->registerAction("playguard/hints/refresh"_i18n, brls::BUTTON_X, [this](brls::View*) {
+        this->snap_ok = false;
+        this->refresh();
+        return true;
+    });
 }
 
 void ClockTab::refresh()
 {
-    TimeSnapshot s;
-    time_clock_snapshot(&s);
+    const auto now = std::chrono::steady_clock::now();
+    if (!this->snap_ok || now - this->snap_at >= SNAPSHOT_EVERY || now < this->snap_at) {
+        time_clock_snapshot(&this->snap);
+        this->snap_at = now;
+        this->snap_ok = true;
+    }
+    const TimeSnapshot& s = this->snap;
+    const uint64_t ticked = (uint64_t)std::chrono::duration_cast<std::chrono::seconds>(now - this->snap_at).count();
     const std::string na = "playguard/common/unavailable"_i18n;
-    user->setDetailText(R_SUCCEEDED(s.user_rc) ? ui::time_text(s.user_time) : na);
-    network->setDetailText(R_SUCCEEDED(s.network_rc) ? ui::time_text(s.network_time) : na);
+    user->setDetailText(R_SUCCEEDED(s.user_rc) ? ui::time_text(s.user_time + ticked) : na);
+    network->setDetailText(R_SUCCEEDED(s.network_rc) ? ui::time_text(s.network_time + ticked) : na);
     accuracy->setDetailText(ui::bool_text(R_SUCCEEDED(s.accuracy_rc), s.accuracy,
                                           "playguard/common/yes"_i18n, "playguard/common/no"_i18n));
     accuracy->setDetailTextColor(R_SUCCEEDED(s.accuracy_rc) ? (s.accuracy ? ui::color_ok() : ui::color_warn())
@@ -310,6 +323,7 @@ void ClockTab::write_clock(const std::string& before)
 
     this->last = Measurement{};
     this->result->setText(message);
+    this->snap_ok = false;   // the network clock just changed: read it again
     this->refresh();
     ui::info(message);
 }

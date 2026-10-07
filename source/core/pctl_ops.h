@@ -102,6 +102,12 @@ typedef struct {
 
 void pctl_play_timer_query(PtState *out);
 
+// The Overview's periodic read, in one session: of PctlStatus only safety
+// level, PIN length, restriction enabled, temporarily unlocked and pairing;
+// of PtState everything but the alarm flag (1458) and the bedtime reset time
+// (1958/1959). 1006 is read once for both. What is not read stays *_ok false.
+void pctl_overview_fetch(PctlStatus *status, PtState *pt);
+
 // days_min[0]=Sunday .. [6]=Saturday. If every day is PT_DAY_NOLIMIT the timer is
 // turned off. Re-checks 1453/1455/1006 in its own session right before writing
 // and refuses (NXM_RC_WRITE_GATED) when the timer is active and not unlocked.
