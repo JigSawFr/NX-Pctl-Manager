@@ -21,24 +21,24 @@
             paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
             paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
 
-            <brls:Header title="@i18n/nx_pctl/dashboard/section_status" marginBottom="8"/>
-            <brls:DetailCell id="dash_pc" title="@i18n/nx_pctl/dashboard/pc"/>
-            <brls:DetailCell id="dash_pin" title="@i18n/nx_pctl/dashboard/pin"/>
-            <brls:DetailCell id="dash_level" title="@i18n/nx_pctl/dashboard/level"/>
-            <brls:Header title="@i18n/nx_pctl/dashboard/section_today" marginTop="24" marginBottom="8"/>
+            <brls:Header title="@i18n/playguard/dashboard/section_status" marginBottom="8"/>
+            <brls:DetailCell id="dash_pc" title="@i18n/playguard/dashboard/pc"/>
+            <brls:DetailCell id="dash_pin" title="@i18n/playguard/dashboard/pin"/>
+            <brls:DetailCell id="dash_level" title="@i18n/playguard/dashboard/level"/>
+            <brls:Header title="@i18n/playguard/dashboard/section_today" marginTop="24" marginBottom="8"/>
             <brls:Box axis="column" alignItems="stretch" marginTop="8" marginBottom="12" paddingLeft="16" paddingRight="16">
                 <PtGauge id="dash_gauge" width="auto" height="14"/>
                 <brls:Label id="dash_gauge_text" text="" marginTop="8"/>
             </brls:Box>
             <brls:DetailCell id="dash_today_limit"/>
-            <brls:DetailCell id="dash_remaining" title="@i18n/nx_pctl/dashboard/remaining"/>
-            <brls:DetailCell id="dash_bedtime" title="@i18n/nx_pctl/dashboard/bedtime"/>
-            <brls:Header title="@i18n/nx_pctl/dashboard/section_system" marginTop="24" marginBottom="8"/>
-            <brls:DetailCell id="dash_clock" title="@i18n/nx_pctl/dashboard/clock"/>
-            <brls:DetailCell id="dash_pairing" title="@i18n/nx_pctl/dashboard/pairing"/>
-            <brls:DetailCell id="dash_fw" title="@i18n/nx_pctl/dashboard/firmware"/>
-            <brls:DetailCell id="dash_compat" title="@i18n/nx_pctl/dashboard/compat"/>
-            <brls:Label id="dash_hint" text="@i18n/nx_pctl/dashboard/hint" fontSize="16" marginTop="10" marginBottom="6" textColor="@theme/brls/header/subtitle"/>
+            <brls:DetailCell id="dash_remaining" title="@i18n/playguard/dashboard/remaining"/>
+            <brls:DetailCell id="dash_bedtime" title="@i18n/playguard/dashboard/bedtime"/>
+            <brls:Header title="@i18n/playguard/dashboard/section_system" marginTop="24" marginBottom="8"/>
+            <brls:DetailCell id="dash_clock" title="@i18n/playguard/dashboard/clock"/>
+            <brls:DetailCell id="dash_pairing" title="@i18n/playguard/dashboard/pairing"/>
+            <brls:DetailCell id="dash_fw" title="@i18n/playguard/dashboard/firmware"/>
+            <brls:DetailCell id="dash_compat" title="@i18n/playguard/dashboard/compat"/>
+            <brls:Label id="dash_hint" text="@i18n/playguard/dashboard/hint" fontSize="16" marginTop="10" marginBottom="6" textColor="@theme/brls/header/subtitle"/>
 
         </brls:Box>
 

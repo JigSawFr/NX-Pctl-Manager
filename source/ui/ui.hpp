@@ -13,10 +13,14 @@
 namespace ui
 {
 
-// Colours used for status values (kept readable in both themes).
+// Status colours from the PlayGuard palette, one shade per theme (>= 4.5:1).
+// register_theme_colors() must run before the first lookup (borealis aborts
+// on an unknown theme key).
+void     register_theme_colors();
 NVGcolor color_ok();
 NVGcolor color_warn();
 NVGcolor color_bad();
+NVGcolor color_track();     // empty part of the play-time gauge
 NVGcolor color_neutral();   // DetailCell value colour
 NVGcolor color_text();      // plain label text colour
 

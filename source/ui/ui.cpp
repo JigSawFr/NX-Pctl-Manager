@@ -10,9 +10,26 @@ using namespace brls::literals;
 namespace ui
 {
 
-NVGcolor color_ok()      { return nvgRGB(46, 184, 108); }
-NVGcolor color_warn()    { return nvgRGB(230, 150, 30); }
-NVGcolor color_bad()     { return nvgRGB(230, 70, 70); }
+void register_theme_colors()
+{
+    // PlayGuard brand teal / amber, darkened on the light theme so every status
+    // value keeps a contrast of at least 4.5:1 on the borealis backgrounds.
+    auto& light = brls::Theme::getLightTheme();
+    light.addColor("brand/ok", nvgRGB(0x0A, 0x6E, 0x5C));
+    light.addColor("brand/warn", nvgRGB(0x8A, 0x52, 0x00));
+    light.addColor("brand/bad", nvgRGB(0xB7, 0x1C, 0x1C));
+    light.addColor("brand/gauge_track", nvgRGBA(0, 0, 0, 34));
+    auto& dark = brls::Theme::getDarkTheme();
+    dark.addColor("brand/ok", nvgRGB(0x2E, 0xC4, 0xA6));
+    dark.addColor("brand/warn", nvgRGB(0xFF, 0xB5, 0x47));
+    dark.addColor("brand/bad", nvgRGB(0xFF, 0x7A, 0x7A));
+    dark.addColor("brand/gauge_track", nvgRGBA(255, 255, 255, 46));
+}
+
+NVGcolor color_ok()      { return brls::Application::getTheme()["brand/ok"]; }
+NVGcolor color_warn()    { return brls::Application::getTheme()["brand/warn"]; }
+NVGcolor color_bad()     { return brls::Application::getTheme()["brand/bad"]; }
+NVGcolor color_track()   { return brls::Application::getTheme()["brand/gauge_track"]; }
 NVGcolor color_neutral() { return brls::Application::getTheme()["brls/list/listItem_value_color"]; }
 NVGcolor color_text()    { return brls::Application::getTheme()["brls/text"]; }
 
@@ -20,23 +37,23 @@ static std::string hint_for(Result rc)
 {
     if (NXM_IS_APP_RESULT(rc)) {
         switch (NXM_RESULT_DESC(rc)) {
-            case 1: return "nx_pctl/error/read_only"_i18n;
-            case 2: return "nx_pctl/error/write_gated"_i18n;
-            case 3: return "nx_pctl/error/fw_unsupported"_i18n;
-            case 4: return "nx_pctl/error/unlock_not_effective"_i18n;
-            case 5: return "nx_pctl/error/not_custom"_i18n;
-            case 6: return "nx_pctl/error/invalid_argument"_i18n;
-            case 7: return "nx_pctl/error/autocorrect_off"_i18n;
-            case 8: return "nx_pctl/error/state_unknown"_i18n;
+            case 1: return "playguard/error/read_only"_i18n;
+            case 2: return "playguard/error/write_gated"_i18n;
+            case 3: return "playguard/error/fw_unsupported"_i18n;
+            case 4: return "playguard/error/unlock_not_effective"_i18n;
+            case 5: return "playguard/error/not_custom"_i18n;
+            case 6: return "playguard/error/invalid_argument"_i18n;
+            case 7: return "playguard/error/autocorrect_off"_i18n;
+            case 8: return "playguard/error/state_unknown"_i18n;
             default: return "";
         }
     }
     switch (rc) {
-        case 0xF601: return "nx_pctl/error/session_closed"_i18n;
-        case 0xF80E: return "nx_pctl/error/bad_pin_format"_i18n;
+        case 0xF601: return "playguard/error/session_closed"_i18n;
+        case 0xF80E: return "playguard/error/bad_pin_format"_i18n;
         default: break;
     }
-    if ((rc & 0x1FF) == 142) return "nx_pctl/error/pctl_refused"_i18n;   // pctl module
+    if ((rc & 0x1FF) == 142) return "playguard/error/pctl_refused"_i18n;   // pctl module
     return "";
 }
 
@@ -44,8 +61,8 @@ std::string rc_text(Result rc)
 {
     std::string hint = hint_for(rc);
     std::string code = fmt::format("0x{:08X}", (unsigned)rc);
-    return hint.empty() ? brls::getStr("nx_pctl/error/code", code)
-                        : brls::getStr("nx_pctl/error/code_hint", code, hint);
+    return hint.empty() ? brls::getStr("playguard/error/code", code)
+                        : brls::getStr("playguard/error/code_hint", code, hint);
 }
 
 void notify(const std::string& text)
@@ -101,7 +118,7 @@ void prompt_minutes(const std::string& header, uint16_t current, std::function<v
             if (v > 1440) v = 1440;
             on_value((uint16_t)v);
         },
-        header, "nx_pctl/numpad/guide"_i18n, 4, std::to_string(current));
+        header, "playguard/numpad/guide"_i18n, 4, std::to_string(current));
 }
 
 void prompt_text(const std::string& header, const std::string& initial, int max_len,
@@ -114,11 +131,11 @@ void prompt_text(const std::string& header, const std::string& initial, int max_
 
 std::string fmt_minutes(uint16_t m)
 {
-    if (m == PT_DAY_NOLIMIT) return "nx_pctl/common/no_limit"_i18n;
-    if (m == 0) return "nx_pctl/common/zero_minutes"_i18n;
-    if (m < 60) return brls::getStr("nx_pctl/common/minutes", (int)m);
-    if (m % 60 == 0) return brls::getStr("nx_pctl/common/hours", (int)(m / 60));
-    return brls::getStr("nx_pctl/common/hours_minutes", (int)(m / 60), fmt::format("{:02d}", (int)(m % 60)));
+    if (m == PT_DAY_NOLIMIT) return "playguard/common/no_limit"_i18n;
+    if (m == 0) return "playguard/common/zero_minutes"_i18n;
+    if (m < 60) return brls::getStr("playguard/common/minutes", (int)m);
+    if (m % 60 == 0) return brls::getStr("playguard/common/hours", (int)(m / 60));
+    return brls::getStr("playguard/common/hours_minutes", (int)(m / 60), fmt::format("{:02d}", (int)(m % 60)));
 }
 
 std::string fmt_duration_ns(uint64_t ns)
@@ -131,12 +148,12 @@ std::string fmt_duration_ns(uint64_t ns)
 std::string day_name(int day)
 {
     if (day < 0 || day > 6) return "?";
-    return brls::getStr(fmt::format("nx_pctl/days/{}", day));
+    return brls::getStr(fmt::format("playguard/days/{}", day));
 }
 
 std::string bool_text(bool ok, bool value, const std::string& yes, const std::string& no)
 {
-    if (!ok) return "nx_pctl/common/unavailable"_i18n;
+    if (!ok) return "playguard/common/unavailable"_i18n;
     return value ? yes : no;
 }
 
@@ -168,23 +185,23 @@ std::string compat_text(const SysInfo& info, NVGcolor* color)
     switch (sysinfo_compat(&info)) {
         case SysCompat_Ok:
             if (color) *color = color_ok();
-            return "nx_pctl/compat/ok"_i18n;
+            return "playguard/compat/ok"_i18n;
         case SysCompat_UntestedNewer:
             if (color) *color = color_warn();
-            return brls::getStr("nx_pctl/compat/untested", std::string(tested));
+            return brls::getStr("playguard/compat/untested", std::string(tested));
         case SysCompat_PlayTimerUnsupported:
             if (color) *color = color_warn();
-            return "nx_pctl/compat/too_old"_i18n;
+            return "playguard/compat/too_old"_i18n;
         default:
             if (color) *color = color_bad();
-            return "nx_pctl/compat/not_ams"_i18n;
+            return "playguard/compat/not_ams"_i18n;
     }
 }
 
 std::string level_name(uint32_t level)
 {
     if (level > 4) return "?";
-    return brls::getStr(fmt::format("nx_pctl/restrictions/levels/{}", level));
+    return brls::getStr(fmt::format("playguard/restrictions/levels/{}", level));
 }
 
 std::string time_text(uint64_t posix)

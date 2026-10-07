@@ -22,12 +22,12 @@ constexpr int64_t SAMPLE_LIFETIME_S = 120;
 
 std::string region_label(const std::string& id)
 {
-    return brls::getStr("nx_pctl/clock/region_names/" + id);
+    return brls::getStr("playguard/clock/region_names/" + id);
 }
 
 std::string signed_seconds(int64_t s)
 {
-    return brls::getStr("nx_pctl/clock/seconds", (s > 0 ? "+" : "") + std::to_string(s));
+    return brls::getStr("playguard/clock/seconds", (s > 0 ? "+" : "") + std::to_string(s));
 }
 
 std::string find_region(const std::string& host)
@@ -65,8 +65,8 @@ ClockTab::ClockTab()
     export_cell->registerClickAction([](brls::View*) {
         std::string err;
         std::string path = diagnostic::save(diagnostic::current_report(), &err);
-        if (path.empty()) ui::notify("nx_pctl/toast/diag_err"_i18n + ": " + err);
-        else ui::notify(brls::getStr("nx_pctl/toast/diag_saved", path));
+        if (path.empty()) ui::notify("playguard/toast/diag_err"_i18n + ": " + err);
+        else ui::notify(brls::getStr("playguard/toast/diag_saved", path));
         return true;
     });
     ui::set_visible(apply_cell.getView(), !app::read_only_build());
@@ -76,15 +76,15 @@ void ClockTab::refresh()
 {
     TimeSnapshot s;
     time_clock_snapshot(&s);
-    const std::string na = "nx_pctl/common/unavailable"_i18n;
+    const std::string na = "playguard/common/unavailable"_i18n;
     user->setDetailText(R_SUCCEEDED(s.user_rc) ? ui::time_text(s.user_time) : na);
     network->setDetailText(R_SUCCEEDED(s.network_rc) ? ui::time_text(s.network_time) : na);
     accuracy->setDetailText(ui::bool_text(R_SUCCEEDED(s.accuracy_rc), s.accuracy,
-                                          "nx_pctl/common/yes"_i18n, "nx_pctl/common/no"_i18n));
+                                          "playguard/common/yes"_i18n, "playguard/common/no"_i18n));
     accuracy->setDetailTextColor(R_SUCCEEDED(s.accuracy_rc) ? (s.accuracy ? ui::color_ok() : ui::color_warn())
                                                             : ui::color_neutral());
     autosync->setDetailText(ui::bool_text(R_SUCCEEDED(s.automatic_rc), s.automatic,
-                                          "nx_pctl/common/on"_i18n, "nx_pctl/common/off"_i18n));
+                                          "playguard/common/on"_i18n, "playguard/common/off"_i18n));
     autosync->setDetailTextColor(R_SUCCEEDED(s.automatic_rc) && !s.automatic ? ui::color_warn() : ui::color_neutral());
     zone->setDetailText(R_SUCCEEDED(s.location_rc) && s.location[0] ? std::string(s.location) : na);
 
@@ -111,7 +111,7 @@ void ClockTab::choose_region()
     if (!config::get().custom_servers.empty()) { ids.push_back("custom"); labels.push_back(region_label("custom")); }
     int selected = (int)(std::find(ids.begin(), ids.end(), this->region_id) - ids.begin());
     if (selected >= (int)ids.size()) selected = 0;
-    ui::pick("nx_pctl/clock/region"_i18n, labels, selected, [this, ids](int index) {
+    ui::pick("playguard/clock/region"_i18n, labels, selected, [this, ids](int index) {
         const std::string id = ids[index];
         if (id == "custom") {
             this->set_server(config::get().custom_servers.front(), id);
@@ -132,14 +132,14 @@ void ClockTab::choose_server()
     if (hosts.empty()) return;
     int selected = (int)(std::find(hosts.begin(), hosts.end(), this->server) - hosts.begin());
     if (selected >= (int)hosts.size()) selected = 0;
-    ui::pick("nx_pctl/clock/server"_i18n, hosts, selected, [this, hosts](int index) {
+    ui::pick("playguard/clock/server"_i18n, hosts, selected, [this, hosts](int index) {
         this->set_server(hosts[index], this->region_id);
     });
 }
 
 void ClockTab::enter_custom()
 {
-    ui::prompt_text("nx_pctl/clock/custom_header"_i18n, this->server, 253, [this](std::string host) {
+    ui::prompt_text("playguard/clock/custom_header"_i18n, this->server, 253, [this](std::string host) {
         if (!plausible_host(host)) {
             ui::notify(ui::rc_text(NXM_RC_INVALID_ARGUMENT));
             return;
@@ -155,14 +155,14 @@ void ClockTab::enter_custom()
 void ClockTab::measure()
 {
     if (this->busy) {
-        ui::notify("nx_pctl/clock/busy"_i18n);
+        ui::notify("playguard/clock/busy"_i18n);
         return;
     }
     this->busy = true;
     this->last = Measurement{};
     std::vector<std::string> hosts = { this->server };
     for (auto& h : ntp::cross_check_servers(this->server)) hosts.push_back(h);
-    this->result->setText(brls::getStr("nx_pctl/clock/measuring", this->server));
+    this->result->setText(brls::getStr("playguard/clock/measuring", this->server));
 
     std::weak_ptr<bool> weak = this->alive;
     brls::async([this, weak, hosts]() {
@@ -193,14 +193,14 @@ void ClockTab::measure()
                     int64_t now_est = (int64_t)r.unix_seconds +
                         std::chrono::duration_cast<std::chrono::seconds>(ref - r.received_at).count();
                     std::string diff = R_SUCCEEDED(s.network_rc) ? signed_seconds(now_est - (int64_t)s.network_time) : "?";
-                    text += brls::getStr("nx_pctl/clock/result_line_ok", hosts[i], ui::time_text((uint64_t)now_est), diff);
+                    text += brls::getStr("playguard/clock/result_line_ok", hosts[i], ui::time_text((uint64_t)now_est), diff);
                 } else {
-                    text += brls::getStr("nx_pctl/clock/result_line_err", hosts[i], r.error);
+                    text += brls::getStr("playguard/clock/result_line_err", hosts[i], r.error);
                 }
                 text += "\n";
             }
             if (estimates.empty()) {
-                this->result->setText(text + "nx_pctl/clock/result_none"_i18n);
+                this->result->setText(text + "playguard/clock/result_none"_i18n);
                 return;
             }
             std::sort(estimates.begin(), estimates.end());
@@ -212,8 +212,8 @@ void ClockTab::measure()
             m.server = hosts.front();
             this->last = m;
             std::string diff = R_SUCCEEDED(s.network_rc) ? signed_seconds((int64_t)m.unix_seconds - (int64_t)s.network_time) : "?";
-            text += brls::getStr("nx_pctl/clock/result_summary", ui::time_text(m.unix_seconds), diff);
-            if (m.spread > 5) text += "\n" + brls::getStr("nx_pctl/clock/result_spread", (int)m.spread);
+            text += brls::getStr("playguard/clock/result_summary", ui::time_text(m.unix_seconds), diff);
+            if (m.spread > 5) text += "\n" + brls::getStr("playguard/clock/result_spread", (int)m.spread);
             this->result->setText(text);
         });
     });
@@ -222,33 +222,33 @@ void ClockTab::measure()
 void ClockTab::apply()
 {
     if (!this->last.ok) {
-        ui::info("nx_pctl/clock/need_measure"_i18n);
+        ui::info("playguard/clock/need_measure"_i18n);
         return;
     }
     auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - this->last.at).count();
     if (elapsed < 0 || elapsed > SAMPLE_LIFETIME_S) {
         this->last = Measurement{};
-        ui::info("nx_pctl/clock/expired"_i18n);
+        ui::info("playguard/clock/expired"_i18n);
         return;
     }
     uint64_t preview = this->last.unix_seconds + (uint64_t)elapsed;
     char utc[48];
     time_format_utc(preview, utc, sizeof(utc));
-    std::string body = brls::getStr("nx_pctl/clock/confirm_apply", ui::time_text(preview), std::string(utc));
-    if (this->last.spread > 5) body += brls::getStr("nx_pctl/clock/confirm_apply_spread", (int)this->last.spread);
+    std::string body = brls::getStr("playguard/clock/confirm_apply", ui::time_text(preview), std::string(utc));
+    if (this->last.spread > 5) body += brls::getStr("playguard/clock/confirm_apply_spread", (int)this->last.spread);
 
-    ui::confirm(body, "nx_pctl/clock/apply_confirm"_i18n, [this]() {
+    ui::confirm(body, "playguard/clock/apply_confirm"_i18n, [this]() {
         // A "before" report must be saved first, so the change can be analysed.
         std::string before = diagnostic::current_report();
         std::string err;
         if (diagnostic::save("=== Before network clock change ===\n" + before, &err).empty()) {
-            ui::notify("nx_pctl/clock/report_err"_i18n + ": " + err);
+            ui::notify("playguard/clock/report_err"_i18n + ": " + err);
             return;
         }
         auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - this->last.at).count();
         if (elapsed < 0 || elapsed > SAMPLE_LIFETIME_S) {
             this->last = Measurement{};
-            ui::info("nx_pctl/clock/expired"_i18n);
+            ui::info("playguard/clock/expired"_i18n);
             return;
         }
         const uint64_t target = this->last.unix_seconds + (uint64_t)elapsed;
@@ -256,12 +256,12 @@ void ClockTab::apply()
         time_clock_apply(target, &a);
 
         std::string message;
-        if (a.refused_automatic) message = "nx_pctl/clock/applied_refused"_i18n;
-        else if (!a.write_attempted) message = "nx_pctl/clock/applied_err"_i18n + " — " + ui::rc_text(a.open_rc);
-        else if (R_FAILED(a.write_rc)) message = "nx_pctl/clock/applied_err"_i18n + " — " + ui::rc_text(a.write_rc);
-        else if (!a.verified) message = "nx_pctl/clock/applied_err"_i18n + " — " + ui::rc_text(a.verify_rc);
-        else if (R_FAILED(a.after.accuracy_rc) || !a.after.accuracy) message = "nx_pctl/clock/applied_pending"_i18n;
-        else message = "nx_pctl/clock/applied_ok"_i18n;
+        if (a.refused_automatic) message = "playguard/clock/applied_refused"_i18n;
+        else if (!a.write_attempted) message = "playguard/clock/applied_err"_i18n + " — " + ui::rc_text(a.open_rc);
+        else if (R_FAILED(a.write_rc)) message = "playguard/clock/applied_err"_i18n + " — " + ui::rc_text(a.write_rc);
+        else if (!a.verified) message = "playguard/clock/applied_err"_i18n + " — " + ui::rc_text(a.verify_rc);
+        else if (R_FAILED(a.after.accuracy_rc) || !a.after.accuracy) message = "playguard/clock/applied_pending"_i18n;
+        else message = "playguard/clock/applied_ok"_i18n;
 
         diagnostic::save(fmt::format(
             "=== Network clock change ===\nserver={}\ntarget_utc={}\nopen_rc=0x{:08X} write_attempted={} write_rc=0x{:08X}\n"

@@ -21,11 +21,11 @@
             paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
             paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
 
-            <brls:Header title="@i18n/nx_pctl/pairing/section" marginBottom="8"/>
-            <brls:DetailCell id="pr_active" title="@i18n/nx_pctl/pairing/active"/>
-            <brls:DetailCell id="pr_updated" title="@i18n/nx_pctl/pairing/updated"/>
-            <brls:DetailCell id="pr_unlink" title="@i18n/nx_pctl/pairing/unlink"/>
-            <brls:Label id="pr_note" text="@i18n/nx_pctl/pairing/note" fontSize="16" marginTop="10" marginBottom="6" textColor="@theme/brls/header/subtitle"/>
+            <brls:Header title="@i18n/playguard/pairing/section" marginBottom="8"/>
+            <brls:DetailCell id="pr_active" title="@i18n/playguard/pairing/active"/>
+            <brls:DetailCell id="pr_updated" title="@i18n/playguard/pairing/updated"/>
+            <brls:DetailCell id="pr_unlink" title="@i18n/playguard/pairing/unlink"/>
+            <brls:Label id="pr_note" text="@i18n/playguard/pairing/note" fontSize="16" marginTop="10" marginBottom="6" textColor="@theme/brls/header/subtitle"/>
 
         </brls:Box>
 

@@ -3,9 +3,12 @@
 // Implements pctl_ops.h, time_ops.h and sysinfo.h with in-memory state so the
 // whole borealis UI can be built, navigated and screenshotted on a PC. Never
 // compiled for the Switch. Environment knobs:
-//   NXPM_SIM_FW=20.5.0     pretend to run on another firmware
-//   NXPM_SIM_NO_CFW=1      make pctl_ops_init fail (init error screen)
-//   NXPM_SIM_TIMER_OFF=1   start with no play timer configured
+//   PLAYGUARD_SIM_FW=20.5.0     pretend to run on another firmware
+//   PLAYGUARD_SIM_NO_CFW=1      make pctl_ops_init fail (init error screen)
+//   PLAYGUARD_SIM_TIMER_OFF=1   start with no play timer configured
+//   PLAYGUARD_SIM_UNLOCKED=1    start with parental controls temporarily unlocked
+//   PLAYGUARD_SIM_UNPAIRED=1    start with no companion app linked
+//   PLAYGUARD_SIM_ACCURATE=1    report the network clock as accurate
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
@@ -33,16 +36,17 @@ static void sim_init(void)
     if (S.init) return;
     S.init = true;
     S.hos = MAKEHOSVERSION(23, 0, 1);
-    const char *fw = getenv("NXPM_SIM_FW");
+    const char *fw = getenv("PLAYGUARD_SIM_FW");
     unsigned a, b, c;
     if (fw && sscanf(fw, "%u.%u.%u", &a, &b, &c) == 3) S.hos = MAKEHOSVERSION(a, b, c);
     S.safety_level = PctlSafetyLevel_Child;
     S.pin_length = 4;
     S.restriction_enabled = true;
-    S.pairing_active = true;
+    S.pairing_active = getenv("PLAYGUARD_SIM_UNPAIRED") == NULL;
+    S.temp_unlocked = getenv("PLAYGUARD_SIM_UNLOCKED") != NULL;
     S.custom.rating_age = 12;
     S.custom.sns_post_restriction = true;
-    bool off = getenv("NXPM_SIM_TIMER_OFF") != NULL;
+    bool off = getenv("PLAYGUARD_SIM_TIMER_OFF") != NULL;
     for (int i = 0; i < 7; i++) S.day_min[i] = off ? PT_DAY_NOLIMIT : ((i == 0 || i == 6) ? 180 : 120);
 }
 
@@ -78,7 +82,7 @@ void sysinfo_version_string(u32 v, char *buf, size_t size)
 }
 
 // ---------------------------------------------------------------- pctl
-Result pctl_ops_init(void)   { sim_init(); return getenv("NXPM_SIM_NO_CFW") ? (Result)0x0C15 : 0; }
+Result pctl_ops_init(void)   { sim_init(); return getenv("PLAYGUARD_SIM_NO_CFW") ? (Result)0x0C15 : 0; }
 void   pctl_ops_exit(void)   {}
 Result pctl_ops_reinit(void) { return pctl_ops_init(); }
 
@@ -189,7 +193,7 @@ void time_clock_snapshot(TimeSnapshot *o)
     o->network_time = now + S.clock_offset;
     o->local_time = now;
     o->automatic = true;
-    o->accuracy = S.clock_offset != 0 || getenv("NXPM_SIM_ACCURATE");
+    o->accuracy = S.clock_offset != 0 || getenv("PLAYGUARD_SIM_ACCURATE");
     snprintf(o->location, sizeof(o->location), "Europe/Paris");
 }
 void time_clock_apply(u64 utc, TimeApply *o)

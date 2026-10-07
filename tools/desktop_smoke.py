@@ -7,7 +7,7 @@ the per-day editor and a dropdown, and fails if the app dies on the way
 each screen are written to the output folder.
 
 Usage: tools/desktop_smoke.py <out-dir>   (needs DISPLAY, xdotool, ImageMagick)
-Environment knobs of the simulated backend (NXPM_SIM_*) are passed through.
+Environment knobs of the simulated backend (PLAYGUARD_SIM_*) are passed through.
 """
 import os
 import subprocess

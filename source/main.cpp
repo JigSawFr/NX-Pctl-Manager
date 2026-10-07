@@ -17,6 +17,7 @@
 #include "tab/restrictions_tab.hpp"
 #include "tab/security_tab.hpp"
 #include "tab/tools_tab.hpp"
+#include "ui/ui.hpp"
 #include "util/config.hpp"
 #include "view/pt_gauge.hpp"
 #include "view/pt_state_header.hpp"
@@ -41,13 +42,16 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    brls::Application::createWindow(app::read_only_build() ? "nx_pctl/title_read_only"_i18n : "nx_pctl/title"_i18n);
+    brls::Application::createWindow(app::read_only_build() ? "playguard/title_read_only"_i18n : "playguard/title"_i18n);
 
     // Follows the console theme unless a preference says otherwise.
     if (cfg.theme == "dark")
         brls::Application::getPlatform()->setThemeVariant(brls::ThemeVariant::DARK);
     else if (cfg.theme == "light")
         brls::Application::getPlatform()->setThemeVariant(brls::ThemeVariant::LIGHT);
+
+    // PlayGuard status colours (light / dark variants), before any view exists.
+    ui::register_theme_colors();
 
     // We own the quit path (B on the sidebar / error screen).
     brls::Application::setGlobalQuit(false);

@@ -85,7 +85,7 @@ make READ_ONLY=1 # "PlayGuard Diagnostics" build
 ./run.sh [ip]    # build in the devkitpro/devkita64 Docker image, optionally nxlink to a console
 ```
 
-The desktop build runs the real borealis UI against `source/sim/` (environment knobs: `NXPM_SIM_FW=20.5.0`, `NXPM_SIM_NO_CFW=1`, `NXPM_SIM_TIMER_OFF=1`). `tools/desktop_smoke.py` clicks through every screen headlessly; CI runs it with the unit tests, the resource checks (`tools/check_resources.py`) and the three Switch builds.
+The desktop build runs the real borealis UI against `source/sim/` (environment knobs: `PLAYGUARD_SIM_FW=20.5.0`, `PLAYGUARD_SIM_NO_CFW=1`, `PLAYGUARD_SIM_TIMER_OFF=1`). `tools/desktop_smoke.py` clicks through every screen headlessly; CI runs it with the unit tests, the resource checks (`tools/check_resources.py`) and the three Switch builds.
 
 Branding: `branding/*.svg` (sources), rendered to `icon.jpg` and `images/store/*.png` by `node tools/render_branding.mjs` (Node + Playwright).
 

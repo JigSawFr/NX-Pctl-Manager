@@ -21,16 +21,16 @@
             paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
             paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
 
-            <brls:Header title="@i18n/nx_pctl/security/section_status" marginBottom="8"/>
-            <brls:DetailCell id="sc_pin" title="@i18n/nx_pctl/security/pin"/>
-            <brls:DetailCell id="sc_restrictions" title="@i18n/nx_pctl/security/restrictions"/>
-            <brls:DetailCell id="sc_temp" title="@i18n/nx_pctl/security/temporary"/>
-            <brls:Header id="sc_actions_header" title="@i18n/nx_pctl/security/section_actions" marginTop="24" marginBottom="8"/>
-            <brls:DetailCell id="sc_set_pin" title="@i18n/nx_pctl/security/set_pin"/>
-            <brls:DetailCell id="sc_unlock" title="@i18n/nx_pctl/security/unlock"/>
-            <brls:DetailCell id="sc_relock" title="@i18n/nx_pctl/security/relock"/>
-            <brls:Header id="sc_danger_header" title="@i18n/nx_pctl/security/section_danger" marginTop="24" marginBottom="8"/>
-            <brls:DetailCell id="sc_delete" title="@i18n/nx_pctl/security/delete"/>
+            <brls:Header title="@i18n/playguard/security/section_status" marginBottom="8"/>
+            <brls:DetailCell id="sc_pin" title="@i18n/playguard/security/pin"/>
+            <brls:DetailCell id="sc_restrictions" title="@i18n/playguard/security/restrictions"/>
+            <brls:DetailCell id="sc_temp" title="@i18n/playguard/security/temporary"/>
+            <brls:Header id="sc_actions_header" title="@i18n/playguard/security/section_actions" marginTop="24" marginBottom="8"/>
+            <brls:DetailCell id="sc_set_pin" title="@i18n/playguard/security/set_pin"/>
+            <brls:DetailCell id="sc_unlock" title="@i18n/playguard/security/unlock"/>
+            <brls:DetailCell id="sc_relock" title="@i18n/playguard/security/relock"/>
+            <brls:Header id="sc_danger_header" title="@i18n/playguard/security/section_danger" marginTop="24" marginBottom="8"/>
+            <brls:DetailCell id="sc_delete" title="@i18n/playguard/security/delete"/>
 
         </brls:Box>
 

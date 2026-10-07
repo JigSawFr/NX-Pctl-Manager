@@ -26,15 +26,15 @@ void PlayTimerPerDayActivity::onContentAvailable()
         });
     }
     pt_weekdays->registerClickAction([this](brls::View*) {
-        this->fill_days({ 1, 2, 3, 4, 5 }, "nx_pctl/play_timer/perday/weekdays"_i18n);
+        this->fill_days({ 1, 2, 3, 4, 5 }, "playguard/play_timer/perday/weekdays"_i18n);
         return true;
     });
     pt_weekend->registerClickAction([this](brls::View*) {
-        this->fill_days({ 0, 6 }, "nx_pctl/play_timer/perday/weekend"_i18n);
+        this->fill_days({ 0, 6 }, "playguard/play_timer/perday/weekend"_i18n);
         return true;
     });
     const int today = ui::today_weekday();
-    pt_copy_today->setText(brls::getStr("nx_pctl/play_timer/perday/copy_today", ui::day_name(today)));
+    pt_copy_today->setText(brls::getStr("playguard/play_timer/perday/copy_today", ui::day_name(today)));
     pt_copy_today->registerClickAction([this, today](brls::View*) {
         u16 v = this->pending[today];
         for (auto& p : this->pending) p = v;
@@ -43,7 +43,7 @@ void PlayTimerPerDayActivity::onContentAvailable()
     });
     pt_revert->registerClickAction([this](brls::View*) {
         if (!this->has_changes()) return true;
-        ui::confirm("nx_pctl/play_timer/perday/discard_body"_i18n, "nx_pctl/play_timer/perday/discard_confirm"_i18n,
+        ui::confirm("playguard/play_timer/perday/discard_body"_i18n, "playguard/play_timer/perday/discard_confirm"_i18n,
                     [this]() {
                         for (int i = 0; i < 7; i++) this->pending[i] = this->live.day_min[i];
                         this->rerender();
@@ -61,7 +61,7 @@ void PlayTimerPerDayActivity::onContentAvailable()
             brls::Application::popActivity();
             return true;
         }
-        ui::confirm("nx_pctl/play_timer/perday/discard_body"_i18n, "nx_pctl/play_timer/perday/discard_confirm"_i18n,
+        ui::confirm("playguard/play_timer/perday/discard_body"_i18n, "playguard/play_timer/perday/discard_confirm"_i18n,
                     []() { brls::sync([]() { brls::Application::popActivity(); }); });
         return true;
     });
@@ -90,11 +90,11 @@ void PlayTimerPerDayActivity::rerender()
     state_header->show(this->live);
     for (int d = 0; d < 7; d++) {
         if (!this->live.valid) {
-            day_cell(d)->setDetailText("nx_pctl/common/unavailable"_i18n);
+            day_cell(d)->setDetailText("playguard/common/unavailable"_i18n);
             continue;
         }
         std::string text = ui::fmt_minutes(this->pending[d]);
-        if (this->pending[d] != this->live.day_min[d]) text += "nx_pctl/play_timer/perday/unsaved"_i18n;
+        if (this->pending[d] != this->live.day_min[d]) text += "playguard/play_timer/perday/unsaved"_i18n;
         day_cell(d)->setDetailText(text);
         day_cell(d)->setDetailTextColor(this->pending[d] != this->live.day_min[d] ? ui::color_warn()
                                                                                   : ui::color_neutral());
@@ -105,12 +105,12 @@ void PlayTimerPerDayActivity::rerender()
 void PlayTimerPerDayActivity::edit_day(int d)
 {
     if (!this->live.valid) {
-        ui::notify("nx_pctl/play_timer/perday/unavailable"_i18n);
+        ui::notify("playguard/play_timer/perday/unavailable"_i18n);
         return;
     }
-    std::vector<std::string> options = { "nx_pctl/play_timer/perday/pick_minutes"_i18n,
-                                         "nx_pctl/play_timer/perday/pick_no_limit"_i18n };
-    ui::pick(brls::getStr("nx_pctl/play_timer/perday/pick_title", ui::day_name(d)), options,
+    std::vector<std::string> options = { "playguard/play_timer/perday/pick_minutes"_i18n,
+                                         "playguard/play_timer/perday/pick_no_limit"_i18n };
+    ui::pick(brls::getStr("playguard/play_timer/perday/pick_title", ui::day_name(d)), options,
              this->pending[d] == PT_DAY_NOLIMIT ? 1 : 0, [this, d](int index) {
                  if (index == 1) {
                      this->pending[d] = PT_DAY_NOLIMIT;
@@ -118,7 +118,7 @@ void PlayTimerPerDayActivity::edit_day(int d)
                      return;
                  }
                  u16 seed = this->pending[d] == PT_DAY_NOLIMIT ? 60 : this->pending[d];
-                 ui::prompt_minutes(brls::getStr("nx_pctl/play_timer/perday/pick_title", ui::day_name(d)), seed,
+                 ui::prompt_minutes(brls::getStr("playguard/play_timer/perday/pick_title", ui::day_name(d)), seed,
                                     [this, d](uint16_t v) {
                                         this->pending[d] = v;
                                         this->rerender();
@@ -129,12 +129,12 @@ void PlayTimerPerDayActivity::edit_day(int d)
 void PlayTimerPerDayActivity::fill_days(std::initializer_list<int> days, const std::string& title)
 {
     if (!this->live.valid) {
-        ui::notify("nx_pctl/play_timer/perday/unavailable"_i18n);
+        ui::notify("playguard/play_timer/perday/unavailable"_i18n);
         return;
     }
     std::vector<int> list(days);
-    std::vector<std::string> options = { "nx_pctl/play_timer/perday/pick_minutes"_i18n,
-                                         "nx_pctl/play_timer/perday/pick_no_limit"_i18n };
+    std::vector<std::string> options = { "playguard/play_timer/perday/pick_minutes"_i18n,
+                                         "playguard/play_timer/perday/pick_no_limit"_i18n };
     ui::pick(title, options, 0, [this, list, title](int index) {
         if (index == 1) {
             for (int d : list) this->pending[d] = PT_DAY_NOLIMIT;
@@ -152,11 +152,11 @@ void PlayTimerPerDayActivity::fill_days(std::initializer_list<int> days, const s
 void PlayTimerPerDayActivity::save()
 {
     if (!this->live.valid) {
-        ui::notify("nx_pctl/play_timer/perday/unavailable"_i18n);
+        ui::notify("playguard/play_timer/perday/unavailable"_i18n);
         return;
     }
     if (!this->has_changes()) {
-        ui::notify("nx_pctl/play_timer/perday/no_changes"_i18n);
+        ui::notify("playguard/play_timer/perday/no_changes"_i18n);
         return;
     }
     std::array<u16, 7> snapshot;
@@ -171,7 +171,7 @@ void PlayTimerPerDayActivity::save()
         Result rc = pctl_play_timer_set_days(snapshot.data());
         this->reload_from_service();
         this->rerender();
-        ui::notify_result(rc, "nx_pctl/play_timer/written_days"_i18n, "nx_pctl/play_timer/write_err"_i18n);
+        ui::notify_result(rc, "playguard/play_timer/written_days"_i18n, "playguard/play_timer/write_err"_i18n);
         if (R_SUCCEEDED(rc) && did_unlock) pt_flow::offer_relock([this]() {
             pctl_play_timer_query(&this->live);
             this->rerender();

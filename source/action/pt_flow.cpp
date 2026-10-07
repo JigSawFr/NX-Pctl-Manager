@@ -36,11 +36,11 @@ void ready_to_write(std::function<void(bool, bool)> on_ready)
         return;
     }
 
-    ui::confirm("nx_pctl/play_timer/gate/body"_i18n, "nx_pctl/play_timer/gate/confirm"_i18n,
+    ui::confirm("playguard/play_timer/gate/body"_i18n, "playguard/play_timer/gate/confirm"_i18n,
         [on_ready]() {
             Result rc = pctl_unlock_restriction_temporarily();
             if (R_FAILED(rc)) {
-                ui::notify("nx_pctl/play_timer/gate/failed"_i18n + " — " + ui::rc_text(rc));
+                ui::notify("playguard/play_timer/gate/failed"_i18n + " — " + ui::rc_text(rc));
                 on_ready(false, false);
                 return;
             }
@@ -51,11 +51,11 @@ void ready_to_write(std::function<void(bool, bool)> on_ready)
 
 void offer_relock(std::function<void()> after)
 {
-    auto* dialog = new brls::Dialog("nx_pctl/play_timer/relock/body"_i18n);
-    dialog->addButton("nx_pctl/play_timer/relock/later"_i18n, [after]() { if (after) after(); });
-    dialog->addButton("nx_pctl/play_timer/relock/now"_i18n, [after]() {
+    auto* dialog = new brls::Dialog("playguard/play_timer/relock/body"_i18n);
+    dialog->addButton("playguard/play_timer/relock/later"_i18n, [after]() { if (after) after(); });
+    dialog->addButton("playguard/play_timer/relock/now"_i18n, [after]() {
         Result rc = pctl_relock();
-        ui::notify_result(rc, "nx_pctl/toast/relocked"_i18n, "nx_pctl/toast/relock_err"_i18n);
+        ui::notify_result(rc, "playguard/toast/relocked"_i18n, "playguard/toast/relock_err"_i18n);
         if (after) after();
     });
     dialog->open();

@@ -9,40 +9,40 @@
 
     <brls:TabFrame
         id="main_tabs"
-        title="@i18n/nx_pctl/title"
+        title="@i18n/playguard/title"
         icon="@res/img/app_icon.jpg">
 
-        <brls:Tab label="@i18n/nx_pctl/tabs/dashboard">
+        <brls:Tab label="@i18n/playguard/tabs/dashboard">
             <DashboardTab/>
         </brls:Tab>
 
         <brls:Separator/>
 
-        <brls:Tab label="@i18n/nx_pctl/tabs/play_timer">
+        <brls:Tab label="@i18n/playguard/tabs/play_timer">
             <PlayTimerTab/>
         </brls:Tab>
 
-        <brls:Tab label="@i18n/nx_pctl/tabs/restrictions">
+        <brls:Tab label="@i18n/playguard/tabs/restrictions">
             <RestrictionsTab/>
         </brls:Tab>
 
-        <brls:Tab label="@i18n/nx_pctl/tabs/clock">
+        <brls:Tab label="@i18n/playguard/tabs/clock">
             <ClockTab/>
         </brls:Tab>
 
         <brls:Separator/>
 
-        <brls:Tab label="@i18n/nx_pctl/tabs/pairing">
+        <brls:Tab label="@i18n/playguard/tabs/pairing">
             <PairingTab/>
         </brls:Tab>
 
-        <brls:Tab label="@i18n/nx_pctl/tabs/security">
+        <brls:Tab label="@i18n/playguard/tabs/security">
             <SecurityTab/>
         </brls:Tab>
 
         <brls:Separator/>
 
-        <brls:Tab label="@i18n/nx_pctl/tabs/tools">
+        <brls:Tab label="@i18n/playguard/tabs/tools">
             <ToolsTab/>
         </brls:Tab>
 

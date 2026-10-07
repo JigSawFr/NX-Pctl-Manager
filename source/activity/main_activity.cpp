@@ -11,7 +11,7 @@ void MainActivity::onContentAvailable()
 {
     if (app::read_only_build()) {
         if (auto* frame = dynamic_cast<brls::AppletFrame*>(this->getContentView()))
-            frame->setTitle("nx_pctl/title_read_only"_i18n);
+            frame->setTitle("playguard/title_read_only"_i18n);
     }
 
     // B on the sidebar quits (the tabs themselves send B back to the sidebar).
@@ -30,9 +30,9 @@ void MainActivity::onContentAvailable()
         brls::sync([fw_s]() {
             char tested[16];
             sysinfo_version_string(PCTL_FW_TESTED_MAX, tested, sizeof(tested));
-            auto* dialog = new brls::Dialog(brls::getStr("nx_pctl/untested/body", fw_s, std::string(tested)));
-            dialog->addButton("nx_pctl/common/quit"_i18n, []() { brls::Application::quit(); });
-            dialog->addButton("nx_pctl/untested/continue"_i18n, [fw_s]() {
+            auto* dialog = new brls::Dialog(brls::getStr("playguard/untested/body", fw_s, std::string(tested)));
+            dialog->addButton("playguard/common/quit"_i18n, []() { brls::Application::quit(); });
+            dialog->addButton("playguard/untested/continue"_i18n, [fw_s]() {
                 config::get().untested_fw_ack = fw_s;
                 config::save();
             });

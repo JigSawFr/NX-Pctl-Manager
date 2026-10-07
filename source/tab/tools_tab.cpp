@@ -29,23 +29,23 @@ ToolsTab::ToolsTab()
     : TabBase("xml/tab/tools.xml")
 {
     export_note->setSingleLine(false);
-    export_note->setText(brls::getStr("nx_pctl/tools/export_note", paths::logs_dir()));
+    export_note->setText(brls::getStr("playguard/tools/export_note", paths::logs_dir()));
 
     export_cell->registerClickAction([](brls::View*) {
         std::string err;
         std::string path = diagnostic::save(diagnostic::current_report(), &err);
-        if (path.empty()) ui::notify("nx_pctl/toast/diag_err"_i18n + ": " + err);
-        else ui::notify(brls::getStr("nx_pctl/toast/diag_saved", path));
+        if (path.empty()) ui::notify("playguard/toast/diag_err"_i18n + ": " + err);
+        else ui::notify(brls::getStr("playguard/toast/diag_saved", path));
         return true;
     });
 
     language->registerClickAction([this](brls::View*) {
         std::vector<std::string> labels;
-        for (const char* l : LANGUAGES) labels.push_back(brls::getStr(std::string("nx_pctl/tools/languages/") + l));
-        ui::pick("nx_pctl/tools/language"_i18n, labels, index_of(LANGUAGES, config::get().language), [this](int i) {
+        for (const char* l : LANGUAGES) labels.push_back(brls::getStr(std::string("playguard/tools/languages/") + l));
+        ui::pick("playguard/tools/language"_i18n, labels, index_of(LANGUAGES, config::get().language), [this](int i) {
             config::get().language = LANGUAGES[i];
             config::save();
-            ui::notify("nx_pctl/common/restart_needed"_i18n);
+            ui::notify("playguard/common/restart_needed"_i18n);
             this->refresh();
         });
         return true;
@@ -53,17 +53,17 @@ ToolsTab::ToolsTab()
 
     theme->registerClickAction([this](brls::View*) {
         std::vector<std::string> labels;
-        for (const char* t : THEMES) labels.push_back(brls::getStr(std::string("nx_pctl/tools/themes/") + t));
-        ui::pick("nx_pctl/tools/theme"_i18n, labels, index_of(THEMES, config::get().theme), [this](int i) {
+        for (const char* t : THEMES) labels.push_back(brls::getStr(std::string("playguard/tools/themes/") + t));
+        ui::pick("playguard/tools/theme"_i18n, labels, index_of(THEMES, config::get().theme), [this](int i) {
             config::get().theme = THEMES[i];
             config::save();
-            ui::notify("nx_pctl/common/restart_needed"_i18n);
+            ui::notify("playguard/common/restart_needed"_i18n);
             this->refresh();
         });
         return true;
     });
 
-    advanced->init("nx_pctl/tools/advanced"_i18n, config::get().advanced, [](bool on) {
+    advanced->init("playguard/tools/advanced"_i18n, config::get().advanced, [](bool on) {
         config::get().advanced = on;
         config::save();
     });
@@ -73,8 +73,8 @@ ToolsTab::ToolsTab()
 void ToolsTab::refresh()
 {
     const auto& cfg = config::get();
-    language->setDetailText(brls::getStr("nx_pctl/tools/languages/" + std::string(LANGUAGES[index_of(LANGUAGES, cfg.language)])));
-    theme->setDetailText(brls::getStr("nx_pctl/tools/themes/" + std::string(THEMES[index_of(THEMES, cfg.theme)])));
+    language->setDetailText(brls::getStr("playguard/tools/languages/" + std::string(LANGUAGES[index_of(LANGUAGES, cfg.language)])));
+    theme->setDetailText(brls::getStr("playguard/tools/themes/" + std::string(THEMES[index_of(THEMES, cfg.theme)])));
     advanced->setOn(cfg.advanced, false);
 
     SysInfo si;
@@ -87,15 +87,15 @@ void ToolsTab::refresh()
     version->setDetailText(app::version() + flags);
     fw->setDetailText(fwv);
     ams->setDetailText(si.ams_valid ? fmt::format("{}.{}.{}", si.ams_major, si.ams_minor, si.ams_micro)
-                                    : "nx_pctl/common/unavailable"_i18n);
+                                    : "playguard/common/unavailable"_i18n);
     NVGcolor c = ui::color_neutral();
     compat->setDetailText(ui::compat_text(si, &c));
     compat->setDetailTextColor(c);
-    mode->setDetailText(si.applet_mode ? "nx_pctl/tools/mode_applet"_i18n : "nx_pctl/tools/mode_app"_i18n);
+    mode->setDetailText(si.applet_mode ? "playguard/tools/mode_applet"_i18n : "playguard/tools/mode_app"_i18n);
     data->setDetailText(paths::data_dir());
-    license->setDetailText("nx_pctl/tools/license_value"_i18n);
+    license->setDetailText("playguard/tools/license_value"_i18n);
     source->setDetailText(app::repo_url());
-    credits->setDetailText("nx_pctl/tools/credits_value"_i18n);
+    credits->setDetailText("playguard/tools/credits_value"_i18n);
 }
 
 brls::View* ToolsTab::create()
