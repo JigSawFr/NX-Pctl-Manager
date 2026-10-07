@@ -26,6 +26,7 @@
             <brls:Header title="@i18n/playguard/activity/section_totals" marginBottom="8"/>
             <brls:DetailCell id="ac_today" title="@i18n/playguard/activity/today"/>
             <brls:DetailCell id="ac_week" title="@i18n/playguard/activity/week"/>
+            <brls:DetailCell id="ac_total" title="@i18n/playguard/activity/all_time"/>
             <brls:Header title="@i18n/playguard/activity/section_games" marginTop="24" marginBottom="8"/>
             <brls:DetailCell id="ac_period" title="@i18n/playguard/activity/period"/>
             <brls:DetailCell id="ac_export" title="@i18n/playguard/activity/export"/>

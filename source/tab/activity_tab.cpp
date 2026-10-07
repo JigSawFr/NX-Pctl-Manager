@@ -90,13 +90,12 @@ void ActivityTab::refresh()
 
 void ActivityTab::fetch()
 {
+    // Every read says so, not only the first (X with a list on screen).
+    status->setText("playguard/activity/loading"_i18n);
+    status->setTextColor(ui::color_note());
+    ui::set_visible(status, true);
     // Only one read at a time: its result goes to whichever Activity tab is on
     // screen when it ends.
-    if (s_cache.busy || !s_cache.stats) {
-        status->setText("playguard/activity/loading"_i18n);
-        status->setTextColor(ui::color_note());
-        ui::set_visible(status, true);
-    }
     if (s_cache.busy) return;
     s_cache.busy = true;
     brls::async([]() {
@@ -118,13 +117,15 @@ void ActivityTab::rebuild()
     const PlayStats& s = *s_cache.stats;
     const std::string na = "playguard/common/unavailable"_i18n;
 
-    uint64_t today_total = 0, week_total = 0;
+    uint64_t today_total = 0, week_total = 0, all_total = 0;
     for (uint32_t i = 0; i < s.count; i++) {
         today_total += s.games[i].today_s;
         week_total  += s.games[i].week_s;
+        if (s.games[i].totals_ok) all_total += s.games[i].total_s;
     }
     today->setDetailText(s.windows_ok ? ui::fmt_play_time(today_total) : na);
     week->setDetailText(s.windows_ok ? ui::fmt_play_time(week_total) : na);
+    total->setDetailText(R_SUCCEEDED(s.stats_rc) ? ui::fmt_play_time(all_total) : na);
 
     // The games played in the chosen period, most played first.
     std::vector<const GameStat*> rows;

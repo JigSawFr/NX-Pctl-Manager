@@ -24,6 +24,7 @@
             <brls:Label id="tab_ro_note" text="@i18n/playguard/common/read_only_note" fontSize="18" marginBottom="16" textColor="@theme/brand/warn"/>
             <brls:DetailCell id="pt_unlocked_banner" marginBottom="12"/>
             <PtStateHeader id="pt_state_header"/>
+            <brls:Header id="pt_week_header" title="@i18n/playguard/play_timer/week_title" marginTop="16" marginBottom="8"/>
             <PtWeekView id="pt_week" width="auto" height="auto" marginBottom="16"/>
             <brls:Label id="pt_fw_note" text="@i18n/playguard/play_timer/fw_too_old" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
             <brls:Header id="pt_limit_header" title="@i18n/playguard/play_timer/section_limit" marginBottom="8"/>

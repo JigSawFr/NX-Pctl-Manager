@@ -14,12 +14,14 @@ using namespace brls::literals;
 
 namespace
 {
+// A on a line that leads to another tab: the footer says "Open", not "OK"
+// (Today's limit and Extra time change the value right here instead).
 void link(brls::DetailCell* cell, int tab)
 {
-    cell->registerClickAction([cell, tab](brls::View*) {
+    cell->registerAction("playguard/hints/open"_i18n, brls::BUTTON_A, [cell, tab](brls::View*) {
         ui::go_to_tab(cell, tab);
         return true;
-    });
+    }, false, false, brls::SOUND_CLICK);
 }
 }   // namespace
 
@@ -27,6 +29,8 @@ DashboardTab::DashboardTab()
     : TabBase("xml/tab/dashboard.xml")
 {
     hint->setSingleLine(false);
+    setup->setSingleLine(false);
+    applet->setSingleLine(false);
     ui::init_unlock_banner(unlocked_banner, [this]() { this->refresh(); });
     this->enable_auto_refresh(5000);
 
@@ -206,7 +210,10 @@ void DashboardTab::refresh()
     }
 
     // Visibility last, so a vanished focused cell hands the focus to a neighbour.
+    // No PIN yet: parental controls are not set up, say where to start.
+    const bool not_set_up = s.pin_length_ok && s.pin_length == 0;
     ui::set_visible_all({ { extra.getView(), pt_flow::can_add_extra_time(pt) },
+                          { setup.getView(), not_set_up }, { applet.getView(), si.applet_mode },
                           { fw.getView(), compat_issue }, { compat.getView(), compat_issue },
                           { serial.getView(), serial_issue }, { game_patches.getView(), patches_issue },
                           { unlocked_banner.getView(), unlocked } });

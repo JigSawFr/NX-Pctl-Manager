@@ -48,10 +48,16 @@ PtWeekView::PtWeekView()
         c.day->setHorizontalAlign(brls::HorizontalAlign::CENTER);
         c.day->setMarginTop(6);
         c.day->setText(brls::getStr(fmt::format("playguard/days_short/{}", d)));
+        c.mark = new brls::Rectangle(ui::color_neutral());
+        c.mark->setWidth(BAR_WIDTH);
+        c.mark->setHeight(3);
+        c.mark->setCornerRadius(1.5f);
+        c.mark->setMarginTop(3);
 
         col->addView(c.value);
         col->addView(c.bar);
         col->addView(c.day);
+        col->addView(c.mark);
         this->addView(col);
     }
 }
@@ -69,8 +75,9 @@ void PtWeekView::show(const PtState& pt)
         const bool is_today = d == today;
         NVGcolor colour = ui::color_neutral();
         if (m == PT_DAY_NOLIMIT) {
-            c.bar->setHeight(BAR_MAX);
-            colour = ui::color_track();
+            // An empty slot: a full bar read as "the most" rather than "none".
+            c.bar->setHeight(BAR_MIN);
+            colour = nvgTransRGBA(colour, 0);
         } else {
             c.bar->setHeight(BAR_MIN + (BAR_MAX - BAR_MIN) * (float)m / (float)top);
             if (!is_today) colour = nvgTransRGBA(colour, 120);
@@ -79,6 +86,7 @@ void PtWeekView::show(const PtState& pt)
         c.value->setText(short_minutes(m));
         c.value->setTextColor(is_today ? ui::color_text() : ui::color_note());
         c.day->setTextColor(is_today ? ui::color_neutral() : ui::color_note());
+        c.mark->setColor(is_today ? ui::color_neutral() : nvgTransRGBA(ui::color_neutral(), 0));
     }
 }
 

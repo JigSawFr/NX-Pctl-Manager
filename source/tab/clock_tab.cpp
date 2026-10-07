@@ -119,8 +119,10 @@ void ClockTab::refresh()
         } else {
             // Counts down every second (the tab refreshes itself each second).
             const int64_t left = SAMPLE_LIFETIME_S - elapsed;
-            apply_cell->setDetailText(brls::getStr("playguard/clock/valid_for",
-                                                   fmt::format("{}:{:02d}", (int)(left / 60), (int)(left % 60))));
+            // "1 min 45 s": "1:45" read like the hours:minutes typed elsewhere.
+            const std::string span = left >= 60 ? brls::getStr("playguard/common/min_sec", (int)(left / 60), (int)(left % 60))
+                                                : brls::getStr("playguard/common/sec", (int)left);
+            apply_cell->setDetailText(brls::getStr("playguard/clock/valid_for", span));
         }
     }
     ui::set_visible(apply_cell.getView(), !app::read_only() && this->last.ok);

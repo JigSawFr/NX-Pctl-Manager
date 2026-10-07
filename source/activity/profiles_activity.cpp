@@ -37,7 +37,8 @@ std::string short_summary(const uint16_t days[7])
     if (uniform) return days[0] == PT_DAY_NOLIMIT ? "playguard/common/no_limit"_i18n
                                                   : brls::getStr("playguard/play_timer/state/every_day", ui::fmt_minutes(days[0]));
     if (lo < 0) return "playguard/common/no_limit"_i18n;
-    const std::string top = any_nolimit ? "playguard/common/no_limit"_i18n : ui::fmt_minutes((uint16_t)hi);
+    // Inside the sentence: "1 h to no limit", not "1 h to No limit".
+    const std::string top = any_nolimit ? "playguard/common/no_limit_in_text"_i18n : ui::fmt_minutes((uint16_t)hi);
     return brls::getStr("playguard/play_timer/profile_range", ui::fmt_minutes((uint16_t)lo), top);
 }
 }   // namespace

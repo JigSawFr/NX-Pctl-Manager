@@ -34,6 +34,7 @@ class ActivityTab : public TabBase
 
     BRLS_BIND(brls::DetailCell, today,       "ac_today");
     BRLS_BIND(brls::DetailCell, week,        "ac_week");
+    BRLS_BIND(brls::DetailCell, total,       "ac_total");
     BRLS_BIND(brls::DetailCell, sort,        "ac_period");
     BRLS_BIND(brls::DetailCell, export_cell, "ac_export");
     BRLS_BIND(brls::Box,        list,        "ac_list");

@@ -12,6 +12,8 @@
 //   PLAYGUARD_SIM_EMUMMC=1      running on emuMMC (default: sysMMC)
 //   PLAYGUARD_SIM_BLANK=1       PRODINFO blanked (serial XAW00000000000)
 //   PLAYGUARD_SIM_NO_PDM=1      the play-data service (Activity tab) fails
+//   PLAYGUARD_SIM_NOT_SET_UP=1  parental controls never set up (no PIN, no restriction)
+//   PLAYGUARD_SIM_APPLET=1      started from the album (applet mode)
 // Game patches are read from ./playguard_data/sd/ (the simulated SD card root).
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #define _POSIX_C_SOURCE 200809L
@@ -45,14 +47,15 @@ static void sim_init(void)
     const char *fw = getenv("PLAYGUARD_SIM_FW");
     unsigned a, b, c;
     if (fw && sscanf(fw, "%u.%u.%u", &a, &b, &c) == 3) S.hos = MAKEHOSVERSION(a, b, c);
-    S.safety_level = PctlSafetyLevel_Child;
-    S.pin_length = 4;
-    S.restriction_enabled = true;
-    S.pairing_active = getenv("PLAYGUARD_SIM_UNPAIRED") == NULL;
+    const bool blank = getenv("PLAYGUARD_SIM_NOT_SET_UP") != NULL;
+    S.safety_level = blank ? PctlSafetyLevel_None : PctlSafetyLevel_Child;
+    S.pin_length = blank ? 0 : 4;
+    S.restriction_enabled = !blank;
+    S.pairing_active = !blank && getenv("PLAYGUARD_SIM_UNPAIRED") == NULL;
     S.temp_unlocked = getenv("PLAYGUARD_SIM_UNLOCKED") != NULL;
     S.custom.rating_age = 12;
     S.custom.sns_post_restriction = true;
-    bool off = getenv("PLAYGUARD_SIM_TIMER_OFF") != NULL;
+    bool off = blank || getenv("PLAYGUARD_SIM_TIMER_OFF") != NULL;
     for (int i = 0; i < 7; i++) S.day_min[i] = off ? PT_DAY_NOLIMIT : ((i == 0 || i == 6) ? 180 : 120);
 }
 
@@ -76,6 +79,7 @@ void sysinfo_get(SysInfo *out)
     out->emummc = getenv("PLAYGUARD_SIM_EMUMMC") != NULL;
     out->blank_valid = true;
     out->blank = getenv("PLAYGUARD_SIM_BLANK") != NULL;
+    out->applet_mode = getenv("PLAYGUARD_SIM_APPLET") != NULL;
     out->serial_valid = true;
     snprintf(out->serial, sizeof(out->serial), "%s", out->blank ? SYSINFO_BLANK_SERIAL : "XAW10000000001");
 }

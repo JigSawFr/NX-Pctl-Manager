@@ -180,7 +180,7 @@ shot("27_back")
 key("Left")                # back to the sidebar
 key("Up", len(tabs) - 3)   # Activity
 key("Right")
-key("Down", 4)             # past Today, Last 7 days, Sort by and Export: the first game
+key("Down", 5)             # past Today, Last 7 days, All time, Period and Export: the first game
 key("Return")
 shot("28_activity_game")
 key("Escape")

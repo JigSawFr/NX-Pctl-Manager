@@ -15,6 +15,7 @@
     },
     "hints": {
         "refresh": "Refresh",
+        "open": "Open",
         "exit_again": "Press B again to quit"
     },
     "common": {
@@ -25,16 +26,17 @@
         "unavailable": "Unavailable",
         "not_set": "Not set",
         "no_limit": "No limit",
+        "no_limit_in_text": "no limit",
         "zero_minutes": "0 min (no play)",
         "line": "{}: {}",
         "minutes": "{} min",
+        "min_sec": "{} min {} s",
+        "sec": "{} s",
         "hours": "{} h",
         "hours_minutes": "{} h {}",
         "custom": "Custom…",
         "later": "Later",
-        "continue": "Continue",
         "quit": "Quit",
-        "save": "Save",
         "delete": "Delete",
         "applied": "Saved.",
         "restart_body": "Saved. The change applies the next time the app starts.\n\nQuit now?",
@@ -145,7 +147,7 @@
         "patches": "Game patches",
         "firmware": "Firmware",
         "compat": "Compatibility",
-        "hint": "Press A on a line to open the matching tab. Values refresh on their own (X: now).",
+        "hint": "A on a line opens its tab; on Today's limit and Extra time today, A changes it right here. Values refresh on their own (X: now).",
         "updated": "Updated at {}",
         "extra": "Extra time today…",
         "extra_title": "Extra time today",
@@ -155,7 +157,9 @@
         "extra_restore_body": "Extra time added on {} is still on the {} limit ({}). Put it back to {}?",
         "extra_keep": "Keep {}",
         "extra_restore": "Put back",
-        "extra_restored": "{} limit put back to {}."
+        "extra_restored": "{} limit put back to {}.",
+        "setup": "To get started: set a PIN in Security & app, then a daily limit in Play timer. The limit relies on the network clock: check it in Network clock.",
+        "applet": "PlayGuard is running as an applet (opened from the album), with little memory: an export or a long Activity list may fail. For the full app, open it while holding R as you start a game."
     },
     "compat": {
         "ok": "Checked",
@@ -179,12 +183,12 @@
             "profile": "{} · {}"
         },
         "section_limit": "Daily limit",
+        "week_title": "This week's limits",
         "quick": "Same limit every day",
         "quick_title": "Daily limit for every day",
         "quick_title_varies": "Daily limit for every day (days differ now)",
         "per_day": "A different limit for each day…",
         "remove": "Remove the play-time limit",
-        "section_profiles": "Profiles",
         "profile_save": "Save as a profile…",
         "profile_name": "Profile name (letters, digits, spaces)",
         "profile_none": "No saved profile yet.",
@@ -258,7 +262,8 @@
             "no_changes": "Nothing to save.",
             "nothing_to_discard": "No changes to discard.",
             "discard_body": "Discard the changes that were not saved?",
-            "discard_confirm": "Discard"
+            "discard_confirm": "Discard",
+            "already_same": "Every day already has this limit."
         },
         "written_uniform": "Limit applied: {} every day.",
         "written_days": "Per-day limits applied.",
@@ -272,7 +277,7 @@
         "week": "Last 7 days",
         "all_time": "All time",
         "section_games": "Games",
-        "period": "Sort by",
+        "period": "Period",
         "export": "Export to the SD card…",
         "export_title": "Export format",
         "formats": {
@@ -488,6 +493,7 @@
         "firmware": "Firmware",
         "atmosphere": "Atmosphère",
         "compat": "Compatibility",
+        "compat_ok_info": "This firmware has been checked with PlayGuard: every feature is available.",
         "mode": "Launch mode",
         "mode_app": "Application (full memory)",
         "mode_applet": "Applet (launched from the album)",
@@ -495,7 +501,6 @@
         "license": "License",
         "license_value": "GPLv3 · UI: borealis (Apache 2.0)",
         "source": "Source code",
-        "credits": "Credits",
         "credits_value": "JigSawFr · based on Pctl Manager by Taylor · anbingxi (NTP, fw 22.5 fixes)",
         "credits_line": "Credits: {}",
         "update_via": "Update with",
@@ -550,7 +555,8 @@
         "forgotten": "The firmware choice will be asked again at the next launch.",
         "already_on": "Developer mode is already on.",
         "enabled": "Developer mode is on: see the end of Tools.",
-        "presses_left": "{} more presses to turn on developer mode."
+        "presses_left": "{} more presses to turn on developer mode.",
+        "presses_left_one": "1 more press to turn on developer mode."
     },
     "toast": {
         "diag_saved": "Diagnostic saved: {}",

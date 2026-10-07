@@ -39,5 +39,7 @@ class DashboardTab : public TabBase
     BRLS_BIND(brls::DetailCell, fw,          "dash_fw");
     BRLS_BIND(brls::DetailCell, compat,      "dash_compat");
     BRLS_BIND(brls::Label,      hint,        "dash_hint");
+    BRLS_BIND(brls::Label,      setup,       "dash_setup");
+    BRLS_BIND(brls::Label,      applet,      "dash_applet");
     BRLS_BIND(brls::Label,      updated,     "dash_updated");
 };

@@ -106,6 +106,7 @@ void PlayTimerTab::refresh()
     ui::set_visible(adv_header.getView(), advanced || dev);
 
     ui::set_visible(week.getView(), fw_ok && this->pt.valid);
+    ui::set_visible(week_header.getView(), fw_ok && this->pt.valid);
     if (!fw_ok) return;
     if (this->pt.valid) week->show(this->pt);
 

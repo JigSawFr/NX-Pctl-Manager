@@ -125,6 +125,7 @@ ToolsTab::ToolsTab()
     // On a firmware newer than the checked one, the firmware screen again.
     compat->registerClickAction([](brls::View*) {
         if (fw_gate::needed()) brls::Application::pushActivity(new FirmwareGateActivity());
+        else ui::info("playguard/tools/compat_ok_info"_i18n);
         return true;
     });
 
@@ -174,7 +175,8 @@ void ToolsTab::count_version_press()
     this->last_version_press = now;
     const int left = 7 - ++this->version_presses;
     if (left > 0) {
-        if (left <= 3) ui::notify(brls::getStr("playguard/dev/presses_left", left));
+        if (left == 1) ui::notify("playguard/dev/presses_left_one"_i18n);
+        else if (left <= 3) ui::notify(brls::getStr("playguard/dev/presses_left", left));
         return;
     }
     this->version_presses = 0;
