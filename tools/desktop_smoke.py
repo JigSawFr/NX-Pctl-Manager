@@ -32,21 +32,17 @@ def alive():
     return proc.poll() is None
 
 
-def key(name, n=1, hold=0.12):
+def key(name, n=1):
+    """Presses `name` n times, each exactly once. While Down / Up is held,
+    borealis' ScrollingFrame keeps scrolling ("natural scrolling") and can move
+    the focus again; with frames as slow as under software GL, even an 80 ms
+    press did. So each press waits for the screen to settle (the app then waits
+    for input and sees the press at once) and is released 20 ms later, both
+    sent by one xdotool process so a busy runner cannot delay the release."""
     for _ in range(n):
-        subprocess.run(["xdotool", "keydown", name], env=env)
-        time.sleep(hold)
-        subprocess.run(["xdotool", "keyup", name], env=env)
-        time.sleep(0.3)
-
-
-def nav(name, n=1):
-    """A navigation key that must move exactly one step. borealis repeats a key
-    held for 250 ms, and a move that scrolls the tab renders slowly under
-    software GL: wait for the screen to settle, then press briefly."""
-    for _ in range(n):
-        time.sleep(1)
-        key(name, hold=0.04)
+        time.sleep(0.6)
+        subprocess.run(["xdotool", "keydown", name, "sleep", "0.02", "keyup", name], env=env)
+        time.sleep(0.2)
 
 
 def shot(name):
@@ -75,22 +71,24 @@ time.sleep(2)
 
 tabs = ["dashboard", "play_timer", "activity", "restrictions", "clock", "security", "tools"]
 shot("01_dashboard")
+# Left (not Escape) goes back to the sidebar: Escape there asks to quit, so a
+# step that went wrong could close the app.
 for i, tab in enumerate(tabs[1:], start=2):
     key("Down")
     key("Right")
     shot(f"{i:02d}_{tab}")
     key("Down", 12)   # scroll through the whole tab
     shot(f"{i:02d}_{tab}_end")
-    key("Escape")     # back to the sidebar
+    key("Left")       # back to the sidebar
 
 # Extra-time picker, per-day editor and a dropdown.
 key("Up", len(tabs) - 2)   # from Tools back to Play timer
 key("Right")
-nav("Down")                # Extra time today…
+key("Down")                # Extra time today…
 key("Return")
 shot("20_extra_time")
 key("Escape")
-nav("Down")                # A different limit for each day…
+key("Down")                # A different limit for each day…
 key("Return")
 shot("21_per_day")
 key("Return")
@@ -100,13 +98,13 @@ key("Escape")
 shot("23_back")
 
 # Settings backup: save one, open the list and the restore summary (cancelled).
-key("Escape")              # back to the sidebar
-nav("Down", len(tabs) - 2) # Tools & about
+key("Left")                # back to the sidebar
+key("Down", len(tabs) - 2) # Tools & about
 key("Right")
-nav("Down")                # Back up the settings
+key("Down")                # Back up the settings
 key("Return")
 shot("24_backup_saved")
-nav("Down")                # Restore a backup…
+key("Down")                # Restore a backup…
 key("Return")
 shot("25_backup_list")
 key("Return")
@@ -115,16 +113,16 @@ key("Escape")
 shot("27_back")
 
 # Activity: one game's details, then a PDF export to the (simulated) SD card.
-key("Escape")              # back to the sidebar
-nav("Up", len(tabs) - 3)   # Activity
+key("Left")                # back to the sidebar
+key("Up", len(tabs) - 3)   # Activity
 key("Right")
-nav("Down", 4)             # past Today, Last 7 days, Sort by and Export: the first game
+key("Down", 4)             # past Today, Last 7 days, Sort by and Export: the first game
 key("Return")
 shot("28_activity_game")
 key("Escape")
-nav("Up")                  # Export to the SD card…
+key("Up")                  # Export to the SD card…
 key("Return")
-nav("Down", 3)             # PDF
+key("Down", 3)             # PDF
 key("Return")
 shot("29_activity_export")
 exports = os.path.join(run_dir, "playguard_data", "exports")
