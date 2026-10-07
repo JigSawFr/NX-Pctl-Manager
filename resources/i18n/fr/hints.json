@@ -1,0 +1,14 @@
+{
+    "ok": "OK",
+    "cancel": "Annuler",
+    "back": "Retour",
+    "exit": "Quitter",
+    "exit_hint": "Appuyez de nouveau pour quitter",
+    "open": "Ouvrir",
+    "on": "Activé",
+    "off": "Désactivé",
+    "delete": "Supprimer",
+    "save": "Enregistrer",
+    "input": "Saisir",
+    "submit": "Valider"
+}

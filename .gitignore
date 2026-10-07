@@ -69,3 +69,7 @@ HB_APPSTORE_SUBMISSION.md
 *.zip
 .DS_Store
 nx_pctl_probe.txt
+/build-desktop
+/nx_pctl_manager_data
+/smoke
+toolchain.txt

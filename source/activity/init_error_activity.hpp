@@ -1,5 +1,5 @@
-// InitErrorActivity — root Activity when pctl_ops_init fails (typically: no
-// CFW). One-shot screen; B exits the app.
+// InitErrorActivity — root Activity when the pctl service cannot be opened
+// (typically: no CFW). One-shot screen; B exits the app.
 // Copyright (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
@@ -14,4 +14,5 @@ class InitErrorActivity : public brls::Activity
 
   private:
     BRLS_BIND(brls::Label, error_code, "error_code");
+    BRLS_BIND(brls::Label, error_fw,   "error_fw");
 };

@@ -1,46 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!--
-    Main menu: 4-line StatusPanel above an "Actions" section with the 5 cells
-    that replace the old text-console menu items. Wired in MainActivity.cpp.
--->
+<!-- Root screen: a sidebar of tabs (Horizon "System Settings" style). Each tab
+     is a custom view registered in main.cpp and implemented in source/tab/. -->
 
 <brls:AppletFrame
-    title="@i18n/nx_pctl/title"
-    iconInterpolation="linear">
+    iconInterpolation="linear"
+    footerHidden="false">
 
-    <brls:ScrollingFrame
-        width="auto"
-        height="auto"
-        axis="column"
-        alignItems="stretch"
-        scrollingBehavior="centered"
-        grow="1.0">
+    <brls:TabFrame
+        id="main_tabs"
+        title="@i18n/nx_pctl/title"
+        icon="@res/img/app_icon.jpg">
 
-        <brls:Box
-            width="auto"
-            height="auto"
-            axis="column"
-            alignItems="stretch"
-            paddingTop="@style/brls/sidebar/padding_top"
-            paddingRight="@style/brls/sidebar/padding_right"
-            paddingBottom="@style/brls/sidebar/padding_bottom"
-            paddingLeft="@style/brls/sidebar/padding_left">
+        <brls:Tab label="@i18n/nx_pctl/tabs/dashboard">
+            <DashboardTab/>
+        </brls:Tab>
 
-            <StatusPanel id="status_panel"/>
+        <brls:Separator/>
 
-            <brls:Header
-                title="@i18n/nx_pctl/actions"
-                marginBottom="8"/>
+        <brls:Tab label="@i18n/nx_pctl/tabs/play_timer">
+            <PlayTimerTab/>
+        </brls:Tab>
 
-            <brls:DetailCell id="item_refresh"    title="@i18n/nx_pctl/items/refresh"/>
-            <brls:DetailCell id="item_play_timer" title="@i18n/nx_pctl/items/play_timer"/>
-            <brls:DetailCell id="item_set_pin"    title="@i18n/nx_pctl/items/set_pin"/>
-            <brls:DetailCell id="item_delete_pc"  title="@i18n/nx_pctl/items/delete_pc"/>
-            <brls:DetailCell id="item_unlink"     title="@i18n/nx_pctl/items/unlink"/>
+        <brls:Tab label="@i18n/nx_pctl/tabs/restrictions">
+            <RestrictionsTab/>
+        </brls:Tab>
 
-        </brls:Box>
+        <brls:Tab label="@i18n/nx_pctl/tabs/clock">
+            <ClockTab/>
+        </brls:Tab>
 
-    </brls:ScrollingFrame>
+        <brls:Separator/>
+
+        <brls:Tab label="@i18n/nx_pctl/tabs/pairing">
+            <PairingTab/>
+        </brls:Tab>
+
+        <brls:Tab label="@i18n/nx_pctl/tabs/security">
+            <SecurityTab/>
+        </brls:Tab>
+
+        <brls:Separator/>
+
+        <brls:Tab label="@i18n/nx_pctl/tabs/tools">
+            <ToolsTab/>
+        </brls:Tab>
+
+    </brls:TabFrame>
 
 </brls:AppletFrame>

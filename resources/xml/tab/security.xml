@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- PIN, temporary unlock / relock, delete everything. -->
+
+<brls:Box
+    width="auto"
+    height="auto">
+
+    <brls:ScrollingFrame
+        width="auto"
+        height="auto"
+        grow="1.0">
+
+        <brls:Box
+            width="auto"
+            height="auto"
+            axis="column"
+            alignItems="stretch"
+            paddingLeft="@style/brls/tab_frame/content_padding_sides"
+            paddingRight="@style/brls/tab_frame/content_padding_sides"
+            paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
+            paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
+
+            <brls:Header title="@i18n/nx_pctl/security/section_status" marginBottom="8"/>
+            <brls:DetailCell id="sc_pin" title="@i18n/nx_pctl/security/pin"/>
+            <brls:DetailCell id="sc_restrictions" title="@i18n/nx_pctl/security/restrictions"/>
+            <brls:DetailCell id="sc_temp" title="@i18n/nx_pctl/security/temporary"/>
+            <brls:Header id="sc_actions_header" title="@i18n/nx_pctl/security/section_actions" marginTop="24" marginBottom="8"/>
+            <brls:DetailCell id="sc_set_pin" title="@i18n/nx_pctl/security/set_pin"/>
+            <brls:DetailCell id="sc_unlock" title="@i18n/nx_pctl/security/unlock"/>
+            <brls:DetailCell id="sc_relock" title="@i18n/nx_pctl/security/relock"/>
+            <brls:Header id="sc_danger_header" title="@i18n/nx_pctl/security/section_danger" marginTop="24" marginBottom="8"/>
+            <brls:DetailCell id="sc_delete" title="@i18n/nx_pctl/security/delete"/>
+
+        </brls:Box>
+
+    </brls:ScrollingFrame>
+
+</brls:Box>

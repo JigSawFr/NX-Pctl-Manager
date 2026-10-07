@@ -7,7 +7,9 @@
 #   ./run.sh <switch-ip>      build, then nxlink to that IP and stream stdout back
 #   ./run.sh -a <switch-ip>   same
 #   ./run.sh clean            run `make clean` in the container
-#   PROBE=1 ./run.sh [...]    extra "Dump current config" diagnostic menu item
+#   PROBE=1 ./run.sh [...]    extra diagnostic shortcuts
+#   READ_ONLY=1 ./run.sh      "Pctl Diagnostics" build that cannot change anything
+#   ./run.sh dist             build the SD-card zip (nx_pctl_manager.zip)
 #
 # Needs Docker. The devkitpro/devkita64 image is pulled automatically on first use.
 # (Build artifacts stay owned by the current user; nothing is written to /opt.)
@@ -17,10 +19,9 @@ set -e
 IMG=devkitpro/devkita64
 DIR=$(cd "$(dirname "$0")" && pwd)
 
-# Forward PROBE through to `make` in the container, so `PROBE=1 ./run.sh ...`
-# builds the diagnostic dump cell into the Play timer menu.
+# Forward PROBE / READ_ONLY through to `make` in the container.
 dkp() {
-    docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -e PROBE="${PROBE:-}" \
+    docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -e PROBE="${PROBE:-}" -e READ_ONLY="${READ_ONLY:-}" \
         -v "$DIR":/project -w /project "$@"
 }
 
@@ -29,7 +30,12 @@ if [ "$1" = "clean" ]; then
     exit 0
 fi
 
-echo ">> building (devkitpro/devkita64${PROBE:+, PROBE=$PROBE})..."
+if [ "$1" = "dist" ]; then
+    dkp "$IMG" make dist
+    exit 0
+fi
+
+echo ">> building (devkitpro/devkita64${PROBE:+, PROBE=$PROBE}${READ_ONLY:+, READ_ONLY=$READ_ONLY})..."
 dkp "$IMG" make
 
 ip=$1

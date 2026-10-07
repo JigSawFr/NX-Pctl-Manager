@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Network clock: read clocks, pick an NTP server, measure, apply. -->
+
+<brls:Box
+    width="auto"
+    height="auto">
+
+    <brls:ScrollingFrame
+        width="auto"
+        height="auto"
+        grow="1.0">
+
+        <brls:Box
+            width="auto"
+            height="auto"
+            axis="column"
+            alignItems="stretch"
+            paddingLeft="@style/brls/tab_frame/content_padding_sides"
+            paddingRight="@style/brls/tab_frame/content_padding_sides"
+            paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
+            paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
+
+            <brls:Header title="@i18n/nx_pctl/clock/section_now" marginBottom="8"/>
+            <brls:DetailCell id="ck_user" title="@i18n/nx_pctl/clock/user"/>
+            <brls:DetailCell id="ck_network" title="@i18n/nx_pctl/clock/network"/>
+            <brls:DetailCell id="ck_accuracy" title="@i18n/nx_pctl/clock/accuracy"/>
+            <brls:DetailCell id="ck_auto" title="@i18n/nx_pctl/clock/auto"/>
+            <brls:DetailCell id="ck_zone" title="@i18n/nx_pctl/clock/zone"/>
+            <brls:Label id="ck_why" text="@i18n/nx_pctl/clock/why" fontSize="16" marginTop="10" marginBottom="6" textColor="@theme/brls/header/subtitle"/>
+            <brls:Header title="@i18n/nx_pctl/clock/section_server" marginTop="24" marginBottom="8"/>
+            <brls:DetailCell id="ck_region" title="@i18n/nx_pctl/clock/region"/>
+            <brls:DetailCell id="ck_server" title="@i18n/nx_pctl/clock/server"/>
+            <brls:DetailCell id="ck_custom" title="@i18n/nx_pctl/clock/custom"/>
+            <brls:Header title="@i18n/nx_pctl/clock/section_sync" marginTop="24" marginBottom="8"/>
+            <brls:DetailCell id="ck_measure" title="@i18n/nx_pctl/clock/measure"/>
+            <brls:Label id="ck_result" text="" marginTop="8" marginBottom="8" marginLeft="16" marginRight="16"/>
+            <brls:DetailCell id="ck_apply" title="@i18n/nx_pctl/clock/apply"/>
+            <brls:DetailCell id="ck_export" title="@i18n/nx_pctl/clock/export"/>
+
+        </brls:Box>
+
+    </brls:ScrollingFrame>
+
+</brls:Box>

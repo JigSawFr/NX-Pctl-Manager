@@ -1,0 +1,47 @@
+// Copyright (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
+#include "util/config.hpp"
+
+#include <borealis/extern/nlohmann/json.hpp>
+
+#include "util/paths.hpp"
+
+namespace config
+{
+
+static Config s_config;
+
+Config& get() { return s_config; }
+
+void load()
+{
+    s_config = Config{};
+    std::string text;
+    if (!paths::read_file(paths::config_file(), text)) return;
+    try {
+        auto j = nlohmann::json::parse(text);
+        s_config.language        = j.value("language", s_config.language);
+        s_config.theme           = j.value("theme", s_config.theme);
+        s_config.ntp_server      = j.value("ntp_server", s_config.ntp_server);
+        s_config.advanced        = j.value("advanced", s_config.advanced);
+        s_config.untested_fw_ack = j.value("untested_fw_ack", s_config.untested_fw_ack);
+        if (j.contains("custom_servers") && j["custom_servers"].is_array())
+            for (auto& v : j["custom_servers"])
+                if (v.is_string()) s_config.custom_servers.push_back(v.get<std::string>());
+    } catch (...) {
+        s_config = Config{};   // corrupt file: start over with defaults
+    }
+}
+
+bool save()
+{
+    nlohmann::json j;
+    j["language"]        = s_config.language;
+    j["theme"]           = s_config.theme;
+    j["ntp_server"]      = s_config.ntp_server;
+    j["custom_servers"]  = s_config.custom_servers;
+    j["advanced"]        = s_config.advanced;
+    j["untested_fw_ack"] = s_config.untested_fw_ack;
+    return paths::atomic_write(paths::config_file(), j.dump(2) + "\n");
+}
+
+}   // namespace config
