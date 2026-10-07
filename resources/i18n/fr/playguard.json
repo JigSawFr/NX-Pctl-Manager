@@ -4,6 +4,7 @@
     "tabs": {
         "dashboard": "Vue d'ensemble",
         "play_timer": "Temps de jeu",
+        "activity": "Activité",
         "restrictions": "Restrictions",
         "clock": "Horloge réseau",
         "security": "Sécurité et appli",
@@ -22,6 +23,7 @@
         "not_set": "Non défini",
         "no_limit": "Pas de limite",
         "zero_minutes": "0 min (pas de jeu)",
+        "line": "{} : {}",
         "minutes": "{} min",
         "hours": "{} h",
         "hours_minutes": "{} h {}",
@@ -245,6 +247,53 @@
         "removed": "Limite de temps de jeu supprimée.",
         "remove_err": "Impossible de supprimer la limite de temps de jeu"
     },
+    "activity": {
+        "section_totals": "Temps de jeu, tous les comptes",
+        "today": "Aujourd'hui",
+        "week": "7 derniers jours",
+        "all_time": "Depuis toujours",
+        "section_games": "Jeux",
+        "period": "Trier par",
+        "export": "Exporter sur la carte SD…",
+        "export_title": "Format d'export",
+        "formats": {
+            "0": "CSV (tableur)",
+            "1": "JSON",
+            "2": "XLSX (Excel)",
+            "3": "PDF"
+        },
+        "exported": "Exporté : {}",
+        "export_err": "Impossible d'exporter",
+        "export_not_ready": "Les données de jeu sont encore en cours de lecture.",
+        "export_subtitle": "Exporté le {}, tous les comptes",
+        "columns": {
+            "game": "Jeu",
+            "id": "ID du titre",
+            "today": "Aujourd'hui (min)",
+            "week": "7 derniers jours (min)",
+            "total": "Depuis toujours (min)"
+        },
+        "periods": {
+            "0": "Aujourd'hui",
+            "1": "7 derniers jours",
+            "2": "Depuis toujours"
+        },
+        "loading": "Lecture des données de jeu de la console…",
+        "none": {
+            "0": "Aucun jeu joué aujourd'hui.",
+            "1": "Aucun jeu joué ces 7 derniers jours.",
+            "2": "Aucun jeu joué pour l'instant."
+        },
+        "err_list": "Impossible de lister les jeux",
+        "err_stats": "Impossible de lire les statistiques de jeu",
+        "err_log": "Impossible de lire le journal d'activité",
+        "deleted_game": "Jeu supprimé ({})",
+        "launches": "Lancements",
+        "first": "Première partie",
+        "last": "Dernière partie",
+        "less_than_minute": "< 1 min",
+        "note": "Lu dans le journal d'activité de la console, pour tous les comptes. Les durées sont approximatives si l'horloge de la console a été modifiée, et PlayGuard ouvert par-dessus un jeu compte comme du temps passé dans ce jeu."
+    },
     "restrictions": {
         "section_level": "Niveau de restriction",
         "level": "Niveau",
@@ -336,6 +385,11 @@
         "temporary": "Déverrouillé temporairement",
         "section_actions": "Actions",
         "set_pin": "Définir ou changer le code PIN",
+        "show_pin": "Afficher le code PIN",
+        "show_pin_body": "Afficher le code PIN à l'écran ?\n\nToute personne qui regarde l'écran pourra le lire : vérifiez que l'enfant ne regarde pas.",
+        "show_pin_confirm": "Afficher",
+        "show_pin_title": "Code PIN actuel",
+        "show_pin_err": "Impossible de lire le code PIN",
         "unlock": "Déverrouiller temporairement",
         "unlock_body": "Déverrouiller temporairement le contrôle parental ?\n\nLes restrictions restent désactivées jusqu'au prochain verrouillage (ou au redémarrage de la console).",
         "unlock_confirm": "Déverrouiller",
@@ -346,7 +400,7 @@
         "banner_action": "Verrouiller maintenant",
         "section_danger": "Zone dangereuse",
         "delete": "Supprimer tout le contrôle parental",
-        "delete_body": "Supprimer tout le contrôle parental ?\n\nCela efface le code PIN, toutes les restrictions et la limite de temps de jeu. Action irréversible.",
+        "delete_body": "Supprimer tout le contrôle parental ?\n\nCela efface le code PIN, toutes les restrictions et la limite de temps de jeu. Action irréversible, mais une sauvegarde des réglages (sans le code PIN) est d'abord enregistrée sur la carte SD : Outils › Restaurer une sauvegarde.",
         "delete_body2": "Dernière vérification : tout supprimer maintenant ?",
         "delete_confirm": "Supprimer",
         "delete_confirm2": "Supprimer définitivement",
@@ -359,6 +413,11 @@
         "section_diag": "Diagnostic",
         "export": "Exporter un rapport de diagnostic",
         "export_note": "Enregistré dans {}. Joignez-le à un signalement de bug. Il ne contient jamais le code PIN ni le numéro de série.",
+        "section_backup": "Sauvegarde des réglages",
+        "backup_save": "Sauvegarder les réglages",
+        "backup_restore": "Restaurer une sauvegarde…",
+        "backup_count": "{} sur la carte SD",
+        "backup_note": "Enregistre le niveau de restriction, les réglages personnalisés, le mode VR et les limites de temps de jeu dans {}. Le code PIN n'est pas sauvegardé.",
         "section_prefs": "Préférences",
         "language": "Langue",
         "languages": {
@@ -412,6 +471,22 @@
         "credits": "Crédits",
         "credits_value": "JigSawFr · d'après Pctl Manager de Taylor · anbingxi (NTP, correctifs 22.5)",
         "credits_line": "Crédits : {}"
+    },
+    "backup": {
+        "saved": "Réglages sauvegardés : {}",
+        "save_err": "Impossible de sauvegarder les réglages",
+        "unreadable_console": "les réglages n'ont pas pu être lus",
+        "none": "Aucune sauvegarde sur la carte SD pour l'instant.",
+        "pick_title": "Restaurer une sauvegarde",
+        "unreadable": "{} (illisible)",
+        "unreadable_file": "Cette sauvegarde est illisible.",
+        "restore_body": "Restaurer les réglages sauvegardés le {} ?",
+        "restore_confirm": "Restaurer",
+        "no_pin_note": "Aucun code PIN n'est défini sur cette console : la sauvegarde n'en contient pas. Définissez-le ensuite dans Sécurité et appli.",
+        "restored": "Réglages restaurés.",
+        "restore_err": "Non restauré : {}",
+        "before_delete_err": "Aucune sauvegarde n'a pu être enregistrée avant ({}).\n\nTout supprimer quand même ?",
+        "delete_anyway": "Supprimer quand même"
     },
     "toast": {
         "diag_saved": "Diagnostic enregistré : {}",

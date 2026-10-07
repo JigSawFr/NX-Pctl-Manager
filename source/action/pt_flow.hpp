@@ -43,6 +43,10 @@ void finish_write(Result rc, bool did_unlock, const std::string& ok_text,
 // "Same limit every day" picker (quick values + Custom…), then confirm_write.
 void choose_uniform_limit(const PtState& pt, std::function<void()> refresh);
 
+// True when "Extra time today…" can be offered: a writable build, a limit
+// applies today and it is below 24 h.
+bool can_add_extra_time(const PtState& pt);
+
 // "Extra time today": raises today's weekday limit by 15 / 30 / 60 min and
 // remembers the previous value (config extra_*), so that it can be put back.
 void add_extra_time(const PtState& pt, std::function<void()> refresh);

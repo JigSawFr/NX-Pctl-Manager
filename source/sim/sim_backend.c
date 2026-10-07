@@ -1,8 +1,8 @@
 // Simulated service layer for the desktop (PLATFORM_DESKTOP) build.
 //
-// Implements pctl_ops.h, time_ops.h and sysinfo.h with in-memory state so the
-// whole borealis UI can be built, navigated and screenshotted on a PC. Never
-// compiled for the Switch. Environment knobs:
+// Implements pctl_ops.h, time_ops.h, sysinfo.h and playstats.h with in-memory
+// state so the whole borealis UI can be built, navigated and screenshotted on a
+// PC. Never compiled for the Switch. Environment knobs:
 //   PLAYGUARD_SIM_FW=20.5.0     pretend to run on another firmware
 //   PLAYGUARD_SIM_NO_CFW=1      make pctl_ops_init fail (init error screen)
 //   PLAYGUARD_SIM_TIMER_OFF=1   start with no play timer configured
@@ -11,6 +11,7 @@
 //   PLAYGUARD_SIM_ACCURATE=1    report the network clock as accurate
 //   PLAYGUARD_SIM_EMUMMC=1      running on emuMMC (default: sysMMC)
 //   PLAYGUARD_SIM_BLANK=1       PRODINFO blanked (serial XAW00000000000)
+//   PLAYGUARD_SIM_NO_PDM=1      the play-data service (Activity tab) fails
 // Game patches are read from ./playguard_data/sd/ (the simulated SD card root).
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #define _POSIX_C_SOURCE 200809L
@@ -20,6 +21,7 @@
 #include <time.h>
 
 #include "../core/pctl_ops.h"
+#include "../core/playstats.h"
 #include "../core/sysinfo.h"
 #include "../core/time_ops.h"
 
@@ -131,6 +133,15 @@ const char *pctl_rating_org_name(u32 org)
 
 Result pctl_set_pin(void)                         { RO_GUARD(); S.pin_length = 4; return 0; }
 Result pctl_unlock_restriction_temporarily(void)  { RO_GUARD(); if (!S.pin_length) return 0x1A08E; S.temp_unlocked = true; return 0; }
+Result pctl_get_pin(char *out, size_t out_size)
+{
+    if (out && out_size) memset(out, 0, out_size);
+    RO_GUARD();
+    if (!out || out_size < 5) return NXM_RC_INVALID_ARGUMENT;
+    if (!S.pin_length) return NXM_RC_STATE_UNKNOWN;
+    snprintf(out, out_size, "1234");
+    return 0;
+}
 Result pctl_relock(void)                          { RO_GUARD(); S.temp_unlocked = false; return 0; }
 Result pctl_delete_parental_controls(void)
 {
@@ -230,4 +241,39 @@ void time_format_local(u64 posix, char *buf, size_t size)
 {
     time_t t = (time_t)posix; struct tm tmv;
     if (!localtime_r(&t, &tmv) || !strftime(buf, size, "%Y-%m-%d %H:%M:%S", &tmv)) time_format_utc(posix, buf, size);
+}
+
+// ---------------------------------------------------------------- playstats
+void playstats_fetch(PlayStats *out)
+{
+    memset(out, 0, sizeof(*out));
+    out->now = (u64)time(NULL);
+    if (getenv("PLAYGUARD_SIM_NO_PDM")) {
+        out->stats_rc = out->events_rc = (Result)0x1A0C;
+        return;
+    }
+    // Made-up games; the last one was deleted since (no name, no totals).
+    static const struct {
+        u64 id; const char *name; u32 total_min, launches, today_min, week_min, days_ago;
+    } games[] = {
+        { 0x0100A1B2C3D40000ULL, "Star Kart Racers",      3650, 300, 45, 310, 0 },
+        { 0x0100A1B2C3D41000ULL, "Island Builders",       2980, 160, 20, 140, 0 },
+        { 0x0100A1B2C3D42000ULL, "Pixel Quest Deluxe",    1210,  45,  0,  95, 2 },
+        { 0x0100A1B2C3D43000ULL, "Dragon Valley Legends", 6100, 120,  0,   0, 12 },
+        { 0x0100A1B2C3D44000ULL, "Puzzle Garden",          380,  52,  0,  30, 5 },
+        { 0x0100A1B2C3D45000ULL, "",                          0,   0, 15,  15, 0 },
+    };
+    out->windows_ok = true;
+    for (size_t i = 0; i < sizeof(games) / sizeof(games[0]); i++) {
+        GameStat *g = &out->games[out->count++];
+        g->app_id = games[i].id;
+        snprintf(g->name, sizeof(g->name), "%s", games[i].name);
+        g->totals_ok = games[i].total_min > 0;
+        g->total_s = (u64)games[i].total_min * 60;
+        g->launches = games[i].launches;
+        g->last_played = g->totals_ok ? out->now - (u64)games[i].days_ago * 86400 - 3600 : 0;
+        g->first_played = g->totals_ok ? out->now - 400ULL * 86400 : 0;
+        g->today_s = games[i].today_min * 60;
+        g->week_s = games[i].week_min * 60;
+    }
 }

@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Headless UI smoke test of the desktop build (simulated backend).
 
-Starts build-desktop/playguard on an X display (Xvfb), opens every tab,
-the per-day editor and a dropdown, and fails if the app dies on the way
-(borealis throws on unknown XML attributes, missing views, …). Screenshots of
-each screen are written to the output folder.
+Starts build-desktop/playguard on an X display (Xvfb), opens every tab, the
+extra-time picker, the per-day editor, a dropdown, the settings backup, a game
+in the Activity tab and its PDF export, and fails if the app dies on the way
+(borealis throws on unknown XML attributes, missing views, …) or the export is
+missing. Screenshots of each screen are written to the output folder.
 
 Usage: tools/desktop_smoke.py <out-dir>   (needs DISPLAY, xdotool, ImageMagick)
 Environment knobs of the simulated backend (PLAYGUARD_SIM_*) are passed through.
@@ -32,11 +33,16 @@ def alive():
 
 
 def key(name, n=1):
+    """Presses `name` n times, each exactly once. While Down / Up is held,
+    borealis' ScrollingFrame keeps scrolling ("natural scrolling") and can move
+    the focus again; with frames as slow as under software GL, even an 80 ms
+    press did. So each press waits for the screen to settle (the app then waits
+    for input and sees the press at once) and is released 20 ms later, both
+    sent by one xdotool process so a busy runner cannot delay the release."""
     for _ in range(n):
-        subprocess.run(["xdotool", "keydown", name], env=env)
-        time.sleep(0.12)
-        subprocess.run(["xdotool", "keyup", name], env=env)
-        time.sleep(0.3)
+        time.sleep(0.6)
+        subprocess.run(["xdotool", "keydown", name, "sleep", "0.02", "keyup", name], env=env)
+        time.sleep(0.2)
 
 
 def shot(name):
@@ -63,27 +69,65 @@ else:
     fail("no window after 30 s")
 time.sleep(2)
 
-tabs = ["dashboard", "play_timer", "restrictions", "clock", "security", "tools"]
+tabs = ["dashboard", "play_timer", "activity", "restrictions", "clock", "security", "tools"]
 shot("01_dashboard")
+# Left (not Escape) goes back to the sidebar: Escape there asks to quit, so a
+# step that went wrong could close the app.
 for i, tab in enumerate(tabs[1:], start=2):
     key("Down")
     key("Right")
     shot(f"{i:02d}_{tab}")
     key("Down", 12)   # scroll through the whole tab
     shot(f"{i:02d}_{tab}_end")
-    key("Escape")     # back to the sidebar
+    key("Left")       # back to the sidebar
 
-# Per-day editor and a dropdown.
+# Extra-time picker, per-day editor and a dropdown.
 key("Up", len(tabs) - 2)   # from Tools back to Play timer
 key("Right")
-key("Down")
+key("Down")                # Extra time today…
 key("Return")
-shot("20_per_day")
+shot("20_extra_time")
+key("Escape")
+key("Down")                # A different limit for each day…
 key("Return")
-shot("21_dropdown")
+shot("21_per_day")
+key("Return")
+shot("22_dropdown")
 key("Escape")
 key("Escape")
-shot("22_back")
+shot("23_back")
+
+# Settings backup: save one, open the list and the restore summary (cancelled).
+key("Left")                # back to the sidebar
+key("Down", len(tabs) - 2) # Tools & about
+key("Right")
+key("Down")                # Back up the settings
+key("Return")
+shot("24_backup_saved")
+key("Down")                # Restore a backup…
+key("Return")
+shot("25_backup_list")
+key("Return")
+shot("26_backup_restore")
+key("Escape")
+shot("27_back")
+
+# Activity: one game's details, then a PDF export to the (simulated) SD card.
+key("Left")                # back to the sidebar
+key("Up", len(tabs) - 3)   # Activity
+key("Right")
+key("Down", 4)             # past Today, Last 7 days, Sort by and Export: the first game
+key("Return")
+shot("28_activity_game")
+key("Escape")
+key("Up")                  # Export to the SD card…
+key("Return")
+key("Down", 3)             # PDF
+key("Return")
+shot("29_activity_export")
+exports = os.path.join(run_dir, "playguard_data", "exports")
+if not any(f.endswith(".pdf") for f in (os.listdir(exports) if os.path.isdir(exports) else [])):
+    fail("no PDF export in " + exports)
 
 proc.terminate()
 try:

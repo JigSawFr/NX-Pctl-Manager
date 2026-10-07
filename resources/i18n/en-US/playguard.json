@@ -4,6 +4,7 @@
     "tabs": {
         "dashboard": "Overview",
         "play_timer": "Play timer",
+        "activity": "Activity",
         "restrictions": "Restrictions",
         "clock": "Network clock",
         "security": "Security & app",
@@ -22,6 +23,7 @@
         "not_set": "Not set",
         "no_limit": "No limit",
         "zero_minutes": "0 min (no play)",
+        "line": "{}: {}",
         "minutes": "{} min",
         "hours": "{} h",
         "hours_minutes": "{} h {}",
@@ -245,6 +247,53 @@
         "removed": "Play-time limit removed.",
         "remove_err": "Could not remove the play-time limit"
     },
+    "activity": {
+        "section_totals": "Play time, all accounts",
+        "today": "Today",
+        "week": "Last 7 days",
+        "all_time": "All time",
+        "section_games": "Games",
+        "period": "Sort by",
+        "export": "Export to the SD card…",
+        "export_title": "Export format",
+        "formats": {
+            "0": "CSV (spreadsheet)",
+            "1": "JSON",
+            "2": "XLSX (Excel)",
+            "3": "PDF"
+        },
+        "exported": "Exported: {}",
+        "export_err": "Could not export",
+        "export_not_ready": "The play data is still being read.",
+        "export_subtitle": "Exported on {}, all accounts",
+        "columns": {
+            "game": "Game",
+            "id": "Title ID",
+            "today": "Today (min)",
+            "week": "Last 7 days (min)",
+            "total": "All time (min)"
+        },
+        "periods": {
+            "0": "Today",
+            "1": "Last 7 days",
+            "2": "All time"
+        },
+        "loading": "Reading the console's play data…",
+        "none": {
+            "0": "No game played today.",
+            "1": "No game played in the last 7 days.",
+            "2": "No game played yet."
+        },
+        "err_list": "Could not list the games",
+        "err_stats": "Could not read the play statistics",
+        "err_log": "Could not read the activity log",
+        "deleted_game": "Deleted game ({})",
+        "launches": "Launches",
+        "first": "First played",
+        "last": "Last played",
+        "less_than_minute": "< 1 min",
+        "note": "Read from the console's activity log, for every account. Times are approximate if the console clock was changed, and PlayGuard opened over a game counts as time in that game."
+    },
     "restrictions": {
         "section_level": "Restriction level",
         "level": "Level",
@@ -336,6 +385,11 @@
         "temporary": "Temporarily unlocked",
         "section_actions": "Actions",
         "set_pin": "Set or change the PIN",
+        "show_pin": "Show the PIN",
+        "show_pin_body": "Show the PIN on screen?\n\nAnyone looking at the screen can read it: make sure the child is not watching.",
+        "show_pin_confirm": "Show",
+        "show_pin_title": "Current PIN",
+        "show_pin_err": "Could not read the PIN",
         "unlock": "Unlock temporarily",
         "unlock_body": "Unlock parental controls temporarily?\n\nRestrictions stay off until you lock them again (or until the console restarts).",
         "unlock_confirm": "Unlock",
@@ -346,7 +400,7 @@
         "banner_action": "Lock now",
         "section_danger": "Danger zone",
         "delete": "Delete all parental controls",
-        "delete_body": "Delete all parental controls?\n\nThis wipes the PIN, every restriction and the play-time limit. It cannot be undone.",
+        "delete_body": "Delete all parental controls?\n\nThis wipes the PIN, every restriction and the play-time limit. It cannot be undone, but a backup of the settings (not the PIN) is saved on the SD card first: Tools › Restore a backup.",
         "delete_body2": "Last check: delete everything now?",
         "delete_confirm": "Delete",
         "delete_confirm2": "Delete permanently",
@@ -359,6 +413,11 @@
         "section_diag": "Diagnostics",
         "export": "Export a diagnostic report",
         "export_note": "Saved in {}. Attach it to a bug report. It never contains the PIN or the serial number.",
+        "section_backup": "Settings backup",
+        "backup_save": "Back up the settings",
+        "backup_restore": "Restore a backup…",
+        "backup_count": "{} on the SD card",
+        "backup_note": "Saves the restriction level, the custom settings, VR mode and the daily play-time limits in {}. The PIN is not saved.",
         "section_prefs": "Preferences",
         "language": "Language",
         "languages": {
@@ -412,6 +471,22 @@
         "credits": "Credits",
         "credits_value": "JigSawFr · based on Pctl Manager by Taylor · anbingxi (NTP, fw 22.5 fixes)",
         "credits_line": "Credits: {}"
+    },
+    "backup": {
+        "saved": "Settings backed up: {}",
+        "save_err": "Could not back up the settings",
+        "unreadable_console": "the settings could not be read",
+        "none": "No backup on the SD card yet.",
+        "pick_title": "Restore a backup",
+        "unreadable": "{} (unreadable)",
+        "unreadable_file": "This backup cannot be read.",
+        "restore_body": "Restore the settings backed up on {}?",
+        "restore_confirm": "Restore",
+        "no_pin_note": "No PIN is set on this console: the backup does not contain one. Set it afterwards in Security & app.",
+        "restored": "Settings restored.",
+        "restore_err": "Not restored: {}",
+        "before_delete_err": "No backup could be saved first ({}).\n\nDelete everything anyway?",
+        "delete_anyway": "Delete anyway"
     },
     "toast": {
         "diag_saved": "Diagnostic saved: {}",

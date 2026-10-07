@@ -3,6 +3,7 @@
 
 #include <fmt/format.h>
 
+#include "action/backup_flow.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
 #include "util/config.hpp"
@@ -30,6 +31,7 @@ ToolsTab::ToolsTab()
     : TabBase("xml/tab/tools.xml")
 {
     export_note->setSingleLine(false);
+    backup_note->setSingleLine(false);
     credits->setSingleLine(false);
     serial_note->setSingleLine(false);
     patches_note->setSingleLine(false);
@@ -49,6 +51,19 @@ ToolsTab::ToolsTab()
         else ui::notify(brls::getStr("playguard/toast/diag_saved", path));
         return true;
     });
+
+    // Saving a backup only writes to the SD card: also offered in READ_ONLY builds.
+    backup_note->setText(brls::getStr("playguard/tools/backup_note", paths::backups_dir()));
+    backup_save->registerClickAction([this](brls::View*) {
+        backup_flow::save_now();
+        this->refresh();
+        return true;
+    });
+    backup_restore->registerClickAction([this](brls::View*) {
+        backup_flow::choose_and_restore([this]() { this->refresh(); });
+        return true;
+    });
+    ui::set_visible(backup_restore.getView(), !app::read_only_build());
 
     language->registerClickAction([this](brls::View*) {
         std::vector<std::string> labels;
@@ -95,6 +110,8 @@ void ToolsTab::refresh()
     theme->setDetailText(brls::getStr("playguard/tools/themes/" + std::string(THEMES[index_of(THEMES, cfg.theme)])));
     advanced->setOn(cfg.advanced, false);
     auto_relock->setOn(cfg.auto_relock, false);
+    const size_t backups = backup::list().size();
+    backup_restore->setDetailText(backups ? brls::getStr("playguard/tools/backup_count", (int)backups) : "");
 
     SysInfo si;
     sysinfo_get(&si);

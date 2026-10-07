@@ -5,6 +5,7 @@
 
 extern "C" {
 #include "core/pctl_ops.h"
+#include "core/playstats.h"
 #include "core/sysinfo.h"
 #include "core/time_ops.h"
 }

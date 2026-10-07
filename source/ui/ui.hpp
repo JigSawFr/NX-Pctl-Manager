@@ -57,6 +57,7 @@ void prompt_text(const std::string& header, const std::string& initial, int max_
 
 std::string fmt_minutes(uint16_t minutes);      // "No limit", "0 min", "45 min", "2 h 30"
 std::string fmt_duration_ns(uint64_t ns);       // remaining time, rounded to minutes
+std::string fmt_play_time(uint64_t seconds);    // "0 min", "< 1 min", "45 min", "152 h 30" (no 24 h cap)
 std::string day_name(int day);                  // 0 = Sunday, as a title ("Monday")
 std::string day_name_in_text(int day);          // inside a sentence (fr: "lundi")
 std::string bool_text(bool ok, bool value, const std::string& yes, const std::string& no);
@@ -100,10 +101,11 @@ namespace tab
 {
 constexpr int dashboard    = 0;
 constexpr int play_timer   = 2;
-constexpr int restrictions = 3;
-constexpr int clock        = 4;
-constexpr int security     = 6;   // PIN, unlock, companion app, delete
-constexpr int tools        = 8;
+constexpr int activity     = 3;   // play time per game
+constexpr int restrictions = 4;
+constexpr int clock        = 5;
+constexpr int security     = 7;   // PIN, unlock, companion app, delete
+constexpr int tools        = 9;
 }   // namespace tab
 
 // Opens another tab of the main screen and focuses its first item. `from` is

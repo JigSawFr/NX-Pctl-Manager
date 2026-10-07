@@ -182,6 +182,22 @@ const char *pctl_rating_org_name(u32 org)
 
 // ---------------------------------------------------------------- PIN / unlock
 
+#define PIN_BUF 32
+
+// GetPinCode (1208) into `pin` (PIN_BUF bytes, always NUL-terminated). The
+// buffer is a HIPC *pointer* buffer, like 1201's (see below). The caller
+// wipes `pin` and `*len`.
+static Result read_pin(Service *srv, char *pin, u32 *len)
+{
+    memset(pin, 0, PIN_BUF);
+    *len = 0;
+    Result rc = serviceDispatchOut(srv, 1208, *len,
+        .buffer_attrs = { SfBufferAttr_HipcPointer | SfBufferAttr_Out },
+        .buffers      = { { pin, PIN_BUF } });
+    pin[PIN_BUF - 1] = '\0';
+    return rc;
+}
+
 Result pctl_set_pin(void)
 {
 #ifdef PCTL_READ_ONLY
@@ -206,26 +222,23 @@ Result pctl_unlock_restriction_temporarily(void)
     //  - the PIN is passed NUL-terminated (GetPinCodeLength + 1 bytes) — the
     //    bare digits return 0xF80E.
     // The PIN is read with GetPinCode (1208), handed straight back and wiped;
-    // it never leaves this function.
+    // it never leaves this function (pctl_get_pin is the only other reader).
     Result rc = pctl_ops_reinit();
     if (R_FAILED(rc)) return rc;
     Service *srv = pctlGetServiceSession_Service();
 
-    char pin[32];
-    memset(pin, 0, sizeof(pin));
+    char pin[PIN_BUF];
     u32 pin_len = 0;
-    rc = serviceDispatchOut(srv, 1208, pin_len,
-        .buffer_attrs = { SfBufferAttr_HipcPointer | SfBufferAttr_Out },
-        .buffers      = { { pin, sizeof(pin) } });
+    rc = read_pin(srv, pin, &pin_len);
     if (R_SUCCEEDED(rc)) {
         size_t n = (pin_len > 0 && pin_len < (u32)sizeof(pin)) ? ((size_t)pin_len + 1) : sizeof(pin);
-        pin[sizeof(pin) - 1] = '\0';
         (void)n;   // only referenced inside the buffer descriptor below
         rc = serviceDispatch(srv, 1201,
             .buffer_attrs = { SfBufferAttr_HipcPointer | SfBufferAttr_In },
             .buffers      = { { pin, n } });
     }
     secure_zero(pin, sizeof(pin));
+    secure_zero(&pin_len, sizeof(pin_len));
 
     if (R_SUCCEEDED(rc)) {
         bool unlocked = false;
@@ -233,6 +246,42 @@ Result pctl_unlock_restriction_temporarily(void)
         if (R_FAILED(vr))   rc = vr;
         else if (!unlocked) rc = NXM_RC_UNLOCK_NOT_EFFECTIVE;
     }
+    pctl_ops_exit();
+    return rc;
+#endif
+}
+
+Result pctl_get_pin(char *out, size_t out_size)
+{
+    if (out && out_size) secure_zero(out, out_size);
+#ifdef PCTL_READ_ONLY
+    pctl_ops_exit();
+    return NXM_RC_READ_ONLY;
+#else
+    if (!out || out_size == 0) return NXM_RC_INVALID_ARGUMENT;
+    // Same session handling as the unlock above, where 1208 was validated.
+    Result rc = pctl_ops_reinit();
+    if (R_FAILED(rc)) return rc;
+
+    char pin[PIN_BUF];
+    u32 pin_len = 0;
+    rc = read_pin(pctlGetServiceSession_Service(), pin, &pin_len);
+    if (R_SUCCEEDED(rc)) {
+        size_t n = 0;
+        while (n < PIN_BUF && pin[n]) n++;
+        if (pin_len > 0 && pin_len < n) n = pin_len;
+        // A Switch PIN is 4 to 8 digits; anything else is not shown.
+        bool digits = n >= 4 && n <= 8;
+        for (size_t i = 0; i < n && digits; i++) digits = pin[i] >= '0' && pin[i] <= '9';
+        if (!digits)            rc = NXM_RC_STATE_UNKNOWN;
+        else if (n >= out_size) rc = NXM_RC_INVALID_ARGUMENT;
+        else {
+            memcpy(out, pin, n);
+            out[n] = '\0';
+        }
+    }
+    secure_zero(pin, sizeof(pin));
+    secure_zero(&pin_len, sizeof(pin_len));
     pctl_ops_exit();
     return rc;
 #endif
@@ -532,10 +581,8 @@ void pctl_dump(char *buf, size_t bufsz)
     // GetPinCode is probed for compatibility only: the output buffer and the
     // returned length are wiped and never recorded.
     if (!(srv = dump_session(&p, e, "1208"))) goto done;
-    { char pin[32] = {0}; u32 len = 0;
-      Result r = serviceDispatchOut(srv, 1208, len,
-          .buffer_attrs = { SfBufferAttr_HipcPointer | SfBufferAttr_Out },
-          .buffers      = { { pin, sizeof(pin) } });
+    { char pin[PIN_BUF]; u32 len = 0;
+      Result r = read_pin(srv, pin, &len);
       secure_zero(pin, sizeof(pin));
       secure_zero(&len, sizeof(len));
       rep(&p, e, "%6u %-38s rc=0x%08X  content=not recorded\n", 1208u, "GetPinCode", (unsigned)r); }

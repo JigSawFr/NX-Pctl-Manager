@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- Diagnostics, preferences and about. -->
+<!-- Diagnostics, settings backup, preferences and about. -->
 
 <brls:Box
     width="auto"
@@ -24,6 +24,10 @@
             <brls:Header title="@i18n/playguard/tools/section_diag" marginBottom="8"/>
             <brls:DetailCell id="tl_export" title="@i18n/playguard/tools/export"/>
             <brls:Label id="tl_export_note" text="" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
+            <brls:Header title="@i18n/playguard/tools/section_backup" marginTop="24" marginBottom="8"/>
+            <brls:DetailCell id="tl_backup_save" title="@i18n/playguard/tools/backup_save"/>
+            <brls:DetailCell id="tl_backup_restore" title="@i18n/playguard/tools/backup_restore"/>
+            <brls:Label id="tl_backup_note" text="" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
             <brls:Header title="@i18n/playguard/tools/section_prefs" marginTop="24" marginBottom="8"/>
             <brls:DetailCell id="tl_language" title="@i18n/playguard/tools/language"/>
             <brls:DetailCell id="tl_theme" title="@i18n/playguard/tools/theme"/>

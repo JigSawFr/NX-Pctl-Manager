@@ -58,8 +58,11 @@ test:
 	$(CC) -std=gnu11 -Wall -Wextra -Werror -DNX_HOST_TEST -DPCTL_READ_ONLY=1 -Itests/time_ops -Isource/core source/core/time_ops.c tests/time_ops/test.c -o $(TESTOUT)/time_ro && $(TESTOUT)/time_ro
 	$(CC) -std=gnu11 -Wall -Wextra -Werror -DNX_HOST_TEST -Itests/sysinfo -Isource/core source/core/sysinfo.c tests/sysinfo/test.c -o $(TESTOUT)/sysinfo && $(TESTOUT)/sysinfo
 	$(CC) -std=c11 -Wall -Wextra -Werror -Isource/util source/util/ntp_packet.c tests/ntp_packet/test.c -o $(TESTOUT)/ntp && $(TESTOUT)/ntp
+	$(CC) -std=c11 -Wall -Wextra -Werror -Isource/util source/util/playlog.c tests/playlog/test.c -o $(TESTOUT)/playlog && $(TESTOUT)/playlog
 	$(CXX) -std=c++17 -Wall -Wextra -Werror -Isource source/util/paths.cpp source/util/patches.cpp tests/patches/test.cpp -o $(TESTOUT)/patches && $(TESTOUT)/patches
 	$(CXX) -std=c++17 -Wall -Wextra -Werror -Isource source/util/duration.cpp tests/duration/test.cpp -o $(TESTOUT)/duration && $(TESTOUT)/duration
+	$(CXX) -std=c++17 -Wall -Wextra -Werror -Isource -Iextern/borealis/library/include source/util/paths.cpp source/util/backup.cpp tests/backup/test.cpp -o $(TESTOUT)/backup && $(TESTOUT)/backup
+	$(CXX) -std=c++17 -Wall -Wextra -Werror -Isource -Iextern/borealis/library/include source/util/paths.cpp source/util/table_export.cpp tests/table_export/test.cpp -o $(TESTOUT)/table_export && $(TESTOUT)/table_export
 
 check: test
 	python3 tools/check_resources.py .

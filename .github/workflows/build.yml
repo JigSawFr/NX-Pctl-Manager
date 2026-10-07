@@ -22,7 +22,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Unit tests (pctl_ops, time_ops, sysinfo, NTP parser — writable and READ_ONLY)
+        with:
+          submodules: true   # nlohmann/json (bundled with borealis) for the backup and export tests
+      - name: Unit tests (service layer — writable and READ_ONLY — and UI-free helpers)
         run: make test
       - name: Resources (i18n keys, translations, XML layouts)
         run: python3 tools/check_resources.py .

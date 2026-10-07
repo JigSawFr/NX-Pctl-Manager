@@ -191,6 +191,15 @@ std::string fmt_duration_ns(uint64_t ns)
     return fmt_minutes((uint16_t)minutes);
 }
 
+std::string fmt_play_time(uint64_t seconds)
+{
+    if (seconds > 0 && seconds < 60) return "playguard/activity/less_than_minute"_i18n;
+    const uint64_t m = (seconds + 30) / 60;
+    if (m < 60) return brls::getStr("playguard/common/minutes", (int)m);
+    if (m % 60 == 0) return brls::getStr("playguard/common/hours", (unsigned long long)(m / 60));
+    return brls::getStr("playguard/common/hours_minutes", (unsigned long long)(m / 60), fmt::format("{:02d}", (int)(m % 60)));
+}
+
 std::string day_name(int day)
 {
     if (day < 0 || day > 6) return "?";

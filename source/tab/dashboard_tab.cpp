@@ -208,12 +208,9 @@ void DashboardTab::refresh()
         updated->setText(brls::getStr("playguard/dashboard/updated", std::string(hms)));
     }
 
-    // "Extra time today…" while a limit applies today (and it can be written).
-    const bool can_extend = !app::read_only_build() && pt.fw_supported && pt.valid && pt.enabled_valid &&
-                            pt.enabled && pt.day_min[today] != PT_DAY_NOLIMIT && pt.day_min[today] < 1440;
-
     // Visibility last, so a vanished focused cell hands the focus to a neighbour.
-    ui::set_visible_all({ { extra.getView(), can_extend }, { fw.getView(), compat_issue }, { compat.getView(), compat_issue },
+    ui::set_visible_all({ { extra.getView(), pt_flow::can_add_extra_time(pt) },
+                          { fw.getView(), compat_issue }, { compat.getView(), compat_issue },
                           { serial.getView(), serial_issue }, { game_patches.getView(), patches_issue },
                           { unlocked_banner.getView(), unlocked } });
 }

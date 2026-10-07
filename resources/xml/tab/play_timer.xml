@@ -28,6 +28,7 @@
             <brls:Label id="pt_fw_note" text="@i18n/playguard/play_timer/fw_too_old" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
             <brls:Header id="pt_limit_header" title="@i18n/playguard/play_timer/section_limit" marginBottom="8"/>
             <brls:DetailCell id="pt_quick" title="@i18n/playguard/play_timer/quick"/>
+            <brls:DetailCell id="pt_extra" title="@i18n/playguard/dashboard/extra"/>
             <brls:DetailCell id="pt_per_day" title="@i18n/playguard/play_timer/per_day"/>
             <brls:DetailCell id="pt_remove" title="@i18n/playguard/play_timer/remove"/>
             <brls:DetailCell id="pt_profiles" title="@i18n/playguard/play_timer/profiles"/>
