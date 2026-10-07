@@ -6,8 +6,7 @@
         "play_timer": "Temps de jeu",
         "restrictions": "Restrictions",
         "clock": "Horloge réseau",
-        "pairing": "Application mobile",
-        "security": "Code PIN et sécurité",
+        "security": "Sécurité et appli",
         "tools": "Outils et à propos"
     },
     "hints": {
@@ -54,8 +53,17 @@
         "5": "vendredi",
         "6": "samedi"
     },
+    "days_short": {
+        "0": "Dim",
+        "1": "Lun",
+        "2": "Mar",
+        "3": "Mer",
+        "4": "Jeu",
+        "5": "Ven",
+        "6": "Sam"
+    },
     "numpad": {
-        "guide": "Minutes par jour, de 0 à 1440 (0 = pas de jeu ce jour-là)"
+        "guide": "Heures:minutes (1:30) ou minutes (90), jusqu'à 24:00. 0 = pas de jeu ce jour-là."
     },
     "error": {
         "code": "erreur {}",
@@ -116,7 +124,17 @@
         "patches": "Patchs de jeux",
         "firmware": "Firmware",
         "compat": "Compatibilité",
-        "hint": "Appuyez sur A sur une ligne pour ouvrir l'onglet correspondant. Les valeurs s'actualisent seules (X : tout de suite)."
+        "hint": "Appuyez sur A sur une ligne pour ouvrir l'onglet correspondant. Les valeurs s'actualisent seules (X : tout de suite).",
+        "updated": "Mis à jour à {}",
+        "extra": "Temps en plus aujourd'hui…",
+        "extra_title": "Temps en plus aujourd'hui",
+        "extra_body": "Ajouter {} aujourd'hui ?\n\nLa limite du {} passe de {} à {}. Au prochain lancement de PlayGuard un autre jour, il proposera de la remettre à {}.",
+        "extra_confirm": "Ajouter",
+        "extra_done": "Temps ajouté : {} aujourd'hui.",
+        "extra_restore_body": "Le temps ajouté le {} est toujours sur la limite du {} ({}). La remettre à {} ?",
+        "extra_keep": "Garder {}",
+        "extra_restore": "Remettre",
+        "extra_restored": "Limite du {} remise à {}."
     },
     "compat": {
         "ok": "Vérifié",
@@ -136,7 +154,8 @@
             "configured": "Limite configurée",
             "not_set": "Aucune (minuteur désactivé)",
             "every_day": "{} tous les jours",
-            "today_per_day": "{} aujourd'hui (varie selon le jour)"
+            "today_per_day": "{} aujourd'hui (varie selon le jour)",
+            "profile": "{} · {}"
         },
         "section_limit": "Limite quotidienne",
         "quick": "Même limite tous les jours",
@@ -146,10 +165,17 @@
         "remove": "Supprimer la limite de temps de jeu",
         "section_profiles": "Profils",
         "profile_save": "Enregistrer comme profil…",
-        "profile_load": "Charger un profil…",
-        "profile_delete": "Supprimer un profil…",
         "profile_name": "Nom du profil (lettres, chiffres, espaces)",
         "profile_none": "Aucun profil enregistré pour le moment.",
+        "suspend_warning": "Déjà joué aujourd'hui : {}. Le jeu en cours sera suspendu dès que le contrôle parental sera reverrouillé.",
+        "profiles": "Profils…",
+        "profiles_count": "{} enregistré(s)",
+        "profiles_title": "Profils",
+        "profiles_section_saved": "Profils enregistrés",
+        "profiles_section_new": "Nouveau profil",
+        "profiles_hint": "A applique un profil, X le supprime.",
+        "profile_current": "{} (actuel)",
+        "profile_range": "{} à {}",
         "profile_saved": "Profil « {} » enregistré.",
         "profile_save_err": "Impossible d'enregistrer le profil",
         "profile_replace": "Un profil « {} » existe déjà. Le remplacer ?",
@@ -203,7 +229,7 @@
             "section_save": "Enregistrer",
             "save": "Enregistrer ces limites",
             "pick_title": "{} : limite",
-            "pick_minutes": "Saisir des minutes…",
+            "pick_minutes": "Saisir une durée…",
             "pick_no_limit": "Pas de limite",
             "unsaved": "  (non enregistré)",
             "unsaved_count": "{} modification(s) non enregistrée(s)",
@@ -280,6 +306,7 @@
         "result_none": "Aucun serveur n'a répondu. Vérifiez la connexion Internet.",
         "need_measure": "Mesurez d'abord (une mesure reste valable 2 minutes).",
         "expired": "La mesure date de plus de 2 minutes. Mesurez de nouveau.",
+        "valid_for": "Valable encore {}",
         "confirm_apply": "Régler l'horloge réseau sur {} ({}) ?",
         "confirm_apply_spread": "\n\nLes serveurs divergent de {} secondes.",
         "apply_confirm": "Régler l'horloge",
@@ -383,7 +410,8 @@
         "license_value": "GPLv3 · Interface : borealis (Apache 2.0)",
         "source": "Code source",
         "credits": "Crédits",
-        "credits_value": "JigSawFr · d'après Pctl Manager de Taylor · anbingxi (NTP, correctifs 22.5)"
+        "credits_value": "JigSawFr · d'après Pctl Manager de Taylor · anbingxi (NTP, correctifs 22.5)",
+        "credits_line": "Crédits : {}"
     },
     "toast": {
         "diag_saved": "Diagnostic enregistré : {}",

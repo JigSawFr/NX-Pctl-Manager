@@ -1,7 +1,9 @@
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #include "action/pt_flow.hpp"
 
+#include <algorithm>
 #include <borealis.hpp>
+#include <ctime>
 
 #include "app.hpp"
 #include "ui/ui.hpp"
@@ -18,8 +20,20 @@ const std::vector<uint16_t>& quick_values()
     return values;
 }
 
-void confirm_write(const std::string& body, const std::string& confirm_label,
-                   std::function<void(bool did_unlock)> write)
+int played_today_min(const PtState& pt)
+{
+    if (!pt.valid || !pt.enabled_valid || !pt.enabled) return -1;
+    const uint16_t limit = pt.day_min[ui::today_weekday()];
+    if (limit == PT_DAY_NOLIMIT) return -1;
+    if (pt.restricted_valid && pt.restricted) return limit;
+    // The remaining time reads 0 until a game has been counted today.
+    if (!pt.remaining_valid || pt.remaining_ns == 0) return -1;
+    const uint64_t left = pt.remaining_ns / 60000000000ULL;
+    return left >= limit ? 0 : (int)(limit - left);
+}
+
+void confirm_write(const std::string& body_in, const std::string& confirm_label,
+                   std::function<void(bool did_unlock)> write, const uint16_t* new_days)
 {
     if (app::read_only_build()) {
         ui::notify(ui::rc_text(NXM_RC_READ_ONLY));
@@ -35,6 +49,18 @@ void confirm_write(const std::string& body, const std::string& confirm_label,
     if (!pt.valid || !pt.enabled_valid || !pt.restricted_valid || !pt.temporary_unlocked_valid) {
         ui::notify(ui::rc_text(NXM_RC_STATE_UNKNOWN));
         return;
+    }
+
+    // A limit below what was already played suspends the game at the relock.
+    std::string body = body_in;
+    if (new_days) {
+        const int played = played_today_min(pt);
+        const uint16_t next = new_days[ui::today_weekday()];
+        if (played > 0 && next != PT_DAY_NOLIMIT && next < played) {
+            const std::string warning = brls::getStr("playguard/play_timer/suspend_warning",
+                                                     ui::fmt_minutes((uint16_t)played));
+            body = body.empty() ? warning : body + "\n\n" + warning;
+        }
     }
 
     const bool needs_unlock = (pt.enabled || pt.restricted) && !pt.temporary_unlocked;
@@ -98,13 +124,15 @@ static void apply_uniform(uint16_t minutes, std::function<void()> refresh)
 {
     std::string body = minutes == 0 ? "playguard/play_timer/confirm_uniform_zero"_i18n
                                     : brls::getStr("playguard/play_timer/confirm_uniform", ui::fmt_minutes(minutes));
+    uint16_t new_days[7];
+    for (auto& d : new_days) d = minutes;
     confirm_write(body, "playguard/play_timer/confirm_set"_i18n, [minutes, refresh](bool did_unlock) {
         uint16_t days[7];
         for (auto& d : days) d = minutes;
         Result rc = pctl_play_timer_set_days(days);
         finish_write(rc, did_unlock, brls::getStr("playguard/play_timer/written_uniform", ui::fmt_minutes(minutes)),
                      "playguard/play_timer/write_err"_i18n, refresh);
-    });
+    }, new_days);
 }
 
 void choose_uniform_limit(const PtState& pt, std::function<void()> refresh)
@@ -136,6 +164,115 @@ void choose_uniform_limit(const PtState& pt, std::function<void()> refresh)
         ui::prompt_minutes("playguard/play_timer/quick_title"_i18n, seed,
                            [refresh](uint16_t v) { apply_uniform(v, refresh); });
     });
+}
+
+static std::string today_date()
+{
+    std::time_t now = std::time(nullptr);
+    std::tm tmv{};
+#ifdef _WIN32
+    localtime_s(&tmv, &now);
+#else
+    localtime_r(&now, &tmv);
+#endif
+    char buf[16];
+    std::strftime(buf, sizeof(buf), "%Y-%m-%d", &tmv);
+    return buf;
+}
+
+static void clear_extra_record()
+{
+    auto& cfg = config::get();
+    cfg.extra_weekday = -1;
+    cfg.extra_date.clear();
+    config::save();
+}
+
+void add_extra_time(const PtState& pt, std::function<void()> refresh)
+{
+    const int wd = ui::today_weekday();
+    if (!pt.valid || pt.day_min[wd] == PT_DAY_NOLIMIT) return;
+    static const uint16_t EXTRA[] = { 15, 30, 60 };
+    std::vector<std::string> labels;
+    for (uint16_t e : EXTRA) labels.push_back("+" + ui::fmt_minutes(e));
+    const uint16_t base = pt.day_min[wd];
+    ui::pick("playguard/dashboard/extra_title"_i18n, labels, 0, [refresh, wd, base](int index) {
+        const uint16_t extra = EXTRA[index];
+        const uint16_t value = (uint16_t)std::min<int>(1440, base + extra);
+        // What gets put back later is the limit before any extra time today.
+        const auto& cfg = config::get();
+        const bool again = cfg.extra_weekday == wd && cfg.extra_date == today_date();
+        const uint16_t original = again ? (uint16_t)cfg.extra_base : base;
+        const std::string body = brls::getStr("playguard/dashboard/extra_body", ui::fmt_minutes(extra),
+                                              ui::day_name_in_text(wd), ui::fmt_minutes(base),
+                                              ui::fmt_minutes(value), ui::fmt_minutes(original));
+        confirm_write(body, "playguard/dashboard/extra_confirm"_i18n, [refresh, wd, base, value, original](bool did_unlock) {
+            PtState now;
+            pctl_play_timer_query(&now);
+            if (!now.valid || now.day_min[wd] != base) {   // changed meanwhile: write nothing
+                finish_write(NXM_RC_STATE_UNKNOWN, did_unlock, "", "playguard/play_timer/write_err"_i18n, refresh);
+                return;
+            }
+            uint16_t days[7];
+            for (int i = 0; i < 7; i++) days[i] = now.day_min[i];
+            days[wd] = value;
+            Result rc = pctl_play_timer_set_days(days);
+            if (R_SUCCEEDED(rc)) {
+                auto& c = config::get();
+                c.extra_weekday = wd;
+                c.extra_date    = today_date();
+                c.extra_base    = original;
+                c.extra_value   = value;
+                config::save();
+            }
+            finish_write(rc, did_unlock, brls::getStr("playguard/dashboard/extra_done", ui::fmt_minutes(value)),
+                         "playguard/play_timer/write_err"_i18n, refresh);
+        });
+    });
+}
+
+void offer_extra_time_restore()
+{
+    const auto& cfg = config::get();
+    if (app::read_only_build() || cfg.extra_weekday < 0 || cfg.extra_weekday > 6) return;
+    if (cfg.extra_date == today_date()) return;   // still the day it was added
+
+    PtState pt;
+    pctl_play_timer_query(&pt);
+    if (!pt.fw_supported || !pt.valid) return;    // ask again next time
+    const int wd = cfg.extra_weekday;
+    if (pt.day_min[wd] != cfg.extra_value) {      // changed since: nothing to put back
+        clear_extra_record();
+        return;
+    }
+    const uint16_t base = (uint16_t)cfg.extra_base, value = (uint16_t)cfg.extra_value;
+    auto* dialog = new brls::Dialog(brls::getStr("playguard/dashboard/extra_restore_body", cfg.extra_date,
+                                                 ui::day_name_in_text(wd), ui::fmt_minutes(value),
+                                                 ui::fmt_minutes(base)));
+    dialog->addButton(brls::getStr("playguard/dashboard/extra_keep", ui::fmt_minutes(value)), []() { clear_extra_record(); });
+    dialog->addButton("playguard/dashboard/extra_restore"_i18n, [wd, base, value]() {
+        brls::sync([wd, base, value]() {
+            confirm_write("", "playguard/play_timer/confirm_set"_i18n, [wd, base, value](bool did_unlock) {
+                PtState now;
+                pctl_play_timer_query(&now);
+                if (!now.valid || now.day_min[wd] != value) {
+                    clear_extra_record();
+                    finish_write(NXM_RC_STATE_UNKNOWN, did_unlock, "", "playguard/play_timer/write_err"_i18n, nullptr);
+                    return;
+                }
+                uint16_t days[7];
+                for (int i = 0; i < 7; i++) days[i] = now.day_min[i];
+                days[wd] = base;
+                Result rc = pctl_play_timer_set_days(days);
+                if (R_SUCCEEDED(rc)) clear_extra_record();
+                finish_write(rc, did_unlock,
+                             brls::getStr("playguard/dashboard/extra_restored", ui::day_name_in_text(wd), ui::fmt_minutes(base)),
+                             "playguard/play_timer/write_err"_i18n, nullptr);
+            });
+        });
+    });
+    dialog->setCancelable(false);
+    dialog->open();
 }
 
 }   // namespace pt_flow

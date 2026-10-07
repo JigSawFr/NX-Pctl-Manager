@@ -91,6 +91,11 @@ void ClockTab::refresh()
         if (elapsed < 0 || elapsed > SAMPLE_LIFETIME_S) {
             this->last = Measurement{};
             this->result->setText("playguard/clock/expired"_i18n);
+        } else {
+            // Counts down every second (the tab refreshes itself each second).
+            const int64_t left = SAMPLE_LIFETIME_S - elapsed;
+            apply_cell->setDetailText(brls::getStr("playguard/clock/valid_for",
+                                                   fmt::format("{}:{:02d}", (int)(left / 60), (int)(left % 60))));
         }
     }
     ui::set_visible(apply_cell.getView(), !app::read_only_build() && this->last.ok);

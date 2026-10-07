@@ -1,6 +1,7 @@
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #include "tab/dashboard_tab.hpp"
 
+#include <ctime>
 #include <fmt/format.h>
 
 #include "action/pt_flow.hpp"
@@ -33,13 +34,17 @@ DashboardTab::DashboardTab()
         this->open_today_limit();
         return true;
     });
+    extra->registerClickAction([this](brls::View*) {
+        pt_flow::add_extra_time(this->pt, [this]() { this->refresh(); });
+        return true;
+    });
     link(remaining, ui::tab::play_timer);
     link(bedtime, ui::tab::play_timer);
     link(pc, ui::tab::security);
     link(pin, ui::tab::security);
     link(level, ui::tab::restrictions);
     link(clock, ui::tab::clock);
-    link(pairing, ui::tab::pairing);
+    link(pairing, ui::tab::security);
     link(fw, ui::tab::tools);
     link(compat, ui::tab::tools);
     link(serial, ui::tab::tools);
@@ -193,8 +198,22 @@ void DashboardTab::refresh()
     game_patches->setDetailText(ui::patches_text(this->patch_report, &c));
     game_patches->setDetailTextColor(c);
 
+    // When the values were last read (X refreshes now, the timer every 5 s).
+    {
+        std::time_t now = std::time(nullptr);
+        std::tm tmv{};
+        localtime_r(&now, &tmv);
+        char hms[16];
+        std::strftime(hms, sizeof(hms), "%H:%M:%S", &tmv);
+        updated->setText(brls::getStr("playguard/dashboard/updated", std::string(hms)));
+    }
+
+    // "Extra time today…" while a limit applies today (and it can be written).
+    const bool can_extend = !app::read_only_build() && pt.fw_supported && pt.valid && pt.enabled_valid &&
+                            pt.enabled && pt.day_min[today] != PT_DAY_NOLIMIT && pt.day_min[today] < 1440;
+
     // Visibility last, so a vanished focused cell hands the focus to a neighbour.
-    ui::set_visible_all({ { fw.getView(), compat_issue }, { compat.getView(), compat_issue },
+    ui::set_visible_all({ { extra.getView(), can_extend }, { fw.getView(), compat_issue }, { compat.getView(), compat_issue },
                           { serial.getView(), serial_issue }, { game_patches.getView(), patches_issue },
                           { unlocked_banner.getView(), unlocked } });
 }

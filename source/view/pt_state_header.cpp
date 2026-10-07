@@ -2,6 +2,7 @@
 #include "view/pt_state_header.hpp"
 
 #include "ui/ui.hpp"
+#include "util/profiles.hpp"
 
 using namespace brls::literals;
 
@@ -20,8 +21,12 @@ std::string PtStateHeader::configured_text(const PtState& pt)
         if (pt.day_min[i] != pt.day_min[0]) uniform = false;
     }
     if (!any) return "playguard/play_timer/state/not_set"_i18n;
-    if (uniform) return brls::getStr("playguard/play_timer/state/every_day", ui::fmt_minutes(pt.day_min[0]));
-    return brls::getStr("playguard/play_timer/state/today_per_day", ui::fmt_minutes(pt.day_min[ui::today_weekday()]));
+    const std::string text = uniform
+        ? brls::getStr("playguard/play_timer/state/every_day", ui::fmt_minutes(pt.day_min[0]))
+        : brls::getStr("playguard/play_timer/state/today_per_day", ui::fmt_minutes(pt.day_min[ui::today_weekday()]));
+    // Name the saved profile these limits come from, when one matches exactly.
+    const std::string profile = profiles::match(pt.day_min);
+    return profile.empty() ? text : brls::getStr("playguard/play_timer/state/profile", profile, text);
 }
 
 void PtStateHeader::show(const PtState& pt)

@@ -12,7 +12,6 @@
 #include "app.hpp"
 #include "tab/clock_tab.hpp"
 #include "tab/dashboard_tab.hpp"
-#include "tab/pairing_tab.hpp"
 #include "tab/play_timer_tab.hpp"
 #include "tab/restrictions_tab.hpp"
 #include "tab/security_tab.hpp"
@@ -21,6 +20,7 @@
 #include "util/config.hpp"
 #include "view/pt_gauge.hpp"
 #include "view/pt_state_header.hpp"
+#include "view/pt_week.hpp"
 
 using namespace brls::literals;
 
@@ -58,11 +58,11 @@ int main(int argc, char* argv[])
 
     brls::Application::registerXMLView("PtStateHeader",   PtStateHeader::create);
     brls::Application::registerXMLView("PtGauge",         PtGauge::create);
+    brls::Application::registerXMLView("PtWeekView",      PtWeekView::create);
     brls::Application::registerXMLView("DashboardTab",    DashboardTab::create);
     brls::Application::registerXMLView("PlayTimerTab",    PlayTimerTab::create);
     brls::Application::registerXMLView("RestrictionsTab", RestrictionsTab::create);
     brls::Application::registerXMLView("ClockTab",        ClockTab::create);
-    brls::Application::registerXMLView("PairingTab",      PairingTab::create);
     brls::Application::registerXMLView("SecurityTab",     SecurityTab::create);
     brls::Application::registerXMLView("ToolsTab",        ToolsTab::create);
 

@@ -30,6 +30,7 @@ ToolsTab::ToolsTab()
     : TabBase("xml/tab/tools.xml")
 {
     export_note->setSingleLine(false);
+    credits->setSingleLine(false);
     serial_note->setSingleLine(false);
     patches_note->setSingleLine(false);
 
@@ -136,7 +137,8 @@ void ToolsTab::refresh()
     data->setDetailText(paths::data_dir());
     license->setDetailText("playguard/tools/license_value"_i18n);
     source->setDetailText(app::repo_url());
-    credits->setDetailText("playguard/tools/credits_value"_i18n);
+    // A note rather than a cell: the credits are longer than a cell's value.
+    credits->setText(brls::getStr("playguard/tools/credits_line", "playguard/tools/credits_value"_i18n));
 }
 
 brls::View* ToolsTab::create()

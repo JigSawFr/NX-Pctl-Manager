@@ -29,6 +29,7 @@
                 <brls:Label id="dash_gauge_text" text=""/>
             </brls:Box>
             <brls:DetailCell id="dash_today_limit"/>
+            <brls:DetailCell id="dash_extra" title="@i18n/playguard/dashboard/extra"/>
             <brls:DetailCell id="dash_remaining" title="@i18n/playguard/dashboard/remaining"/>
             <brls:DetailCell id="dash_bedtime" title="@i18n/playguard/dashboard/bedtime"/>
             <brls:Header title="@i18n/playguard/dashboard/section_status" marginTop="24" marginBottom="8"/>
@@ -42,7 +43,8 @@
             <brls:DetailCell id="dash_patches" title="@i18n/playguard/dashboard/patches"/>
             <brls:DetailCell id="dash_fw" title="@i18n/playguard/dashboard/firmware"/>
             <brls:DetailCell id="dash_compat" title="@i18n/playguard/dashboard/compat"/>
-            <brls:Label id="dash_hint" text="@i18n/playguard/dashboard/hint" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
+            <brls:Label id="dash_updated" text="" fontSize="18" marginTop="10" textColor="@theme/brand/note"/>
+            <brls:Label id="dash_hint" text="@i18n/playguard/dashboard/hint" fontSize="18" marginTop="4" marginBottom="6" textColor="@theme/brand/note"/>
 
         </brls:Box>
 

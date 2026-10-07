@@ -10,6 +10,15 @@ SecurityTab::SecurityTab()
     : TabBase("xml/tab/security.xml")
 {
     this->enable_auto_refresh(5000);
+    pr_note->setSingleLine(false);
+    pr_unlink->registerClickAction([this](brls::View*) {
+        ui::confirm_danger("playguard/pairing/unlink_body"_i18n, "playguard/pairing/unlink_confirm"_i18n, [this]() {
+            Result rc = pctl_delete_pairing();
+            ui::notify_result(rc, "playguard/pairing/unlinked"_i18n, "playguard/pairing/unlink_err"_i18n);
+            this->refresh();
+        });
+        return true;
+    });
     set_pin->registerClickAction([this](brls::View*) {
         // Blocks while the system PIN applet is shown; the session is released first.
         Result rc = pctl_set_pin();
@@ -63,6 +72,14 @@ void SecurityTab::refresh()
                                       "playguard/common/yes"_i18n, "playguard/common/no"_i18n));
     temp->setDetailTextColor(s.temp_unlocked_ok && s.temp_unlocked ? ui::color_warn() : ui::color_neutral());
 
+    // Companion app: while linked, its next sync overwrites what is set here.
+    const bool paired = s.pairing_active_ok && s.pairing_active;
+    pr_active->setDetailText(ui::bool_text(s.pairing_active_ok, s.pairing_active,
+                                           "playguard/common/yes"_i18n, "playguard/common/no"_i18n));
+    pr_active->setDetailTextColor(paired ? ui::color_warn() : ui::color_neutral());
+    pr_updated->setDetailText(s.last_updated_ok ? ui::time_text(s.last_updated) : "playguard/common/unavailable"_i18n);
+    pr_note->setTextColor(paired ? ui::color_warn() : ui::color_note());
+
     const bool writable = !app::read_only_build();
     const bool has_pin  = s.pin_length_ok && s.pin_length > 0;
     const bool unlocked = s.temp_unlocked_ok && s.temp_unlocked;
@@ -70,6 +87,7 @@ void SecurityTab::refresh()
                           { set_pin.getView(), writable },
                           { unlock.getView(), writable && has_pin && !unlocked },
                           { relock.getView(), writable && unlocked },
+                          { pr_unlink.getView(), writable },
                           { danger_header.getView(), writable },
                           { del.getView(), writable } });
 }

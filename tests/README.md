@@ -14,6 +14,7 @@ make test
 | `time_ops/` | `source/core/time_ops.c`: handle ownership, each clock / flag / time-zone failure, the automatic-correction gate, read-back verification and its overflow bound, local-time formatting, READ_ONLY. |
 | `sysinfo/` | `source/core/sysinfo.c`: Atmosphère version decoding, emuMMC and PRODINFO-blank detection (spl 65007 / 65005, with the blanked serial as fallback), the serial number, spl and set:sys session release, applet detection, the compatibility policy. |
 | `patches/` | `source/util/patches.cpp`: sys-patch `log.ini` parsing, stale logs (other firmware or storage), sigpatch file detection, and the verdict (sys-patch, incomplete, files only, none) on fake SD card trees. |
+| `duration/` | `source/util/duration.cpp`: duration input (`90`, `1:30`, `2h`, `1h30m`), the 24 h bound and malformed entries (`:30`, `1:60`, `2:001`, `1.5`). |
 | `ntp_packet/` | `source/util/ntp_packet.c`: every malformed / unsynchronised NTP reply is rejected; NTP era handling. |
 
 The `pctl_session`, `time_ops` and `ntp_packet` suites started from anbingxi's

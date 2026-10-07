@@ -32,10 +32,6 @@
 
         <brls:Separator/>
 
-        <brls:Tab label="@i18n/playguard/tabs/pairing">
-            <PairingTab/>
-        </brls:Tab>
-
         <brls:Tab label="@i18n/playguard/tabs/security">
             <SecurityTab/>
         </brls:Tab>

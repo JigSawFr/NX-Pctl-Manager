@@ -9,6 +9,12 @@
 namespace profiles
 {
 
+namespace
+{
+std::vector<Profile> g_cache;
+bool g_cache_valid = false;
+}   // namespace
+
 std::string sanitize_name(const std::string& name)
 {
     std::string out;
@@ -64,12 +70,38 @@ bool save(const Profile& p, std::string* error)
         if (d == 0xFFFF) j["days"].push_back(nullptr);
         else j["days"].push_back(d);
     }
+    g_cache_valid = false;
     return paths::atomic_write(paths::profiles_dir() + "/" + name + ".json", j.dump(2) + "\n", error);
+}
+
+static const std::vector<Profile>& cached()
+{
+    if (!g_cache_valid) {
+        g_cache = list();
+        g_cache_valid = true;
+    }
+    return g_cache;
+}
+
+size_t count()
+{
+    return cached().size();
+}
+
+std::string match(const uint16_t days[7])
+{
+    for (const auto& p : cached()) {
+        bool same = true;
+        for (int i = 0; i < 7 && same; i++) same = p.days[i] == days[i];
+        if (same) return p.name;
+    }
+    return "";
 }
 
 bool remove(const std::string& name)
 {
     std::string n = sanitize_name(name);
+    g_cache_valid = false;
     return !n.empty() && std::remove((paths::profiles_dir() + "/" + n + ".json").c_str()) == 0;
 }
 

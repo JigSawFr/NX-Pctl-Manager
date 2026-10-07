@@ -5,6 +5,7 @@
 
 #include "tab/tab_base.hpp"
 #include "view/pt_state_header.hpp"
+#include "view/pt_week.hpp"
 
 class PlayTimerTab : public TabBase
 {
@@ -18,23 +19,17 @@ class PlayTimerTab : public TabBase
   private:
     PtState pt = {};
 
-    void apply_days(const uint16_t days[7], const std::string& body);
     void remove_limit();
-    void save_profile();
-    void load_profile();
-    void delete_profile();
 
     BRLS_BIND(brls::DetailCell,  unlocked_banner, "pt_unlocked_banner");
     BRLS_BIND(PtStateHeader,     state_header,    "pt_state_header");
+    BRLS_BIND(PtWeekView,        week,            "pt_week");
     BRLS_BIND(brls::Label,       fw_note,         "pt_fw_note");
     BRLS_BIND(brls::Header,      limit_header,    "pt_limit_header");
     BRLS_BIND(brls::DetailCell,  quick,           "pt_quick");
     BRLS_BIND(brls::DetailCell,  per_day,         "pt_per_day");
     BRLS_BIND(brls::DetailCell,  remove,          "pt_remove");
-    BRLS_BIND(brls::Header,      profiles_header, "pt_profiles_header");
-    BRLS_BIND(brls::DetailCell,  profile_save,    "pt_profile_save");
-    BRLS_BIND(brls::DetailCell,  profile_load,    "pt_profile_load");
-    BRLS_BIND(brls::DetailCell,  profile_delete,  "pt_profile_delete");
+    BRLS_BIND(brls::DetailCell,  profiles_cell,   "pt_profiles");
     BRLS_BIND(brls::Header,      bedtime_header,  "pt_bedtime_header");
     BRLS_BIND(brls::DetailCell,  bedtime,         "pt_bedtime");
     BRLS_BIND(brls::DetailCell,  bedtime_reset,   "pt_bedtime_reset");

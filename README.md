@@ -31,12 +31,11 @@ The app is organised in tabs, like System Settings.
 
 | Tab | What you can do |
 |---|---|
-| **Overview** | Today first (a gauge of today's play time, today's limit, time left, bedtime alarm), then the parental-control state, PIN and restriction level, then what needs attention: network-clock accuracy, companion-app link (in amber while linked), firmware / compatibility only when there is a problem. Ⓐ on a line opens the matching tab; Ⓐ on *Today's limit* changes it right there. A banner with **Lock now** appears while parental controls are temporarily unlocked. Refreshes every 5 s (Ⓧ refreshes now). |
-| **Play timer** | Same limit every day (quick list or any value), a different limit per day (quick values, Monday–Friday / weekend presets, "no limit" per day, a count of unsaved changes), remove the limit, **profiles** saved on the SD card (e.g. *School week*, *Holidays*), bedtime alarm (read-only). Advanced, opt-in: "time's up" alarm on/off, pause / resume the countdown. |
+| **Overview** | Today first (a gauge of today's play time, today's limit, time left, bedtime alarm), then the parental-control state, PIN and restriction level, then what needs attention: network-clock accuracy, companion-app link (in amber while linked), firmware / compatibility only when there is a problem. Ⓐ on a line opens the matching tab; Ⓐ on *Today's limit* changes it right there. **Extra time today** (+15 min, +30 min, +1 h on today's limit; the next time the app opens on another day, it offers to put the usual limit back). A banner with **Lock now** appears while parental controls are temporarily unlocked. Refreshes every 5 s and shows the time of the last refresh (Ⓧ refreshes now). |
+| **Play timer** | The week at a glance (one bar per day, today highlighted, the matching profile named in the header). Same limit every day (quick list or any value, typed in minutes or as `1:30`), a different limit per day (quick values, Monday–Friday / weekend presets, "no limit" per day, a count of unsaved changes), remove the limit, a **Profiles** screen for limits saved on the SD card (e.g. *School week*, *Holidays*: apply, save the current limits, delete), bedtime alarm (read-only). Advanced, opt-in: "time's up" alarm on/off, pause / resume the countdown. |
 | **Restrictions** | Restriction level (None, Young child, Child, Teen, Custom); in Custom: age rating, social-media posting, communication with others; VR mode; rating organisation. |
-| **Network clock** | Console / network clocks, time zone, accuracy. Pick a public NTP server (≈ 50 built-in, by region, or your own), **measure** against 3 servers (median, warning when they disagree) and **set the network clock**. The play timer relies on this clock; a console that never reaches Nintendo's servers keeps it inaccurate. |
-| **Companion app** | Whether the Nintendo Switch Parental Controls phone app is linked, last synchronisation, unlink it (otherwise its next sync overwrites the limits set here). |
-| **PIN & security** | Set / change the PIN (system PIN screen), unlock temporarily, **lock now**, delete all parental controls (two confirmations with different red buttons, irreversible). |
+| **Network clock** | Console / network clocks, time zone, accuracy. Pick a public NTP server (≈ 50 built-in, by region, or your own), **measure** against 3 servers (median, warning when they disagree) and **set the network clock** (a measurement stays usable for 2 minutes, with a countdown). The play timer relies on this clock; a console that never reaches Nintendo's servers keeps it inaccurate. |
+| **Security & app** | Set / change the PIN (system PIN screen), unlock temporarily, **lock now**. *Companion app*: whether the Nintendo Switch Parental Controls phone app is linked, last synchronisation, unlink it (otherwise its next sync overwrites the limits set here). Delete all parental controls (two confirmations with different red buttons, irreversible). |
 | **Tools & about** | Export a diagnostic report, language and theme (with an offer to restart), **lock again automatically after a change** (on by default), advanced actions. *Console*: firmware, Atmosphère, compatibility, **storage** (emuMMC or sysMMC), whether Atmosphère **blanks the serial number** (with the number the system sees, partly hidden until Ⓐ; a warning on emuMMC when it is not blanked), **game patches** (sys-patch or sigpatch files, with a warning recommending sys-patch when only files are used). The Overview repeats these two warnings. |
 
 ![Play timer](images/screenshots/play_timer.png)
@@ -46,7 +45,7 @@ The app is organised in tabs, like System Settings.
 
 If the timer is counting down, overwriting its configuration destabilises Atmosphère. So before any write the app checks the state; if the timer is active, the confirmation dialog also says that parental controls are unlocked temporarily first (with the stored PIN — **you don't need to remember it**). One press then unlocks, checks that the system really reports the unlock, writes, and **locks again right away** (or offers to, if *Lock again automatically after a change* is off). The service layer re-checks the same state just before writing, so no screen can skip that safeguard.
 
-`0` minutes means *no play that day*; *Remove the play-time limit* turns the timer off. ⚠️ Don't set a limit below the time already played today: as soon as parental controls are locked again, the game is suspended.
+`0` minutes means *no play that day*; *Remove the play-time limit* turns the timer off. ⚠️ A limit below the time already played today suspends the game as soon as parental controls are locked again; the confirmation says so when that would happen.
 
 ## Install
 
@@ -61,7 +60,7 @@ Files the app writes: `sd:/switch/playguard/config.json` (preferences), `profile
 ### First steps
 
 1. **Parental controls not set up yet:** System Settings › Parental Controls › set a PIN (skip the phone-app pairing). Then open the app.
-2. **Already paired with the phone app:** open *Companion app* › *Unlink*, otherwise the next sync overwrites what you set here.
+2. **Already paired with the phone app:** open *Security & app* › *Unlink the companion app*, otherwise the next sync overwrites what you set here.
 3. *Play timer* › *Same limit every day* (or *A different limit for each day…*).
 4. If the network clock is not accurate (Overview), use *Network clock* › *Measure* then *Set the network clock* (enable *Synchronise Clock via Internet* in System Settings first).
 

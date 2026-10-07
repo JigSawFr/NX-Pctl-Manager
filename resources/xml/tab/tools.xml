@@ -45,7 +45,7 @@
             <brls:DetailCell id="tl_data" title="@i18n/playguard/tools/data"/>
             <brls:DetailCell id="tl_license" title="@i18n/playguard/tools/license"/>
             <brls:DetailCell id="tl_source" title="@i18n/playguard/tools/source"/>
-            <brls:DetailCell id="tl_credits" title="@i18n/playguard/tools/credits"/>
+            <brls:Label id="tl_credits" text="" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
 
         </brls:Box>
 

@@ -1,6 +1,7 @@
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #include "activity/main_activity.hpp"
 
+#include "action/pt_flow.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
 #include "util/config.hpp"
@@ -27,6 +28,9 @@ void MainActivity::onContentAvailable()
         brls::Application::notify("playguard/hints/exit_again"_i18n);
         return true;
     });
+
+    // Extra time added on an earlier day: offer to put the limit back.
+    brls::sync([]() { pt_flow::offer_extra_time_restore(); });
 
     // Firmware newer than the last checked one: warn once per firmware version.
     SysInfo si;

@@ -1,4 +1,5 @@
-// SecurityTab — PIN, temporary unlock / relock, delete everything.
+// SecurityTab — PIN, temporary unlock / relock, the companion phone app link,
+// delete everything.
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
@@ -21,6 +22,10 @@ class SecurityTab : public TabBase
     BRLS_BIND(brls::DetailCell, set_pin,        "sc_set_pin");
     BRLS_BIND(brls::DetailCell, unlock,         "sc_unlock");
     BRLS_BIND(brls::DetailCell, relock,         "sc_relock");
+    BRLS_BIND(brls::DetailCell, pr_active,      "pr_active");
+    BRLS_BIND(brls::DetailCell, pr_updated,     "pr_updated");
+    BRLS_BIND(brls::DetailCell, pr_unlink,      "pr_unlink");
+    BRLS_BIND(brls::Label,      pr_note,        "pr_note");
     BRLS_BIND(brls::Header,     danger_header,  "sc_danger_header");
     BRLS_BIND(brls::DetailCell, del,            "sc_delete");
 };

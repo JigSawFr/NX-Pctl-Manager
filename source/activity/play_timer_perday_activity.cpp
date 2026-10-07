@@ -207,5 +207,5 @@ void PlayTimerPerDayActivity::save()
                                   this->reload_from_service();
                                   this->rerender();
                               });
-    });
+    }, snapshot.data());
 }

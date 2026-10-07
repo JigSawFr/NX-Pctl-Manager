@@ -20,13 +20,19 @@ namespace pt_flow
 // Limits offered by the pickers, in minutes (0 = no play that day).
 const std::vector<uint16_t>& quick_values();
 
+// Minutes already played today, or -1 when the system does not say (timer
+// off, no limit today, or no game counted yet).
+int played_today_min(const PtState& pt);
+
 // One dialog for the whole change. `body` asks the question ("Set 2 h for every
 // day?"); when the timer is counting down the same dialog explains the
-// temporary unlock and its button unlocks first. With an empty `body` and no
-// unlock needed, `write` runs at once. `write(did_unlock)` only runs when it is
-// safe to write; otherwise a toast has already explained why.
+// temporary unlock and its button unlocks first. When `new_days` would put
+// today's limit below the time already played, the dialog says the game in
+// progress will be suspended. With nothing to say and no unlock needed,
+// `write` runs at once. `write(did_unlock)` only runs when it is safe to
+// write; otherwise a toast has already explained why.
 void confirm_write(const std::string& body, const std::string& confirm_label,
-                   std::function<void(bool did_unlock)> write);
+                   std::function<void(bool did_unlock)> write, const uint16_t* new_days = nullptr);
 
 // After a write made through confirm_write: toast the result, then lock again
 // if the write needed an unlock (at once when the "lock again automatically"
@@ -36,5 +42,13 @@ void finish_write(Result rc, bool did_unlock, const std::string& ok_text,
 
 // "Same limit every day" picker (quick values + Custom…), then confirm_write.
 void choose_uniform_limit(const PtState& pt, std::function<void()> refresh);
+
+// "Extra time today": raises today's weekday limit by 15 / 30 / 60 min and
+// remembers the previous value (config extra_*), so that it can be put back.
+void add_extra_time(const PtState& pt, std::function<void()> refresh);
+
+// At start-up: extra time added on an earlier day is still on its weekday
+// limit -> offer to put the previous value back (or keep it).
+void offer_extra_time_restore();
 
 }   // namespace pt_flow

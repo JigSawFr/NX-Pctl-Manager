@@ -49,7 +49,8 @@ void info(const std::string& body);
 void pick(const std::string& title, const std::vector<std::string>& values, int selected,
           std::function<void(int)> on_pick);
 
-// System keyboard prompts (callback only on confirm).
+// System keyboard prompts (callback only on confirm). prompt_minutes accepts
+// minutes ("90") or hours:minutes ("1:30"), up to 24:00.
 void prompt_minutes(const std::string& header, uint16_t current, std::function<void(uint16_t)> on_value);
 void prompt_text(const std::string& header, const std::string& initial, int max_len,
                  std::function<void(std::string)> on_value);
@@ -101,9 +102,8 @@ constexpr int dashboard    = 0;
 constexpr int play_timer   = 2;
 constexpr int restrictions = 3;
 constexpr int clock        = 4;
-constexpr int pairing      = 6;
-constexpr int security     = 7;
-constexpr int tools        = 9;
+constexpr int security     = 6;   // PIN, unlock, companion app, delete
+constexpr int tools        = 8;
 }   // namespace tab
 
 // Opens another tab of the main screen and focuses its first item. `from` is

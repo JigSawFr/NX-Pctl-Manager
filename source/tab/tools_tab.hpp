@@ -36,5 +36,5 @@ class ToolsTab : public TabBase
     BRLS_BIND(brls::DetailCell,  data,        "tl_data");
     BRLS_BIND(brls::DetailCell,  license,     "tl_license");
     BRLS_BIND(brls::DetailCell,  source,      "tl_source");
-    BRLS_BIND(brls::DetailCell,  credits,     "tl_credits");
+    BRLS_BIND(brls::Label,       credits,     "tl_credits");
 };

@@ -2,6 +2,7 @@
 #include "ui/ui.hpp"
 
 #include "app.hpp"
+#include "util/duration.hpp"
 
 #include <ctime>
 #include <fmt/format.h>
@@ -23,7 +24,9 @@ void register_theme_colors()
     light.addColor("brand/gauge_track", nvgRGBA(0, 0, 0, 34));
     light.addColor("brand/note", nvgRGB(0x5C, 0x5C, 0x5C));
     auto& dark = brls::Theme::getDarkTheme();
-    dark.addColor("brand/ok", nvgRGB(0x2E, 0xC4, 0xA6));
+    // A clear green, not the logo teal: the dark theme's default value colour is
+    // already teal, so "OK" would not stand out from plain values.
+    dark.addColor("brand/ok", nvgRGB(0x7E, 0xD9, 0x57));
     dark.addColor("brand/warn", nvgRGB(0xFF, 0xB5, 0x47));
     dark.addColor("brand/bad", nvgRGB(0xFF, 0x7A, 0x7A));
     dark.addColor("brand/gauge_track", nvgRGBA(255, 255, 255, 46));
@@ -131,13 +134,37 @@ void pick(const std::string& title, const std::vector<std::string>& values, int 
 
 void prompt_minutes(const std::string& header, uint16_t current, std::function<void(uint16_t)> on_value)
 {
-    brls::Application::getImeManager()->openForNumber(
-        [on_value](long v) {
-            if (v < 0) v = 0;
-            if (v > 1440) v = 1440;
-            on_value((uint16_t)v);
-        },
-        header, "playguard/numpad/guide"_i18n, 4, std::to_string(current));
+    const std::string guide   = "playguard/numpad/guide"_i18n;
+    const std::string initial = duration::format_hm(current == PT_DAY_NOLIMIT ? 60 : current);
+    auto handle = [on_value](const std::string& text) {
+        uint16_t minutes = 0;
+        if (!duration::parse(text, &minutes)) {
+            notify(rc_text(NXM_RC_INVALID_ARGUMENT));
+            return;
+        }
+        on_value(minutes);
+    };
+#ifdef __SWITCH__
+    // The system number pad with a ":" key, so "1:30" can be typed. borealis'
+    // openForNumber reads the result with stoll and would stop at the colon.
+    SwkbdConfig kbd;
+    if (R_FAILED(swkbdCreate(&kbd, 0))) return;
+    swkbdConfigMakePresetDefault(&kbd);
+    swkbdConfigSetType(&kbd, SwkbdType_NumPad);
+    swkbdConfigSetLeftOptionalSymbolKey(&kbd, ":");
+    swkbdConfigSetHeaderText(&kbd, header.c_str());
+    swkbdConfigSetSubText(&kbd, guide.c_str());
+    swkbdConfigSetStringLenMax(&kbd, 5);
+    swkbdConfigSetInitialText(&kbd, initial.c_str());
+    swkbdConfigSetBlurBackground(&kbd, true);
+    char out[16] = {};
+    const Result rc = swkbdShow(&kbd, out, sizeof(out));
+    swkbdClose(&kbd);
+    if (R_SUCCEEDED(rc) && out[0]) handle(out);
+#else
+    brls::Application::getImeManager()->openForText([handle](std::string text) { handle(text); },
+                                                   header, guide, 5, initial);
+#endif
 }
 
 void prompt_text(const std::string& header, const std::string& initial, int max_len,

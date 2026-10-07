@@ -59,6 +59,7 @@ test:
 	$(CC) -std=gnu11 -Wall -Wextra -Werror -DNX_HOST_TEST -Itests/sysinfo -Isource/core source/core/sysinfo.c tests/sysinfo/test.c -o $(TESTOUT)/sysinfo && $(TESTOUT)/sysinfo
 	$(CC) -std=c11 -Wall -Wextra -Werror -Isource/util source/util/ntp_packet.c tests/ntp_packet/test.c -o $(TESTOUT)/ntp && $(TESTOUT)/ntp
 	$(CXX) -std=c++17 -Wall -Wextra -Werror -Isource source/util/paths.cpp source/util/patches.cpp tests/patches/test.cpp -o $(TESTOUT)/patches && $(TESTOUT)/patches
+	$(CXX) -std=c++17 -Wall -Wextra -Werror -Isource source/util/duration.cpp tests/duration/test.cpp -o $(TESTOUT)/duration && $(TESTOUT)/duration
 
 check: test
 	python3 tools/check_resources.py .

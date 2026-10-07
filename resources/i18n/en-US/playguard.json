@@ -6,8 +6,7 @@
         "play_timer": "Play timer",
         "restrictions": "Restrictions",
         "clock": "Network clock",
-        "pairing": "Companion app",
-        "security": "PIN & security",
+        "security": "Security & app",
         "tools": "Tools & about"
     },
     "hints": {
@@ -54,8 +53,17 @@
         "5": "Friday",
         "6": "Saturday"
     },
+    "days_short": {
+        "0": "Sun",
+        "1": "Mon",
+        "2": "Tue",
+        "3": "Wed",
+        "4": "Thu",
+        "5": "Fri",
+        "6": "Sat"
+    },
     "numpad": {
-        "guide": "Minutes per day, 0 to 1440 (0 = no play that day)"
+        "guide": "Hours:minutes (1:30) or minutes (90), up to 24:00. 0 = no play that day."
     },
     "error": {
         "code": "error {}",
@@ -116,7 +124,17 @@
         "patches": "Game patches",
         "firmware": "Firmware",
         "compat": "Compatibility",
-        "hint": "Press A on a line to open the matching tab. Values refresh on their own (X: now)."
+        "hint": "Press A on a line to open the matching tab. Values refresh on their own (X: now).",
+        "updated": "Updated at {}",
+        "extra": "Extra time today…",
+        "extra_title": "Extra time today",
+        "extra_body": "Add {} today?\n\nThe {} limit goes from {} to {}. The next time PlayGuard is opened on another day, it offers to put it back to {}.",
+        "extra_confirm": "Add",
+        "extra_done": "Extra time added: {} today.",
+        "extra_restore_body": "Extra time added on {} is still on the {} limit ({}). Put it back to {}?",
+        "extra_keep": "Keep {}",
+        "extra_restore": "Put back",
+        "extra_restored": "{} limit put back to {}."
     },
     "compat": {
         "ok": "Checked",
@@ -136,7 +154,8 @@
             "configured": "Configured limit",
             "not_set": "None (timer off)",
             "every_day": "{} every day",
-            "today_per_day": "{} today (varies by day)"
+            "today_per_day": "{} today (varies by day)",
+            "profile": "{} · {}"
         },
         "section_limit": "Daily limit",
         "quick": "Same limit every day",
@@ -146,10 +165,17 @@
         "remove": "Remove the play-time limit",
         "section_profiles": "Profiles",
         "profile_save": "Save as a profile…",
-        "profile_load": "Load a profile…",
-        "profile_delete": "Delete a profile…",
         "profile_name": "Profile name (letters, digits, spaces)",
         "profile_none": "No saved profile yet.",
+        "suspend_warning": "Already played today: {}. The game in progress is suspended as soon as parental controls are locked again.",
+        "profiles": "Profiles…",
+        "profiles_count": "{} saved",
+        "profiles_title": "Profiles",
+        "profiles_section_saved": "Saved profiles",
+        "profiles_section_new": "New profile",
+        "profiles_hint": "A applies a profile, X deletes it.",
+        "profile_current": "{} (current)",
+        "profile_range": "{} to {}",
         "profile_saved": "Profile \"{}\" saved.",
         "profile_save_err": "Could not save the profile",
         "profile_replace": "A profile named \"{}\" already exists. Replace it?",
@@ -203,7 +229,7 @@
             "section_save": "Save",
             "save": "Save these limits",
             "pick_title": "{}: limit",
-            "pick_minutes": "Enter minutes…",
+            "pick_minutes": "Enter a duration…",
             "pick_no_limit": "No limit",
             "unsaved": "  (not saved)",
             "unsaved_count": "{} unsaved change(s)",
@@ -280,6 +306,7 @@
         "result_none": "No server answered. Check the Internet connection.",
         "need_measure": "Measure first (a measurement stays valid for 2 minutes).",
         "expired": "The measurement is older than 2 minutes. Measure again.",
+        "valid_for": "Valid for {}",
         "confirm_apply": "Set the network clock to {} ({})?",
         "confirm_apply_spread": "\n\nThe servers disagree by {} seconds.",
         "apply_confirm": "Set the clock",
@@ -383,7 +410,8 @@
         "license_value": "GPLv3 · UI: borealis (Apache 2.0)",
         "source": "Source code",
         "credits": "Credits",
-        "credits_value": "JigSawFr · based on Pctl Manager by Taylor · anbingxi (NTP, fw 22.5 fixes)"
+        "credits_value": "JigSawFr · based on Pctl Manager by Taylor · anbingxi (NTP, fw 22.5 fixes)",
+        "credits_line": "Credits: {}"
     },
     "toast": {
         "diag_saved": "Diagnostic saved: {}",
