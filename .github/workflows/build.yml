@@ -112,6 +112,10 @@ jobs:
         run: python3 tools/gen_compat.py . compat.json
       - name: Build identity
         run: |
+          # actions/checkout marks the workspace safe only in a temporary HOME
+          # during its own step; the checkout belongs to another user than the
+          # container's root, so git refuses it here without this.
+          git config --global --add safe.directory '*'
           {
             echo "commit: $(git rev-parse HEAD)"
             echo "image: devkitpro/devkita64@sha256:1fc388c3a0d34bd2045a6dadcb1020e069d5f876a187fd705de14b4440c00282"
