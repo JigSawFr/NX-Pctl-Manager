@@ -5,6 +5,7 @@
 #include <fmt/format.h>
 #include <vector>
 
+#include "action/fw_gate.hpp"
 #include "app.hpp"
 #include "util/patches.hpp"
 #include "util/paths.hpp"
@@ -41,7 +42,7 @@ std::string current_report()
     std::string out = fmt::format(
         "=== PlayGuard diagnostic ===\n"
         "app version : {}\n"
-        "build flags : PROBE={} READ_ONLY={} platform={}\n"
+        "modes       : read_only={} dev={} firmware_choice={} platform={}\n"
         "firmware    : {}\n"
         "atmosphere  : {} ({})\n"
         "launch mode : {}\n"
@@ -49,7 +50,7 @@ std::string current_report()
         "prodinfo    : {}\n"
         "game patches: {}\n"
         "compat      : {}\n\n",
-        app::version(), app::probe_build() ? 1 : 0, app::read_only_build() ? 1 : 0,
+        app::version(), app::read_only() ? 1 : 0, app::dev_mode() ? 1 : 0, fw_gate::summary(),
 #ifdef __SWITCH__
         "switch",
 #else

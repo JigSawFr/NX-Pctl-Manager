@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "time_ops.h"
+#include "write_guard.h"
 
 enum { MOCK_ERROR = 0x701, ROOT_KIND = 99, MAX_HANDLES = 64 };
 typedef struct { bool active; unsigned root_call; u32 kind; } Handle;
@@ -169,9 +170,10 @@ static void test_snapshot_failures(void)
     }
 }
 
-static void test_automatic_gate(void)
+static void test_automatic_gate(bool read_only)
 {
     TimeApply apply;
+    core_set_read_only(read_only);
     for (unsigned scenario = 0; scenario < 3; scenario++) {
         reset();
         if (scenario == 0) model.automatic = false;
@@ -183,17 +185,17 @@ static void test_automatic_gate(void)
         time_clock_apply(2000, &apply);
         assert(!apply.write_attempted && !apply.verify_attempted && !apply.verified);
         assert(model.writes == 0);
-#ifndef PCTL_READ_ONLY
-        assert(apply.refused_automatic);
-        assert(model.root_calls == 1);
-#else
-        assert(apply.open_rc == NXM_RC_READ_ONLY);
-#endif
+        if (read_only) {
+            assert(apply.open_rc == NXM_RC_READ_ONLY);   /* read-only is checked first */
+        } else {
+            assert(apply.refused_automatic);
+            assert(model.root_calls == 1);
+        }
         assert_released();
     }
+    core_set_read_only(false);
 }
 
-#ifndef PCTL_READ_ONLY
 static void test_apply_failures(void)
 {
     TimeApply apply;
@@ -255,19 +257,26 @@ static void test_readback_and_accuracy(void)
     assert(!apply.verified);
     assert_released();
 }
-#else
+
 static void test_read_only(void)
 {
     TimeApply apply;
     reset();
+    core_set_read_only(true);
     time_clock_apply(2000, &apply);
     assert(apply.open_rc == NXM_RC_READ_ONLY);
     assert(!apply.write_attempted && !apply.verify_attempted && !apply.verified);
     assert(model.writes == 0 && model.clock_value == 1000);
     assert(model.root_calls == 2); /* Both snapshots release their own handles. */
     assert_released();
+
+    /* Leaving read-only mode makes the clock writable again. */
+    reset();
+    core_set_read_only(false);
+    time_clock_apply(2000, &apply);
+    assert(apply.write_attempted && model.writes == 1);
+    assert_released();
 }
-#endif
 
 Result timeToCalendarTimeWithMyRule(u64 timestamp, TimeCalendarTime *caltime, TimeCalendarAdditionalInfo *info)
 {
@@ -313,19 +322,13 @@ static void test_dump_and_repetition(void)
 int main(void)
 {
     test_snapshot_failures();
-    test_automatic_gate();
-#ifndef PCTL_READ_ONLY
+    test_automatic_gate(false);
+    test_automatic_gate(true);
     test_apply_failures();
     test_readback_and_accuracy();
-#else
     test_read_only();
-#endif
     test_dump_and_repetition();
     test_formatting();
-#ifndef PCTL_READ_ONLY
-    puts("time_ops writable lifecycle tests passed");
-#else
-    puts("time_ops read-only lifecycle tests passed");
-#endif
+    puts("time_ops lifecycle and read-only tests passed");
     return 0;
 }

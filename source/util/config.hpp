@@ -16,7 +16,14 @@ struct Config
     std::vector<std::string> custom_servers;
     bool advanced = false;             // show debug-class play-timer actions
     bool auto_relock = true;           // lock again right after a change that needed an unlock
-    std::string untested_fw_ack;       // firmware for which the "untested" notice was accepted
+    bool dev_mode = false;             // developer tools (7 presses on Tools > Version)
+    std::string update_via = "auto";   // "auto", "sphaira", "appstore", "manual"
+
+    // Choice made on the "firmware not supported yet" screen, remembered for
+    // one firmware with one app version: "read_only", "probe" or "risk".
+    std::string fw_gate_fw;
+    std::string fw_gate_app;
+    std::string fw_gate_choice;
 
     // "Extra time today": the weekday limit raised on extra_date (YYYY-MM-DD)
     // from extra_base to extra_value minutes. extra_weekday < 0: none pending.

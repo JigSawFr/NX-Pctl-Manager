@@ -61,7 +61,7 @@ void DashboardTab::open_today_limit()
 {
     // Writable: change the limit right here (the same picker as the Play timer
     // tab when every day shares one limit, the per-day editor otherwise).
-    if (app::read_only_build() || !this->pt.fw_supported || !this->pt.valid) {
+    if (app::read_only() || !this->pt.fw_supported || !this->pt.valid) {
         ui::go_to_tab(today_limit, ui::tab::play_timer);
         return;
     }

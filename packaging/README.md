@@ -25,4 +25,4 @@ switch/playguard/logs/*.txt              diagnostic reports (never contain the P
 | sphaira › GitHub | Reads [`sphaira/playguard.json`](sphaira/playguard.json): downloads the `playguard.nro` asset of the latest release into `/switch/playguard/`. |
 | Manual | Extract the zip at the SD card root. |
 
-Release assets are produced by `.github/workflows/build.yml`, called by `release-please.yml` when a release PR is merged: `playguard.nro`, `playguard.zip`, `SHA256SUMS.txt`. The job refuses to publish when the tag differs from the version in `CMakeLists.txt` (which is also the NACP version the stores display).
+Release assets are produced by `.github/workflows/build.yml`, called by `release-please.yml` when a release PR is merged: `playguard.nro`, `playguard.zip`, `compat.json` (the version and the newest checked firmware, read by the app's update check from `releases/latest/download/compat.json`), `SHA256SUMS.txt`. The job refuses to publish when the tag differs from the version in `CMakeLists.txt` (which is also the NACP version the stores display).

@@ -7,8 +7,6 @@
 #   ./run.sh <switch-ip>      build, then nxlink to that IP and stream stdout back
 #   ./run.sh -a <switch-ip>   same
 #   ./run.sh clean            run `make clean` in the container
-#   PROBE=1 ./run.sh [...]    extra diagnostic shortcuts
-#   READ_ONLY=1 ./run.sh      "PlayGuard Diagnostics" build that cannot change anything
 #   ./run.sh dist             build the SD-card zip (playguard.zip)
 #
 # Needs Docker. The devkitpro/devkita64 image is pulled automatically on first use.
@@ -19,10 +17,8 @@ set -e
 IMG=devkitpro/devkita64
 DIR=$(cd "$(dirname "$0")" && pwd)
 
-# Forward PROBE / READ_ONLY through to `make` in the container.
 dkp() {
-    docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -e PROBE="${PROBE:-}" -e READ_ONLY="${READ_ONLY:-}" \
-        -v "$DIR":/project -w /project "$@"
+    docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -v "$DIR":/project -w /project "$@"
 }
 
 if [ "$1" = "clean" ]; then
@@ -35,7 +31,7 @@ if [ "$1" = "dist" ]; then
     exit 0
 fi
 
-echo ">> building (devkitpro/devkita64${PROBE:+, PROBE=$PROBE}${READ_ONLY:+, READ_ONLY=$READ_ONLY})..."
+echo ">> building (devkitpro/devkita64)..."
 dkp "$IMG" make
 
 ip=$1

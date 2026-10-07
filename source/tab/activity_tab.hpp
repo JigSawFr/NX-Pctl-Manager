@@ -1,6 +1,6 @@
 // ActivityTab — play time per game (today, last 7 days, all time) from the
 // console's play data, for every account, and its export to the SD card (CSV,
-// JSON, XLSX or PDF). Read-only, so also in READ_ONLY builds. The data is read
+// JSON, XLSX or PDF). Read-only, so also in read-only mode. The data is read
 // off the main thread (it walks the whole activity log) and kept for a minute,
 // so coming back from a dialog does not re-read it; Ⓧ always does.
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).

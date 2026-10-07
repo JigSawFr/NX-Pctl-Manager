@@ -35,7 +35,7 @@ int played_today_min(const PtState& pt)
 void confirm_write(const std::string& body_in, const std::string& confirm_label,
                    std::function<void(bool did_unlock)> write, const uint16_t* new_days)
 {
-    if (app::read_only_build()) {
+    if (app::read_only()) {
         ui::notify(ui::rc_text(NXM_RC_READ_ONLY));
         return;
     }
@@ -191,7 +191,7 @@ static void clear_extra_record()
 bool can_add_extra_time(const PtState& pt)
 {
     const int wd = ui::today_weekday();
-    return !app::read_only_build() && pt.fw_supported && pt.valid && pt.enabled_valid && pt.enabled &&
+    return !app::read_only() && pt.fw_supported && pt.valid && pt.enabled_valid && pt.enabled &&
            pt.day_min[wd] != PT_DAY_NOLIMIT && pt.day_min[wd] < 1440;
 }
 
@@ -241,7 +241,7 @@ void add_extra_time(const PtState& pt, std::function<void()> refresh)
 void offer_extra_time_restore()
 {
     const auto& cfg = config::get();
-    if (app::read_only_build() || cfg.extra_weekday < 0 || cfg.extra_weekday > 6) return;
+    if (app::read_only() || cfg.extra_weekday < 0 || cfg.extra_weekday > 6) return;
     if (cfg.extra_date == today_date()) return;   // still the day it was added
 
     PtState pt;

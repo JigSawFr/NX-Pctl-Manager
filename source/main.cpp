@@ -7,6 +7,7 @@
 #include <borealis.hpp>
 #include <cstdlib>
 
+#include "action/fw_gate.hpp"
 #include "activity/init_error_activity.hpp"
 #include "activity/main_activity.hpp"
 #include "app.hpp"
@@ -19,6 +20,7 @@
 #include "tab/tools_tab.hpp"
 #include "ui/ui.hpp"
 #include "util/config.hpp"
+#include "util/http.hpp"
 #include "view/pt_gauge.hpp"
 #include "view/pt_state_header.hpp"
 #include "view/pt_week.hpp"
@@ -43,7 +45,7 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    brls::Application::createWindow(app::read_only_build() ? "playguard/title_read_only"_i18n : "playguard/title"_i18n);
+    brls::Application::createWindow("playguard/title"_i18n);
 
     // Follows the console theme unless a preference says otherwise.
     if (cfg.theme == "dark")
@@ -69,6 +71,8 @@ int main(int argc, char* argv[])
     brls::Application::registerXMLView("ToolsTab",        ToolsTab::create);
 
     if (app::init()) {
+        // Untested firmware: read-only (or the remembered choice) before any tab is built.
+        fw_gate::prepare();
         brls::Application::pushActivity(new MainActivity());
     } else {
         brls::Logger::error("pctl probe failed (0x{:08X}) — showing InitErrorActivity", app::pctl_init_result());
@@ -79,5 +83,6 @@ int main(int argc, char* argv[])
         ;
 
     app::shutdown();
+    http::cleanup();
     return EXIT_SUCCESS;
 }

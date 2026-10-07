@@ -1,5 +1,6 @@
 // ToolsTab — diagnostic export, settings backup / restore, preferences
-// (language, theme, advanced) and About.
+// (language, theme, advanced, update store), About with the update check, and
+// the developer tools (shown after seven presses on Version).
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
@@ -16,6 +17,10 @@ class ToolsTab : public TabBase
 
   private:
     bool serial_revealed = false;   // until the tab is left (tabs are rebuilt when reopened)
+    int        version_presses     = 0;
+    brls::Time last_version_press  = 0;
+
+    void count_version_press();
 
     BRLS_BIND(brls::DetailCell,  export_cell, "tl_export");
     BRLS_BIND(brls::Label,       export_note, "tl_export_note");
@@ -26,7 +31,9 @@ class ToolsTab : public TabBase
     BRLS_BIND(brls::DetailCell,  theme,       "tl_theme");
     BRLS_BIND(brls::BooleanCell, auto_relock, "tl_auto_relock");
     BRLS_BIND(brls::BooleanCell, advanced,    "tl_advanced");
+    BRLS_BIND(brls::DetailCell,  update_via,  "tl_update_via");
     BRLS_BIND(brls::DetailCell,  version,     "tl_version");
+    BRLS_BIND(brls::DetailCell,  update_cell, "tl_update");
     BRLS_BIND(brls::DetailCell,  fw,          "tl_fw");
     BRLS_BIND(brls::DetailCell,  ams,         "tl_ams");
     BRLS_BIND(brls::DetailCell,  compat,      "tl_compat");
@@ -41,4 +48,10 @@ class ToolsTab : public TabBase
     BRLS_BIND(brls::DetailCell,  license,     "tl_license");
     BRLS_BIND(brls::DetailCell,  source,      "tl_source");
     BRLS_BIND(brls::Label,       credits,     "tl_credits");
+    BRLS_BIND(brls::Header,      dev_header,  "tl_dev_header");
+    BRLS_BIND(brls::BooleanCell, dev_mode,    "tl_dev_mode");
+    BRLS_BIND(brls::BooleanCell, dev_read_only, "tl_dev_read_only");
+    BRLS_BIND(brls::DetailCell,  dev_report,  "tl_dev_report");
+    BRLS_BIND(brls::DetailCell,  dev_gate,    "tl_dev_gate");
+    BRLS_BIND(brls::DetailCell,  dev_forget,  "tl_dev_forget");
 };

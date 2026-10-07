@@ -18,10 +18,12 @@ A Nintendo Switch parental-controls manager — **no phone app, no Nintendo acco
 
 | | Supported | Notes |
 |---|---|---|
-| Firmware | **21.0.0 → 23.0.1** | The play-time limit layout (0x44 bytes) exists since 21.0.0. Below that, every tab works except the play timer. A newer firmware shows a one-time warning: reading is safe, check the result of changes. |
+| Firmware | **21.0.0 → 23.0.1** | The play-time limit layout (0x44 bytes) exists since 21.0.0. Below that, every tab works except the play timer. On a newer firmware the app starts **read-only** and looks for a PlayGuard release that supports it (see below). |
 | Atmosphère | **1.11.x → 1.12.0** | 1.12.0 adds 23.0.0 support. The app shows the detected Atmosphère version. |
 | Launchers | hbmenu, **sphaira**, **Homebrew App Store** | Launching over a game (title override) is recommended; the app shows whether it runs as an application or as an applet (album). |
 | Hardware-tested | 22.1.0 / Atmosphère 1.11.1 | 23.0.1 / 1.12.0 is supported by the command table (switchbrew) but not yet tested on hardware: reports are welcome. |
+
+**Newer firmware.** The *Firmware not supported yet* screen checks the latest release: when one supports the firmware, it offers to update with sphaira or the Homebrew App Store (Tools › *Update with*). Otherwise you continue read-only, read-only with the developer tools (to investigate the firmware), or with every feature at your own risk; the choice can be remembered for that firmware and app version. Tools › *Compatibility* brings the screen back.
 
 **Why there are no 22.5 crashes.** `pctl:a`, the privileged parental-control service, accepts a **single session**. Older builds of the original app kept it open the whole time, so the HOME-menu PIN prompt (or the PIN applet) could not get it and Atmosphère could crash. PlayGuard opens the session for each action, does its work and releases it immediately; periodic refreshes pause while the app is in the background. *(Diagnosis by [anbingxi's fork](https://github.com/anbingxi/NX-Pctl-Manager/tree/diag/fw22-5-readonly).)*
 
@@ -37,7 +39,7 @@ The app is organised in tabs, like System Settings.
 | **Restrictions** | Restriction level (None, Young child, Child, Teen, Custom); in Custom: age rating, social-media posting, communication with others; VR mode; rating organisation. |
 | **Network clock** | Console / network clocks, time zone, accuracy. Pick a public NTP server (≈ 50 built-in, by region, or your own), **measure** against 3 servers (median, warning when they disagree) and **set the network clock** (a measurement stays usable for 2 minutes, with a countdown). The play timer relies on this clock; a console that never reaches Nintendo's servers keeps it inaccurate. |
 | **Security & app** | Set / change the PIN (system PIN screen), **show the PIN** (after a warning, for when it is forgotten), unlock temporarily, **lock now**. *Companion app*: whether the Nintendo Switch Parental Controls phone app is linked, last synchronisation, unlink it (otherwise its next sync overwrites the limits set here). Delete all parental controls (two confirmations with different red buttons, irreversible; a backup of the settings is saved first). |
-| **Tools & about** | Export a diagnostic report, **back up / restore the settings** on the SD card (restriction level, custom settings, VR mode, daily limits; not the PIN), language and theme (with an offer to restart), **lock again automatically after a change** (on by default), advanced actions. *Console*: firmware, Atmosphère, compatibility, **storage** (emuMMC or sysMMC), whether Atmosphère **blanks the serial number** (with the number the system sees, partly hidden until Ⓐ; a warning on emuMMC when it is not blanked), **game patches** (sys-patch or sigpatch files, with a warning recommending sys-patch when only files are used). The Overview repeats these two warnings. |
+| **Tools & about** | Export a diagnostic report, **back up / restore the settings** on the SD card (restriction level, custom settings, VR mode, daily limits; not the PIN), language and theme (with an offer to restart), **lock again automatically after a change** (on by default), advanced actions, **check for updates** (*Update with*: sphaira, Homebrew App Store or by hand). *Console*: firmware, Atmosphère, compatibility, **storage** (emuMMC or sysMMC), whether Atmosphère **blanks the serial number** (with the number the system sees, partly hidden until Ⓐ; a warning on emuMMC when it is not blanked), **game patches** (sys-patch or sigpatch files, with a warning recommending sys-patch when only files are used). The Overview repeats these two warnings. |
 
 ![Play timer](images/screenshots/play_timer.png)
 ![Per-day limits](images/screenshots/per_day.png)
@@ -72,7 +74,7 @@ Controls: ↑/↓ move, Ⓐ confirm, Ⓑ back (on the sidebar: press Ⓑ twice t
 
 *Tools & about* › *Export a diagnostic report* saves a text file in `sd:/switch/playguard/logs/` with the firmware, Atmosphère version, clocks and the raw result of every parental-control query. It also gives the storage, the serial-blanking state and the game-patch status. **It never contains the PIN or the serial number.** Attach it to the issue.
 
-A **read-only "PlayGuard Diagnostics" build** (`READ_ONLY=1`) cannot change anything; it is useful to investigate a new firmware safely.
+**Developer mode** (press *Tools & about* › *Version* seven times) adds a read-only switch, the diagnostic report on screen and a shortcut to export it from the Play timer tab. With read-only on, the app cannot change anything: that is the safe way to investigate a new firmware (the firmware screen offers it directly).
 
 ## Build from source
 
@@ -81,16 +83,14 @@ make test        # unit tests of the C service layer (any gcc, no devkitPro)
 make desktop     # the UI on Linux with a simulated console (needs GLFW / X11 / D-Bus dev packages)
 make             # ./playguard.nro      (devkitPro switch-dev, DEVKITPRO set)
 make dist        # ./playguard.zip      (SD-card layout)
-make PROBE=1     # + diagnostic shortcuts in the Play timer tab
-make READ_ONLY=1 # "PlayGuard Diagnostics" build
 ./run.sh [ip]    # build in the devkitpro/devkita64 Docker image, optionally nxlink to a console
 ```
 
-The desktop build runs the real borealis UI against `source/sim/` (environment knobs: `PLAYGUARD_SIM_FW=20.5.0`, `PLAYGUARD_SIM_NO_CFW=1`, `PLAYGUARD_SIM_TIMER_OFF=1`, `PLAYGUARD_SIM_UNLOCKED=1`, `PLAYGUARD_SIM_UNPAIRED=1`, `PLAYGUARD_SIM_ACCURATE=1`, `PLAYGUARD_SIM_EMUMMC=1`, `PLAYGUARD_SIM_BLANK=1`, `PLAYGUARD_SIM_NO_PDM=1`; game patches are read from `./playguard_data/sd/`, the simulated SD card root). `tools/desktop_smoke.py` clicks through every screen headlessly; CI runs it with the unit tests, the resource checks (`tools/check_resources.py`) and the three Switch builds.
+The desktop build runs the real borealis UI against `source/sim/` (environment knobs: `PLAYGUARD_SIM_FW=20.5.0`, `PLAYGUARD_SIM_NO_CFW=1`, `PLAYGUARD_SIM_TIMER_OFF=1`, `PLAYGUARD_SIM_UNLOCKED=1`, `PLAYGUARD_SIM_UNPAIRED=1`, `PLAYGUARD_SIM_ACCURATE=1`, `PLAYGUARD_SIM_EMUMMC=1`, `PLAYGUARD_SIM_BLANK=1`, `PLAYGUARD_SIM_NO_PDM=1`, `PLAYGUARD_SIM_LATEST=1.1.0:24.0.0` or `offline` for the update check; game patches are read from `./playguard_data/sd/`, the simulated SD card root). `tools/desktop_smoke.py` clicks through every screen headlessly (`gate` scenario: the firmware screen and developer mode on a simulated 24.0.0); CI runs it with the unit tests, the resource checks (`tools/check_resources.py`) and the Switch build. Each release also publishes `compat.json` (`tools/gen_compat.py`: version and newest checked firmware), which the app's update check reads.
 
 Branding: `branding/*.svg` (sources), rendered to `icon.jpg` and `images/store/*.png` by `node tools/render_branding.mjs` (Node + Playwright).
 
-Layout: `source/core/` (C, libnx: `pctl_ops`, `time_ops`, `sysinfo`, `playstats`), `source/tab/` (one class per tab), `source/action/` (the play-timer write flow, the settings restore), `source/ui/` (dialogs, formatting, theme colours), `source/util/` (NTP, config, profiles, settings backups, play-log folding, table export, diagnostics), `resources/` (XML layouts, `i18n/en-US/playguard.json`, `i18n/fr/playguard.json`).
+Layout: `source/core/` (C, libnx: `pctl_ops`, `time_ops`, `sysinfo`, `playstats`), `source/tab/` (one class per tab), `source/action/` (the play-timer write flow, the settings restore, the firmware screen, updates), `source/ui/` (dialogs, formatting, theme colours), `source/util/` (NTP, config, profiles, settings backups, play-log folding, table export, diagnostics, update check, store launcher), `resources/` (XML layouts, `i18n/en-US/playguard.json`, `i18n/fr/playguard.json`).
 
 ## Contributing
 

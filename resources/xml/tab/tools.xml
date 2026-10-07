@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- Diagnostics, settings backup, preferences and about. -->
+<!-- Diagnostics, settings backup, preferences, about and (once enabled by
+     seven presses on Version) the developer tools. -->
 
 <brls:Box
     width="auto"
@@ -33,6 +34,7 @@
             <brls:DetailCell id="tl_theme" title="@i18n/playguard/tools/theme"/>
             <brls:BooleanCell id="tl_auto_relock"/>
             <brls:BooleanCell id="tl_advanced"/>
+            <brls:DetailCell id="tl_update_via" title="@i18n/playguard/tools/update_via"/>
             <brls:Header title="@i18n/playguard/tools/section_console" marginTop="24" marginBottom="8"/>
             <brls:DetailCell id="tl_fw" title="@i18n/playguard/tools/firmware"/>
             <brls:DetailCell id="tl_ams" title="@i18n/playguard/tools/atmosphere"/>
@@ -45,11 +47,18 @@
             <brls:Label id="tl_patches_note" text="" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
             <brls:Header title="@i18n/playguard/tools/section_about" marginTop="24" marginBottom="8"/>
             <brls:DetailCell id="tl_version" title="@i18n/playguard/tools/version"/>
+            <brls:DetailCell id="tl_update" title="@i18n/playguard/tools/update"/>
             <brls:DetailCell id="tl_mode" title="@i18n/playguard/tools/mode"/>
             <brls:DetailCell id="tl_data" title="@i18n/playguard/tools/data"/>
             <brls:DetailCell id="tl_license" title="@i18n/playguard/tools/license"/>
             <brls:DetailCell id="tl_source" title="@i18n/playguard/tools/source"/>
             <brls:Label id="tl_credits" text="" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
+            <brls:Header id="tl_dev_header" title="@i18n/playguard/dev/section" marginTop="24" marginBottom="8"/>
+            <brls:BooleanCell id="tl_dev_mode"/>
+            <brls:BooleanCell id="tl_dev_read_only"/>
+            <brls:DetailCell id="tl_dev_report" title="@i18n/playguard/dev/report"/>
+            <brls:DetailCell id="tl_dev_gate" title="@i18n/playguard/dev/gate"/>
+            <brls:DetailCell id="tl_dev_forget" title="@i18n/playguard/dev/forget"/>
 
         </brls:Box>
 

@@ -1,6 +1,7 @@
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #include "tab/restrictions_tab.hpp"
 
+#include "app.hpp"
 #include "ui/ui.hpp"
 
 using namespace brls::literals;
@@ -22,6 +23,10 @@ RestrictionsTab::RestrictionsTab()
     note->setSingleLine(false);
 
     level->registerClickAction([this](brls::View*) {
+        if (app::read_only()) {
+            ui::notify(ui::rc_text(NXM_RC_READ_ONLY));
+            return true;
+        }
         std::vector<std::string> names;
         for (uint32_t i = 0; i <= 4; i++) names.push_back(ui::level_name(i));
         ui::pick("playguard/restrictions/level"_i18n, names, this->st.safety_level_ok ? (int)this->st.safety_level : 0,
@@ -38,6 +43,10 @@ RestrictionsTab::RestrictionsTab()
 
     age->registerClickAction([this](brls::View*) {
         if (!this->st.settings_ok) return true;
+        if (app::read_only()) {
+            ui::notify(ui::rc_text(NXM_RC_READ_ONLY));
+            return true;
+        }
         std::vector<std::string> names;
         int selected = 0;
         for (size_t i = 0; i < sizeof(AGES); i++) {

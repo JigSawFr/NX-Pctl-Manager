@@ -1,6 +1,7 @@
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #include "app.hpp"
 
+#include "util/config.hpp"
 #include "util/pctl_ops_c.hpp"
 
 #ifdef __SWITCH__
@@ -16,6 +17,7 @@ namespace app
 
 static bool     s_ok          = false;
 static uint32_t s_init_result = 0;
+static bool     s_dev_session = false;
 
 bool init()
 {
@@ -46,22 +48,18 @@ bool in_focus()
 #endif
 }
 
-bool probe_build()
-{
-#ifdef PCTL_PROBE
-    return true;
-#else
-    return false;
-#endif
-}
+bool read_only()            { return core_read_only(); }
+void set_read_only(bool on) { core_set_read_only(on); }
 
-bool read_only_build()
+bool dev_mode() { return s_dev_session || config::get().dev_mode; }
+
+void set_dev_mode(bool on, bool persist)
 {
-#ifdef PCTL_READ_ONLY
-    return true;
-#else
-    return false;
-#endif
+    s_dev_session = on;
+    if (persist || !on) {
+        config::get().dev_mode = on;
+        config::save();
+    }
 }
 
 }   // namespace app

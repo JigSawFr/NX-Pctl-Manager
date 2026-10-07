@@ -1,7 +1,9 @@
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #include "ui/ui.hpp"
 
+#include "activity/main_activity.hpp"
 #include "app.hpp"
+#include "tab/tab_base.hpp"
 #include "util/duration.hpp"
 
 #include <ctime>
@@ -436,14 +438,12 @@ void init_unlock_banner(brls::DetailCell* cell, std::function<void()> after)
     cell->title->setTextColor(color_warn());
     cell->setBackgroundColor(nvgTransRGBA(color_warn(), 28));
     cell->setCornerRadius(6);
-    if (app::read_only_build()) {
-        // No action: give the title the whole width (an empty detail label
-        // still reserves its space).
-        cell->detail->setVisibility(brls::Visibility::GONE);
-        return;
-    }
     cell->setDetailText("playguard/security/banner_action"_i18n);
     cell->registerClickAction([after](brls::View*) {
+        if (app::read_only()) {
+            notify(rc_text(NXM_RC_READ_ONLY));
+            return true;
+        }
         Result rc = pctl_relock();
         notify_result(rc, "playguard/toast/relocked"_i18n, "playguard/toast/relock_err"_i18n);
         if (after) after();
@@ -453,6 +453,9 @@ void init_unlock_banner(brls::DetailCell* cell, std::function<void()> after)
 
 void show_unlock_banner(brls::DetailCell* cell, bool unlocked)
 {
+    // Read-only: no action, so the title gets the whole width (an empty detail
+    // label still reserves its space).
+    cell->detail->setVisibility(app::read_only() ? brls::Visibility::GONE : brls::Visibility::VISIBLE);
     set_visible(cell, unlocked);
 }
 
@@ -463,6 +466,13 @@ void offer_restart()
     dialog->addButton("playguard/common/quit"_i18n, []() { brls::Application::quit(); });
     dialog->setCancelable(true);
     dialog->open();
+}
+
+void on_mode_changed()
+{
+    for (brls::Activity* activity : brls::Application::getActivitiesStack())
+        if (auto* main = dynamic_cast<MainActivity*>(activity)) main->update_title();
+    TabBase::refresh_shown();
 }
 
 }   // namespace ui

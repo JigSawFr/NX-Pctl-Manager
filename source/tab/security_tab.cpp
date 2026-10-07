@@ -143,7 +143,7 @@ void SecurityTab::refresh()
     pr_updated->setDetailText(s.last_updated_ok ? ui::time_text(s.last_updated) : "playguard/common/unavailable"_i18n);
     pr_note->setTextColor(paired ? ui::color_warn() : ui::color_note());
 
-    const bool writable = !app::read_only_build();
+    const bool writable = !app::read_only();
     const bool has_pin  = s.pin_length_ok && s.pin_length > 0;
     const bool unlocked = s.temp_unlocked_ok && s.temp_unlocked;
     ui::set_visible_all({ { actions_header.getView(), writable },

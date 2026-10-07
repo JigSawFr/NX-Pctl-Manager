@@ -3,6 +3,7 @@
 // General Public License v3 or later; it comes with NO WARRANTY. See the
 // LICENSE file or <https://www.gnu.org/licenses/gpl-3.0.html> for details.
 #include "pctl_ops.h"
+#include "write_guard.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -115,16 +116,12 @@ static void secure_zero(void *p, size_t n)
 // Runs one no-argument command in its own session.
 static Result run_simple(u32 cmd)
 {
-#ifdef PCTL_READ_ONLY
-    (void)cmd;
-    return NXM_RC_READ_ONLY;
-#else
+    if (core_read_only()) return NXM_RC_READ_ONLY;
     Result rc = pctl_ops_init();
     if (R_FAILED(rc)) return rc;
     rc = serviceDispatch(pctlGetServiceSession_Service(), cmd);
     pctl_ops_exit();
     return rc;
-#endif
 }
 
 // ---------------------------------------------------------------- status
@@ -200,22 +197,18 @@ static Result read_pin(Service *srv, char *pin, u32 *len)
 
 Result pctl_set_pin(void)
 {
-#ifdef PCTL_READ_ONLY
-    pctl_ops_exit();
-    return NXM_RC_READ_ONLY;
-#else
     // The pctlauth applet opens its own privileged session: ours must be closed.
     pctl_ops_exit();
+    if (core_read_only()) return NXM_RC_READ_ONLY;
     return pctlauthRegisterPasscode();
-#endif
 }
 
 Result pctl_unlock_restriction_temporarily(void)
 {
-#ifdef PCTL_READ_ONLY
-    pctl_ops_exit();
-    return NXM_RC_READ_ONLY;
-#else
+    if (core_read_only()) {
+        pctl_ops_exit();
+        return NXM_RC_READ_ONLY;
+    }
     // Two things had to be right (both learned the hard way on fw 22.1.0):
     //  - the buffers are HIPC *pointer* buffers (SfBufferAttr_HipcPointer), not
     //    map-alias — map-alias makes the sysmodule drop the session (0xF601);
@@ -248,16 +241,15 @@ Result pctl_unlock_restriction_temporarily(void)
     }
     pctl_ops_exit();
     return rc;
-#endif
 }
 
 Result pctl_get_pin(char *out, size_t out_size)
 {
     if (out && out_size) secure_zero(out, out_size);
-#ifdef PCTL_READ_ONLY
-    pctl_ops_exit();
-    return NXM_RC_READ_ONLY;
-#else
+    if (core_read_only()) {
+        pctl_ops_exit();
+        return NXM_RC_READ_ONLY;
+    }
     if (!out || out_size == 0) return NXM_RC_INVALID_ARGUMENT;
     // Same session handling as the unlock above, where 1208 was validated.
     Result rc = pctl_ops_reinit();
@@ -284,7 +276,6 @@ Result pctl_get_pin(char *out, size_t out_size)
     secure_zero(&pin_len, sizeof(pin_len));
     pctl_ops_exit();
     return rc;
-#endif
 }
 
 Result pctl_relock(void)                     { return run_simple(1007); }
@@ -297,25 +288,18 @@ Result pctl_play_timer_stop(void)            { return run_simple(1452); }
 
 Result pctl_set_safety_level(u32 level)
 {
-#ifdef PCTL_READ_ONLY
-    (void)level;
-    return NXM_RC_READ_ONLY;
-#else
+    if (core_read_only()) return NXM_RC_READ_ONLY;
     if (level > PctlSafetyLevel_Teen) return NXM_RC_INVALID_ARGUMENT;
     Result rc = pctl_ops_init();
     if (R_FAILED(rc)) return rc;
     rc = serviceDispatchIn(pctlGetServiceSession_Service(), 1033, level);
     pctl_ops_exit();
     return rc;
-#endif
 }
 
 Result pctl_set_custom_settings(const PctlCustomSettings *s)
 {
-#ifdef PCTL_READ_ONLY
-    (void)s;
-    return NXM_RC_READ_ONLY;
-#else
+    if (core_read_only()) return NXM_RC_READ_ONLY;
     if (!s || s->rating_age > 21) return NXM_RC_INVALID_ARGUMENT;
     Result rc = pctl_ops_init();
     if (R_FAILED(rc)) return rc;
@@ -330,15 +314,11 @@ Result pctl_set_custom_settings(const PctlCustomSettings *s)
     }
     pctl_ops_exit();
     return rc;
-#endif
 }
 
 Result pctl_set_stereo_vision_restricted(bool restricted)
 {
-#ifdef PCTL_READ_ONLY
-    (void)restricted;
-    return NXM_RC_READ_ONLY;
-#else
+    if (core_read_only()) return NXM_RC_READ_ONLY;
     if (!hosversionAtLeast(4, 0, 0)) return NXM_RC_FW_UNSUPPORTED;
     Result rc = pctl_ops_init();
     if (R_FAILED(rc)) return rc;
@@ -346,7 +326,6 @@ Result pctl_set_stereo_vision_restricted(bool restricted)
     rc = serviceDispatchIn(pctlGetServiceSession_Service(), 1063, v);
     pctl_ops_exit();
     return rc;
-#endif
 }
 
 // ---------------------------------------------------------------- play timer
@@ -417,11 +396,10 @@ void pctl_play_timer_query(PtState *out)
 
 Result pctl_play_timer_set_days(const u16 days_min[7])
 {
-#ifdef PCTL_READ_ONLY
-    (void)days_min;
-    pctl_ops_exit();
-    return NXM_RC_READ_ONLY;
-#else
+    if (core_read_only()) {
+        pctl_ops_exit();
+        return NXM_RC_READ_ONLY;
+    }
     if (!pt_fw_supported()) return NXM_RC_FW_UNSUPPORTED;
     for (int n = 0; n < 7; n++)
         if (days_min[n] != PT_DAY_NOLIMIT && days_min[n] > 1440) return NXM_RC_INVALID_ARGUMENT;
@@ -460,7 +438,6 @@ Result pctl_play_timer_set_days(const u16 days_min[7])
     rc = serviceDispatchIn(srv, 195101, c);
     pctl_ops_exit();
     return rc;
-#endif
 }
 
 Result pctl_play_timer_set_uniform(u16 minutes)
@@ -479,17 +456,13 @@ Result pctl_play_timer_clear(void)
 
 Result pctl_play_timer_set_alarm_disabled(bool disabled)
 {
-#ifdef PCTL_READ_ONLY
-    (void)disabled;
-    return NXM_RC_READ_ONLY;
-#else
+    if (core_read_only()) return NXM_RC_READ_ONLY;
     Result rc = pctl_ops_init();
     if (R_FAILED(rc)) return rc;
     u8 v = disabled ? 1 : 0;
     rc = serviceDispatchIn(pctlGetServiceSession_Service(), 1953, v);
     pctl_ops_exit();
     return rc;
-#endif
 }
 
 // ---------------------------------------------------------------- diagnostics

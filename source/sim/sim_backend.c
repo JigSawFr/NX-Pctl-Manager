@@ -24,6 +24,7 @@
 #include "../core/playstats.h"
 #include "../core/sysinfo.h"
 #include "../core/time_ops.h"
+#include "../core/write_guard.h"
 
 static struct {
     bool init;
@@ -125,11 +126,12 @@ const char *pctl_rating_org_name(u32 org)
     return org < 13 ? names[org] : "?";
 }
 
-#ifdef PCTL_READ_ONLY
-#define RO_GUARD() return NXM_RC_READ_ONLY
-#else
-#define RO_GUARD() do {} while (0)
-#endif
+// write_guard.h (core/write_guard.c is not compiled on desktop).
+static bool s_read_only = false;
+void core_set_read_only(bool on) { s_read_only = on; }
+bool core_read_only(void)        { return s_read_only; }
+
+#define RO_GUARD() do { if (s_read_only) return NXM_RC_READ_ONLY; } while (0)
 
 Result pctl_set_pin(void)                         { RO_GUARD(); S.pin_length = 4; return 0; }
 Result pctl_unlock_restriction_temporarily(void)  { RO_GUARD(); if (!S.pin_length) return 0x1A08E; S.temp_unlocked = true; return 0; }
@@ -220,15 +222,14 @@ void time_clock_apply(u64 utc, TimeApply *o)
 {
     memset(o, 0, sizeof(*o));
     time_clock_snapshot(&o->before);
-#ifdef PCTL_READ_ONLY
-    (void)utc;
-    o->open_rc = NXM_RC_READ_ONLY;
-#else
-    S.clock_offset = (s64)utc - (s64)time(NULL);
-    if (!S.clock_offset) S.clock_offset = 1;
-    o->write_attempted = o->verify_attempted = o->verified = true;
-    o->readback = utc;
-#endif
+    if (s_read_only) {
+        o->open_rc = NXM_RC_READ_ONLY;
+    } else {
+        S.clock_offset = (s64)utc - (s64)time(NULL);
+        if (!S.clock_offset) S.clock_offset = 1;
+        o->write_attempted = o->verify_attempted = o->verified = true;
+        o->readback = utc;
+    }
     time_clock_snapshot(&o->after);
 }
 void time_clock_dump(char *buf, size_t n) { snprintf(buf, n, "=== System clocks (simulated) ===\n"); }

@@ -11,10 +11,15 @@ class TabBase : public brls::Box
 {
   public:
     explicit TabBase(const std::string& xml_res);
+    ~TabBase() override;
 
     // Called when the tab is shown and when the main screen comes back on top
     // (after the per-day editor, a dropdown, a dialog …).
     void willAppear(bool resetState = false) override;
+
+    // Re-reads the tab on screen, if any (after the read-only or developer
+    // mode changed).
+    static void refresh_shown();
 
   protected:
     virtual void refresh() = 0;
@@ -26,4 +31,6 @@ class TabBase : public brls::Box
 
   private:
     brls::RepeatingTimer auto_timer;
+
+    void update_ro_note();
 };
