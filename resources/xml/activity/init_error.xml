@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!--
-    Shown as the root Activity when pctl_ops_init fails (most often: trying to
-    run this homebrew on a stock retail console, which can't open the pctl
-    service). B-press exits the app (hint registered in onContentAvailable).
--->
+<!-- Shown when the pctl service cannot be opened (typically: no CFW). B exits. -->
 
 <brls:AppletFrame
-    title="@i18n/nx_pctl/init_error/title"
     iconInterpolation="linear">
 
     <brls:Box
+        title="@i18n/nx_pctl/init_error/title"
+        icon="@res/img/app_icon.jpg"
         width="auto"
         height="auto"
         axis="column"
@@ -31,13 +28,20 @@
             text="—"
             fontSize="20"
             horizontalAlign="center"
+            marginBottom="12"
+            textColor="@theme/brls/header/subtitle"/>
+
+        <brls:Label
+            id="error_fw"
+            text=""
+            fontSize="18"
+            horizontalAlign="center"
             marginBottom="32"
-            textColor="@theme/brls/text_disabled"/>
+            textColor="@theme/brls/header/subtitle"/>
 
         <brls:Label
             text="@i18n/nx_pctl/init_error/body"
-            horizontalAlign="center"
-            multiline="true"/>
+            horizontalAlign="center"/>
 
     </brls:Box>
 

@@ -2,9 +2,9 @@
 #include "action/pt_flow.hpp"
 
 #include <borealis.hpp>
-#include <fmt/format.h>
 
-#include "util/pctl_ops_c.hpp"
+#include "app.hpp"
+#include "ui/ui.hpp"
 
 using namespace brls::literals;
 
@@ -13,36 +13,50 @@ namespace pt_flow
 
 void ready_to_write(std::function<void(bool, bool)> on_ready)
 {
+    if (app::read_only_build()) {
+        ui::notify(ui::rc_text(NXM_RC_READ_ONLY));
+        on_ready(false, false);
+        return;
+    }
+
     PtState pt;
     pctl_play_timer_query(&pt);
-
-    // Timer isn't running → write straight away.
-    if (!pt.enabled) {
+    if (!pt.fw_supported) {
+        ui::notify(ui::rc_text(NXM_RC_FW_UNSUPPORTED));
+        on_ready(false, false);
+        return;
+    }
+    if (!pt.valid || !pt.enabled_valid || !pt.restricted_valid || !pt.temporary_unlocked_valid) {
+        ui::notify(ui::rc_text(NXM_RC_STATE_UNKNOWN));
+        on_ready(false, false);
+        return;
+    }
+    if ((!pt.enabled && !pt.restricted) || pt.temporary_unlocked) {
         on_ready(true, false);
         return;
     }
 
-    auto* dialog = new brls::Dialog("nx_pctl/play_timer/gate/body"_i18n);
-    dialog->addButton("hints/cancel"_i18n, [on_ready]() {
-        on_ready(false, false);   // declined — caller writes nothing
-    });
-    dialog->addButton("nx_pctl/play_timer/gate/confirm"_i18n, [on_ready]() {
-        Result rc = pctl_unlock_restriction_temporarily();
-        // Re-read state: 1201 should have flipped IsPlayTimerEnabled to false.
-        PtState after;
-        pctl_play_timer_query(&after);
+    ui::confirm("nx_pctl/play_timer/gate/body"_i18n, "nx_pctl/play_timer/gate/confirm"_i18n,
+        [on_ready]() {
+            Result rc = pctl_unlock_restriction_temporarily();
+            if (R_FAILED(rc)) {
+                ui::notify("nx_pctl/play_timer/gate/failed"_i18n + " — " + ui::rc_text(rc));
+                on_ready(false, false);
+                return;
+            }
+            on_ready(true, true);
+        },
+        [on_ready]() { on_ready(false, false); });
+}
 
-        if (R_FAILED(rc) || after.enabled) {
-            // Either the cmd 1201 itself failed, or it returned OK but the
-            // timer is still showing enabled (theoretically impossible — bail
-            // anyway, don't risk writing while it's active).
-            brls::Application::notify(fmt::format(
-                "Could not turn off parental controls (error 0x{:08X}).",
-                (unsigned)rc));
-            on_ready(false, false);
-            return;
-        }
-        on_ready(true, true);
+void offer_relock(std::function<void()> after)
+{
+    auto* dialog = new brls::Dialog("nx_pctl/play_timer/relock/body"_i18n);
+    dialog->addButton("nx_pctl/play_timer/relock/later"_i18n, [after]() { if (after) after(); });
+    dialog->addButton("nx_pctl/play_timer/relock/now"_i18n, [after]() {
+        Result rc = pctl_relock();
+        ui::notify_result(rc, "nx_pctl/toast/relocked"_i18n, "nx_pctl/toast/relock_err"_i18n);
+        if (after) after();
     });
     dialog->open();
 }

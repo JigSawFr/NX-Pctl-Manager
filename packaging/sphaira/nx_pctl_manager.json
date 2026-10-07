@@ -1,0 +1,10 @@
+{
+    "name": "Pctl Manager",
+    "url": "https://github.com/JigSawFr/NX-Pctl-Manager",
+    "assets": [
+        {
+            "name": "nx_pctl_manager.nro",
+            "path": "/switch/nx_pctl_manager/nx_pctl_manager.nro"
+        }
+    ]
+}

@@ -1,70 +1,64 @@
 // Copyright (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #include "view/pt_state_header.hpp"
 
-#include <cstdio>
-#include <string>
+#include "ui/ui.hpp"
 
-#include "util/pctl_ops_c.hpp"
-
-namespace
-{
-std::string fmt_remaining(const PtState& pt)
-{
-    if (!pt.enabled)        return "unknown";   // no active timer to report against
-    if (pt.remaining_ns) {
-        char buf[32];
-        std::snprintf(buf, sizeof(buf), "~%llu min",
-                      (unsigned long long)(pt.remaining_ns / 60000000000ULL));
-        return buf;
-    }
-    return "0";
-}
-
-std::string fmt_configured(const PtState& pt)
-{
-    if (!pt.valid) return "(unavailable)";
-
-    bool any = false, uniform = true;
-    for (int i = 0; i < 7; i++) {
-        if (pt.day_min[i] != PT_DAY_NOLIMIT)  any = true;
-        if (pt.day_min[i] != pt.day_min[0])   uniform = false;
-    }
-    if (!any)                            return "not set (timer off)";
-    if (uniform && pt.day_min[0] == 0)   return "every day blocked";
-    if (uniform) {
-        char buf[32];
-        std::snprintf(buf, sizeof(buf), "%u min (all days)", (unsigned)pt.day_min[0]);
-        return buf;
-    }
-    // Per-day breakdown: "Su 60  Mo 30  Tu 60  …" with - for no-limit, X for blocked.
-    static const char* const ab[7] = { "Su", "Mo", "Tu", "We", "Th", "Fr", "Sa" };
-    std::string out = "per-day:";
-    for (int i = 0; i < 7; i++) {
-        char part[12];
-        if      (pt.day_min[i] == PT_DAY_NOLIMIT) std::snprintf(part, sizeof(part), " %s-", ab[i]);
-        else if (pt.day_min[i] == 0)              std::snprintf(part, sizeof(part), " %sX", ab[i]);
-        else                                      std::snprintf(part, sizeof(part), " %s%u", ab[i], (unsigned)pt.day_min[i]);
-        out += part;
-    }
-    return out;
-}
-}   // namespace
+using namespace brls::literals;
 
 PtStateHeader::PtStateHeader()
 {
     this->inflateFromXMLRes("xml/view/pt_state_header.xml");
 }
 
+std::string PtStateHeader::configured_text(const PtState& pt)
+{
+    if (!pt.fw_supported) return "nx_pctl/play_timer/fw_too_old_short"_i18n;
+    if (!pt.valid) return "nx_pctl/common/unavailable"_i18n;
+    bool any = false, uniform = true;
+    for (int i = 0; i < 7; i++) {
+        if (pt.day_min[i] != PT_DAY_NOLIMIT) any = true;
+        if (pt.day_min[i] != pt.day_min[0]) uniform = false;
+    }
+    if (!any) return "nx_pctl/play_timer/state/not_set"_i18n;
+    if (uniform) return brls::getStr("nx_pctl/play_timer/state/every_day", ui::fmt_minutes(pt.day_min[0]));
+    return brls::getStr("nx_pctl/play_timer/state/today_per_day", ui::fmt_minutes(pt.day_min[ui::today_weekday()]));
+}
+
+void PtStateHeader::show(const PtState& pt)
+{
+    const std::string na = "nx_pctl/common/unavailable"_i18n;
+    if (!pt.fw_supported) {
+        for (auto* l : { enabled_value.getView(), restricted_value.getView(), temporary_value.getView(), remaining_value.getView() })
+            l->setText("—");
+        configured_value->setText(configured_text(pt));
+        return;
+    }
+    enabled_value->setText(ui::bool_text(pt.enabled_valid, pt.enabled, "nx_pctl/common/yes"_i18n, "nx_pctl/common/no"_i18n));
+    enabled_value->setTextColor(pt.enabled_valid && pt.enabled ? ui::color_ok() : ui::color_text());
+
+    restricted_value->setText(ui::bool_text(pt.restricted_valid, pt.restricted,
+        "nx_pctl/play_timer/state/restricted_yes"_i18n, "nx_pctl/common/no"_i18n));
+    restricted_value->setTextColor(pt.restricted_valid && pt.restricted ? ui::color_bad() : ui::color_text());
+
+    temporary_value->setText(ui::bool_text(pt.temporary_unlocked_valid, pt.temporary_unlocked,
+        "nx_pctl/common/yes"_i18n, "nx_pctl/common/no"_i18n));
+    temporary_value->setTextColor(pt.temporary_unlocked_valid && pt.temporary_unlocked ? ui::color_warn() : ui::color_text());
+
+    if (!pt.enabled_valid || !pt.remaining_valid) remaining_value->setText(na);
+    else if (!pt.enabled) remaining_value->setText("—");
+    else remaining_value->setText(ui::fmt_duration_ns(pt.remaining_ns));
+
+    configured_value->setText(configured_text(pt));
+}
+
 void PtStateHeader::refresh()
 {
     PtState pt;
     pctl_play_timer_query(&pt);
-
-    this->enabled_value->setText(pt.enabled ? "yes" : "no");
-    this->restricted_value->setText(
-        pt.restricted ? "yes ('time's up' screen may be active)" : "no");
-    this->remaining_value->setText(fmt_remaining(pt));
-    this->configured_value->setText(fmt_configured(pt));
+    this->show(pt);
 }
 
-brls::View* PtStateHeader::create() { return new PtStateHeader(); }
+brls::View* PtStateHeader::create()
+{
+    return new PtStateHeader();
+}

@@ -8,41 +8,108 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write   # so a v* tag push can attach the build to its release
+  contents: read
 
 jobs:
-  build:
+  # Fast checks with no toolchain: C service layer unit tests + resources.
+  host-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unit tests (pctl_ops, time_ops, sysinfo, NTP parser — writable and READ_ONLY)
+        run: make test
+      - name: Resources (i18n keys, translations, XML layouts)
+        run: python3 tools/check_resources.py .
+
+  # Builds the UI on Linux against the simulated backend and clicks through
+  # every screen headlessly: catches borealis XML / view errors without a console.
+  desktop-smoke:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          # borealis lives in extern/borealis as a submodule — must be checked
-          # out for the build to compile (without this CI would fail at cmake
-          # with "extern/borealis/library/cmake/toolchain.cmake not found").
-          submodules: recursive
-
-      # Build inside the official devkitPro image (the same one ./run.sh uses),
-      # so CI matches a local `./run.sh` build. `make dist` is now a thin shim
-      # over CMake and produces both nx_pctl_manager.nro and nx_pctl_manager.zip
-      # at the repo root. The devkitpro/devkita64 image already ships every
-      # portlib borealis needs (mesa / glfw / glm / freetype / tinyxml2 / etc.)
-      # — no `dkp-pacman -S` step required.
-      - name: Build .nro / .zip (devkitpro/devkita64)
-        run: docker run --rm -v "$PWD:/project" -w /project devkitpro/devkita64 make dist
-
-      - name: Upload build artifacts
+          submodules: true
+      - name: Borealis GLFW fork
+        run: git -C extern/borealis submodule update --init --depth 1 library/lib/extern/glfw
+      - name: Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev \
+            libxcursor-dev libxi-dev libxkbcommon-dev libwayland-dev wayland-protocols libdbus-1-dev \
+            xvfb xdotool imagemagick dbus
+      - name: Build (desktop simulation)
+        run: make desktop
+      - name: Smoke test
+        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke
+      - name: Upload screenshots
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: nx_pctl_manager
+          name: desktop_smoke_screenshots
+          path: smoke/*.png
+
+  # The real .nro, built in the official devkitPro image (same as ./run.sh).
+  switch:
+    runs-on: ubuntu-latest
+    needs: host-tests
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: release
+            flags: ""
+          - variant: probe
+            flags: "PROBE=1"
+          - variant: readonly
+            flags: "READ_ONLY=1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Build .nro / .zip (devkitpro/devkita64)
+        run: docker run --rm -v "$PWD:/project" -w /project devkitpro/devkita64 sh -c "make dist ${{ matrix.flags }} && (dkp-pacman -Q libnx switch-tools 2>/dev/null || true) > toolchain.txt"
+      - name: Build identity
+        run: |
+          {
+            echo "commit: $(git rev-parse HEAD)"
+            echo "variant: ${{ matrix.variant }} ${{ matrix.flags }}"
+            git submodule status
+            cat toolchain.txt
+          } > build-info.txt
+          sha256sum nx_pctl_manager.nro nx_pctl_manager.zip > SHA256SUMS.txt
+          unzip -l nx_pctl_manager.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nx_pctl_manager_${{ matrix.variant }}
           path: |
             nx_pctl_manager.nro
             nx_pctl_manager.zip
+            build-info.txt
+            SHA256SUMS.txt
 
-      # On a v* tag, attach the freshly built files to that GitHub release.
-      - name: Attach to GitHub release
-        if: startsWith(github.ref, 'refs/tags/v')
+  # On a v* tag: check the NACP version matches the tag, then publish. The raw
+  # .nro is what sphaira's GitHub updater downloads; the .zip is what the
+  # Homebrew App Store (hb-appstore) picks up.
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    needs: [ switch, desktop-smoke ]
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tag matches the app version
+        run: |
+          v=$(sed -n 's/^set(VERSION_\(MAJOR\|MINOR\|ALTER\) "\([0-9]*\)")/\2/p' CMakeLists.txt | paste -sd.)
+          test "v$v" = "${GITHUB_REF_NAME}" || { echo "tag ${GITHUB_REF_NAME} != CMake version $v"; exit 1; }
+      - uses: actions/download-artifact@v4
+        with:
+          name: nx_pctl_manager_release
+          path: dist
+      - name: Attach to the GitHub release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            nx_pctl_manager.nro
-            nx_pctl_manager.zip
+            dist/nx_pctl_manager.nro
+            dist/nx_pctl_manager.zip
+            dist/SHA256SUMS.txt

@@ -1,91 +1,100 @@
 # NX-Pctl-Manager
 
-[![build](https://github.com/tailiang2008/NX-Pctl-Manager/actions/workflows/build.yml/badge.svg)](https://github.com/tailiang2008/NX-Pctl-Manager/actions/workflows/build.yml)
+[![build](https://github.com/JigSawFr/NX-Pctl-Manager/actions/workflows/build.yml/badge.svg)](https://github.com/JigSawFr/NX-Pctl-Manager/actions/workflows/build.yml)
 [![license: GPLv3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE)
-[![latest release](https://img.shields.io/github/v/release/tailiang2008/NX-Pctl-Manager)](https://github.com/tailiang2008/NX-Pctl-Manager/releases/latest)
+[![latest release](https://img.shields.io/github/v/release/JigSawFr/NX-Pctl-Manager)](https://github.com/JigSawFr/NX-Pctl-Manager/releases/latest)
 
-A Nintendo Switch parental-controls tool — **no phone app, no Nintendo account, no internet** — configure the daily play-time limit directly on the console, and reset / delete the PIN or unlink the companion app while you're at it.
+*[Lire en français](README.fr.md)*
 
-> ⚠️ **Requires custom firmware (CFW; Atmosphère recommended).** It calls the restricted system `pctl` service directly, so it only runs on a hacked console (a stock retail console can't use it). It doesn't bypass any account or online verification — it just brings the parental-controls settings that are otherwise buried in the phone app / deep in System Settings (plus the forgot-PIN recovery options) onto the console, for CFW users to do offline.
->
-> It talks to restricted / `*ForDebug` `pctl` commands directly — usually fine, but in a few states (notably *removing* the play-time limit while the "time's up" lock screen is up) it can destabilise Atmosphère. **Tested on firmware 22.1.0 / Atmosphère 1.11.1; other versions are unverified. Use at your own risk.**
+A Nintendo Switch parental-controls manager — **no phone app, no Nintendo account, no internet needed**. Set the daily play-time limit directly on the console, change restrictions, set the network clock, and reset / delete the PIN or unlink the companion app.
 
----
+![Overview](images/screenshots/dashboard.png)
+
+> ⚠️ **Requires custom firmware (Atmosphère).** The app talks to the restricted system `pctl` service, so it only runs on a hacked console. It does not bypass any account or online check: it brings the settings that are otherwise only in the phone app (or deep in System Settings) onto the console, for offline use. Some commands it uses are `*ForDebug` ones. **Use at your own risk.**
+
+## Compatibility
+
+| | Supported | Notes |
+|---|---|---|
+| Firmware | **21.0.0 → 23.0.1** | The play-time limit layout (0x44 bytes) exists since 21.0.0. Below that, every tab works except the play timer. A newer firmware shows a one-time warning: reading is safe, check the result of changes. |
+| Atmosphère | **1.11.x → 1.12.0** | 1.12.0 adds 23.0.0 support. The app shows the detected Atmosphère version. |
+| Launchers | hbmenu, **sphaira**, **Homebrew App Store** | Launching over a game (title override) is recommended; the app shows whether it runs as an application or as an applet (album). |
+| Hardware-tested | 22.1.0 / Atmosphère 1.11.1 | 23.0.1 / 1.12.0 is supported by the command table (switchbrew) but not yet tested on hardware: reports are welcome. |
+
+**Why 4.0.0 fixes the 22.5 crashes.** `pctl:a`, the privileged parental-control service, accepts a **single session**. Earlier versions kept it open the whole time, so the HOME-menu PIN prompt (or the PIN applet) could not get it and Atmosphère could crash. Since 4.0.0 every action opens the session, does its work and releases it immediately; periodic refreshes pause while the app is in the background. *(Diagnosis by [anbingxi's fork](https://github.com/anbingxi/NX-Pctl-Manager/tree/diag/fw22-5-readonly).)*
 
 ## Features
 
-### Configure the play timer (daily limit) offline — the main point of this tool
+The app is organised in tabs, like System Settings.
 
-Nintendo **only lets you set the daily play-time limit through the "Nintendo Switch Parental Controls" phone app** and sync it to the console; there's no option for it in the console's System Settings. This tool talks to the console's `pctl` service directly, so **on the console, fully offline** (no phone app, no Nintendo account, no internet) you can:
+| Tab | What you can do |
+|---|---|
+| **Overview** | Parental-control state, PIN, restriction level, a gauge of today's play time, bedtime alarm, network-clock accuracy, companion-app link, firmware / Atmosphère / compatibility. Refreshes every 5 s (X refreshes now). |
+| **Play timer** | Same limit every day (quick list or any value), a different limit per day (with Monday–Friday / weekend presets, "no limit" per day), remove the limit, **profiles** saved on the SD card (e.g. *School week*, *Holidays*), bedtime alarm (read-only). Advanced, opt-in: "time's up" alarm on/off, pause / resume the countdown. |
+| **Restrictions** | Restriction level (None, Young child, Child, Teen, Custom); in Custom: age rating, social-media posting, communication with others; VR mode; rating organisation. |
+| **Network clock** | Console / network clocks, time zone, accuracy. Pick a public NTP server (≈ 50 built-in, by region, or your own), **measure** against 3 servers (median, warning when they disagree) and **set the network clock**. The play timer relies on this clock; a console that never reaches Nintendo's servers keeps it inaccurate. |
+| **Companion app** | Whether the Nintendo Switch Parental Controls phone app is linked, last synchronisation, unlink it (otherwise its next sync overwrites the limits set here). |
+| **PIN & security** | Set / change the PIN (system PIN screen), unlock temporarily, **lock again now**, delete all parental controls (double confirmation, irreversible). |
+| **Tools & about** | Export a diagnostic report, language (system / English / Français), theme (system / light / dark), advanced actions, versions. |
 
-- **Set one limit for every day** — one minute value applied to Sunday–Saturday.
-- **Set each day separately** — Sunday, Monday … Saturday each get their own value (edited day-by-day in a sub-menu, staged, then saved all at once).
-- **Turn the limit off** — remove the play timer entirely.
+![Play timer](images/screenshots/play_timer.png)
+![Per-day limits](images/screenshots/per_day.png)
 
-Notes: `0` minutes means that day is **fully blocked** (not "no limit"); for "no limit", use *Remove play-time limit* to turn the whole timer off. Once set, the play timer takes effect when you launch a game (verified on fw 22.1.0 / Atmosphère 1.11.1).
+### How the play-time limit is written safely
 
-> If the play timer is **currently active** (already counting down), overwriting its config directly destabilises Atmosphère — so the tool first turns parental controls off temporarily (it reads and uses the console's PIN automatically — **you don't need to remember it**), writes the new value, and you return to the main menu; the new limit takes effect once parental controls are active again.
+If the timer is counting down, overwriting its configuration destabilises Atmosphère. So before any write the app checks the state; if the timer is active it asks, unlocks parental controls temporarily (with the stored PIN — **you don't need to remember it**), checks that the system really reports the unlock, writes, then offers to **lock again right away**. The service layer re-checks the same state just before writing, so no screen can skip that safeguard.
 
-### Other (parental-controls recovery / maintenance)
-
-- **Set / change the PIN** — opens the system's parental-controls passcode screen.
-- **Delete all parental controls** — wipes the PIN and every restriction (**irreversible**; confirmed before it runs). Your recovery option when you've forgotten the PIN.
-- **Unlink the companion app** — breaks the link between the "Nintendo Switch Parental Controls" phone app and this console.
-- **View status** — current safety level, whether a PIN is set (and its length), whether restrictions are enabled, and play-timer status (active or not / the configured daily limit).
-
-## How to use
-
-Controls: ↑ / ↓ move the cursor, (A) confirms, (B) goes back one level / (on the main menu) exits. Destructive actions (delete all parental controls, unlink companion app, remove the limit) and "turn parental controls off temporarily" all show a confirmation screen first.
-
-### Pick the flow that matches your console
-
-**A. Parental controls haven't been set up on this console yet.** No companion-app pairing exists.
-
-1. On the Switch: *System Settings* → *Parental Controls* → set a PIN. (Don't bother with the companion-app pairing — that's the whole point of this homebrew: you skip it.)
-2. Launch this app from hbmenu and continue at *Set the play timer* below.
-
-**B. Parental controls were already set up via the Nintendo Switch Parental Controls phone app.** The phone app is currently paired with this console.
-
-1. Launch this app from hbmenu, pick *Unlink companion app* — otherwise the phone app's next sync will overwrite whatever limit you set here.
-2. Continue at *Set the play timer* below.
-
-### Set the play timer
-
-Main menu → *Play timer (daily limit)*:
-
-- *Set daily limit (all days)*: pops a number pad for the minutes (0–1440), applies it to every day, writes it after you confirm.
-- *Per-day limits*: opens a sub-menu; press (A) on a day to type its value (it's **staged** — edited days are marked `(*)`); when you're done, pick *Save per-day limits* to write all 7 at once; press (B) to leave without saving.
-- *Remove play-time limit*: turns the whole timer off (with confirmation).
-- When writing, if the timer is active you'll first get a confirmation → (once you agree) parental controls are turned off temporarily → the new value is written → you're told to return to the main menu (the new limit takes effect once parental controls are active again). ⚠️ **Don't set the limit below "time already played today"** — the moment parental controls come back on, it locks immediately.
-
-### Other actions
-
-- *Set / change parental control PIN* switches to the system applet to set a passcode and returns automatically when done.
-- *Delete all parental controls* wipes the PIN and every restriction (with confirmation, **irreversible**). Also your recovery option when you've forgotten the PIN.
-- The main menu always shows a status panel; *Refresh status* re-reads it.
+`0` minutes means *no play that day*; *Remove the play-time limit* turns the timer off. ⚠️ Don't set a limit below the time already played today: as soon as parental controls are locked again, the game is suspended.
 
 ## Install
 
-Grab `nx_pctl_manager.nro` from the [**Releases**](../../releases) page, drop it in `/switch/` on the SD card, and run it from hbmenu. (Or download `nx_pctl_manager.zip` from the same release and unzip it onto the SD card root — it puts the `.nro` in `/switch/` for you.)
+Pick one:
+
+- **Homebrew App Store** or **sphaira's App Store** (same catalogue): search for *Pctl Manager* once the listing is approved. New GitHub releases are picked up automatically.
+- **sphaira's GitHub menu**: the release zip already contains the entry (`/config/sphaira/github/nx_pctl_manager.json`), so after a first install you can update from *GitHub* in sphaira.
+- **Manually**: download `nx_pctl_manager.zip` from the [Releases](../../releases/latest) and extract it to the **root** of the SD card. The app lands in `sd:/switch/nx_pctl_manager/`.
+
+> Upgrading from 3.x? Delete the old `sd:/switch/nx_pctl_manager.nro`, otherwise hbmenu shows the app twice.
+
+Files the app writes: `sd:/switch/nx_pctl_manager/config.json` (preferences), `profiles/` (saved limits), `logs/` (diagnostics). More in [packaging/README.md](packaging/README.md).
+
+### First steps
+
+1. **Parental controls not set up yet:** System Settings › Parental Controls › set a PIN (skip the phone-app pairing). Then open the app.
+2. **Already paired with the phone app:** open *Companion app* › *Unlink*, otherwise the next sync overwrites what you set here.
+3. *Play timer* › *Same limit every day* (or *A different limit for each day…*).
+4. If the network clock is not accurate (Overview), use *Network clock* › *Measure* then *Set the network clock* (enable *Synchronise Clock via Internet* in System Settings first).
+
+Controls: ↑/↓ move, Ⓐ confirm, Ⓑ back (on the sidebar: exit), Ⓧ refresh.
+
+## Bug reports
+
+*Tools & about* › *Export a diagnostic report* saves a text file in `sd:/switch/nx_pctl_manager/logs/` with the firmware, Atmosphère version, clocks and the raw result of every parental-control query. **It never contains the PIN.** Attach it to the issue.
+
+A **read-only "Pctl Diagnostics" build** (`READ_ONLY=1`) cannot change anything; it is useful to investigate a new firmware safely.
 
 ## Build from source
 
-Needs [devkitPro](https://devkitpro.org/) and the `switch-dev` toolchain (libnx included):
-
 ```sh
-export DEVKITPRO=/opt/devkitpro
-make            # produces ./nx_pctl_manager.nro
-make dist       # packs nx_pctl_manager.zip — unzip it straight onto the SD card
-make nxlink     # build and push over nxlink to a Switch running hbmenu on the LAN
-make clean
+make test        # unit tests of the C service layer (any gcc, no devkitPro)
+make desktop     # the UI on Linux with a simulated console (needs GLFW / X11 / D-Bus dev packages)
+make             # ./nx_pctl_manager.nro      (devkitPro switch-dev, DEVKITPRO set)
+make dist        # ./nx_pctl_manager.zip      (SD-card layout)
+make PROBE=1     # + diagnostic shortcuts in the Play timer tab
+make READ_ONLY=1 # "Pctl Diagnostics" build
+./run.sh [ip]    # build in the devkitpro/devkita64 Docker image, optionally nxlink to a console
 ```
 
-Without a native toolchain, the repo's `./run.sh` builds via the official Docker image `devkitpro/devkita64`: `./run.sh` just builds; `./run.sh <switch-ip>` builds then pushes over nxlink (press Y in hbmenu first).
+The desktop build runs the real borealis UI against `source/sim/` (environment knobs: `NXPM_SIM_FW=20.5.0`, `NXPM_SIM_NO_CFW=1`, `NXPM_SIM_TIMER_OFF=1`). `tools/desktop_smoke.py` clicks through every screen headlessly; CI runs it with the unit tests, the resource checks (`tools/check_resources.py`) and the three Switch builds.
+
+Layout: `source/core/` (C, libnx: `pctl_ops`, `time_ops`, `sysinfo`), `source/tab/` (one class per tab), `source/ui/` (dialogs, formatting), `source/util/` (NTP, config, profiles, diagnostics), `resources/` (XML layouts, `i18n/en-US`, `i18n/fr`).
 
 ## License
 
 GPLv3 (see [`LICENSE`](LICENSE)).
 
-### Third-party
+### Third-party and credits
 
-The graphical UI (v3.0.0+) is built on **[borealis](https://github.com/xfangfang/borealis)** — a Horizon-system-style UI library for Switch homebrew — under the Apache License 2.0. The pinned commit lives at `extern/borealis/`; see its `LICENSE` and `NOTICE`. The text-console v2 line did not depend on borealis.
+- UI: **[borealis](https://github.com/xfangfang/borealis)** (Apache 2.0), pinned at `extern/borealis/`.
+- fw 22.5 diagnosis, session release and NTP synchronisation adapted from **[anbingxi/NX-Pctl-Manager](https://github.com/anbingxi/NX-Pctl-Manager/tree/diag/fw22-5-readonly)**.
+- Command reference: [switchbrew — Parental Control services](https://switchbrew.org/wiki/Parental_Control_services).

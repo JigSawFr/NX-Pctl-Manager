@@ -1,84 +1,338 @@
 {
-    "title":   "Pctl Manager",
-    "actions": "Actions",
-
-    "status": {
-        "pin":          "PIN",
-        "restrictions": "Restrictions enabled",
-        "pc_enabled":   "Parental control enabled"
+    "title": "Pctl Manager",
+    "title_read_only": "Pctl Diagnostics",
+    "tabs": {
+        "dashboard": "Overview",
+        "play_timer": "Play timer",
+        "restrictions": "Restrictions",
+        "clock": "Network clock",
+        "pairing": "Companion app",
+        "security": "PIN & security",
+        "tools": "Tools & about"
     },
-
-    "items": {
-        "refresh":    "Refresh status",
-        "play_timer": "Play timer (daily limit)",
-        "set_pin":    "Set / change parental control PIN",
-        "delete_pc":  "Delete all parental controls",
-        "unlink":     "Unlink companion app"
+    "hints": {
+        "refresh": "Refresh"
     },
-
-    "dialog": {
-        "delete_pc": {
-            "body":    "Delete all parental controls?\n\nThis wipes the PIN and every restriction, and cannot be undone.",
-            "confirm": "Delete"
-        },
-        "unlink": {
-            "body":    "Unlink the companion app (Nintendo Switch Parental Controls) from this console?",
-            "confirm": "Unlink"
-        }
+    "common": {
+        "yes": "Yes",
+        "no": "No",
+        "on": "On",
+        "off": "Off",
+        "unavailable": "Unavailable",
+        "not_set": "Not set",
+        "no_limit": "No limit",
+        "zero_minutes": "0 min (no play)",
+        "minutes": "{} min",
+        "hours": "{} h",
+        "hours_minutes": "{} h {}",
+        "custom": "Custom…",
+        "later": "Later",
+        "continue": "Continue",
+        "quit": "Quit",
+        "save": "Save",
+        "delete": "Delete",
+        "applied": "Saved.",
+        "restart_needed": "Saved. Restart the app to apply it.",
+        "read_only_note": "Read-only diagnostic build: nothing can be changed from this app."
     },
-
-    "play_timer": {
-        "title": "Play timer",
-
-        "state": {
-            "restricted": "Limit reached today",
-            "remaining":  "Today's remaining",
-            "configured": "Configured limit"
-        },
-
-        "items": {
-            "set_all":  "Set daily limit (all days)…",
-            "per_day":  "Per-day limits…",
-            "remove":   "Remove play-time limit",
-            "diag":     "Dump current config → sd:/nx_pctl_probe.txt"
-        },
-
-        "dialog": {
-            "remove": {
-                "body":    "Remove the play-time limit (all days)?",
-                "confirm": "Remove"
-            }
-        },
-
-        "gate": {
-            "body":    "The play timer is currently active.\n\nWriting a new limit needs parental controls to be temporarily turned off first.\n\nTurn parental controls off temporarily and write now?",
-            "confirm": "Turn off & write"
-        },
-
-        "did_unlock_notice": "Parental controls are temporarily off.\n\nReturn to the main menu; the new limit takes effect once parental controls are active again.",
-
-        "perday": {
-            "title":         "Per-day play-time limits",
-            "section_days":  "Per-day limits (A to edit; (*) marks staged changes)",
-            "section_save":  "Save",
-            "save":          "Save per-day limits"
-        }
+    "days": {
+        "0": "Sunday",
+        "1": "Monday",
+        "2": "Tuesday",
+        "3": "Wednesday",
+        "4": "Thursday",
+        "5": "Friday",
+        "6": "Saturday"
     },
-
+    "numpad": {
+        "guide": "Minutes per day, 0 to 1440 (0 = no play that day)"
+    },
+    "error": {
+        "code": "error {}",
+        "code_hint": "error {}: {}",
+        "read_only": "this is the read-only diagnostic build",
+        "write_gated": "the play timer is running; unlock parental controls temporarily first",
+        "fw_unsupported": "not supported on this firmware",
+        "unlock_not_effective": "the system did not confirm the temporary unlock; use the parental-control icon in the HOME menu, then try again",
+        "not_custom": "choose the \"Custom\" restriction level first",
+        "invalid_argument": "invalid value",
+        "autocorrect_off": "turn on \"Synchronise Clock via Internet\" in System Settings first",
+        "state_unknown": "the current play-timer state could not be read, so nothing was written",
+        "session_closed": "the system closed the parental-control session; try again",
+        "bad_pin_format": "the system rejected the PIN format",
+        "pctl_refused": "refused by the parental-control service"
+    },
     "init_error": {
-        "title":    "Pctl Manager",
+        "title": "Pctl Manager",
         "headline": "Could not open the parental-control service.",
-        "body":     "This homebrew only works on a console running CFW (Atmosphère); a stock retail console can't open the pctl service."
+        "body": "This homebrew only works on a console running custom firmware (Atmosphère). A retail console cannot open the pctl service.",
+        "firmware": "Firmware {} · Atmosphère {}"
     },
-
+    "untested": {
+        "body": "Firmware {} is newer than the last version checked with this app ({}).\n\nReading the state is safe. Changing settings may behave differently: check the result, and export a diagnostic if anything looks wrong.",
+        "continue": "I understand"
+    },
+    "dashboard": {
+        "section_status": "Parental controls",
+        "section_today": "Today",
+        "section_system": "System",
+        "pc": "Parental controls",
+        "pc_active": "Active",
+        "pc_unlocked": "Temporarily unlocked",
+        "pc_off": "Not set up",
+        "pin": "PIN",
+        "pin_set": "Set ({} digits)",
+        "level": "Restriction level",
+        "today_limit": "Today's limit ({})",
+        "remaining": "Time left today",
+        "gauge_known": "{} played of {}",
+        "gauge_none": "No play-time limit today",
+        "gauge_unknown": "Play time not available",
+        "gauge_reached": "Today's limit has been reached",
+        "bedtime": "Bedtime alarm",
+        "clock": "Network clock",
+        "clock_ok": "Accurate",
+        "clock_bad": "Not synchronised",
+        "pairing": "Companion app",
+        "pairing_on": "Linked",
+        "pairing_off": "Not linked",
+        "firmware": "Firmware",
+        "compat": "Compatibility",
+        "hint": "Values refresh automatically. Press X to refresh now.",
+        "gauge_limit_only": "Limit today: {}. Time left is reported while a game is running."
+    },
+    "compat": {
+        "ok": "Checked",
+        "untested": "Newer than checked ({})",
+        "too_old": "Play timer needs 21.0.0+",
+        "not_ams": "Atmosphère not detected"
+    },
+    "play_timer": {
+        "fw_too_old": "The play timer needs firmware 21.0.0 or newer. The other tabs still work.",
+        "fw_too_old_short": "Needs firmware 21.0.0+",
+        "state": {
+            "enabled": "Play timer active",
+            "restricted": "Limit reached today",
+            "restricted_yes": "Yes (game suspended)",
+            "temporary": "Temporarily unlocked",
+            "remaining": "Time left today",
+            "configured": "Configured limit",
+            "not_set": "None (timer off)",
+            "every_day": "{} every day",
+            "today_per_day": "{} today (varies by day)"
+        },
+        "section_limit": "Daily limit",
+        "quick": "Same limit every day",
+        "quick_title": "Daily limit for every day",
+        "per_day": "A different limit for each day…",
+        "remove": "Remove the play-time limit",
+        "section_profiles": "Profiles",
+        "profile_save": "Save as a profile…",
+        "profile_load": "Load a profile…",
+        "profile_delete": "Delete a profile…",
+        "profile_name": "Profile name (letters, digits, spaces)",
+        "profile_none": "No saved profile yet.",
+        "profile_saved": "Profile \"{}\" saved.",
+        "profile_deleted": "Profile \"{}\" deleted.",
+        "profile_apply": "Apply the profile \"{}\"?\n\n{}",
+        "section_bedtime": "Bedtime (read-only)",
+        "bedtime": "Bedtime alarm",
+        "bedtime_value_on": "{} (on)",
+        "bedtime_value_off": "{} (off)",
+        "bedtime_reset": "Alarm resets at",
+        "bedtime_note": "The bedtime alarm can only be changed from the companion app for now.",
+        "section_advanced": "Advanced",
+        "alarm": "\"Time's up\" alarm",
+        "pause": "Pause the countdown",
+        "resume": "Resume the countdown",
+        "pause_body": "Pause today's countdown?\n\nThis uses a test command of the system. Use it only if you know why you need it.",
+        "resume_body": "Resume today's countdown?",
+        "diag": "Export a full diagnostic",
+        "confirm_uniform": "Set the limit to {} for every day?",
+        "confirm_uniform_zero": "Set 0 minutes for every day?\n\nThat means no play at all. To turn the timer off instead, use \"Remove the play-time limit\".",
+        "confirm_set": "Write",
+        "remove_body": "Remove the play-time limit for every day?",
+        "remove_confirm": "Remove",
+        "gate": {
+            "body": "The play timer is running.\n\nTo change it safely, parental controls must be unlocked temporarily first (the app uses the stored PIN, you don't need to remember it).\n\nUnlock temporarily and write?",
+            "confirm": "Unlock and write",
+            "failed": "Could not unlock parental controls"
+        },
+        "relock": {
+            "body": "Parental controls are temporarily unlocked.\n\nLock them again now? The new limit applies as soon as they are locked.\n\nTip: if the limit is lower than the time already played today, the game is suspended right away.",
+            "now": "Lock now",
+            "later": "Later"
+        },
+        "perday": {
+            "title": "Per-day limits",
+            "section_days": "Press A on a day to change it. (*) = not saved yet",
+            "section_presets": "Quick fill",
+            "weekdays": "Set Monday to Friday…",
+            "weekend": "Set Saturday and Sunday…",
+            "copy_today": "Copy {} to every day",
+            "revert": "Discard changes",
+            "section_save": "Save",
+            "save": "Save these limits",
+            "pick_title": "{}: limit",
+            "pick_minutes": "Enter minutes…",
+            "pick_no_limit": "No limit",
+            "unsaved": "  (*)",
+            "unavailable": "The play-timer configuration could not be read.",
+            "no_changes": "Nothing to save.",
+            "discard_body": "Discard the changes that were not saved?",
+            "discard_confirm": "Discard"
+        },
+        "written_uniform": "Limit written: {} every day.",
+        "written_days": "Per-day limits written.",
+        "write_err": "Could not write the play-time limit",
+        "removed": "Play-time limit removed.",
+        "remove_err": "Could not remove the play-time limit"
+    },
+    "restrictions": {
+        "section_level": "Restriction level",
+        "level": "Level",
+        "levels": {
+            "0": "None",
+            "1": "Custom",
+            "2": "Young child",
+            "3": "Child",
+            "4": "Teen"
+        },
+        "confirm_level": "Change the restriction level to \"{}\"?",
+        "section_custom": "Custom settings",
+        "age": "Restrict software by age rating",
+        "age_none": "No restriction",
+        "age_value": "Up to {} years",
+        "sns": "Restrict posting to social media",
+        "comm": "Restrict communicating with others",
+        "custom_only": "These settings can be changed when the level is \"Custom\".",
+        "section_other": "Other",
+        "vr": "Restrict VR mode",
+        "org": "Rating organisation",
+        "free_comm": "Software allowed to communicate",
+        "free_comm_value": "{} title(s)",
+        "note": "These are the same settings as System Settings › Parental Controls.",
+        "saved": "Restriction saved.",
+        "save_err": "Could not save the restriction"
+    },
+    "clock": {
+        "section_now": "Clocks",
+        "user": "Console clock",
+        "network": "Network clock",
+        "accuracy": "Network clock accurate",
+        "auto": "Synchronise clock via Internet",
+        "zone": "Time zone",
+        "why": "The play timer relies on the network clock. A console that never reaches Nintendo's servers keeps an inaccurate network clock; setting it from a public time server can fix that.",
+        "section_server": "Time server",
+        "region": "Region",
+        "server": "Server",
+        "custom": "Enter a server name…",
+        "custom_header": "NTP server name or IP address",
+        "region_names": {
+            "global": "Worldwide (pool.ntp.org)",
+            "public": "Public services",
+            "europe": "Europe",
+            "americas": "Americas",
+            "asia": "Asia & Oceania",
+            "china": "China",
+            "africa": "Africa & Middle East",
+            "custom": "Saved servers"
+        },
+        "section_sync": "Synchronise",
+        "measure": "Measure the time difference",
+        "apply": "Set the network clock",
+        "export": "Export a clock report",
+        "measuring": "Asking {} and two other servers…",
+        "result_line_ok": "{}: {} (difference {})",
+        "result_line_err": "{}: {}",
+        "result_summary": "Median time: {}\nNetwork clock difference: {}",
+        "result_spread": "Warning: the servers disagree by {} s.",
+        "result_none": "No server answered. Check the Internet connection.",
+        "need_measure": "Measure first (a measurement stays valid for 2 minutes).",
+        "expired": "The measurement is older than 2 minutes. Measure again.",
+        "confirm_apply": "Set the network clock to {} ({})?",
+        "confirm_apply_spread": "\n\nThe servers disagree by {} seconds.",
+        "apply_confirm": "Set the clock",
+        "applied_ok": "Network clock set. The system reports it as accurate.",
+        "applied_pending": "Network clock set and read back. The system does not report it as accurate yet.",
+        "applied_refused": "Not changed: turn on \"Synchronise Clock via Internet\" in System Settings › System › Date and Time first.",
+        "applied_err": "Could not set the network clock",
+        "report_err": "Not changed: the \"before\" report could not be saved",
+        "seconds": "{} s",
+        "busy": "Please wait for the current request."
+    },
+    "pairing": {
+        "section": "Nintendo Switch Parental Controls app",
+        "active": "Linked to a phone",
+        "updated": "Last synchronised",
+        "unlink": "Unlink the companion app",
+        "unlink_body": "Unlink the Nintendo Switch Parental Controls phone app from this console?\n\nOtherwise its next synchronisation overwrites the limits set here.",
+        "unlink_confirm": "Unlink",
+        "unlinked": "Companion app unlinked.",
+        "unlink_err": "Could not unlink the companion app",
+        "note": "Settings made in this homebrew are overwritten by the phone app at its next synchronisation while the console stays linked."
+    },
+    "security": {
+        "section_status": "Status",
+        "pin": "PIN",
+        "restrictions": "Restrictions enabled",
+        "temporary": "Temporarily unlocked",
+        "section_actions": "Actions",
+        "set_pin": "Set or change the PIN",
+        "unlock": "Unlock temporarily",
+        "unlock_body": "Unlock parental controls temporarily?\n\nRestrictions stay off until you lock them again (or until the console restarts).",
+        "unlock_confirm": "Unlock",
+        "unlocked": "Parental controls temporarily unlocked.",
+        "unlock_err": "Could not unlock",
+        "relock": "Lock again now",
+        "section_danger": "Danger zone",
+        "delete": "Delete all parental controls",
+        "delete_body": "Delete all parental controls?\n\nThis wipes the PIN, every restriction and the play-time limit. It cannot be undone.",
+        "delete_body2": "Last check: delete everything now?",
+        "delete_confirm": "Delete",
+        "deleted": "Parental controls deleted.",
+        "delete_err": "Could not delete parental controls",
+        "pin_ok": "PIN updated.",
+        "pin_err": "Could not update the PIN"
+    },
+    "tools": {
+        "section_diag": "Diagnostics",
+        "export": "Export a diagnostic report",
+        "export_note": "Saved in {}. Attach it to a bug report. It never contains the PIN.",
+        "section_prefs": "Preferences",
+        "language": "Language",
+        "languages": {
+            "system": "System language",
+            "en-US": "English",
+            "fr": "Français"
+        },
+        "theme": "Theme",
+        "themes": {
+            "system": "System",
+            "light": "Light",
+            "dark": "Dark"
+        },
+        "advanced": "Show advanced play-timer actions",
+        "section_about": "About",
+        "version": "Version",
+        "firmware": "Firmware",
+        "atmosphere": "Atmosphère",
+        "compat": "Compatibility",
+        "mode": "Launch mode",
+        "mode_app": "Application (full memory)",
+        "mode_applet": "Applet (launched from the album)",
+        "data": "Data folder",
+        "license": "License",
+        "license_value": "GPLv3 · UI: borealis (Apache 2.0)",
+        "source": "Source code",
+        "credits": "Credits",
+        "credits_value": "Taylor · anbingxi (NTP, fw 22.5 fixes)"
+    },
     "toast": {
-        "status_refreshed": "Status refreshed.",
-        "delete_pc_ok":     "Parental controls deleted.",
-        "delete_pc_err":    "Could not delete parental controls",
-        "unlink_ok":        "Companion app unlinked.",
-        "unlink_err":       "Could not unlink the companion app",
-        "set_pin_ok":       "Parental control PIN updated.",
-        "set_pin_err":      "Could not update the PIN",
-        "diag_saved":       "Dump saved to sd:/nx_pctl_probe.txt"
+        "refreshed": "Refreshed.",
+        "diag_saved": "Diagnostic saved: {}",
+        "diag_err": "Could not save the diagnostic",
+        "relocked": "Parental controls locked again.",
+        "relock_err": "Could not lock parental controls again"
     }
 }

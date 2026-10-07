@@ -4,23 +4,24 @@
 #include <fmt/format.h>
 
 #include "app.hpp"
+#include "ui/ui.hpp"
 
 using namespace brls::literals;
 
 void InitErrorActivity::onContentAvailable()
 {
-    // Show the raw pctlInitialize Result code so the user can copy it into a
-    // bug report; the prose above + the footer "Exit" hint are enough context.
-    this->error_code->setText(
-        fmt::format("error 0x{:08X}", app::pctl_init_result()));
+    this->error_code->setText(ui::rc_text(app::pctl_init_result()));
 
-    // Override B → quit the app (we're the only Activity on the stack, so
-    // popping would also quit, but explicitly registering changes the footer
-    // hint from "Back" to "Exit" — the user's only meaningful action here).
-    this->getContentView()->registerAction(
-        "hints/exit"_i18n, brls::BUTTON_B,
-        [](brls::View*) {
-            brls::Application::quit();
-            return true;
-        });
+    SysInfo si;
+    sysinfo_get(&si);
+    char fw[16];
+    sysinfo_version_string(si.hos_version, fw, sizeof(fw));
+    std::string ams = si.ams_valid ? fmt::format("{}.{}.{}", si.ams_major, si.ams_minor, si.ams_micro)
+                                   : "nx_pctl/common/unavailable"_i18n;
+    this->error_fw->setText(brls::getStr("nx_pctl/init_error/firmware", std::string(fw), ams));
+
+    this->getContentView()->registerAction("hints/exit"_i18n, brls::BUTTON_B, [](brls::View*) {
+        brls::Application::quit();
+        return true;
+    });
 }

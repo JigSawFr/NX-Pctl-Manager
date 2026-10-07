@@ -1,40 +1,69 @@
 # Thin shim over CMake — the real build is in CMakeLists.txt.
-# This keeps the existing `make` / `./run.sh` interfaces working on the
-# borealis-ui branch (v3.0.0+); the old devkitPro template Makefile is in
-# the v2.0.0 tag if you ever need it.
+#
+#   make              -> ./nx_pctl_manager.nro            (needs devkitPro, DEVKITPRO set)
+#   make dist         -> ./nx_pctl_manager.zip            (unzip onto the SD card root)
+#   make PROBE=1      -> extra diagnostic shortcuts
+#   make READ_ONLY=1  -> "Pctl Diagnostics" build that cannot change anything
+#   make desktop      -> ./build-desktop/nx_pctl_manager  (UI with a simulated backend; needs GLFW)
+#   make test         -> host unit tests of the C service layer (plain gcc)
+#   make nxlink       -> push to a Switch running hbmenu (press Y there first)
 
-TARGET := nx_pctl_manager
-BUILD  := build
+TARGET  := nx_pctl_manager
+BUILD   := build
+DESKTOP := build-desktop
+CC      ?= gcc
+TESTOUT := $(BUILD)/host-tests
 
-# Always pass PCTL_PROBE explicitly so toggling `PROBE=1` ↔ no-PROBE between
-# builds correctly updates the CMake cache (cmake is a no-op when nothing
-# changed, so re-running it every time is cheap).
-CMAKE_FLAGS := -DPLATFORM_SWITCH=ON
-ifneq ($(strip $(PROBE)),)
+# Always pass both flags explicitly so toggling them updates the CMake cache.
+CMAKE_FLAGS :=
+ifeq ($(strip $(PROBE)),1)
 	CMAKE_FLAGS += -DPCTL_PROBE=ON
 else
 	CMAKE_FLAGS += -DPCTL_PROBE=OFF
 endif
+ifeq ($(strip $(READ_ONLY)),1)
+	CMAKE_FLAGS += -DPCTL_READ_ONLY=ON
+else
+	CMAKE_FLAGS += -DPCTL_READ_ONLY=OFF
+endif
 
-.PHONY: all clean dist nxlink
+.PHONY: all clean dist nxlink desktop test check
 
 all:
-	@cmake -B $(BUILD) -S . $(CMAKE_FLAGS)
+	@cmake -B $(BUILD) -S . -DPLATFORM_SWITCH=ON $(CMAKE_FLAGS)
 	@cmake --build $(BUILD) --target $(TARGET).nro
 	@cp $(BUILD)/$(TARGET).nro  $(TARGET).nro
 	@cp $(BUILD)/$(TARGET).nacp $(TARGET).nacp
 
-clean:
-	@echo clean ...
-	@rm -rf $(BUILD) out $(TARGET).zip $(TARGET).nro $(TARGET).nacp $(TARGET).elf
-
+# Layout on the SD card: one folder per app (hbmenu / hb-appstore / sphaira
+# convention) + the sphaira GitHub-updater entry.
 dist: all
 	@echo making dist ...
-	@rm -rf out/
-	@rm -f $(TARGET).zip
-	@mkdir -p out/switch
-	@cp $(BUILD)/$(TARGET).nro out/switch/
+	@rm -rf out/ $(TARGET).zip
+	@mkdir -p out/switch/$(TARGET) out/config/sphaira/github
+	@cp $(BUILD)/$(TARGET).nro out/switch/$(TARGET)/
+	@cp packaging/sphaira/$(TARGET).json out/config/sphaira/github/
 	@cd out && zip -r ../$(TARGET).zip ./*
+
+desktop:
+	@cmake -B $(DESKTOP) -S . -DPLATFORM_DESKTOP=ON -DCMAKE_BUILD_TYPE=Release $(CMAKE_FLAGS)
+	@cmake --build $(DESKTOP) -j
+
+test:
+	@mkdir -p $(TESTOUT)
+	$(CC) -std=gnu11 -Wall -Wextra -Werror -DNX_HOST_TEST -Itests/pctl_session -Isource/core source/core/pctl_ops.c tests/pctl_session/test.c -o $(TESTOUT)/pctl && $(TESTOUT)/pctl
+	$(CC) -std=gnu11 -Wall -Wextra -Werror -DNX_HOST_TEST -DPCTL_READ_ONLY=1 -Itests/pctl_session -Isource/core source/core/pctl_ops.c tests/pctl_session/test.c -o $(TESTOUT)/pctl_ro && $(TESTOUT)/pctl_ro
+	$(CC) -std=gnu11 -Wall -Wextra -Werror -DNX_HOST_TEST -Itests/time_ops -Isource/core source/core/time_ops.c tests/time_ops/test.c -o $(TESTOUT)/time && $(TESTOUT)/time
+	$(CC) -std=gnu11 -Wall -Wextra -Werror -DNX_HOST_TEST -DPCTL_READ_ONLY=1 -Itests/time_ops -Isource/core source/core/time_ops.c tests/time_ops/test.c -o $(TESTOUT)/time_ro && $(TESTOUT)/time_ro
+	$(CC) -std=gnu11 -Wall -Wextra -Werror -DNX_HOST_TEST -Itests/sysinfo -Isource/core source/core/sysinfo.c tests/sysinfo/test.c -o $(TESTOUT)/sysinfo && $(TESTOUT)/sysinfo
+	$(CC) -std=c11 -Wall -Wextra -Werror -Isource/util source/util/ntp_packet.c tests/ntp_packet/test.c -o $(TESTOUT)/ntp && $(TESTOUT)/ntp
+
+check: test
+	python3 tools/check_resources.py .
+
+clean:
+	@echo clean ...
+	@rm -rf $(BUILD) $(DESKTOP) out $(TARGET).zip $(TARGET).nro $(TARGET).nacp $(TARGET).elf
 
 nxlink: all
 	nxlink $(BUILD)/$(TARGET).nro

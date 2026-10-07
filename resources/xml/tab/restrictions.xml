@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Restrictions: level, custom settings, VR mode (same as System Settings). -->
+
+<brls:Box
+    width="auto"
+    height="auto">
+
+    <brls:ScrollingFrame
+        width="auto"
+        height="auto"
+        grow="1.0">
+
+        <brls:Box
+            width="auto"
+            height="auto"
+            axis="column"
+            alignItems="stretch"
+            paddingLeft="@style/brls/tab_frame/content_padding_sides"
+            paddingRight="@style/brls/tab_frame/content_padding_sides"
+            paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
+            paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
+
+            <brls:Header title="@i18n/nx_pctl/restrictions/section_level" marginBottom="8"/>
+            <brls:DetailCell id="rs_level" title="@i18n/nx_pctl/restrictions/level"/>
+            <brls:Header id="rs_custom_header" title="@i18n/nx_pctl/restrictions/section_custom" marginTop="24" marginBottom="8"/>
+            <brls:DetailCell id="rs_age" title="@i18n/nx_pctl/restrictions/age"/>
+            <brls:BooleanCell id="rs_sns"/>
+            <brls:BooleanCell id="rs_comm"/>
+            <brls:Label id="rs_custom_note" text="@i18n/nx_pctl/restrictions/custom_only" fontSize="16" marginTop="10" marginBottom="6" textColor="@theme/brls/header/subtitle"/>
+            <brls:Header title="@i18n/nx_pctl/restrictions/section_other" marginTop="24" marginBottom="8"/>
+            <brls:BooleanCell id="rs_vr"/>
+            <brls:DetailCell id="rs_org" title="@i18n/nx_pctl/restrictions/org"/>
+            <brls:DetailCell id="rs_free_comm" title="@i18n/nx_pctl/restrictions/free_comm"/>
+            <brls:Label id="rs_note" text="@i18n/nx_pctl/restrictions/note" fontSize="16" marginTop="10" marginBottom="6" textColor="@theme/brls/header/subtitle"/>
+
+        </brls:Box>
+
+    </brls:ScrollingFrame>
+
+</brls:Box>
