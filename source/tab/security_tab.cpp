@@ -6,6 +6,60 @@
 
 using namespace brls::literals;
 
+namespace
+{
+void wipe(char* p, size_t n)
+{
+    volatile char* b = p;
+    while (n--) *b++ = 0;
+}
+
+// The PIN in large digits. Our copies are wiped as soon as the label holds
+// the text, and the label goes away with the dialog. Only the result code is
+// ever logged.
+void show_pin_dialog()
+{
+    char pin[16];
+    Result rc = pctl_get_pin(pin, sizeof(pin));
+    brls::Logger::info("pctl_get_pin returned 0x{:08X}", (unsigned)rc);
+    if (R_FAILED(rc)) {
+        ui::notify_result(rc, "", "playguard/security/show_pin_err"_i18n);
+        return;
+    }
+    std::string spaced;   // "1 2 3 4": easier to read out and to type
+    spaced.reserve(2 * sizeof(pin));   // no reallocation, so no stray copy
+    for (const char* c = pin; *c; c++) {
+        if (!spaced.empty()) spaced += ' ';
+        spaced += *c;
+    }
+    wipe(pin, sizeof(pin));
+
+    auto* title = new brls::Label();
+    title->setText("playguard/security/show_pin_title"_i18n);
+    title->setFontSize(22);
+    title->setHorizontalAlign(brls::HorizontalAlign::CENTER);
+    title->setTextColor(ui::color_note());
+    auto* digits = new brls::Label();
+    digits->setText(spaced);
+    digits->setFontSize(56);
+    digits->setHorizontalAlign(brls::HorizontalAlign::CENTER);
+    digits->setMarginTop(16);
+    wipe(&spaced[0], spaced.size());
+
+    auto* box = new brls::Box(brls::Axis::COLUMN);
+    box->setAlignItems(brls::AlignItems::CENTER);
+    box->setJustifyContent(brls::JustifyContent::CENTER);
+    box->setPadding(40, 40, 40, 40);
+    box->addView(title);
+    box->addView(digits);
+
+    auto* dialog = new brls::Dialog(box);
+    dialog->addButton("hints/ok"_i18n, []() {});
+    dialog->setCancelable(true);
+    dialog->open();
+}
+}   // namespace
+
 SecurityTab::SecurityTab()
     : TabBase("xml/tab/security.xml")
 {
@@ -25,6 +79,11 @@ SecurityTab::SecurityTab()
         brls::Logger::info("pctl_set_pin returned 0x{:08X}", (unsigned)rc);
         ui::notify_result(rc, "playguard/security/pin_ok"_i18n, "playguard/security/pin_err"_i18n);
         this->refresh();
+        return true;
+    });
+    show_pin->registerClickAction([](brls::View*) {
+        ui::confirm("playguard/security/show_pin_body"_i18n, "playguard/security/show_pin_confirm"_i18n,
+                    []() { brls::sync([]() { show_pin_dialog(); }); });
         return true;
     });
     unlock->registerClickAction([this](brls::View*) {
@@ -85,6 +144,7 @@ void SecurityTab::refresh()
     const bool unlocked = s.temp_unlocked_ok && s.temp_unlocked;
     ui::set_visible_all({ { actions_header.getView(), writable },
                           { set_pin.getView(), writable },
+                          { show_pin.getView(), writable && has_pin },
                           { unlock.getView(), writable && has_pin && !unlocked },
                           { relock.getView(), writable && unlocked },
                           { pr_unlink.getView(), writable },

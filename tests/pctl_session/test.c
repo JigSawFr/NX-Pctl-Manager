@@ -19,6 +19,9 @@ static struct {
     u8 last_write[0x44];
     size_t last_write_size;
     bool saw_1459, saw_1460, saw_1952;
+    const char *pin;          /* what GetPinCode (1208) returns */
+    char got_pin[32];         /* what UnlockRestrictionTemporarily (1201) received */
+    size_t got_pin_size;
 } model;
 
 static void reset_with(u32 hos)
@@ -28,6 +31,7 @@ static void reset_with(u32 hos)
     model.hos = hos;
     model.unlock_effective = true;
     model.safety_level = PctlSafetyLevel_Custom;
+    model.pin = "123456";
 }
 static void reset(void) { reset_with(MAKEHOSVERSION(23, 0, 1)); }
 
@@ -73,7 +77,7 @@ static Result put(void *out, size_t out_size, const void *value, size_t size)
 }
 
 Result mock_dispatch(Service *srv, u32 command, void *out, size_t out_size,
-                     const void *in, size_t in_size)
+                     const void *in, size_t in_size, SfDispatchParams params)
 {
     assert(srv == &service);
     assert(model.refs == 1);
@@ -104,7 +108,15 @@ Result mock_dispatch(Service *srv, u32 command, void *out, size_t out_size,
         }
         return 0;
     }
-    if (command == 1201) { model.unlocked = model.unlock_effective; return 0; }
+    if (command == 1201) {
+        /* The PIN arrives NUL-terminated in an In|HipcPointer buffer. */
+        assert(params.buffer_attrs[0] == (SfBufferAttr_HipcPointer | SfBufferAttr_In));
+        assert(params.buffers[0].ptr != NULL && params.buffers[0].size <= sizeof(model.got_pin));
+        memcpy(model.got_pin, params.buffers[0].ptr, params.buffers[0].size);
+        model.got_pin_size = params.buffers[0].size;
+        model.unlocked = model.unlock_effective;
+        return 0;
+    }
     if (command == 1007) { model.unlocked = false; return 0; }
     if (out == NULL) return 0;
 
@@ -121,7 +133,13 @@ Result mock_dispatch(Service *srv, u32 command, void *out, size_t out_size,
         case 1958: b = 7;  return put(out, out_size, &b, 1);
         case 1959: b = 0;  return put(out, out_size, &b, 1);
         case 1032: w = model.safety_level; return put(out, out_size, &w, 4);
-        case 1206: case 1208: w = 6; return put(out, out_size, &w, 4);
+        case 1206: w = 6; return put(out, out_size, &w, 4);
+        case 1208:
+            assert(params.buffer_attrs[0] == (SfBufferAttr_HipcPointer | SfBufferAttr_Out));
+            assert(params.buffers[0].ptr != NULL && params.buffers[0].size > strlen(model.pin));
+            memcpy((void *)params.buffers[0].ptr, model.pin, strlen(model.pin) + 1);
+            w = (u32)strlen(model.pin);
+            return put(out, out_size, &w, 4);
         case 1037: w = 6; return put(out, out_size, &w, 4);
         case 1039: w = 2; return put(out, out_size, &w, 4);
         case 1406: q = 1791381792ULL; return put(out, out_size, &q, 8);
@@ -190,6 +208,7 @@ static void test_reads(void)
         assert(model.refs == 0);
         pctl_dump(report, sizeof(report));
         assert(strstr(report, "content=not recorded") != NULL);
+        assert(strstr(report, model.pin) == NULL);
         assert(strstr(report, "Tool-owned pctl session released.") != NULL);
         assert(model.refs == 0 && model.writes == 0);
     }
@@ -276,6 +295,10 @@ static void test_read_only(void)
     assert(pctl_delete_pairing() == NXM_RC_READ_ONLY);
     assert(pctl_set_pin() == NXM_RC_READ_ONLY);
     assert(pctl_unlock_restriction_temporarily() == NXM_RC_READ_ONLY);
+    char pin[16];
+    memset(pin, 'x', sizeof(pin));
+    assert(pctl_get_pin(pin, sizeof(pin)) == NXM_RC_READ_ONLY);
+    for (unsigned i = 0; i < sizeof(pin); ++i) assert(pin[i] == 0);
     assert(pctl_relock() == NXM_RC_READ_ONLY);
     assert(pctl_set_safety_level(PctlSafetyLevel_Teen) == NXM_RC_READ_ONLY);
     assert(pctl_set_custom_settings(&cs) == NXM_RC_READ_ONLY);
@@ -337,6 +360,7 @@ static void test_unlock_and_relock(void)
     model.enabled = true;
     assert(pctl_unlock_restriction_temporarily() == 0);
     assert(model.unlocked && model.refs == 0 && model.init_calls == model.exit_calls);
+    assert(model.got_pin_size == 7 && strcmp(model.got_pin, "123456") == 0);
     /* After a verified unlock the gate lets the write through. */
     assert(pctl_play_timer_set_uniform(45) == 0);
     assert(pctl_relock() == 0 && !model.unlocked && model.last_write_cmd == 1007);
@@ -355,6 +379,52 @@ static void test_unlock_and_relock(void)
     reset();
     model.fail_command = 1201;
     assert(pctl_unlock_restriction_temporarily() == MOCK_ERROR && model.refs == 0);
+}
+
+static void test_get_pin(void)
+{
+    char pin[16];
+
+    reset();
+    model.enabled = true;   /* a read: no unlock needed, nothing written */
+    memset(pin, 'x', sizeof(pin));
+    assert(pctl_get_pin(pin, sizeof(pin)) == 0);
+    assert(strcmp(pin, "123456") == 0);
+    assert(model.writes == 0 && !model.unlocked && model.refs == 0 && model.init_calls == model.exit_calls);
+
+    reset();
+    model.pin = "1234";
+    assert(pctl_get_pin(pin, 5) == 0 && strcmp(pin, "1234") == 0 && model.refs == 0);
+
+    /* Too small for the PIN + NUL: refused and wiped. */
+    reset();
+    memset(pin, 'x', sizeof(pin));
+    assert(pctl_get_pin(pin, 6) == NXM_RC_INVALID_ARGUMENT);
+    for (unsigned i = 0; i < 6; ++i) assert(pin[i] == 0);
+    assert(model.refs == 0);
+
+    /* Not 4-8 digits: never shown. */
+    const char *bad[] = {"", "123", "123456789", "12a4"};
+    for (unsigned i = 0; i < 4; ++i) {
+        reset();
+        model.pin = bad[i];
+        memset(pin, 'x', sizeof(pin));
+        assert(pctl_get_pin(pin, sizeof(pin)) == NXM_RC_STATE_UNKNOWN);
+        for (unsigned j = 0; j < sizeof(pin); ++j) assert(pin[j] == 0);
+        assert(model.refs == 0);
+    }
+
+    reset();
+    model.fail_command = 1208;
+    memset(pin, 'x', sizeof(pin));
+    assert(pctl_get_pin(pin, sizeof(pin)) == MOCK_ERROR && pin[0] == 0 && model.refs == 0);
+
+    reset();
+    model.fail_init_call = 1;
+    assert(pctl_get_pin(pin, sizeof(pin)) == MOCK_ERROR && model.ipc_calls == 0 && model.refs == 0);
+
+    reset();
+    assert(pctl_get_pin(NULL, 8) == NXM_RC_INVALID_ARGUMENT && model.init_calls == 0);
 }
 
 static void test_other_writes(void)
@@ -407,6 +477,7 @@ int main(void)
 #else
     test_write_gate();
     test_unlock_and_relock();
+    test_get_pin();
     test_other_writes();
     puts("pctl_ops lifecycle, gating and write assertions passed");
 #endif

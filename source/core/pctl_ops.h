@@ -63,6 +63,10 @@ Result pctl_set_pin(void);                   // opens the system PIN applet (reg
 // (1208), then verifies IsRestrictionTemporaryUnlocked (1006). Returns
 // NXM_RC_UNLOCK_NOT_EFFECTIVE when 1201 succeeded but 1006 still reads false.
 Result pctl_unlock_restriction_temporarily(void);
+// GetPinCode (1208), for the "Show PIN" action: copies the stored PIN (4 to 8
+// digits, NUL-terminated) into `out`. `out` is zeroed first and stays zeroed
+// on any error. The caller wipes it after use; never log or report it.
+Result pctl_get_pin(char *out, size_t out_size);
 // RevertRestrictionTemporaryUnlocked (1007): re-applies restrictions now.
 Result pctl_relock(void);
 

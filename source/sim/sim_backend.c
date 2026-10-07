@@ -131,6 +131,15 @@ const char *pctl_rating_org_name(u32 org)
 
 Result pctl_set_pin(void)                         { RO_GUARD(); S.pin_length = 4; return 0; }
 Result pctl_unlock_restriction_temporarily(void)  { RO_GUARD(); if (!S.pin_length) return 0x1A08E; S.temp_unlocked = true; return 0; }
+Result pctl_get_pin(char *out, size_t out_size)
+{
+    if (out && out_size) memset(out, 0, out_size);
+    RO_GUARD();
+    if (!out || out_size < 5) return NXM_RC_INVALID_ARGUMENT;
+    if (!S.pin_length) return NXM_RC_STATE_UNKNOWN;
+    snprintf(out, out_size, "1234");
+    return 0;
+}
 Result pctl_relock(void)                          { RO_GUARD(); S.temp_unlocked = false; return 0; }
 Result pctl_delete_parental_controls(void)
 {
