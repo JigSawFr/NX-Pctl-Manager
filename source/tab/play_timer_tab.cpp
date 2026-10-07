@@ -97,6 +97,7 @@ void PlayTimerTab::refresh()
                            (brls::View*)profiles_cell.getView() })
         ui::set_visible(v, writable);
     ui::set_visible(extra.getView(), pt_flow::can_add_extra_time(this->pt));
+    extra->setDetailText(pt_flow::extra_today_text(this->pt));
     for (brls::View* v : { (brls::View*)bedtime_header.getView(), (brls::View*)bedtime.getView(),
                            (brls::View*)bedtime_reset.getView(), (brls::View*)bedtime_note.getView() })
         ui::set_visible(v, fw_ok);

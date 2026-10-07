@@ -30,6 +30,7 @@ class DashboardTab : public TabBase
     BRLS_BIND(brls::Label,      gauge_text,  "dash_gauge_text");
     BRLS_BIND(brls::DetailCell, today_limit, "dash_today_limit");
     BRLS_BIND(brls::DetailCell, extra,       "dash_extra");
+    BRLS_BIND(brls::DetailCell, extra_pending, "dash_extra_pending");
     BRLS_BIND(brls::DetailCell, remaining,   "dash_remaining");
     BRLS_BIND(brls::DetailCell, bedtime,     "dash_bedtime");
     BRLS_BIND(brls::DetailCell, clock,       "dash_clock");

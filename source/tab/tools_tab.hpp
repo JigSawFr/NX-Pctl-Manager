@@ -30,6 +30,7 @@ class ToolsTab : public TabBase
     BRLS_BIND(brls::DetailCell,  language,    "tl_language");
     BRLS_BIND(brls::DetailCell,  theme,       "tl_theme");
     BRLS_BIND(brls::BooleanCell, auto_relock, "tl_auto_relock");
+    BRLS_BIND(brls::BooleanCell, extra_auto,  "tl_extra_auto");
     BRLS_BIND(brls::BooleanCell, advanced,    "tl_advanced");
     BRLS_BIND(brls::DetailCell,  update_via,  "tl_update_via");
     BRLS_BIND(brls::DetailCell,  version,     "tl_version");

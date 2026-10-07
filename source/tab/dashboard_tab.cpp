@@ -1,7 +1,6 @@
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #include "tab/dashboard_tab.hpp"
 
-#include <ctime>
 #include <fmt/format.h>
 
 #include "action/pt_flow.hpp"
@@ -40,6 +39,10 @@ DashboardTab::DashboardTab()
     });
     extra->registerClickAction([this](brls::View*) {
         pt_flow::add_extra_time(this->pt, [this]() { this->refresh(); });
+        return true;
+    });
+    extra_pending->registerClickAction([this](brls::View*) {
+        pt_flow::offer_extra_time_restore([this]() { this->refresh(); });
         return true;
     });
     link(remaining, ui::tab::play_timer);
@@ -200,19 +203,16 @@ void DashboardTab::refresh()
     game_patches->setDetailTextColor(c);
 
     // When the values were last read (X refreshes now, the timer every 5 s).
-    {
-        std::time_t now = std::time(nullptr);
-        std::tm tmv{};
-        localtime_r(&now, &tmv);
-        char hms[16];
-        std::strftime(hms, sizeof(hms), "%H:%M:%S", &tmv);
-        updated->setText(brls::getStr("playguard/dashboard/updated", std::string(hms)));
-    }
+    updated->setText(brls::getStr("playguard/dashboard/updated", ui::now_hms()));
 
     // Visibility last, so a vanished focused cell hands the focus to a neighbour.
     // No PIN yet: parental controls are not set up, say where to start.
     const bool not_set_up = s.pin_length_ok && s.pin_length == 0;
+    extra->setDetailText(pt_flow::extra_today_text(pt));
+    const bool pending = pt_flow::restore_pending(pt);
+    if (pending) extra_pending->setText(pt_flow::restore_label());
     ui::set_visible_all({ { extra.getView(), pt_flow::can_add_extra_time(pt) },
+                          { extra_pending.getView(), pending },
                           { setup.getView(), not_set_up }, { applet.getView(), si.applet_mode },
                           { fw.getView(), compat_issue }, { compat.getView(), compat_issue },
                           { serial.getView(), serial_issue }, { game_patches.getView(), patches_issue },

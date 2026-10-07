@@ -54,9 +54,19 @@ bool can_add_extra_time(const PtState& pt);
 // remembers the previous value (config extra_*), so that it can be put back.
 void add_extra_time(const PtState& pt, std::function<void()> refresh);
 
-// At start-up: extra time added on an earlier day is still on its weekday
-// limit -> offer to put the previous value back (or keep it).
-void offer_extra_time_restore();
+// Extra time added on an earlier day is still on its weekday limit -> offer
+// to put the previous value back (or keep it), or put it back at once when the
+// "by itself" preference is on. Called at start-up and when the date changes
+// while the app is open; `refresh` runs after a change.
+void offer_extra_time_restore(std::function<void()> refresh = nullptr);
+
+// That offer is pending (what offer_extra_time_restore would ask now), and
+// the line the Overview shows for it ("Put Saturday's limit back to 2 h").
+bool restore_pending(const PtState& pt);
+std::string restore_label();
+
+// "+30 min" when extra time was added today and is still there, else "".
+std::string extra_today_text(const PtState& pt);
 
 // At start-up: the app stopped between an unlock made for a change and the
 // lock that follows it (config relock_pending) -> lock again now, with a toast.

@@ -2,7 +2,6 @@
 #include "action/backup_flow.hpp"
 
 #include <borealis.hpp>
-#include <ctime>
 #include <fmt/format.h>
 #include <memory>
 #include <vector>
@@ -160,16 +159,7 @@ backup::Snapshot capture()
     sysinfo_version_string(si.hos_version, fw, sizeof(fw));
     s.firmware = fw;
 
-    std::time_t now = std::time(nullptr);
-    std::tm tmv{};
-#ifdef _WIN32
-    localtime_s(&tmv, &now);
-#else
-    localtime_r(&now, &tmv);
-#endif
-    char stamp[32];
-    std::strftime(stamp, sizeof(stamp), "%Y-%m-%d %H:%M", &tmv);
-    s.created = stamp;
+    s.created = ui::now_stamp();
     return s;
 }
 

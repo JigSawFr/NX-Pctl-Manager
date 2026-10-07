@@ -22,6 +22,7 @@ static void test_defaults()
     config::load();
     const auto& c = config::get();
     assert(c.language == "system" && c.theme == "system" && c.auto_relock && !c.dev_mode);
+    assert(!c.extra_auto_restore);
     assert(c.extra_weekday == -1 && !c.relock_pending && c.fw_gate_choice.empty());
 
     for (const char* bad : { "", "not json", "[1, 2]", "42", "{\"language\": " }) {
@@ -38,13 +39,14 @@ static void test_fields()
     write_config(R"({"language": 5, "theme": "dark", "dev_mode": 1, "auto_relock": false,
                     "fw_gate_fw": "24.0.0", "fw_gate_app": "1.0.0", "fw_gate_choice": "risk",
                     "extra_weekday": 3, "extra_date": "2026-10-06", "extra_base": 60, "extra_value": 90,
-                    "relock_pending": true, "custom_servers": ["a.example", 7, "b.example"]})");
+                    "relock_pending": true, "extra_auto_restore": true,
+                    "custom_servers": ["a.example", 7, "b.example"]})");
     config::load();
     auto c = config::get();
     assert(c.language == "system" && c.theme == "dark" && !c.dev_mode && !c.auto_relock);
     assert(c.fw_gate_fw == "24.0.0" && c.fw_gate_app == "1.0.0" && c.fw_gate_choice == "risk");
     assert(c.extra_weekday == 3 && c.extra_date == "2026-10-06" && c.extra_base == 60 && c.extra_value == 90);
-    assert(c.relock_pending);
+    assert(c.relock_pending && c.extra_auto_restore);
     assert(c.custom_servers.size() == 2 && c.custom_servers[1] == "b.example");
 
     // Unknown values go back to their defaults.
@@ -97,6 +99,7 @@ static void test_round_trip()
     c.extra_date = "2026-10-05";
     c.extra_base = 120;
     c.extra_value = 150;
+    c.extra_auto_restore = true;
     assert(config::save());
 
     std::string text;
@@ -105,7 +108,7 @@ static void test_round_trip()
     config::load();
     assert(c.language == "fr" && c.theme == "light" && c.ntp_server == "fr.pool.ntp.org");
     assert(c.custom_servers.size() == 1 && c.dev_mode && c.relock_pending);
-    assert(c.extra_weekday == 0 && c.extra_base == 120 && c.extra_value == 150);
+    assert(c.extra_weekday == 0 && c.extra_base == 120 && c.extra_value == 150 && c.extra_auto_restore);
 }
 
 static void test_tmp_recovery()

@@ -13,6 +13,10 @@ static struct {
     u32 fail_child_kind, fail_read_kind, fail_flag_command;
     bool fail_write, automatic, accuracy, use_readback;
     u64 clock_value, written, readback;
+    bool fail_now;            /* timeGetCurrentTime fails */
+    u64 now;                  /* what it returns */
+    int posix_count;          /* timeToPosixTimeWithMyRule: how many candidates */
+    u64 posix0;               /* the first one (the next is an hour later) */
 } model;
 
 static void reset(void)
@@ -305,12 +309,64 @@ static void test_read_only(void)
 
 Result timeToCalendarTimeWithMyRule(u64 timestamp, TimeCalendarTime *caltime, TimeCalendarAdditionalInfo *info)
 {
-    (void)info;
     if (timestamp == 0) return MOCK_ERROR;
     memset(caltime, 0, sizeof(*caltime));
     caltime->year = 2026; caltime->month = 10; caltime->day = 7;
     caltime->hour = 14; caltime->minute = 3; caltime->second = 12;
+    if (info) { memset(info, 0, sizeof(*info)); info->wday = 3; info->offset = 7200; }
     return 0;
+}
+
+Result timeToPosixTimeWithMyRule(const TimeCalendarTime *caltime, u64 *list, s32 list_count, s32 *count)
+{
+    assert(caltime && list && count && list_count >= 2);
+    if (model.posix_count < 0) return MOCK_ERROR;
+    for (int i = 0; i < model.posix_count && i < list_count; i++) list[i] = model.posix0 + 3600u * (u64)i;
+    *count = model.posix_count;
+    return 0;
+}
+
+Result timeGetCurrentTime(TimeType type, u64 *timestamp)
+{
+    assert(type == TimeType_UserSystemClock);   /* what the HOME menu shows */
+    if (model.fail_now) return MOCK_ERROR;
+    *timestamp = model.now;
+    return 0;
+}
+
+static void test_local_time(void)
+{
+    reset();
+    model.now = 1791374592;
+    u64 posix = 0;
+    LocalTime l;
+    assert(time_local_now(&posix, &l));
+    assert(posix == model.now);
+    assert(l.year == 2026 && l.month == 10 && l.day == 7 && l.hour == 14 && l.minute == 3 && l.second == 12);
+    assert(l.wday == 3);
+    assert(time_local_now(&posix, NULL) && posix == model.now);
+
+    /* The live clock unreadable: the C library's clock instead. */
+    model.fail_now = true;
+    assert(time_local_now(&posix, &l) && posix > 1700000000u);
+    /* No local time for it (the rule refuses 0): false, POSIX time still set. */
+    model.fail_now = false;
+    model.now = 0;
+    assert(!time_local_now(&posix, &l) && posix == 0);
+
+    /* The rule's wall-time lookup: 0, 1 or 2 answers, never more. */
+    const TimeRule *rule = time_console_rule();
+    const LocalTime wall = { 2026, 10, 25, 2, 30, 0, 0 };
+    u64 c[2] = { 0, 0 };
+    model.posix_count = 2; model.posix0 = 5000;
+    assert(rule->to_posix(rule->ctx, &wall, c) == 2 && c[0] == 5000 && c[1] == 8600);
+    model.posix_count = 1;
+    assert(rule->to_posix(rule->ctx, &wall, c) == 1);
+    model.posix_count = 0;
+    assert(rule->to_posix(rule->ctx, &wall, c) == 0);
+    model.posix_count = -1;   /* the service fails */
+    assert(rule->to_posix(rule->ctx, &wall, c) == 0);
+    assert(model.active == 0);   /* no time:s handle involved */
 }
 
 static void test_formatting(void)
@@ -355,6 +411,7 @@ int main(void)
     test_read_only();
     test_dump_and_repetition();
     test_formatting();
+    test_local_time();
     puts("time_ops lifecycle and read-only tests passed");
     return 0;
 }

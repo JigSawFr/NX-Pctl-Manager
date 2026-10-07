@@ -75,7 +75,13 @@ std::string fmt_play_time(uint64_t seconds);    // "0 min", "< 1 min", "45 min",
 std::string day_name(int day);                  // 0 = Sunday, as a title ("Monday")
 std::string day_name_in_text(int day);          // inside a sentence (fr: "lundi")
 std::string bool_text(bool ok, bool value, const std::string& yes, const std::string& no);
-int         today_weekday();                    // 0 = Sunday, from the console's local time
+// "Now" on the console: its user clock read live and its time-zone rule
+// (calendar.h says why not time()/localtime()).
+LocalTime   local_now();
+int         today_weekday();                    // 0 = Sunday
+std::string today_date();                       // "2026-10-07"
+std::string now_hms();                          // "14:03:12"
+std::string now_stamp();                        // "2026-10-07 14:03"
 
 // System / compatibility strings shared by the dashboard and the About section.
 std::string fw_text(const SysInfo& info);                 // "23.0.1 · Atmosphère 1.12.0"
