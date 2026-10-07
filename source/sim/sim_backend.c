@@ -204,6 +204,7 @@ void pctl_play_timer_query(PtState *o)
     } else {
         o->valid = true;
         pt_decode(S.block, o->day_min);
+        memcpy(o->block, S.block, sizeof(o->block));
     }
     o->enabled_valid = true;  o->enabled = timer_enabled();
     o->temporary_unlocked_valid = true; o->temporary_unlocked = S.temp_unlocked;

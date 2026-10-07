@@ -353,6 +353,7 @@ static void pt_read_core(Service *srv, PtState *out)
     if (R_SUCCEEDED(out->config_rc)) {
         out->valid = true;
         pt_decode(c, out->day_min);
+        memcpy(out->block, c, sizeof(out->block));
     }
 
     bool be = false;

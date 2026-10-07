@@ -63,6 +63,11 @@ std::string summary(const backup::Snapshot& s)
     }
     if (s.vr_ok) out += "\n" + line("playguard/restrictions/vr"_i18n, yes_no(s.vr_restricted));
     if (s.days_ok) out += "\n" + line("playguard/play_timer/section_limit"_i18n, days_text(s.days));
+    // A debug-class command: written only with the advanced actions shown.
+    if (s.alarm_ok)
+        out += "\n" + line("playguard/play_timer/alarm"_i18n,
+                           (s.alarm_disabled ? "playguard/common/off"_i18n : "playguard/common/on"_i18n) +
+                               (config::get().advanced ? "" : "playguard/backup/not_restored_advanced"_i18n));
     // The PIN is not in the backup (after "Delete all", there is none).
     PctlStatus st;
     pctl_status_fetch(&st);
@@ -91,6 +96,8 @@ void write_all(const backup::Snapshot& s, bool did_unlock, std::function<void()>
     }
     if (s.vr_ok) check(pctl_set_stereo_vision_restricted(s.vr_restricted), "playguard/restrictions/vr"_i18n);
     if (s.days_ok) check(pctl_play_timer_set_days(s.days.data()), "playguard/play_timer/section_limit"_i18n);
+    if (s.alarm_ok && config::get().advanced)
+        check(pctl_play_timer_set_alarm_disabled(s.alarm_disabled), "playguard/play_timer/alarm"_i18n);
 
     std::string what;
     for (const auto& f : failed) what += (what.empty() ? "" : ", ") + f;
@@ -148,6 +155,8 @@ backup::Snapshot capture()
     s.comm_restricted = st.settings.free_communication_restriction;
     s.vr_ok           = st.stereo_vision_ok;
     s.vr_restricted   = st.stereo_vision_restricted;
+    s.rating_org_ok   = st.rating_org_ok;
+    s.rating_org      = st.rating_org;
 
     PtState pt;
     pctl_play_timer_query(&pt);
@@ -156,6 +165,10 @@ backup::Snapshot capture()
         s.days[d] = pt.day_min[d];
         if (s.days[d] != PT_DAY_NOLIMIT && s.days[d] > 1440) s.days_ok = false;
     }
+    if (s.days_ok)
+        for (uint16_t w : pt.block) s.raw_block += fmt::format("{:04X}", (unsigned)w);
+    s.alarm_ok       = s.days_ok && pt.alarm_disabled_valid;
+    s.alarm_disabled = pt.alarm_disabled;
 
     SysInfo si;
     sysinfo_get(&si);

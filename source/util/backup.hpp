@@ -35,6 +35,19 @@ struct Snapshot
     bool days_ok = false;
     std::array<uint16_t, 7> days{};   // Sun..Sat minutes, 0xFFFF == no limit
 
+    // "Time's up" alarm off (1458 / 1953, a debug-class command: restored
+    // only with the advanced play-timer actions on). Saved with the limits.
+    bool alarm_ok       = false;
+    bool alarm_disabled = false;
+
+    // For the record, not restored: the default rating body (1037) and the
+    // 0x44 PlayTimerSettings block as read (136 hex digits), to tell later
+    // what the fields PlayGuard does not decode held.
+    bool        rating_org_ok = false;
+    uint32_t    rating_org    = 0;
+    std::string raw_block;
+
+    // Nothing a restore would write.
     bool empty() const { return !level_ok && !custom_ok && !vr_ok && !days_ok; }
 };
 

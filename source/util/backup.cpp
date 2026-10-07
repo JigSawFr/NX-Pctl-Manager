@@ -47,14 +47,20 @@ std::string to_json(const Snapshot& s)
                         { "sns_post_restricted", s.sns_restricted },
                         { "free_communication_restricted", s.comm_restricted } };
     if (s.vr_ok) r["vr_restricted"] = s.vr_restricted;
+    if (s.rating_org_ok) r["rating_organization"] = s.rating_org;
     j["restrictions"] = r;
+    // The play-timer part goes with its limits (the alarm flag and the raw
+    // block were read with them).
     if (s.days_ok) {
         nlohmann::json days = nlohmann::json::array();
         for (uint16_t d : s.days) {
             if (d == 0xFFFF) days.push_back(nullptr);
             else days.push_back(d);
         }
-        j["play_timer"] = { { "days_from_sunday", days } };
+        nlohmann::json pt = { { "days_from_sunday", days } };
+        if (s.alarm_ok) pt["alarm_disabled"] = s.alarm_disabled;
+        if (!s.raw_block.empty()) pt["raw_0x44"] = s.raw_block;
+        j["play_timer"] = pt;
     }
     return j.dump(2) + "\n";
 }
@@ -95,6 +101,12 @@ bool from_json(const std::string& text, Snapshot& out)
                 if (!boolean(r.at("vr_restricted"), s.vr_restricted)) return false;
                 s.vr_ok = true;
             }
+            if (r.contains("rating_organization")) {
+                int org = 0;
+                if (!int_in(r.at("rating_organization"), 0, 63, org)) return false;
+                s.rating_org = (uint32_t)org;
+                s.rating_org_ok = true;
+            }
         }
 
         if (j.contains("play_timer")) {
@@ -109,6 +121,18 @@ bool from_json(const std::string& text, Snapshot& out)
                 s.days[i] = (uint16_t)v;
             }
             s.days_ok = true;
+            if (pt.contains("alarm_disabled")) {
+                if (!boolean(pt.at("alarm_disabled"), s.alarm_disabled)) return false;
+                s.alarm_ok = true;
+            }
+            if (pt.contains("raw_0x44")) {
+                // 34 u16 as 136 hex digits; anything else is not this block.
+                const auto& raw = pt.at("raw_0x44");
+                if (!raw.is_string()) return false;
+                const std::string hex = raw.get<std::string>();
+                if (hex.size() != 136 || hex.find_first_not_of("0123456789abcdefABCDEF") != std::string::npos) return false;
+                s.raw_block = hex;
+            }
         }
     } catch (...) {
         return false;

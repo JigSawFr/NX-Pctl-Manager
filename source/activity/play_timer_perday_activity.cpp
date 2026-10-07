@@ -11,6 +11,15 @@
 
 using namespace brls::literals;
 
+PlayTimerPerDayActivity::PlayTimerPerDayActivity(std::string title, const Days& days,
+                                                 std::function<bool(const Days&)> on_save)
+    : profile_mode(true), profile_title(std::move(title)), on_profile_save(std::move(on_save))
+{
+    // The profile stands in for the console's state: "unsaved" compares with it.
+    this->live.valid = true;
+    for (int i = 0; i < 7; i++) this->live.day_min[i] = this->pending[i] = days[i];
+}
+
 brls::DetailCell* PlayTimerPerDayActivity::day_cell(int d)
 {
     brls::DetailCell* cells[7] = { pt_d0, pt_d1, pt_d2, pt_d3, pt_d4, pt_d5, pt_d6 };
@@ -75,7 +84,7 @@ void PlayTimerPerDayActivity::onContentAvailable()
 
     // B with unsaved edits asks before leaving.
     // X re-reads the system state; edits that are not saved yet are kept.
-    this->getContentView()->registerAction("playguard/hints/refresh"_i18n, brls::BUTTON_X, [this](brls::View*) {
+    if (!this->profile_mode) this->getContentView()->registerAction("playguard/hints/refresh"_i18n, brls::BUTTON_X, [this](brls::View*) {
         const bool had_state = this->live.valid;
         if (had_state) pctl_play_timer_query(&this->live);
         else this->reload_from_service();
@@ -93,12 +102,18 @@ void PlayTimerPerDayActivity::onContentAvailable()
         return true;
     });
 
+    if (this->profile_mode) {
+        // The console's state is not what this screen edits: no header.
+        ui::set_visible(state_header.getView(), false);
+        if (auto* frame = dynamic_cast<brls::AppletFrame*>(this->getContentView())) frame->setTitle(this->profile_title);
+    }
     this->reload_from_service();
     this->rerender();
 }
 
 void PlayTimerPerDayActivity::reload_from_service()
 {
+    if (this->profile_mode) return;   // the profile's days were set at construction
     pctl_play_timer_query(&this->live);
     if (this->live.valid)
         for (int i = 0; i < 7; i++) this->pending[i] = this->live.day_min[i];
@@ -114,7 +129,7 @@ bool PlayTimerPerDayActivity::has_changes() const
 
 void PlayTimerPerDayActivity::rerender()
 {
-    state_header->show(this->live);
+    if (!this->profile_mode) state_header->show(this->live);
     for (int d = 0; d < 7; d++) {
         if (!this->live.valid) {
             day_cell(d)->setDetailText("playguard/common/unavailable"_i18n);
@@ -194,12 +209,20 @@ void PlayTimerPerDayActivity::save()
         ui::notify("playguard/play_timer/perday/unavailable"_i18n);
         return;
     }
+    std::array<u16, 7> snapshot;
+    std::memcpy(snapshot.data(), this->pending, sizeof(this->pending));
+    if (this->profile_mode) {
+        // Saved as it is, changed or not (a new profile starts unchanged).
+        if (this->on_profile_save && this->on_profile_save(snapshot)) {
+            for (int i = 0; i < 7; i++) this->live.day_min[i] = snapshot[i];
+            brls::sync([]() { brls::Application::popActivity(); });
+        }
+        return;
+    }
     if (!this->has_changes()) {
         ui::notify("playguard/play_timer/perday/no_changes"_i18n);
         return;
     }
-    std::array<u16, 7> snapshot;
-    std::memcpy(snapshot.data(), this->pending, sizeof(this->pending));
 
     // "Save" is the explicit action: no extra question unless the timer is
     // counting down (then the one dialog explains the temporary unlock).
