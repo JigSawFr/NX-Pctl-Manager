@@ -12,7 +12,12 @@ simulated release that supports it: the firmware screen, read-only mode,
 seven presses on Version for the developer mode, its report and the firmware
 screen again.
 
-Usage: tools/desktop_smoke.py <out-dir> [gate]   (needs DISPLAY, xdotool, ImageMagick)
+The "errors" scenario starts with today's limit reached, the temporary unlock
+failing and "Synchronise clock via Internet" off (PLAYGUARD_SIM_FAIL & co.):
+a limit change must end in the "could not unlock" toast, with the app alive,
+and the clock tab must say why the network clock cannot be set.
+
+Usage: tools/desktop_smoke.py <out-dir> [gate|errors]   (needs DISPLAY, xdotool, ImageMagick)
 Environment knobs of the simulated backend (PLAYGUARD_SIM_*) are passed through.
 """
 import json
@@ -24,20 +29,33 @@ import time
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP = os.path.join(ROOT, "build-desktop", "playguard")
 OUT = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else "smoke")
-GATE = len(sys.argv) > 2 and sys.argv[2] == "gate"
+SCENARIO = sys.argv[2] if len(sys.argv) > 2 else ""
+GATE = SCENARIO == "gate"
+ERRORS = SCENARIO == "errors"
 os.makedirs(OUT, exist_ok=True)
 run_dir = os.path.join(OUT, "run")
 os.makedirs(run_dir, exist_ok=True)
 config_file = os.path.join(run_dir, "playguard_data", "config.json")
-if GATE and os.path.exists(config_file):
+if (GATE or ERRORS) and os.path.exists(config_file):
     os.remove(config_file)   # no remembered choice, developer mode off
 
 env = dict(os.environ, LIBGL_ALWAYS_SOFTWARE="1")
 if GATE:
     env.setdefault("PLAYGUARD_SIM_FW", "24.0.0")
     env.setdefault("PLAYGUARD_SIM_LATEST", "1.1.0:24.0.0")
+if ERRORS:
+    env.setdefault("PLAYGUARD_SIM_FAIL", "unlock")
+    env.setdefault("PLAYGUARD_SIM_RESTRICTED", "1")
+    env.setdefault("PLAYGUARD_SIM_AUTOSYNC_OFF", "1")
 log = open(os.path.join(OUT, "app.log"), "w")
-cmd = ["dbus-run-session", "--", APP] if subprocess.run(["which", "dbus-run-session"], capture_output=True).returncode == 0 else [APP]
+def have(tool):
+    return subprocess.run(["which", tool], capture_output=True).returncode == 0
+
+
+# Line-buffered output, so app.log is complete at any moment (toasts()).
+cmd = (["stdbuf", "-oL", "-eL"] if have("stdbuf") else []) + [APP]
+if have("dbus-run-session"):
+    cmd = ["dbus-run-session", "--"] + cmd
 proc = subprocess.Popen(cmd, cwd=run_dir, env=env, stdout=log, stderr=subprocess.STDOUT)
 
 
@@ -66,6 +84,12 @@ def shot(name):
         fail(f"app exited while showing {name}")
 
 
+def toasts():
+    """What the app told the user so far (ui::notify logs every toast)."""
+    log.flush()
+    return [l.split("toast: ", 1)[1].strip() for l in open(os.path.join(OUT, "app.log"), errors="replace") if "toast: " in l]
+
+
 def fail(msg):
     log.flush()
     print("SMOKE FAILED:", msg)
@@ -86,12 +110,15 @@ time.sleep(2)
 tabs = ["dashboard", "play_timer", "activity", "restrictions", "clock", "security", "tools"]
 
 
-def finish():
+def finish(check=None):
+    """Stops the app, then runs `check` (on its complete log)."""
     proc.terminate()
     try:
         proc.wait(5)
     except subprocess.TimeoutExpired:
         proc.kill()
+    if check:
+        check()
     print("desktop smoke test passed:", OUT)
     sys.exit(0)
 
@@ -134,6 +161,28 @@ if GATE:
     if cfg.get("fw_gate_choice"):
         fail("a firmware choice was remembered without the box ticked")
     finish()
+if ERRORS:
+    shot("01_limit_reached")   # Overview: today's limit reached
+    key("Down")                # Play timer
+    key("Right")               # Same limit every day
+    key("Return")
+    shot("02_picker")          # the days differ: "Custom…" is selected
+    key("Up")                  # No play (0 min)
+    key("Return")
+    shot("03_gate")            # the change needs the temporary unlock
+    key("Right")               # Unlock and apply
+    key("Return")
+    shot("04_unlock_failed")
+    key("Left")                # back to the sidebar
+    key("Down", 3)             # Network clock
+    key("Right")
+    shot("05_clock_autosync_off")
+
+    def told_unlock_failed():
+        if not any(t.startswith("Could not unlock parental controls") for t in toasts()):
+            fail("no 'could not unlock' toast; toasts: " + repr(toasts()))
+    finish(told_unlock_failed)
+
 shot("01_dashboard")
 # Left (not Escape) goes back to the sidebar: Escape there asks to quit, so a
 # step that went wrong could close the app.

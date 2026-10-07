@@ -94,6 +94,9 @@ if (PLATFORM_SWITCH)
     list(APPEND PLAYGUARD_SRC ${BOREALIS_LIBRARY}/lib/platforms/switch/switch_wrapper.c)
 else ()
     list(FILTER PLAYGUARD_SRC EXCLUDE REGEX ".*/source/core/.*\\.c$")
+    # The console-free parts are shared with the simulator: one implementation.
+    list(APPEND PLAYGUARD_SRC ${CMAKE_CURRENT_SOURCE_DIR}/source/core/pure.c
+                              ${CMAKE_CURRENT_SOURCE_DIR}/source/core/write_guard.c)
 endif ()
 
 program_target(${PROJECT_NAME} "${PLAYGUARD_SRC}")

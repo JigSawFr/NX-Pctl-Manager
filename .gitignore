@@ -74,6 +74,7 @@ HB_APPSTORE_SUBMISSION.md
 /playguard_data
 /smoke
 /smoke-gate
+/smoke-errors
 /compat.json
 toolchain.txt
 /node_modules

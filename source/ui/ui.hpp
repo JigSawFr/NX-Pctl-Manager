@@ -50,6 +50,11 @@ void confirm(const std::string& body, const std::string& confirm_label,
 void confirm_danger(const std::string& body, const std::string& confirm_label, std::function<void()> on_yes);
 void info(const std::string& body);
 
+// A dialog showing `text`. borealis' own text dialog does not scroll: a text
+// taller than the screen collapses into one cut line. A long one is laid out
+// with a smaller font and narrower margins instead, so it fits.
+brls::Dialog* dialog(const std::string& text);
+
 // B closes `dialog` and runs `on_cancel` (borealis' own B only closes it).
 void on_cancel(brls::Dialog* dialog, std::function<void()> on_cancel);
 
