@@ -3,6 +3,7 @@
 
 #include <borealis/extern/nlohmann/json.hpp>
 #include <initializer_list>
+#include <iterator>
 
 #include "util/paths.hpp"
 
@@ -72,6 +73,19 @@ void sanitize(Config& c)
     one_of(c.fw_gate_choice, { "", "read_only", "probe", "risk" }, "");
     if (c.fw_gate_choice.empty()) c.fw_gate_fw.clear(), c.fw_gate_app.clear();
     if (c.ntp_server.size() > MAX_HOST) c.ntp_server.clear();
+    bool tab_ok = false;
+    for (const char* t : START_TABS) tab_ok |= c.start_tab == t;
+    if (!tab_ok) c.start_tab = "dashboard";
+    bool set_ok = false;
+    for (const auto& set : EXTRA_SETS)
+        set_ok |= c.extra_amounts == std::vector<int>(std::begin(set), std::end(set));
+    if (!set_ok) c.extra_amounts = { 15, 30, 60 };
+    if (c.activity_period < 0 || c.activity_period > 2) c.activity_period = 1;
+    if (c.export_format < 0 || c.export_format > 3) c.export_format = 0;
+    bool keep_ok = false;
+    for (int k : BACKUP_KEEP) keep_ok |= c.backup_keep == k;
+    if (!keep_ok) c.backup_keep = 0;
+    if (!c.update_checked.empty() && c.update_checked.size() != 10) c.update_checked.clear();
 
     std::vector<std::string> servers;
     for (const auto& s : c.custom_servers)
@@ -108,6 +122,20 @@ void load()
     read_bool(j, "extra_auto_restore", c.extra_auto_restore);
     read_bool(j, "dev_mode", c.dev_mode);
     read_string(j, "update_via", c.update_via);
+    read_bool(j, "update_daily", c.update_daily);
+    read_string(j, "update_checked", c.update_checked);
+    read_string(j, "start_tab", c.start_tab);
+    read_int(j, "activity_period", c.activity_period);
+    read_int(j, "export_format", c.export_format);
+    read_int(j, "backup_keep", c.backup_keep);
+    read_bool(j, "clock_check_at_start", c.clock_check_at_start);
+    auto amounts = j.find("extra_amounts");
+    if (amounts != j.end() && amounts->is_array()) {
+        std::vector<int> v;
+        for (const auto& a : *amounts)
+            if (a.is_number_integer()) v.push_back(a.get<int>());
+        c.extra_amounts = v;   // sanitize() keeps it only when it is one of EXTRA_SETS
+    }
     read_bool(j, "relock_pending", c.relock_pending);
 
     // The firmware choice and the extra-time record are all-or-nothing.
@@ -140,6 +168,14 @@ bool save()
     j["extra_auto_restore"] = s_config.extra_auto_restore;
     j["dev_mode"]        = s_config.dev_mode;
     j["update_via"]      = s_config.update_via;
+    j["update_daily"]    = s_config.update_daily;
+    j["update_checked"]  = s_config.update_checked;
+    j["start_tab"]       = s_config.start_tab;
+    j["extra_amounts"]   = s_config.extra_amounts;
+    j["activity_period"] = s_config.activity_period;
+    j["export_format"]   = s_config.export_format;
+    j["backup_keep"]     = s_config.backup_keep;
+    j["clock_check_at_start"] = s_config.clock_check_at_start;
     j["fw_gate_fw"]      = s_config.fw_gate_fw;
     j["fw_gate_app"]     = s_config.fw_gate_app;
     j["fw_gate_choice"]  = s_config.fw_gate_choice;

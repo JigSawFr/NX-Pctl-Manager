@@ -1,10 +1,13 @@
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #include "activity/main_activity.hpp"
 
+#include "action/clock_check.hpp"
 #include "action/fw_gate.hpp"
 #include "action/pt_flow.hpp"
+#include "action/update_flow.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
+#include "util/config.hpp"
 
 using namespace brls::literals;
 
@@ -26,12 +29,30 @@ void MainActivity::onContentAvailable()
         return true;
     });
 
+    // Tools › Start on: that tab rather than the Overview (first, so the
+    // questions below keep the focus they take).
+    int start = 0;
+    for (const char* t : config::START_TABS) {
+        if (config::get().start_tab == t) break;
+        start++;
+    }
+    if (start > 0 && start < (int)(sizeof(config::START_TABS) / sizeof(config::START_TABS[0]))) {
+        brls::sync([this, start]() {
+            auto stack = brls::Application::getActivitiesStack();
+            auto* frame = dynamic_cast<brls::TabFrame*>(this->getView("main_tabs"));
+            if (frame && !stack.empty() && stack.back() == this) frame->focusTab(ui::tab::of(start));
+        });
+    }
+
     // Stopped in the middle of a change last time: lock again first. Then, for
     // extra time added on an earlier day, offer to put the limit back.
     brls::sync([]() {
         pt_flow::relock_if_interrupted();
         pt_flow::offer_extra_time_restore();
     });
+    // Opt-in background checks (Tools): a newer version, a network clock off.
+    update_flow::check_daily();
+    clock_check::at_start();
 
     // Firmware newer than the checked one: the firmware screen (or the remembered choice).
     fw_gate::on_main_screen();

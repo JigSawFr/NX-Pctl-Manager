@@ -9,6 +9,7 @@
 #include "action/pt_flow.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
+#include "util/config.hpp"
 #include "util/pctl_ops_c.hpp"
 
 using namespace brls::literals;
@@ -120,7 +121,10 @@ std::string save_snapshot(std::string* error)
         *error = "playguard/backup/unreadable_console"_i18n;
         return "";
     }
-    return backup::save(s, error);
+    const std::string path = backup::save(s, error);
+    // Tools › Keep backups: the oldest beyond that number go (never the new one).
+    if (!path.empty()) backup::prune((size_t)config::get().backup_keep);
+    return path;
 }
 }   // namespace
 

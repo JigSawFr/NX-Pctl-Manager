@@ -130,6 +130,12 @@ constexpr int restrictions = 4;
 constexpr int clock        = 5;
 constexpr int security     = 7;   // PIN, unlock, companion app, delete
 constexpr int tools        = 9;
+// The n-th tab (0 = Overview) as a sidebar position (separators count).
+constexpr int of(int n)
+{
+    constexpr int positions[] = { dashboard, play_timer, activity, restrictions, clock, security, tools };
+    return n >= 0 && n < 7 ? positions[n] : dashboard;
+}
 }   // namespace tab
 
 // Opens another tab of the main screen and focuses its first item. `from` is

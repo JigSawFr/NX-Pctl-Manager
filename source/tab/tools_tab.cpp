@@ -30,6 +30,26 @@ int index_of(const char* const (&list)[N], const std::string& value)
         if (value == list[i]) return (int)i;
     return 0;
 }
+
+// "15, 30, 60 min" / "30 min, 1 h, 1 h 30"
+std::string amounts_text(const int (&set)[3])
+{
+    std::string text;
+    for (int m : set) text += (text.empty() ? "+" : " / +") + ui::fmt_minutes((uint16_t)m);
+    return text;
+}
+
+int extra_set_index(const std::vector<int>& amounts)
+{
+    for (size_t i = 0; i < sizeof(config::EXTRA_SETS) / sizeof(config::EXTRA_SETS[0]); i++)
+        if (amounts == std::vector<int>(std::begin(config::EXTRA_SETS[i]), std::end(config::EXTRA_SETS[i]))) return (int)i;
+    return 0;
+}
+
+std::string keep_text(int keep)
+{
+    return keep == 0 ? "playguard/tools/backup_keep_all"_i18n : brls::getStr("playguard/tools/backup_keep_n", keep);
+}
 }   // namespace
 
 ToolsTab::ToolsTab()
@@ -91,6 +111,49 @@ ToolsTab::ToolsTab()
             ui::save_config();
             this->refresh();
             if (changed) ui::offer_restart();
+        });
+        return true;
+    });
+
+    start_tab->registerClickAction([this](brls::View*) {
+        std::vector<std::string> labels;
+        for (const char* t : config::START_TABS) labels.push_back(brls::getStr(std::string("playguard/tabs/") + t));
+        ui::pick("playguard/tools/start_tab"_i18n, labels, index_of(config::START_TABS, config::get().start_tab), [this](int i) {
+            config::get().start_tab = config::START_TABS[i];
+            ui::save_config();
+            this->refresh();
+        });
+        return true;
+    });
+    extra_amounts->registerClickAction([this](brls::View*) {
+        std::vector<std::string> labels;
+        for (const auto& set : config::EXTRA_SETS) labels.push_back(amounts_text(set));
+        ui::pick("playguard/tools/extra_amounts"_i18n, labels, extra_set_index(config::get().extra_amounts), [this](int i) {
+            config::get().extra_amounts.assign(std::begin(config::EXTRA_SETS[i]), std::end(config::EXTRA_SETS[i]));
+            ui::save_config();
+            this->refresh();
+        });
+        return true;
+    });
+    clock_check->init("playguard/tools/clock_check"_i18n, config::get().clock_check_at_start, [](bool on) {
+        config::get().clock_check_at_start = on;
+        ui::save_config();
+    });
+    update_daily->init("playguard/tools/update_daily"_i18n, config::get().update_daily, [](bool on) {
+        config::get().update_daily = on;
+        ui::save_config();
+    });
+    backup_keep->registerClickAction([this](brls::View*) {
+        std::vector<std::string> labels;
+        int selected = 0;
+        for (size_t i = 0; i < sizeof(config::BACKUP_KEEP) / sizeof(config::BACKUP_KEEP[0]); i++) {
+            labels.push_back(keep_text(config::BACKUP_KEEP[i]));
+            if (config::BACKUP_KEEP[i] == config::get().backup_keep) selected = (int)i;
+        }
+        ui::pick("playguard/tools/backup_keep"_i18n, labels, selected, [this](int i) {
+            config::get().backup_keep = config::BACKUP_KEEP[i];
+            ui::save_config();
+            this->refresh();
         });
         return true;
     });
@@ -197,6 +260,12 @@ void ToolsTab::refresh()
     advanced->setOn(cfg.advanced, false);
     auto_relock->setOn(cfg.auto_relock, false);
     extra_auto->setOn(cfg.extra_auto_restore, false);
+    clock_check->setOn(cfg.clock_check_at_start, false);
+    update_daily->setOn(cfg.update_daily, false);
+    start_tab->setDetailText(brls::getStr(std::string("playguard/tabs/") + config::START_TABS[index_of(config::START_TABS, cfg.start_tab)]));
+    extra_amounts->setDetailText(amounts_text(config::EXTRA_SETS[extra_set_index(cfg.extra_amounts)]));
+    backup_keep->setDetailText(keep_text(cfg.backup_keep));
+    update_cell->setDetailText(cfg.update_checked.empty() ? "" : brls::getStr("playguard/tools/update_last", cfg.update_checked));
     const size_t backups = backup_flow::count();
     backup_restore->setDetailText(backups ? brls::getStr("playguard/tools/backup_count", (int)backups) : "");
 
@@ -247,6 +316,7 @@ void ToolsTab::refresh()
                           { advanced.getView(), !ro },
                           { auto_relock.getView(), !ro },
                           { extra_auto.getView(), !ro },
+                          { extra_amounts.getView(), !ro },
                           { dev_header.getView(), dev },
                           { dev_mode.getView(), dev },
                           { dev_read_only.getView(), dev },

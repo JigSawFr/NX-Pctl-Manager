@@ -126,6 +126,13 @@ static void test_files()
     assert(backup::list().size() == 3 && backup::list().back() == "00000000_000000.json");
     assert(!backup::load("00000000_000000.json", s));
 
+    // Keeping the 2 newest deletes the oldest (the damaged one); 0 keeps all.
+    assert(backup::prune(0) == 0 && backup::list().size() == 3);
+    assert(backup::prune(2) == 1);
+    const auto kept = backup::list();
+    assert(kept.size() == 2 && kept == names);
+    assert(backup::prune(5) == 0 && backup::prune(1) == 1 && backup::list().front() == names[0]);
+
     const std::string cleanup = std::string("rm -rf '") + dir + "'";
     assert(std::system(cleanup.c_str()) == 0);
 }

@@ -31,6 +31,11 @@ class ToolsTab : public TabBase
     BRLS_BIND(brls::DetailCell,  theme,       "tl_theme");
     BRLS_BIND(brls::BooleanCell, auto_relock, "tl_auto_relock");
     BRLS_BIND(brls::BooleanCell, extra_auto,  "tl_extra_auto");
+    BRLS_BIND(brls::DetailCell,  start_tab,   "tl_start_tab");
+    BRLS_BIND(brls::DetailCell,  extra_amounts, "tl_extra_amounts");
+    BRLS_BIND(brls::BooleanCell, clock_check, "tl_clock_check");
+    BRLS_BIND(brls::BooleanCell, update_daily, "tl_update_daily");
+    BRLS_BIND(brls::DetailCell,  backup_keep, "tl_backup_keep");
     BRLS_BIND(brls::BooleanCell, advanced,    "tl_advanced");
     BRLS_BIND(brls::DetailCell,  update_via,  "tl_update_via");
     BRLS_BIND(brls::DetailCell,  version,     "tl_version");

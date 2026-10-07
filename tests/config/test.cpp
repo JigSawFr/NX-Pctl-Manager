@@ -111,6 +111,48 @@ static void test_round_trip()
     assert(c.extra_weekday == 0 && c.extra_base == 120 && c.extra_value == 150 && c.extra_auto_restore);
 }
 
+static void test_preferences()
+{
+    // Defaults.
+    config::Config d;
+    assert(d.start_tab == "dashboard" && d.extra_amounts == std::vector<int>({ 15, 30, 60 }));
+    assert(d.activity_period == 1 && d.export_format == 0 && d.backup_keep == 0);
+    assert(!d.update_daily && d.update_checked.empty() && !d.clock_check_at_start);
+
+    // Values from the lists are kept.
+    write_config(R"({"start_tab": "activity", "extra_amounts": [30, 60, 90], "activity_period": 2,
+                    "export_format": 3, "backup_keep": 10, "update_daily": true,
+                    "update_checked": "2026-10-07", "clock_check_at_start": true})");
+    config::load();
+    auto c = config::get();
+    assert(c.start_tab == "activity" && c.extra_amounts == std::vector<int>({ 30, 60, 90 }));
+    assert(c.activity_period == 2 && c.export_format == 3 && c.backup_keep == 10);
+    assert(c.update_daily && c.update_checked == "2026-10-07" && c.clock_check_at_start);
+
+    // Anything else goes back to the default: no 7-minute keep, no 999-minute
+    // extra time, no tab that does not exist.
+    write_config(R"({"start_tab": "hidden", "extra_amounts": [15, 30, 999], "activity_period": 5,
+                    "export_format": -1, "backup_keep": 7, "update_checked": "yesterday"})");
+    config::load();
+    c = config::get();
+    assert(c.start_tab == "dashboard" && c.extra_amounts == std::vector<int>({ 15, 30, 60 }));
+    assert(c.activity_period == 1 && c.export_format == 0 && c.backup_keep == 0 && c.update_checked.empty());
+    write_config(R"({"extra_amounts": "15,30,60", "backup_keep": "all"})");
+    config::load();
+    assert(config::get().extra_amounts == std::vector<int>({ 15, 30, 60 }) && config::get().backup_keep == 0);
+
+    // Round trip.
+    config::get() = config::Config{};
+    config::get().start_tab = "tools";
+    config::get().extra_amounts = { 5, 10, 15 };
+    config::get().backup_keep = 20;
+    assert(config::save());
+    config::get() = config::Config{};
+    config::load();
+    assert(config::get().start_tab == "tools" && config::get().extra_amounts == std::vector<int>({ 5, 10, 15 }));
+    assert(config::get().backup_keep == 20);
+}
+
 static void test_tmp_recovery()
 {
     // Stopped after removing config.json, before renaming config.json.tmp.
@@ -145,6 +187,7 @@ int main()
     test_defaults();
     test_fields();
     test_round_trip();
+    test_preferences();
     test_tmp_recovery();
 
     const std::string cleanup = std::string("rm -rf '") + dir + "'";
