@@ -76,14 +76,14 @@ bool atomic_write(const std::string& path, const std::string& content, std::stri
     }
     std::remove(path.c_str());   // FAT (SD card) rename does not replace an existing file
     if (std::rename(tmp.c_str(), path.c_str()) != 0) {
-        err = errno;
-        std::remove(tmp.c_str());
-        return fail("Could not rename the file", err);
+        // The old file is gone and the new one is complete: keep it, read_file
+        // falls back to it.
+        return fail("Could not rename the file", errno);
     }
     return true;
 }
 
-bool read_file(const std::string& path, std::string& out)
+static bool read_whole(const std::string& path, std::string& out)
 {
     std::ifstream in(path, std::ios::binary);
     if (!in) return false;
@@ -91,6 +91,17 @@ bool read_file(const std::string& path, std::string& out)
     ss << in.rdbuf();
     out = ss.str();
     return true;
+}
+
+bool read_file(const std::string& path, std::string& out)
+{
+    if (read_whole(path, out)) return true;
+    // atomic_write stopped between removing the old file and renaming the
+    // new one (crash, power loss, rename error): the ".tmp" is the complete
+    // new content. It is only used when the file itself is missing.
+    struct stat st;
+    if (stat(path.c_str(), &st) == 0) return false;
+    return read_whole(path + ".tmp", out);
 }
 
 std::vector<std::string> list_files(const std::string& dir, const std::string& suffix)

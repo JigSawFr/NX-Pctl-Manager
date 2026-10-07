@@ -32,6 +32,27 @@ int played_today_min(const PtState& pt)
     return left >= limit ? 0 : (int)(limit - left);
 }
 
+static void set_relock_pending(bool on)
+{
+    auto& cfg = config::get();
+    if (cfg.relock_pending == on) return;
+    cfg.relock_pending = on;
+    ui::save_config();
+}
+
+void relock_if_interrupted()
+{
+    // Read-only refuses every write, the lock too: keep the record for a
+    // start that can lock.
+    if (!config::get().relock_pending || app::read_only()) return;
+    set_relock_pending(false);
+    PctlStatus st;
+    pctl_status_fetch(&st);
+    if (!st.temp_unlocked_ok || !st.temp_unlocked) return;
+    Result rc = pctl_relock();
+    ui::notify_result(rc, "playguard/toast/relocked_after_stop"_i18n, "playguard/toast/relock_err"_i18n);
+}
+
 void confirm_write(const std::string& body_in, const std::string& confirm_label,
                    std::function<void(bool did_unlock)> write, const uint16_t* new_days)
 {
@@ -75,8 +96,11 @@ void confirm_write(const std::string& body_in, const std::string& confirm_label,
             (config::get().auto_relock ? "playguard/play_timer/gate/relock_auto"_i18n
                                        : "playguard/play_timer/gate/relock_manual"_i18n);
     ui::confirm(text, "playguard/play_timer/gate/confirm"_i18n, [write]() {
+        // Should the app stop before finish_write, the next start locks again.
+        set_relock_pending(true);
         Result rc = pctl_unlock_restriction_temporarily();
         if (R_FAILED(rc)) {
+            set_relock_pending(false);   // not unlocked (or locked again by the service layer)
             ui::notify("playguard/play_timer/gate/failed"_i18n + " — " + ui::rc_text(rc));
             return;
         }
@@ -106,6 +130,7 @@ void finish_write(Result rc, bool did_unlock, const std::string& ok_text,
     }
     // The unlock was only for this write: never leave the console unlocked
     // behind the user's back, even when the write failed.
+    set_relock_pending(false);
     if (config::get().auto_relock) {
         Result relock = pctl_relock();
         if (R_FAILED(rc)) ui::notify_result(rc, ok_text, error_prefix);
@@ -185,7 +210,7 @@ static void clear_extra_record()
     auto& cfg = config::get();
     cfg.extra_weekday = -1;
     cfg.extra_date.clear();
-    config::save();
+    ui::save_config();
 }
 
 bool can_add_extra_time(const PtState& pt)
@@ -230,7 +255,7 @@ void add_extra_time(const PtState& pt, std::function<void()> refresh)
                 c.extra_date    = today_date();
                 c.extra_base    = original;
                 c.extra_value   = value;
-                config::save();
+                ui::save_config();
             }
             finish_write(rc, did_unlock, brls::getStr("playguard/dashboard/extra_done", ui::fmt_minutes(value)),
                          "playguard/play_timer/write_err"_i18n, refresh);

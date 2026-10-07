@@ -31,10 +31,21 @@ struct Config
     std::string extra_date;
     int         extra_base  = 0;
     int         extra_value = 0;
+
+    // Set right before PlayGuard unlocks parental controls for a change it
+    // locks again afterwards, cleared once it has. Still set at the next start:
+    // the app stopped in between, so it locks again then.
+    bool relock_pending = false;
 };
 
+constexpr int    SCHEMA             = 1;    // "schema" in config.json
+constexpr size_t MAX_HOST           = 253;  // longest DNS name
+constexpr size_t MAX_CUSTOM_SERVERS = 10;
+
 Config& get();
-void    load();          // never throws; missing / broken file => defaults
+void    load();          // never throws; missing / broken file => defaults, per field
 bool    save();          // atomic write; false on failure
+// Puts every out-of-range value back to its default (load() calls it).
+void    sanitize(Config& c);
 
 }   // namespace config

@@ -62,6 +62,7 @@ Result pctl_set_pin(void);                   // opens the system PIN applet (reg
 // UnlockRestrictionTemporarily (1201) using the stored PIN read via GetPinCode
 // (1208), then verifies IsRestrictionTemporaryUnlocked (1006). Returns
 // NXM_RC_UNLOCK_NOT_EFFECTIVE when 1201 succeeded but 1006 still reads false.
+// When 1006 itself fails after 1201, locks again (1007) and returns that error.
 Result pctl_unlock_restriction_temporarily(void);
 // GetPinCode (1208), for the "Show PIN" action: copies the stored PIN (4 to 8
 // digits, NUL-terminated) into `out`. `out` is zeroed first and stays zeroed
@@ -104,6 +105,8 @@ void pctl_play_timer_query(PtState *out);
 // days_min[0]=Sunday .. [6]=Saturday. If every day is PT_DAY_NOLIMIT the timer is
 // turned off. Re-checks 1453/1455/1006 in its own session right before writing
 // and refuses (NXM_RC_WRITE_GATED) when the timer is active and not unlocked.
+// Reads the current settings (145601) first and changes only the per-day limits,
+// so what the companion app set in fields this app does not decode is kept.
 Result pctl_play_timer_set_days(const u16 days_min[7]);
 Result pctl_play_timer_set_uniform(u16 minutes);
 Result pctl_play_timer_clear(void);

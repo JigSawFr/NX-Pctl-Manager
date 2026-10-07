@@ -75,7 +75,7 @@ ToolsTab::ToolsTab()
         ui::pick("playguard/tools/language"_i18n, labels, index_of(LANGUAGES, config::get().language), [this](int i) {
             const bool changed = config::get().language != LANGUAGES[i];
             config::get().language = LANGUAGES[i];
-            config::save();
+            ui::save_config();
             this->refresh();
             if (changed) ui::offer_restart();
         });
@@ -88,7 +88,7 @@ ToolsTab::ToolsTab()
         ui::pick("playguard/tools/theme"_i18n, labels, index_of(THEMES, config::get().theme), [this](int i) {
             const bool changed = config::get().theme != THEMES[i];
             config::get().theme = THEMES[i];
-            config::save();
+            ui::save_config();
             this->refresh();
             if (changed) ui::offer_restart();
         });
@@ -97,11 +97,11 @@ ToolsTab::ToolsTab()
 
     advanced->init("playguard/tools/advanced"_i18n, config::get().advanced, [](bool on) {
         config::get().advanced = on;
-        config::save();
+        ui::save_config();
     });
     auto_relock->init("playguard/tools/auto_relock"_i18n, config::get().auto_relock, [](bool on) {
         config::get().auto_relock = on;
-        config::save();
+        ui::save_config();
     });
 
     update_via->registerClickAction([this](brls::View*) {
@@ -109,7 +109,7 @@ ToolsTab::ToolsTab()
         for (const char* u : UPDATE_VIA) labels.push_back(brls::getStr(std::string("playguard/tools/update_via_values/") + u));
         ui::pick("playguard/tools/update_via"_i18n, labels, index_of(UPDATE_VIA, config::get().update_via), [this](int i) {
             config::get().update_via = UPDATE_VIA[i];
-            config::save();
+            ui::save_config();
             this->refresh();
         });
         return true;
@@ -130,7 +130,7 @@ ToolsTab::ToolsTab()
 
     // Developer tools.
     dev_mode->init("playguard/dev/mode"_i18n, app::dev_mode(), [](bool on) {
-        app::set_dev_mode(on, true);
+        if (!app::set_dev_mode(on, true)) ui::notify("playguard/toast/config_err"_i18n);
         ui::on_mode_changed();
     });
     dev_read_only->init("playguard/dev/read_only"_i18n, app::read_only(), [this](bool on) {
@@ -178,8 +178,8 @@ void ToolsTab::count_version_press()
         return;
     }
     this->version_presses = 0;
-    app::set_dev_mode(true, true);
-    ui::notify("playguard/dev/enabled"_i18n);
+    ui::notify(app::set_dev_mode(true, true) ? "playguard/dev/enabled"_i18n
+                                             : "playguard/dev/enabled"_i18n + " " + "playguard/toast/config_err"_i18n);
     ui::on_mode_changed();
 }
 

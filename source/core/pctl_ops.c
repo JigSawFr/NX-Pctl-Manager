@@ -236,8 +236,15 @@ Result pctl_unlock_restriction_temporarily(void)
     if (R_SUCCEEDED(rc)) {
         bool unlocked = false;
         Result vr = rd_bool(srv, 1006, &unlocked);
-        if (R_FAILED(vr))   rc = vr;
-        else if (!unlocked) rc = NXM_RC_UNLOCK_NOT_EFFECTIVE;
+        if (R_FAILED(vr)) {
+            // 1201 went through but the state cannot be read back: the caller
+            // treats this as a failure and will not lock again, so do it here
+            // rather than leave the console unlocked without anyone knowing.
+            (void)serviceDispatch(srv, 1007);
+            rc = vr;
+        } else if (!unlocked) {
+            rc = NXM_RC_UNLOCK_NOT_EFFECTIVE;
+        }
     }
     pctl_ops_exit();
     return rc;
@@ -341,9 +348,52 @@ Result pctl_set_stereo_vision_restricted(bool restricted)
 //     [+2] = minutes  that day's limit
 //     [+3] = 0        reserved (absent for the last group: the array stops at 34)
 // A group left all-zero means "no limit that day". 1454 is in nanoseconds.
+// Only the flag and the minutes are understood; the other fields (the header,
+// [+0], [+3], [2..6]) may hold what the companion app sets and this app does
+// not show (bedtime, "alarm only" vs "suspend the software"), so a write keeps
+// them as read (pt_encode below).
 #define PT_U16_COUNT 34
 
 static bool pt_fw_supported(void) { return hosversionAtLeast(21, 0, 0); }
+
+// Turns the block read with 145601 into the one to write with 195101 for the
+// per-day limits `days_min`, changing as little as possible:
+//  - a day that keeps its limit gets the new minutes, nothing else changes;
+//  - a day that gains a limit gets the observed 0x0600 / 0x0100 / minutes in
+//    [+0..+2] (its [+3] stays);
+//  - a day that loses its limit gets [+0..+2] cleared, the encoding seen
+//    working on hardware (its [+3] stays);
+//  - a day without a limit before and after is left exactly as read;
+//  - the header stays as read, or gets the observed 0x0101 / 0x0001 when the
+//    timer was off;
+//  - no limit on any day: all zeros, the one "timer off" block seen working.
+// So writing back the limits just read gives the same block, byte for byte.
+static void pt_encode(u16 c[PT_U16_COUNT], const u16 days_min[7])
+{
+    bool any = false;
+    for (int n = 0; n < 7; n++) if (days_min[n] != PT_DAY_NOLIMIT) any = true;
+    if (!any) {
+        memset(c, 0, PT_U16_COUNT * sizeof(u16));
+        return;
+    }
+    if (c[0] == 0) {
+        c[0] = 0x0101;
+        c[1] = 0x0001;
+    }
+    for (int n = 0; n < 7; n++) {
+        u16 *g = &c[7 + 4 * n];
+        const bool had = g[1] != 0;
+        if (days_min[n] == PT_DAY_NOLIMIT) {
+            if (had) g[0] = g[1] = g[2] = 0;
+            continue;
+        }
+        if (!had) {
+            g[0] = 0x0600;
+            g[1] = 0x0100;
+        }
+        g[2] = days_min[n];
+    }
+}
 
 void pctl_play_timer_query(PtState *out)
 {
@@ -419,22 +469,14 @@ Result pctl_play_timer_set_days(const u16 days_min[7])
         return R_FAILED(rc) ? rc : NXM_RC_WRITE_GATED;
     }
 
-    bool any = false;
-    for (int n = 0; n < 7; n++) if (days_min[n] != PT_DAY_NOLIMIT) any = true;
-
+    // Start from the settings as they are, so the fields this app does not
+    // understand survive. Should the read fail, fall back to the layout
+    // observed on hardware (what earlier versions always wrote).
     u16 c[PT_U16_COUNT];
     memset(c, 0, sizeof(c));
-    if (any) {
-        c[0] = 0x0101;
-        c[1] = 0x0001;
-        for (int n = 0; n < 7; n++) {
-            if (days_min[n] == PT_DAY_NOLIMIT) continue;
-            c[7 + 4 * n + 0] = 0x0600;
-            c[7 + 4 * n + 1] = 0x0100;
-            c[7 + 4 * n + 2] = days_min[n];
-        }
-    }
-    // !any: all-zero struct turns the play timer off.
+    const bool have_current = R_SUCCEEDED(serviceDispatchOut(srv, 145601, c));
+    if (!have_current) memset(c, 0, sizeof(c));
+    pt_encode(c, days_min);
     rc = serviceDispatchIn(srv, 195101, c);
     pctl_ops_exit();
     return rc;

@@ -31,7 +31,7 @@ void        set_read_only(bool on);
 // Saved in the preferences, or on for this session only (firmware screen,
 // "read-only + developer mode").
 bool        dev_mode();
-void        set_dev_mode(bool on, bool persist);
+bool        set_dev_mode(bool on, bool persist);   // false: the preference could not be saved
 
 // False while the app is in the background (HOME menu, system PIN prompt …):
 // periodic refreshes skip their pctl queries then, keeping the single

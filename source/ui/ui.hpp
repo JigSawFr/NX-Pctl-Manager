@@ -34,6 +34,8 @@ std::string rc_text(Result rc);
 // Deferred to the next frame (toasts fired right after a system applet returns
 // were dropped on fw 22.1.0).
 void notify(const std::string& text);
+// config::save(), with a toast when the SD card refused the write.
+bool save_config();
 void notify_result(Result rc, const std::string& ok_text, const std::string& error_prefix);
 
 // Two-button dialog. Cancel (left) has the focus when it opens;

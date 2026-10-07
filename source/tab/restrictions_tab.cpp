@@ -14,6 +14,22 @@ std::string age_text(uint8_t age)
 {
     return age == 0 ? "playguard/restrictions/age_none"_i18n : brls::getStr("playguard/restrictions/age_value", (int)age);
 }
+
+// A BooleanCell flips its value before telling its listener: in read-only
+// mode the switch would flip, the write be refused and the switch flip back.
+// Check first, then flip as BooleanCell does.
+void guard_switch(brls::BooleanCell* cell)
+{
+    cell->registerClickAction([cell](brls::View*) {
+        if (app::read_only()) {
+            ui::notify(ui::rc_text(NXM_RC_READ_ONLY));
+            return true;
+        }
+        cell->setOn(!cell->isOn());
+        cell->getEvent()->fire(cell->isOn());
+        return true;
+    });
+}
 }   // namespace
 
 RestrictionsTab::RestrictionsTab()
@@ -76,6 +92,9 @@ RestrictionsTab::RestrictionsTab()
         ui::notify_result(rc, "playguard/restrictions/saved"_i18n, "playguard/restrictions/save_err"_i18n);
         this->refresh();
     });
+    guard_switch(sns);
+    guard_switch(comm);
+    guard_switch(vr);
 }
 
 void RestrictionsTab::write_custom(const PctlCustomSettings& s)

@@ -23,6 +23,7 @@ static struct {
     const char *pin;          /* what GetPinCode (1208) returns */
     char got_pin[32];         /* what UnlockRestrictionTemporarily (1201) received */
     size_t got_pin_size;
+    u16 pt_block[34];         /* what GetPlayTimerSettings (145601) returns */
 } model;
 
 static void reset_with(u32 hos)
@@ -33,6 +34,13 @@ static void reset_with(u32 hos)
     model.unlock_effective = true;
     model.safety_level = PctlSafetyLevel_Custom;
     model.pin = "123456";
+    /* The layout observed on hardware: a limit of 30 * n minutes on day n. */
+    model.pt_block[0] = 0x0101; model.pt_block[1] = 1;
+    for (int n = 0; n < 7; n++) {
+        model.pt_block[7 + 4 * n] = 0x0600;
+        model.pt_block[8 + 4 * n] = 0x0100;
+        model.pt_block[9 + 4 * n] = (u16)(30 * n);
+    }
 }
 static void reset(void) { reset_with(MAKEHOSVERSION(23, 0, 1)); }
 
@@ -150,12 +158,7 @@ Result mock_dispatch(Service *srv, u32 command, void *out, size_t out_size,
         case 1035: { u8 raw[3] = {12, 1, 0}; return put(out, out_size, raw, 3); }
         case 1459: model.saw_1459 = true; assert(out_size == 0x20); return 0;
         case 1460: model.saw_1460 = true; assert(out_size == 0x18 && in_size == 1); return 0;
-        case 145601: {
-            u16 c[34] = {0};
-            c[0] = 0x0101; c[1] = 1;
-            for (int n = 0; n < 7; n++) { c[7 + 4 * n] = 0x0600; c[8 + 4 * n] = 0x0100; c[9 + 4 * n] = (u16)(30 * n); }
-            return put(out, out_size, c, sizeof(c));
-        }
+        case 145601: return put(out, out_size, model.pt_block, sizeof(model.pt_block));
         default: assert(!"unexpected output command");
     }
     return 0;
@@ -354,12 +357,76 @@ static void test_write_gate(void)
         assert(model.ipc_calls == 0 && model.writes == 0 && model.refs == 0);
     }
 
+    /* GetPlayTimerSettings failing does not block the write: the layout
+     * observed on hardware is written, as earlier versions always did. */
+    reset();
+    model.fail_command = 145601;
+    assert(write_variant(0) == 0 && model.writes == 1 && model.refs == 0);
+    {
+        u16 c[34];
+        memcpy(c, model.last_write, sizeof(c));
+        assert(c[0] == 0x0101 && c[1] == 1 && c[7] == 0x0600 && c[8] == 0x0100 && c[9] == 0 && c[33] == 60);
+    }
+
     /* Out-of-range minutes and old firmware are refused before any IPC. */
     reset();
     u16 bad[7] = {0, 0, 0, 1441, 0, 0, 0};
     assert(pctl_play_timer_set_days(bad) == NXM_RC_INVALID_ARGUMENT && model.init_calls == 0);
     reset_with(MAKEHOSVERSION(20, 5, 0));
     assert(pctl_play_timer_clear() == NXM_RC_FW_UNSUPPORTED && model.init_calls == 0);
+}
+
+/* The write starts from what 145601 returns and changes only flag + minutes. */
+static void test_block_preserved(void)
+{
+    u16 c[34], expect[34];
+
+    /* Fields this app does not decode: an odd header, [2..6], [+0] and [+3]
+     * of every group, and a day (Monday) without a limit whose [+0] is set. */
+    reset();
+    for (int i = 0; i < 34; i++) model.pt_block[i] = 0;
+    model.pt_block[0] = 0x0103; model.pt_block[1] = 0x0002;
+    for (int i = 2; i < 7; i++) model.pt_block[i] = (u16)(0xA000 + i);
+    for (int n = 0; n < 7; n++) {
+        u16 *g = &model.pt_block[7 + 4 * n];
+        g[0] = (u16)(0x0700 + n);
+        if (n != 1) { g[1] = 0x0100; g[2] = (u16)(60 + n); }
+        if (n < 6) g[3] = (u16)(0xB000 + n);
+    }
+    memcpy(expect, model.pt_block, sizeof(expect));
+
+    /* Writing back the limits just read: the same block, byte for byte. */
+    PtState st;
+    pctl_play_timer_query(&st);
+    assert(st.valid && st.day_min[1] == PT_DAY_NOLIMIT && st.day_min[0] == 60);
+    assert(pctl_play_timer_set_days(st.day_min) == 0 && model.refs == 0);
+    assert(model.last_write_cmd == 195101 && memcmp(model.last_write, expect, sizeof(expect)) == 0);
+
+    /* Sunday changes, Monday gains a limit, Tuesday loses its own, the rest
+     * keeps theirs. */
+    u16 days[7] = {90, 45, PT_DAY_NOLIMIT, 63, 64, 65, 66};
+    assert(pctl_play_timer_set_days(days) == 0);
+    memcpy(c, model.last_write, sizeof(c));
+    expect[9] = 90;                                             /* Sunday: minutes only */
+    expect[11] = 0x0600; expect[12] = 0x0100; expect[13] = 45;  /* Monday: [+3] kept */
+    expect[15] = 0; expect[16] = 0; expect[17] = 0;             /* Tuesday: [+3] kept */
+    assert(memcmp(c, expect, sizeof(c)) == 0);
+
+    /* Timer off (all zeros): the observed header and per-day values. */
+    reset();
+    for (int i = 0; i < 34; i++) model.pt_block[i] = 0;
+    u16 one[7] = {PT_DAY_NOLIMIT, 30, PT_DAY_NOLIMIT, PT_DAY_NOLIMIT, PT_DAY_NOLIMIT, PT_DAY_NOLIMIT, PT_DAY_NOLIMIT};
+    assert(pctl_play_timer_set_days(one) == 0);
+    memcpy(c, model.last_write, sizeof(c));
+    assert(c[0] == 0x0101 && c[1] == 1 && c[11] == 0x0600 && c[12] == 0x0100 && c[13] == 30);
+    for (int i = 0; i < 34; i++) if (i != 0 && i != 1 && (i < 11 || i > 13)) assert(c[i] == 0);
+
+    /* No limit on any day: all zeros, whatever was read. */
+    reset();
+    model.pt_block[2] = 0xFFFF;
+    assert(pctl_play_timer_clear() == 0);
+    for (unsigned i = 0; i < 0x44; ++i) assert(model.last_write[i] == 0);
+    assert(model.refs == 0);
 }
 
 static void test_unlock_and_relock(void)
@@ -387,6 +454,20 @@ static void test_unlock_and_relock(void)
     reset();
     model.fail_command = 1201;
     assert(pctl_unlock_restriction_temporarily() == MOCK_ERROR && model.refs == 0);
+    assert(model.last_write_cmd == 1201);   /* nothing unlocked: nothing to undo */
+
+    /* Unlocked, but the check cannot be read: locked again before returning. */
+    reset();
+    model.fail_command = 1006;
+    assert(pctl_unlock_restriction_temporarily() == MOCK_ERROR);
+    assert(model.last_write_cmd == 1007 && !model.unlocked);
+    assert(model.refs == 0 && model.init_calls == model.exit_calls);
+
+    /* Not effective: nothing to undo either. */
+    reset();
+    model.unlock_effective = false;
+    assert(pctl_unlock_restriction_temporarily() == NXM_RC_UNLOCK_NOT_EFFECTIVE);
+    assert(model.last_write_cmd == 1201);
 }
 
 static void test_get_pin(void)
@@ -479,6 +560,7 @@ int main(void)
     test_ownership();
     test_reads();
     test_write_gate();
+    test_block_preserved();
     test_unlock_and_relock();
     test_get_pin();
     test_other_writes();

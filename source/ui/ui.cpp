@@ -4,6 +4,7 @@
 #include "activity/main_activity.hpp"
 #include "app.hpp"
 #include "tab/tab_base.hpp"
+#include "util/config.hpp"
 #include "util/duration.hpp"
 
 #include <ctime>
@@ -78,6 +79,13 @@ std::string rc_text(Result rc)
 void notify(const std::string& text)
 {
     brls::sync([text]() { brls::Application::notify(text); });
+}
+
+bool save_config()
+{
+    if (config::save()) return true;
+    notify("playguard/toast/config_err"_i18n);
+    return false;
 }
 
 void notify_result(Result rc, const std::string& ok_text, const std::string& error_prefix)

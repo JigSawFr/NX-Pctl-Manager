@@ -379,7 +379,7 @@
         "applied_pending": "Network clock set and read back. The system does not report it as accurate yet.",
         "applied_refused": "Not changed: turn on \"Synchronise Clock via Internet\" in System Settings › System › Date and Time first.",
         "applied_err": "Could not set the network clock",
-        "report_err": "Not changed: the \"before\" report could not be saved",
+        "report_err_ask": "The report of the clocks before the change could not be saved ({}). Set the network clock anyway?",
         "seconds": "{} s",
         "busy": "Please wait for the current request."
     },
@@ -545,6 +545,8 @@
         "diag_saved": "Diagnostic saved: {}",
         "diag_err": "Could not save the diagnostic",
         "relocked": "Parental controls locked again.",
-        "relock_err": "Could not lock parental controls again"
+        "relock_err": "Could not lock parental controls again",
+        "relocked_after_stop": "PlayGuard stopped during a change last time: parental controls are locked again.",
+        "config_err": "Could not save the preferences on the SD card"
     }
 }

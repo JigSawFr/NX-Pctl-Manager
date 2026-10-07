@@ -53,13 +53,14 @@ void set_read_only(bool on) { core_set_read_only(on); }
 
 bool dev_mode() { return s_dev_session || config::get().dev_mode; }
 
-void set_dev_mode(bool on, bool persist)
+bool set_dev_mode(bool on, bool persist)
 {
     s_dev_session = on;
     if (persist || !on) {
         config::get().dev_mode = on;
-        config::save();
+        return config::save();
     }
+    return true;
 }
 
 }   // namespace app

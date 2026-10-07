@@ -109,7 +109,7 @@ void ClockTab::set_server(const std::string& host, const std::string& reg)
     this->result->setText("");
     auto& cfg = config::get();
     cfg.ntp_server = host;
-    config::save();
+    ui::save_config();
     this->refresh();
 }
 
@@ -249,43 +249,50 @@ void ClockTab::apply()
     if (this->last.spread > 5) body += brls::getStr("playguard/clock/confirm_apply_spread", (int)this->last.spread);
 
     ui::confirm(body, "playguard/clock/apply_confirm"_i18n, [this]() {
-        // A "before" report must be saved first, so the change can be analysed.
+        // A "before" report first, so the change can be analysed. When the SD
+        // card refuses it (full, read-only), ask rather than give up.
         std::string before = diagnostic::current_report();
         std::string err;
         if (diagnostic::save("=== Before network clock change ===\n" + before, &err).empty()) {
-            ui::notify("playguard/clock/report_err"_i18n + ": " + err);
+            ui::confirm(brls::getStr("playguard/clock/report_err_ask", err), "playguard/clock/apply_confirm"_i18n,
+                        [this, before]() { this->write_clock(before); });
             return;
         }
-        auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - this->last.at).count();
-        if (elapsed < 0 || elapsed > SAMPLE_LIFETIME_S) {
-            this->last = Measurement{};
-            ui::info("playguard/clock/expired"_i18n);
-            return;
-        }
-        const uint64_t target = this->last.unix_seconds + (uint64_t)elapsed;
-        TimeApply a;
-        time_clock_apply(target, &a);
-
-        std::string message;
-        if (a.refused_automatic) message = "playguard/clock/applied_refused"_i18n;
-        else if (!a.write_attempted) message = "playguard/clock/applied_err"_i18n + " — " + ui::rc_text(a.open_rc);
-        else if (R_FAILED(a.write_rc)) message = "playguard/clock/applied_err"_i18n + " — " + ui::rc_text(a.write_rc);
-        else if (!a.verified) message = "playguard/clock/applied_err"_i18n + " — " + ui::rc_text(a.verify_rc);
-        else if (R_FAILED(a.after.accuracy_rc) || !a.after.accuracy) message = "playguard/clock/applied_pending"_i18n;
-        else message = "playguard/clock/applied_ok"_i18n;
-
-        diagnostic::save(fmt::format(
-            "=== Network clock change ===\nserver={}\ntarget_utc={}\nopen_rc=0x{:08X} write_attempted={} write_rc=0x{:08X}\n"
-            "verify_attempted={} verify_rc=0x{:08X} verified={} readback={}\nrefused_automatic={}\n\n--- Before ---\n{}\n--- After ---\n{}",
-            this->last.server, target, (unsigned)a.open_rc, a.write_attempted, (unsigned)a.write_rc,
-            a.verify_attempted, (unsigned)a.verify_rc, a.verified, a.readback, a.refused_automatic,
-            before, diagnostic::current_report()));
-
-        this->last = Measurement{};
-        this->result->setText(message);
-        this->refresh();
-        ui::info(message);
+        this->write_clock(before);
     });
+}
+
+void ClockTab::write_clock(const std::string& before)
+{
+    auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - this->last.at).count();
+    if (elapsed < 0 || elapsed > SAMPLE_LIFETIME_S) {
+        this->last = Measurement{};
+        ui::info("playguard/clock/expired"_i18n);
+        return;
+    }
+    const uint64_t target = this->last.unix_seconds + (uint64_t)elapsed;
+    TimeApply a;
+    time_clock_apply(target, &a);
+
+    std::string message;
+    if (a.refused_automatic) message = "playguard/clock/applied_refused"_i18n;
+    else if (!a.write_attempted) message = "playguard/clock/applied_err"_i18n + " — " + ui::rc_text(a.open_rc);
+    else if (R_FAILED(a.write_rc)) message = "playguard/clock/applied_err"_i18n + " — " + ui::rc_text(a.write_rc);
+    else if (!a.verified) message = "playguard/clock/applied_err"_i18n + " — " + ui::rc_text(a.verify_rc);
+    else if (R_FAILED(a.after.accuracy_rc) || !a.after.accuracy) message = "playguard/clock/applied_pending"_i18n;
+    else message = "playguard/clock/applied_ok"_i18n;
+
+    diagnostic::save(fmt::format(
+        "=== Network clock change ===\nserver={}\ntarget_utc={}\nopen_rc=0x{:08X} write_attempted={} write_rc=0x{:08X}\n"
+        "verify_attempted={} verify_rc=0x{:08X} verified={} readback={}\nrefused_automatic={}\n\n--- Before ---\n{}\n--- After ---\n{}",
+        this->last.server, target, (unsigned)a.open_rc, a.write_attempted, (unsigned)a.write_rc,
+        a.verify_attempted, (unsigned)a.verify_rc, a.verified, a.readback, a.refused_automatic,
+        before, diagnostic::current_report()));
+
+    this->last = Measurement{};
+    this->result->setText(message);
+    this->refresh();
+    ui::info(message);
 }
 
 brls::View* ClockTab::create()
