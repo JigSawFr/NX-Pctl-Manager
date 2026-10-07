@@ -1,7 +1,7 @@
 // time_ops — read the system clocks and write the network clock (time:s).
 // All handles are acquired and released within each call.
 // Adapted from anbingxi/NX-Pctl-Manager (diag/fw22-5-readonly).
-// Copyright (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
+// Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 #include "nx_types.h"
 

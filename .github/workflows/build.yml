@@ -76,14 +76,14 @@ jobs:
             git submodule status
             cat toolchain.txt
           } > build-info.txt
-          sha256sum nx_pctl_manager.nro nx_pctl_manager.zip > SHA256SUMS.txt
-          unzip -l nx_pctl_manager.zip
+          sha256sum playguard.nro playguard.zip > SHA256SUMS.txt
+          unzip -l playguard.zip
       - uses: actions/upload-artifact@v4
         with:
-          name: nx_pctl_manager_${{ matrix.variant }}
+          name: playguard_${{ matrix.variant }}
           path: |
-            nx_pctl_manager.nro
-            nx_pctl_manager.zip
+            playguard.nro
+            playguard.zip
             build-info.txt
             SHA256SUMS.txt
 
@@ -104,12 +104,12 @@ jobs:
           test "v$v" = "${GITHUB_REF_NAME}" || { echo "tag ${GITHUB_REF_NAME} != CMake version $v"; exit 1; }
       - uses: actions/download-artifact@v4
         with:
-          name: nx_pctl_manager_release
+          name: playguard_release
           path: dist
       - name: Attach to the GitHub release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            dist/nx_pctl_manager.nro
-            dist/nx_pctl_manager.zip
+            dist/playguard.nro
+            dist/playguard.zip
             dist/SHA256SUMS.txt

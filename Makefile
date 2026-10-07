@@ -1,14 +1,14 @@
 # Thin shim over CMake — the real build is in CMakeLists.txt.
 #
-#   make              -> ./nx_pctl_manager.nro            (needs devkitPro, DEVKITPRO set)
-#   make dist         -> ./nx_pctl_manager.zip            (unzip onto the SD card root)
+#   make              -> ./playguard.nro            (needs devkitPro, DEVKITPRO set)
+#   make dist         -> ./playguard.zip            (unzip onto the SD card root)
 #   make PROBE=1      -> extra diagnostic shortcuts
-#   make READ_ONLY=1  -> "Pctl Diagnostics" build that cannot change anything
-#   make desktop      -> ./build-desktop/nx_pctl_manager  (UI with a simulated backend; needs GLFW)
+#   make READ_ONLY=1  -> "PlayGuard Diagnostics" build that cannot change anything
+#   make desktop      -> ./build-desktop/playguard  (UI with a simulated backend; needs GLFW)
 #   make test         -> host unit tests of the C service layer (plain gcc)
 #   make nxlink       -> push to a Switch running hbmenu (press Y there first)
 
-TARGET  := nx_pctl_manager
+TARGET  := playguard
 BUILD   := build
 DESKTOP := build-desktop
 CC      ?= gcc

@@ -1,6 +1,6 @@
 {
-    "title": "Pctl Manager",
-    "title_read_only": "Pctl Diagnostics",
+    "title": "PlayGuard",
+    "title_read_only": "PlayGuard Diagnostics",
     "tabs": {
         "dashboard": "Overview",
         "play_timer": "Play timer",
@@ -63,7 +63,7 @@
         "pctl_refused": "refused by the parental-control service"
     },
     "init_error": {
-        "title": "Pctl Manager",
+        "title": "PlayGuard",
         "headline": "Could not open the parental-control service.",
         "body": "This homebrew only works on a console running custom firmware (Atmosphère). A retail console cannot open the pctl service.",
         "firmware": "Firmware {} · Atmosphère {}"
@@ -326,7 +326,7 @@
         "license_value": "GPLv3 · UI: borealis (Apache 2.0)",
         "source": "Source code",
         "credits": "Credits",
-        "credits_value": "Taylor · anbingxi (NTP, fw 22.5 fixes)"
+        "credits_value": "JigSawFr · based on Pctl Manager by Taylor · anbingxi (NTP, fw 22.5 fixes)"
     },
     "toast": {
         "refreshed": "Refreshed.",

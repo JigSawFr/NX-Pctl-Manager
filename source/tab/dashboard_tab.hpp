@@ -1,5 +1,5 @@
 // DashboardTab — read-only overview, refreshed every 5 s while in focus.
-// Copyright (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
+// Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
 #include "tab/tab_base.hpp"

@@ -1,4 +1,4 @@
-// Copyright (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
+// Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #include "app.hpp"
 
 #include "util/pctl_ops_c.hpp"
@@ -35,7 +35,7 @@ void shutdown()
 bool        pctl_available()   { return s_ok; }
 uint32_t    pctl_init_result() { return s_init_result; }
 std::string version()          { return APP_VERSION; }
-const char* repo_url()         { return "https://github.com/JigSawFr/NX-Pctl-Manager"; }
+const char* repo_url()         { return "https://github.com/JigSawFr/PlayGuard"; }
 
 bool in_focus()
 {

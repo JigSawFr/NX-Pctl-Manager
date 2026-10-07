@@ -1,6 +1,6 @@
 // InitErrorActivity — root Activity when the pctl service cannot be opened
 // (typically: no CFW). One-shot screen; B exits the app.
-// Copyright (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
+// Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
 #include <borealis.hpp>

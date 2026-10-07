@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Headless UI smoke test of the desktop build (simulated backend).
 
-Starts build-desktop/nx_pctl_manager on an X display (Xvfb), opens every tab,
+Starts build-desktop/playguard on an X display (Xvfb), opens every tab,
 the per-day editor and a dropdown, and fails if the app dies on the way
 (borealis throws on unknown XML attributes, missing views, …). Screenshots of
 each screen are written to the output folder.
@@ -15,7 +15,7 @@ import sys
 import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-APP = os.path.join(ROOT, "build-desktop", "nx_pctl_manager")
+APP = os.path.join(ROOT, "build-desktop", "playguard")
 OUT = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else "smoke")
 os.makedirs(OUT, exist_ok=True)
 run_dir = os.path.join(OUT, "run")

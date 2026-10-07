@@ -5,7 +5,7 @@
 // PLATFORM_DESKTOP, used to exercise the UI without a console) we only need the
 // handful of typedefs the UI-facing headers mention; the simulated backend in
 // source/sim/ provides the implementations.
-// Copyright (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
+// Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
 #if defined(__SWITCH__) || defined(NX_HOST_TEST)

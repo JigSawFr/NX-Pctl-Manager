@@ -1,4 +1,4 @@
-# NX-Pctl-Manager
+# PlayGuard
 
 *[Read in English](README.md)*
 
@@ -17,7 +17,7 @@ Un gestionnaire du contrôle parental de la Nintendo Switch — **sans applicati
 | Lanceurs | hbmenu, **sphaira**, **Homebrew App Store** | Le lancement par-dessus un jeu (title override) est recommandé ; l'application indique si elle tourne en application ou en applet (album). |
 | Testé sur console | 22.1.0 / Atmosphère 1.11.1 | 23.0.1 / 1.12.0 est couvert par la table des commandes (switchbrew) mais pas encore testé sur console : vos retours sont bienvenus. |
 
-**Pourquoi la 4.0.0 corrige les plantages en 22.5.** `pctl:a`, le service privilégié du contrôle parental, n'accepte **qu'une seule session**. Les versions précédentes la gardaient ouverte en permanence : l'écran PIN du menu HOME (ou l'applet PIN) ne pouvait pas l'obtenir et Atmosphère pouvait planter. Depuis la 4.0.0, chaque action ouvre la session, fait son travail et la libère aussitôt ; les rafraîchissements périodiques s'arrêtent quand l'application est en arrière-plan. *(Diagnostic du [fork d'anbingxi](https://github.com/anbingxi/NX-Pctl-Manager/tree/diag/fw22-5-readonly).)*
+**Pourquoi plus de plantage en 22.5.** `pctl:a`, le service privilégié du contrôle parental, n'accepte **qu'une seule session**. Les anciennes versions de l'application d'origine la gardaient ouverte en permanence : l'écran PIN du menu HOME (ou l'applet PIN) ne pouvait pas l'obtenir et Atmosphère pouvait planter. Dans PlayGuard, chaque action ouvre la session, fait son travail et la libère aussitôt ; les rafraîchissements périodiques s'arrêtent quand l'application est en arrière-plan. *(Diagnostic du [fork d'anbingxi](https://github.com/anbingxi/NX-Pctl-Manager/tree/diag/fw22-5-readonly).)*
 
 ## Fonctions
 
@@ -43,11 +43,9 @@ Si le minuteur est en cours, écraser sa configuration déstabilise Atmosphère.
 
 Au choix :
 
-- **Homebrew App Store** ou **App Store de sphaira** (même catalogue) : cherchez *Pctl Manager* une fois la fiche validée. Les nouvelles versions GitHub sont reprises automatiquement.
-- **Menu GitHub de sphaira** : le zip de la version contient déjà l'entrée (`/config/sphaira/github/nx_pctl_manager.json`) ; après une première installation, la mise à jour se fait depuis *GitHub* dans sphaira.
-- **Manuellement** : téléchargez `nx_pctl_manager.zip` dans les [Releases](../../releases/latest) et extrayez-le à la **racine** de la carte SD. L'application arrive dans `sd:/switch/nx_pctl_manager/`.
-
-> Mise à jour depuis la 3.x ? Supprimez l'ancien `sd:/switch/nx_pctl_manager.nro`, sinon hbmenu affiche l'application deux fois.
+- **Homebrew App Store** ou **App Store de sphaira** (même catalogue) : cherchez *PlayGuard* une fois la fiche validée. Les nouvelles versions GitHub sont reprises automatiquement.
+- **Menu GitHub de sphaira** : le zip de la version contient déjà l'entrée (`/config/sphaira/github/playguard.json`) ; après une première installation, la mise à jour se fait depuis *GitHub* dans sphaira.
+- **Manuellement** : téléchargez `playguard.zip` dans les [Releases](../../releases/latest) et extrayez-le à la **racine** de la carte SD. L'application arrive dans `sd:/switch/playguard/`.
 
 ### Premiers pas
 
@@ -60,10 +58,10 @@ Commandes : ↑/↓ déplacer, Ⓐ valider, Ⓑ retour (sur la barre latérale :
 
 ## Signaler un bug
 
-*Outils et à propos* › *Exporter un rapport de diagnostic* enregistre un fichier texte dans `sd:/switch/nx_pctl_manager/logs/` (firmware, version d'Atmosphère, horloges, résultat brut de chaque requête). **Il ne contient jamais le code PIN.** Joignez-le au ticket.
+*Outils et à propos* › *Exporter un rapport de diagnostic* enregistre un fichier texte dans `sd:/switch/playguard/logs/` (firmware, version d'Atmosphère, horloges, résultat brut de chaque requête). **Il ne contient jamais le code PIN.** Joignez-le au ticket.
 
 La compilation et l'architecture sont décrites dans le [README anglais](README.md#build-from-source).
 
 ## Licence
 
-GPLv3 (voir [`LICENSE`](LICENSE)). Interface : [borealis](https://github.com/xfangfang/borealis) (Apache 2.0). Diagnostic fw 22.5, libération de session et synchronisation NTP adaptés du [fork d'anbingxi](https://github.com/anbingxi/NX-Pctl-Manager/tree/diag/fw22-5-readonly).
+GPLv3 (voir [`LICENSE`](LICENSE)). PlayGuard est maintenu par **[JigSawFr](https://github.com/JigSawFr)**. C'est un fork de **Pctl Manager** de **Taylor** ([tailiang2008](https://github.com/tailiang2008)) : couche de service pctl, garde-fou d'écriture du minuteur et interface borealis d'origine. Interface : [borealis](https://github.com/xfangfang/borealis) (Apache 2.0). Diagnostic fw 22.5, libération de session et synchronisation NTP adaptés du [fork d'anbingxi](https://github.com/anbingxi/NX-Pctl-Manager/tree/diag/fw22-5-readonly).

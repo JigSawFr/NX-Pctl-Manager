@@ -1,4 +1,4 @@
-// Copyright (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
+// Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #include "activity/main_activity.hpp"
 
 #include "app.hpp"

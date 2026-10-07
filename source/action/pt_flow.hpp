@@ -3,7 +3,7 @@
 // Atmosphère, so: ask the user → UnlockRestrictionTemporarily (1201) →
 // verify IsRestrictionTemporaryUnlocked (1006) → let the caller write. The
 // service layer re-checks the same state right before the write.
-// Copyright (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
+// Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
 #include <functional>

@@ -9,21 +9,22 @@ include(${BOREALIS_LIBRARY}/cmake/commonOption.cmake)
 # Sets up the devkitPro cross-toolchain when PLATFORM_SWITCH=ON.
 include(${BOREALIS_LIBRARY}/cmake/toolchain.cmake)
 
-project(nx_pctl_manager LANGUAGES CXX C)
+project(playguard LANGUAGES CXX C)
 
 # App metadata. The NACP version must match the release tag (CI checks it).
-set(VERSION_MAJOR "4")
-set(VERSION_MINOR "0")
-set(VERSION_ALTER "0")
+# release-please bumps these three lines (see release-please-config.json).
+set(VERSION_MAJOR "1") # x-release-please-major
+set(VERSION_MINOR "0") # x-release-please-minor
+set(VERSION_ALTER "0") # x-release-please-patch
 set(APP_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_ALTER}")
 set(PROJECT_TITLEID "")
-set(PROJECT_AUTHOR "Taylor")
+set(PROJECT_AUTHOR "JigSawFr")
 set(PROJECT_ICON ${CMAKE_CURRENT_SOURCE_DIR}/icon.jpg)
 set(PROJECT_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 
 # PROBE=1: extra diagnostic shortcuts in the Play timer tab.
 option(PCTL_PROBE "Include the diagnostic shortcuts" OFF)
-# READ_ONLY=1: "Pctl Diagnostics" build that cannot change anything.
+# READ_ONLY=1: "PlayGuard Diagnostics" build that cannot change anything.
 option(PCTL_READ_ONLY "Disable all parental-control and clock changes" OFF)
 
 set(CMAKE_C_STANDARD 11)
@@ -64,9 +65,9 @@ if (PCTL_PROBE)
 endif ()
 if (PCTL_READ_ONLY)
     target_compile_definitions(${PROJECT_NAME} PRIVATE PCTL_READ_ONLY=1)
-    set(PCTL_APP_TITLE "Pctl Diagnostics")
+    set(PCTL_APP_TITLE "PlayGuard Diagnostics")
 else ()
-    set(PCTL_APP_TITLE "Pctl Manager")
+    set(PCTL_APP_TITLE "PlayGuard")
 endif ()
 
 # Resources: borealis built-ins first, then ours on top. On the Switch the

@@ -1,5 +1,5 @@
 // app — process-wide state: build flags, version, the pctl availability probe.
-// Copyright (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
+// Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
 #include <cstdint>
@@ -16,7 +16,7 @@ void shutdown();
 bool        pctl_available();
 uint32_t    pctl_init_result();   // 0 if the probe succeeded
 
-std::string version();            // "4.0.0"
+std::string version();            // "1.0.0"
 bool        probe_build();        // built with PROBE=1
 bool        read_only_build();    // built with READ_ONLY=1
 const char* repo_url();

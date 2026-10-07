@@ -1,7 +1,7 @@
 // PtStateHeader — the play-timer state block (enabled, limit reached,
 // temporary unlock, remaining today, configured limit) shown at the top of the
 // Play timer tab and the per-day editor.
-// Copyright (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
+// Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
 #include <borealis.hpp>

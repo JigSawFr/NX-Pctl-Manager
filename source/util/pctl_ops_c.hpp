@@ -1,6 +1,6 @@
 // extern "C" bridge so the C service layer (source/core/) is callable from the
 // C++ UI code. Include this anywhere you'd want the core headers.
-// Copyright (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
+// Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
 extern "C" {
