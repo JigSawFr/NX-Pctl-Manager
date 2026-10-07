@@ -1,5 +1,7 @@
 # PlayGuard
 
+![PlayGuard](images/store/banner.png)
+
 *[Read in English](README.md)*
 
 Un gestionnaire du contrôle parental de la Nintendo Switch — **sans application mobile, sans compte Nintendo, sans Internet**. Réglez la limite quotidienne de temps de jeu directement sur la console, modifiez les restrictions, réglez l'horloge réseau, et réinitialisez / supprimez le code PIN ou dissociez l'application mobile.

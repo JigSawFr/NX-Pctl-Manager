@@ -1,5 +1,7 @@
 # PlayGuard
 
+![PlayGuard](images/store/banner.png)
+
 [![build](https://github.com/JigSawFr/PlayGuard/actions/workflows/build.yml/badge.svg)](https://github.com/JigSawFr/PlayGuard/actions/workflows/build.yml)
 [![license: GPLv3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE)
 [![latest release](https://img.shields.io/github/v/release/JigSawFr/PlayGuard)](https://github.com/JigSawFr/PlayGuard/releases/latest)
@@ -84,6 +86,8 @@ make READ_ONLY=1 # "PlayGuard Diagnostics" build
 ```
 
 The desktop build runs the real borealis UI against `source/sim/` (environment knobs: `NXPM_SIM_FW=20.5.0`, `NXPM_SIM_NO_CFW=1`, `NXPM_SIM_TIMER_OFF=1`). `tools/desktop_smoke.py` clicks through every screen headlessly; CI runs it with the unit tests, the resource checks (`tools/check_resources.py`) and the three Switch builds.
+
+Branding: `branding/*.svg` (sources), rendered to `icon.jpg` and `images/store/*.png` by `node tools/render_branding.mjs` (Node + Playwright).
 
 Layout: `source/core/` (C, libnx: `pctl_ops`, `time_ops`, `sysinfo`), `source/tab/` (one class per tab), `source/ui/` (dialogs, formatting), `source/util/` (NTP, config, profiles, diagnostics), `resources/` (XML layouts, `i18n/en-US`, `i18n/fr`).
 
