@@ -1,5 +1,5 @@
 // SecurityTab — PIN, temporary unlock / relock, delete everything.
-// Copyright (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
+// Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
 #include "tab/tab_base.hpp"

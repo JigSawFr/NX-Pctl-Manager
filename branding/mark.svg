@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <!-- PlayGuard mark: a play button inside the daily play-time ring. -->
+  <circle cx="128" cy="128" r="78" fill="#0B1424"/>
+  <circle cx="128" cy="128" r="62" fill="none" stroke="#1F3355" stroke-width="16"/>
+  <circle cx="128" cy="128" r="62" fill="none" stroke="#2EC4A6" stroke-width="16" stroke-linecap="round" stroke-dasharray="292 390" transform="rotate(-90 128 128)"/>
+  <path d="M112 100 L160 128 L112 156 Z" fill="#E8EEF7" stroke="#E8EEF7" stroke-width="8" stroke-linejoin="round"/>
+</svg>

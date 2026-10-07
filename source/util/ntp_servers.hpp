@@ -1,5 +1,5 @@
 // ntp_servers — the built-in list of public NTP servers, grouped by region.
-// Copyright (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
+// Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
 #include <string>

@@ -2,7 +2,7 @@
 // into `pending[]` ("Enter minutes…" or "No limit"); presets fill several days
 // at once; "Save" writes the seven values through the play-timer gate.
 // B leaves, asking first when there are unsaved edits.
-// Copyright (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
+// Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
 #include <borealis.hpp>

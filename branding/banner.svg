@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="848" height="208" viewBox="0 0 848 208">
+  <!-- Homebrew App Store banner (848x208). -->
+  <rect width="848" height="208" fill="#0B1424"/>
+  <rect width="208" height="208" fill="#FFB547"/>
+  <g transform="translate(14 14) scale(0.703)">
+    <circle cx="128" cy="128" r="78" fill="#0B1424"/>
+    <circle cx="128" cy="128" r="62" fill="none" stroke="#1F3355" stroke-width="16"/>
+    <circle cx="128" cy="128" r="62" fill="none" stroke="#2EC4A6" stroke-width="16" stroke-linecap="round" stroke-dasharray="292 390" transform="rotate(-90 128 128)"/>
+    <path d="M112 100 L160 128 L112 156 Z" fill="#E8EEF7" stroke="#E8EEF7" stroke-width="8" stroke-linejoin="round"/>
+  </g>
+  <text x="248" y="110" font-family="Sora" font-weight="700" font-size="64" letter-spacing="-1.5" fill="#E8EEF7">Play<tspan fill="#2EC4A6">Guard</tspan></text>
+  <text x="250" y="146" font-family="Sora" font-weight="400" font-size="20" fill="#A9B6CC">Offline parental controls · play-time limits on the console</text>
+</svg>

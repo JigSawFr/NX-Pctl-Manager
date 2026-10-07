@@ -1,5 +1,5 @@
 // paths — where the app keeps its files, plus small filesystem helpers.
-// Copyright (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
+// Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
 #include <string>
@@ -8,7 +8,7 @@
 namespace paths
 {
 
-// sd:/switch/nx_pctl_manager on the console; ./nx_pctl_manager_data on desktop.
+// sd:/switch/playguard on the console; ./playguard_data on desktop.
 std::string data_dir();
 std::string logs_dir();
 std::string profiles_dir();

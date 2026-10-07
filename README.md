@@ -1,8 +1,10 @@
-# NX-Pctl-Manager
+# PlayGuard
 
-[![build](https://github.com/JigSawFr/NX-Pctl-Manager/actions/workflows/build.yml/badge.svg)](https://github.com/JigSawFr/NX-Pctl-Manager/actions/workflows/build.yml)
+![PlayGuard](images/store/banner.png)
+
+[![build](https://github.com/JigSawFr/PlayGuard/actions/workflows/build.yml/badge.svg)](https://github.com/JigSawFr/PlayGuard/actions/workflows/build.yml)
 [![license: GPLv3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE)
-[![latest release](https://img.shields.io/github/v/release/JigSawFr/NX-Pctl-Manager)](https://github.com/JigSawFr/NX-Pctl-Manager/releases/latest)
+[![latest release](https://img.shields.io/github/v/release/JigSawFr/PlayGuard)](https://github.com/JigSawFr/PlayGuard/releases/latest)
 
 *[Lire en français](README.fr.md)*
 
@@ -21,7 +23,7 @@ A Nintendo Switch parental-controls manager — **no phone app, no Nintendo acco
 | Launchers | hbmenu, **sphaira**, **Homebrew App Store** | Launching over a game (title override) is recommended; the app shows whether it runs as an application or as an applet (album). |
 | Hardware-tested | 22.1.0 / Atmosphère 1.11.1 | 23.0.1 / 1.12.0 is supported by the command table (switchbrew) but not yet tested on hardware: reports are welcome. |
 
-**Why 4.0.0 fixes the 22.5 crashes.** `pctl:a`, the privileged parental-control service, accepts a **single session**. Earlier versions kept it open the whole time, so the HOME-menu PIN prompt (or the PIN applet) could not get it and Atmosphère could crash. Since 4.0.0 every action opens the session, does its work and releases it immediately; periodic refreshes pause while the app is in the background. *(Diagnosis by [anbingxi's fork](https://github.com/anbingxi/NX-Pctl-Manager/tree/diag/fw22-5-readonly).)*
+**Why there are no 22.5 crashes.** `pctl:a`, the privileged parental-control service, accepts a **single session**. Older builds of the original app kept it open the whole time, so the HOME-menu PIN prompt (or the PIN applet) could not get it and Atmosphère could crash. PlayGuard opens the session for each action, does its work and releases it immediately; periodic refreshes pause while the app is in the background. *(Diagnosis by [anbingxi's fork](https://github.com/anbingxi/NX-Pctl-Manager/tree/diag/fw22-5-readonly).)*
 
 ## Features
 
@@ -50,13 +52,11 @@ If the timer is counting down, overwriting its configuration destabilises Atmosp
 
 Pick one:
 
-- **Homebrew App Store** or **sphaira's App Store** (same catalogue): search for *Pctl Manager* once the listing is approved. New GitHub releases are picked up automatically.
-- **sphaira's GitHub menu**: the release zip already contains the entry (`/config/sphaira/github/nx_pctl_manager.json`), so after a first install you can update from *GitHub* in sphaira.
-- **Manually**: download `nx_pctl_manager.zip` from the [Releases](../../releases/latest) and extract it to the **root** of the SD card. The app lands in `sd:/switch/nx_pctl_manager/`.
+- **Homebrew App Store** or **sphaira's App Store** (same catalogue): search for *PlayGuard* once the listing is approved. New GitHub releases are picked up automatically.
+- **sphaira's GitHub menu**: the release zip already contains the entry (`/config/sphaira/github/playguard.json`), so after a first install you can update from *GitHub* in sphaira.
+- **Manually**: download `playguard.zip` from the [Releases](../../releases/latest) and extract it to the **root** of the SD card. The app lands in `sd:/switch/playguard/`.
 
-> Upgrading from 3.x? Delete the old `sd:/switch/nx_pctl_manager.nro`, otherwise hbmenu shows the app twice.
-
-Files the app writes: `sd:/switch/nx_pctl_manager/config.json` (preferences), `profiles/` (saved limits), `logs/` (diagnostics). More in [packaging/README.md](packaging/README.md).
+Files the app writes: `sd:/switch/playguard/config.json` (preferences), `profiles/` (saved limits), `logs/` (diagnostics). More in [packaging/README.md](packaging/README.md).
 
 ### First steps
 
@@ -69,32 +69,35 @@ Controls: ↑/↓ move, Ⓐ confirm, Ⓑ back (on the sidebar: exit), Ⓧ refres
 
 ## Bug reports
 
-*Tools & about* › *Export a diagnostic report* saves a text file in `sd:/switch/nx_pctl_manager/logs/` with the firmware, Atmosphère version, clocks and the raw result of every parental-control query. **It never contains the PIN.** Attach it to the issue.
+*Tools & about* › *Export a diagnostic report* saves a text file in `sd:/switch/playguard/logs/` with the firmware, Atmosphère version, clocks and the raw result of every parental-control query. **It never contains the PIN.** Attach it to the issue.
 
-A **read-only "Pctl Diagnostics" build** (`READ_ONLY=1`) cannot change anything; it is useful to investigate a new firmware safely.
+A **read-only "PlayGuard Diagnostics" build** (`READ_ONLY=1`) cannot change anything; it is useful to investigate a new firmware safely.
 
 ## Build from source
 
 ```sh
 make test        # unit tests of the C service layer (any gcc, no devkitPro)
 make desktop     # the UI on Linux with a simulated console (needs GLFW / X11 / D-Bus dev packages)
-make             # ./nx_pctl_manager.nro      (devkitPro switch-dev, DEVKITPRO set)
-make dist        # ./nx_pctl_manager.zip      (SD-card layout)
+make             # ./playguard.nro      (devkitPro switch-dev, DEVKITPRO set)
+make dist        # ./playguard.zip      (SD-card layout)
 make PROBE=1     # + diagnostic shortcuts in the Play timer tab
-make READ_ONLY=1 # "Pctl Diagnostics" build
+make READ_ONLY=1 # "PlayGuard Diagnostics" build
 ./run.sh [ip]    # build in the devkitpro/devkita64 Docker image, optionally nxlink to a console
 ```
 
 The desktop build runs the real borealis UI against `source/sim/` (environment knobs: `NXPM_SIM_FW=20.5.0`, `NXPM_SIM_NO_CFW=1`, `NXPM_SIM_TIMER_OFF=1`). `tools/desktop_smoke.py` clicks through every screen headlessly; CI runs it with the unit tests, the resource checks (`tools/check_resources.py`) and the three Switch builds.
 
+Branding: `branding/*.svg` (sources), rendered to `icon.jpg` and `images/store/*.png` by `node tools/render_branding.mjs` (Node + Playwright).
+
 Layout: `source/core/` (C, libnx: `pctl_ops`, `time_ops`, `sysinfo`), `source/tab/` (one class per tab), `source/ui/` (dialogs, formatting), `source/util/` (NTP, config, profiles, diagnostics), `resources/` (XML layouts, `i18n/en-US`, `i18n/fr`).
 
 ## License
 
-GPLv3 (see [`LICENSE`](LICENSE)).
+GPLv3 (see [`LICENSE`](LICENSE)). PlayGuard is maintained by **[JigSawFr](https://github.com/JigSawFr)**.
 
-### Third-party and credits
+### Based on and credits
 
+- PlayGuard is a fork of **Pctl Manager** by **Taylor** ([tailiang2008](https://github.com/tailiang2008)) (v2–v3): the original pctl service layer, play-timer write gate and borealis UI.
 - UI: **[borealis](https://github.com/xfangfang/borealis)** (Apache 2.0), pinned at `extern/borealis/`.
 - fw 22.5 diagnosis, session release and NTP synchronisation adapted from **[anbingxi/NX-Pctl-Manager](https://github.com/anbingxi/NX-Pctl-Manager/tree/diag/fw22-5-readonly)**.
 - Command reference: [switchbrew — Parental Control services](https://switchbrew.org/wiki/Parental_Control_services).

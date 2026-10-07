@@ -1,5 +1,5 @@
-// config — small persistent settings in sd:/switch/nx_pctl_manager/config.json.
-// Copyright (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
+// config — small persistent settings in sd:/switch/playguard/config.json.
+// Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
 #include <string>

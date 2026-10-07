@@ -70,6 +70,7 @@ HB_APPSTORE_SUBMISSION.md
 .DS_Store
 nx_pctl_probe.txt
 /build-desktop
-/nx_pctl_manager_data
+/playguard_data
 /smoke
 toolchain.txt
+/node_modules

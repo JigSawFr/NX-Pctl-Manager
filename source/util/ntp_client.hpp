@@ -1,5 +1,5 @@
 // NTP client — adapted from anbingxi/NX-Pctl-Manager (diag/fw22-5-readonly).
-// Copyright (C) 2026 Taylor. GPLv3-or-later (see LICENSE).
+// Copyright (C) 2026 JigSawFr, (C) 2026 Taylor. GPLv3-or-later (see LICENSE).
 #pragma once
 #include <cstdint>
 #include <chrono>

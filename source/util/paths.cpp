@@ -1,4 +1,4 @@
-// Copyright (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
+// Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #include "util/paths.hpp"
 
 #include <algorithm>
@@ -16,9 +16,9 @@ namespace paths
 std::string data_dir()
 {
 #ifdef __SWITCH__
-    return "/switch/nx_pctl_manager";
+    return "/switch/playguard";
 #else
-    return "./nx_pctl_manager_data";
+    return "./playguard_data";
 #endif
 }
 

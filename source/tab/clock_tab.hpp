@@ -1,7 +1,7 @@
 // ClockTab — shows the system clocks and sets the network clock from a public
 // NTP server (the play timer relies on the network clock).
 // NTP sampling and the time:s write are adapted from anbingxi's fork.
-// Copyright (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
+// Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
 #include <chrono>

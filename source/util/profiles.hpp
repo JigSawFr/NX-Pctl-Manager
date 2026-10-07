@@ -1,6 +1,6 @@
 // profiles — named sets of per-day limits saved on the SD card
-// (sd:/switch/nx_pctl_manager/profiles/<name>.json), e.g. "School week".
-// Copyright (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
+// (sd:/switch/playguard/profiles/<name>.json), e.g. "School week".
+// Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
 #include <array>

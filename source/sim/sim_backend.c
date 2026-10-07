@@ -6,7 +6,7 @@
 //   NXPM_SIM_FW=20.5.0     pretend to run on another firmware
 //   NXPM_SIM_NO_CFW=1      make pctl_ops_init fail (init error screen)
 //   NXPM_SIM_TIMER_OFF=1   start with no play timer configured
-// Copyright (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
+// Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
 #include <stdlib.h>

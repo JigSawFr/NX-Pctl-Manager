@@ -1,4 +1,4 @@
-// Copyright (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
+// Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #include "util/diagnostics.hpp"
 
 #include <ctime>
@@ -20,7 +20,7 @@ std::string current_report()
     sysinfo_version_string(si.hos_version, fw, sizeof(fw));
 
     std::string out = fmt::format(
-        "=== NX Pctl Manager diagnostic ===\n"
+        "=== PlayGuard diagnostic ===\n"
         "app version : {}\n"
         "build flags : PROBE={} READ_ONLY={} platform={}\n"
         "firmware    : {}\n"

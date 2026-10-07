@@ -1,0 +1,10 @@
+{
+    "name": "PlayGuard",
+    "url": "https://github.com/JigSawFr/PlayGuard",
+    "assets": [
+        {
+            "name": "playguard.nro",
+            "path": "/switch/playguard/playguard.nro"
+        }
+    ]
+}

@@ -1,0 +1,34 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bootstrap-sha": "b65406f8aa8397cbc6634a4a9704c31b2d0e6450",
+  "include-v-in-tag": true,
+  "include-component-in-tag": false,
+  "changelog-sections": [
+    { "type": "feat", "section": "🚀 Features" },
+    { "type": "change", "section": "🚀 Features" },
+    { "type": "deprecate", "section": "⚠️ Changes" },
+    { "type": "remove", "section": "⚠️ Changes" },
+    { "type": "fix", "section": "🐞 Bug Fixes" },
+    { "type": "revert", "section": "🐞 Bug Fixes" },
+    { "type": "security", "section": "🐞 Bug Fixes" },
+    { "type": "perf", "section": "✨ Polish" },
+    { "type": "refactor", "section": "✨ Polish" },
+    { "type": "style", "section": "✨ Polish" },
+    { "type": "build", "section": "🧰 Other" },
+    { "type": "chore", "section": "🧰 Other" },
+    { "type": "deps", "section": "🧰 Other", "hidden": true },
+    { "type": "ci", "section": "🧰 Other", "hidden": true },
+    { "type": "test", "section": "🧪 Tests" },
+    { "type": "docs", "section": "📚 Documentation" }
+  ],
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "package-name": "playguard",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        { "type": "generic", "path": "CMakeLists.txt" }
+      ]
+    }
+  }
+}

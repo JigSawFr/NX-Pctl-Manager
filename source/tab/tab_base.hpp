@@ -1,6 +1,6 @@
 // TabBase — common shape of every sidebar tab: inflate the XML, re-read the
 // state each time the tab (re)appears, X refreshes on demand.
-// Copyright (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
+// Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
 #include <borealis.hpp>

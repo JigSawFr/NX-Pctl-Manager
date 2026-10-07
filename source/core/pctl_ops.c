@@ -1,5 +1,5 @@
-// NX-Pctl-Manager — pctl service layer (see pctl_ops.h).
-// Copyright (C) 2026 Taylor.  This program is free software under the GNU
+// PlayGuard — pctl service layer (see pctl_ops.h).
+// Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  This program is free software under the GNU
 // General Public License v3 or later; it comes with NO WARRANTY. See the
 // LICENSE file or <https://www.gnu.org/licenses/gpl-3.0.html> for details.
 #include "pctl_ops.h"

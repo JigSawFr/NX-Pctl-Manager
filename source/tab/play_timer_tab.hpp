@@ -1,6 +1,6 @@
 // PlayTimerTab — daily limit (same for every day / per day / remove), saved
 // profiles, read-only bedtime info and the advanced (debug-class) actions.
-// Copyright (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
+// Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
 #include "tab/tab_base.hpp"
