@@ -27,17 +27,17 @@ L'application est organisée en onglets, comme les paramètres de la console.
 
 | Onglet | Ce que vous pouvez faire |
 |---|---|
-| **Vue d'ensemble** | État du contrôle parental, code PIN, niveau de restriction, jauge du temps de jeu du jour, alarme du coucher, précision de l'horloge réseau, association de l'application mobile, firmware / Atmosphère / compatibilité. Actualisation toutes les 5 s (X pour actualiser tout de suite). |
-| **Temps de jeu** | Même limite tous les jours (liste rapide ou valeur libre), limite différente par jour (préréglages lundi–vendredi / week-end, « pas de limite » par jour), suppression de la limite, **profils** enregistrés sur la carte SD (ex. *Semaine d'école*, *Vacances*), alarme du coucher (lecture seule). Avancé, sur activation : alarme « temps écoulé », pause / reprise du décompte. |
+| **Vue d'ensemble** | D'abord la journée (jauge du temps de jeu, limite du jour, temps restant, alarme du coucher), puis l'état du contrôle parental, le code PIN et le niveau de restriction, puis ce qui demande attention : précision de l'horloge réseau, association de l'application mobile (en orange tant qu'elle est associée), firmware / compatibilité seulement en cas de problème. Ⓐ sur une ligne ouvre l'onglet correspondant ; Ⓐ sur *Limite d'aujourd'hui* la modifie directement. Un bandeau avec **Verrouiller maintenant** apparaît tant que le contrôle parental est déverrouillé temporairement. Actualisation toutes les 5 s (Ⓧ pour actualiser tout de suite). |
+| **Temps de jeu** | Même limite tous les jours (liste rapide ou valeur libre), limite différente par jour (valeurs rapides, préréglages lundi–vendredi / week-end, « pas de limite » par jour, nombre de modifications non enregistrées), suppression de la limite, **profils** enregistrés sur la carte SD (ex. *Semaine d'école*, *Vacances*), alarme du coucher (lecture seule). Avancé, sur activation : alarme « temps écoulé », pause / reprise du décompte. |
 | **Restrictions** | Niveau de restriction (Aucun, Jeune enfant, Enfant, Adolescent, Personnalisé) ; en Personnalisé : classification par âge, publications sur les réseaux sociaux, communication avec d'autres joueurs ; mode VR ; organisme de classification. |
 | **Horloge réseau** | Horloges console / réseau, fuseau horaire, précision. Choix d'un serveur NTP public (≈ 50 intégrés, par région, ou le vôtre), **mesure** sur 3 serveurs (médiane, alerte en cas de désaccord) et **réglage de l'horloge réseau**. Le minuteur s'appuie sur cette horloge ; une console qui n'atteint jamais les serveurs de Nintendo la garde imprécise. |
 | **Application mobile** | Association de l'application Contrôle parental Nintendo Switch, dernière synchronisation, dissociation (sinon sa prochaine synchronisation écrase les limites réglées ici). |
-| **Code PIN et sécurité** | Définir / changer le code PIN (écran système), déverrouiller temporairement, **verrouiller de nouveau maintenant**, supprimer tout le contrôle parental (double confirmation, irréversible). |
-| **Outils et à propos** | Export d'un rapport de diagnostic, langue (console / English / Français), thème (console / clair / sombre), actions avancées, versions. |
+| **Code PIN et sécurité** | Définir / changer le code PIN (écran système), déverrouiller temporairement, **verrouiller maintenant**, supprimer tout le contrôle parental (deux confirmations aux boutons rouges différents, irréversible). |
+| **Outils et à propos** | Export d'un rapport de diagnostic, langue et thème (avec proposition de relancer), **reverrouillage automatique après une modification** (activé par défaut), actions avancées, versions. |
 
 ### Écriture sûre de la limite
 
-Si le minuteur est en cours, écraser sa configuration déstabilise Atmosphère. Avant toute écriture, l'application vérifie donc l'état ; si le minuteur est actif, elle demande confirmation, déverrouille temporairement le contrôle parental (avec le code PIN enregistré — **inutile de vous en souvenir**), vérifie que le système confirme bien le déverrouillage, écrit, puis propose de **reverrouiller aussitôt**. La couche service revérifie le même état juste avant d'écrire : aucun écran ne peut contourner cette protection.
+Si le minuteur est en cours, écraser sa configuration déstabilise Atmosphère. Avant toute écriture, l'application vérifie donc l'état ; si le minuteur est actif, le dialogue de confirmation indique aussi que le contrôle parental sera d'abord déverrouillé temporairement (avec le code PIN enregistré — **inutile de vous en souvenir**). Un seul appui déverrouille, vérifie que le système confirme bien le déverrouillage, écrit, puis **reverrouille aussitôt** (ou le propose, si *Reverrouiller automatiquement après une modification* est désactivé). La couche service revérifie le même état juste avant d'écrire : aucun écran ne peut contourner cette protection.
 
 `0` minute signifie *pas de jeu ce jour-là* ; *Supprimer la limite de temps de jeu* désactive le minuteur. ⚠️ Ne fixez pas une limite inférieure au temps déjà joué aujourd'hui : dès que le contrôle parental est reverrouillé, le jeu est suspendu.
 
@@ -56,7 +56,7 @@ Au choix :
 3. *Temps de jeu* › *Même limite tous les jours* (ou *Limite différente selon le jour…*).
 4. Si l'horloge réseau n'est pas précise (Vue d'ensemble) : *Horloge réseau* › *Mesurer l'écart* puis *Régler l'horloge réseau* (activez d'abord *Synchroniser l'horloge via Internet* dans les paramètres).
 
-Commandes : ↑/↓ déplacer, Ⓐ valider, Ⓑ retour (sur la barre latérale : quitter), Ⓧ actualiser.
+Commandes : ↑/↓ déplacer, Ⓐ valider, Ⓑ retour (sur la barre latérale : Ⓑ deux fois pour quitter), Ⓧ actualiser.
 
 ## Signaler un bug
 
