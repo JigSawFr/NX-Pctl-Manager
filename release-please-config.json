@@ -25,7 +25,6 @@
     ".": {
       "release-type": "simple",
       "package-name": "playguard",
-      "release-as": "1.0.0",
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
         { "type": "generic", "path": "CMakeLists.txt" }
