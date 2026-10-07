@@ -33,7 +33,7 @@ L'application est organisée en onglets, comme les paramètres de la console.
 | **Horloge réseau** | Horloges console / réseau, fuseau horaire, précision. Choix d'un serveur NTP public (≈ 50 intégrés, par région, ou le vôtre), **mesure** sur 3 serveurs (médiane, alerte en cas de désaccord) et **réglage de l'horloge réseau**. Le minuteur s'appuie sur cette horloge ; une console qui n'atteint jamais les serveurs de Nintendo la garde imprécise. |
 | **Application mobile** | Association de l'application Contrôle parental Nintendo Switch, dernière synchronisation, dissociation (sinon sa prochaine synchronisation écrase les limites réglées ici). |
 | **Code PIN et sécurité** | Définir / changer le code PIN (écran système), déverrouiller temporairement, **verrouiller maintenant**, supprimer tout le contrôle parental (deux confirmations aux boutons rouges différents, irréversible). |
-| **Outils et à propos** | Export d'un rapport de diagnostic, langue et thème (avec proposition de relancer), **reverrouillage automatique après une modification** (activé par défaut), actions avancées, versions. |
+| **Outils et à propos** | Export d'un rapport de diagnostic, langue et thème (avec proposition de relancer), **reverrouillage automatique après une modification** (activé par défaut), actions avancées. *Console* : firmware, Atmosphère, compatibilité, **stockage** (emuMMC ou sysMMC), **masquage du numéro de série** par Atmosphère (avec le numéro vu par le système, en partie caché jusqu'à Ⓐ ; avertissement en emuMMC s'il n'est pas masqué), **patchs de jeux** (sys-patch ou fichiers sigpatches, avec un avertissement recommandant sys-patch quand seuls des fichiers sont utilisés). La Vue d'ensemble reprend ces deux avertissements. |
 
 ### Écriture sûre de la limite
 
@@ -60,7 +60,7 @@ Commandes : ↑/↓ déplacer, Ⓐ valider, Ⓑ retour (sur la barre latérale :
 
 ## Signaler un bug
 
-*Outils et à propos* › *Exporter un rapport de diagnostic* enregistre un fichier texte dans `sd:/switch/playguard/logs/` (firmware, version d'Atmosphère, horloges, résultat brut de chaque requête). **Il ne contient jamais le code PIN.** Joignez-le au ticket.
+*Outils et à propos* › *Exporter un rapport de diagnostic* enregistre un fichier texte dans `sd:/switch/playguard/logs/` (firmware, version d'Atmosphère, horloges, résultat brut de chaque requête). Il indique aussi le stockage, le masquage du numéro de série et l'état des patchs de jeux. **Il ne contient jamais le code PIN ni le numéro de série.** Joignez-le au ticket.
 
 La compilation et l'architecture sont décrites dans le [README anglais](README.md#build-from-source).
 

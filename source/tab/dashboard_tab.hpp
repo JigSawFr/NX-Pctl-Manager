@@ -4,6 +4,7 @@
 #pragma once
 
 #include "tab/tab_base.hpp"
+#include "util/patches.hpp"
 #include "util/pctl_ops_c.hpp"
 #include "view/pt_gauge.hpp"
 
@@ -18,6 +19,7 @@ class DashboardTab : public TabBase
 
   private:
     PtState pt = {};
+    patches::Report patch_report;   // scanned once per opening (SD card files)
 
     void open_today_limit();
 
@@ -32,6 +34,8 @@ class DashboardTab : public TabBase
     BRLS_BIND(brls::DetailCell, bedtime,     "dash_bedtime");
     BRLS_BIND(brls::DetailCell, clock,       "dash_clock");
     BRLS_BIND(brls::DetailCell, pairing,     "dash_pairing");
+    BRLS_BIND(brls::DetailCell, serial,      "dash_serial");
+    BRLS_BIND(brls::DetailCell, game_patches, "dash_patches");
     BRLS_BIND(brls::DetailCell, fw,          "dash_fw");
     BRLS_BIND(brls::DetailCell, compat,      "dash_compat");
     BRLS_BIND(brls::Label,      hint,        "dash_hint");

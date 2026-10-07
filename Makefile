@@ -12,6 +12,7 @@ TARGET  := playguard
 BUILD   := build
 DESKTOP := build-desktop
 CC      ?= gcc
+CXX     ?= g++
 TESTOUT := $(BUILD)/host-tests
 
 # Always pass both flags explicitly so toggling them updates the CMake cache.
@@ -57,6 +58,7 @@ test:
 	$(CC) -std=gnu11 -Wall -Wextra -Werror -DNX_HOST_TEST -DPCTL_READ_ONLY=1 -Itests/time_ops -Isource/core source/core/time_ops.c tests/time_ops/test.c -o $(TESTOUT)/time_ro && $(TESTOUT)/time_ro
 	$(CC) -std=gnu11 -Wall -Wextra -Werror -DNX_HOST_TEST -Itests/sysinfo -Isource/core source/core/sysinfo.c tests/sysinfo/test.c -o $(TESTOUT)/sysinfo && $(TESTOUT)/sysinfo
 	$(CC) -std=c11 -Wall -Wextra -Werror -Isource/util source/util/ntp_packet.c tests/ntp_packet/test.c -o $(TESTOUT)/ntp && $(TESTOUT)/ntp
+	$(CXX) -std=c++17 -Wall -Wextra -Werror -Isource source/util/paths.cpp source/util/patches.cpp tests/patches/test.cpp -o $(TESTOUT)/patches && $(TESTOUT)/patches
 
 check: test
 	python3 tools/check_resources.py .

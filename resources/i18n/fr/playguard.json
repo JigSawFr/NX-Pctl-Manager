@@ -76,7 +76,7 @@
         "title": "PlayGuard",
         "headline": "Impossible d'ouvrir le service du contrôle parental.",
         "body": "Ce homebrew ne fonctionne que sur une console sous firmware personnalisé (Atmosphère). Une console non modifiée ne peut pas ouvrir le service pctl.",
-        "firmware": "Firmware {} · Atmosphère {}"
+        "firmware": "Firmware {} · Atmosphère {} · {}"
     },
     "untested": {
         "body": "Le firmware {} est plus récent que la dernière version vérifiée avec cette application ({}).\n\nLa lecture de l'état est sans risque. Les modifications peuvent se comporter différemment : vérifiez le résultat et exportez un diagnostic en cas de doute.",
@@ -111,6 +111,9 @@
         "pairing": "Application mobile",
         "pairing_on": "Associée",
         "pairing_off": "Non associée",
+        "serial": "Numéro de série",
+        "serial_visible": "Non masqué (emuMMC)",
+        "patches": "Patchs de jeux",
         "firmware": "Firmware",
         "compat": "Compatibilité",
         "hint": "Appuyez sur A sur une ligne pour ouvrir l'onglet correspondant. Les valeurs s'actualisent seules (X : tout de suite)."
@@ -328,7 +331,7 @@
     "tools": {
         "section_diag": "Diagnostic",
         "export": "Exporter un rapport de diagnostic",
-        "export_note": "Enregistré dans {}. Joignez-le à un signalement de bug. Il ne contient jamais le code PIN.",
+        "export_note": "Enregistré dans {}. Joignez-le à un signalement de bug. Il ne contient jamais le code PIN ni le numéro de série.",
         "section_prefs": "Préférences",
         "language": "Langue",
         "languages": {
@@ -343,6 +346,29 @@
             "dark": "Sombre"
         },
         "advanced": "Afficher les actions avancées du minuteur",
+        "section_console": "Console",
+        "storage": "Stockage",
+        "storage_emummc": "emuMMC (Atmosphère)",
+        "storage_sysmmc": "sysMMC (Atmosphère)",
+        "storage_unknown": "Inconnu (Atmosphère non détecté)",
+        "blank": "Numéro de série masqué",
+        "serial": "Numéro de série",
+        "serial_blanked": "{} (masqué)",
+        "serial_show": "Afficher",
+        "serial_hide": "Masquer",
+        "serial_note_emummc": "Cette emuMMC utilise le vrai numéro de série de la console : si elle se connecte, les serveurs de Nintendo le voient. Pour le masquer, mettez blank_prodinfo_emummc=1 dans atmosphere/config/exosphere.ini puis redémarrez (Atmosphère prévient que le masquage n'est pas garanti sans risque).",
+        "patches": "Patchs de jeux",
+        "patches_syspatch": "sys-patch",
+        "patches_files": "Fichiers sigpatches ({})",
+        "patches_incomplete": "sys-patch incomplet",
+        "patches_none": "Aucun détecté",
+        "patches_note_files": "La recommandation est désormais d'utiliser sys-patch : il patche le système à chaque démarrage, au lieu de fichiers qui doivent correspondre à chaque version du firmware.",
+        "patches_note_redundant": "sys-patch est actif : les fichiers sigpatches ({}) ne sont plus nécessaires.",
+        "patches_note_not_at_boot": "sys-patch est installé mais n'est pas lancé au démarrage : activez-le dans l'overlay sysmodules (ou créez atmosphere/contents/420000000000000B/flags/boot2.flag), puis redémarrez.",
+        "patches_note_no_log": "sys-patch n'a pas laissé de journal pour ce démarrage, impossible de vérifier ce qu'il a patché : mettez enable_logging=1 dans config/sys-patch/config.ini, puis redémarrez.",
+        "patches_note_stale": "Le journal de sys-patch a été écrit pour le firmware {} en {} : il ne s'est pas lancé à ce démarrage.",
+        "patches_note_skipped": "sys-patch est désactivé pour ce stockage : mettez {}=1 dans config/sys-patch/config.ini, puis redémarrez.",
+        "patches_note_unpatched": "sys-patch n'a pas patché : {}. Mettez sys-patch à jour pour ce firmware.",
         "auto_relock": "Reverrouiller automatiquement après une modification",
         "section_about": "À propos",
         "version": "Version",

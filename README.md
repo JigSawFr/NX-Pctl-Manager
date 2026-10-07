@@ -37,7 +37,7 @@ The app is organised in tabs, like System Settings.
 | **Network clock** | Console / network clocks, time zone, accuracy. Pick a public NTP server (≈ 50 built-in, by region, or your own), **measure** against 3 servers (median, warning when they disagree) and **set the network clock**. The play timer relies on this clock; a console that never reaches Nintendo's servers keeps it inaccurate. |
 | **Companion app** | Whether the Nintendo Switch Parental Controls phone app is linked, last synchronisation, unlink it (otherwise its next sync overwrites the limits set here). |
 | **PIN & security** | Set / change the PIN (system PIN screen), unlock temporarily, **lock now**, delete all parental controls (two confirmations with different red buttons, irreversible). |
-| **Tools & about** | Export a diagnostic report, language and theme (with an offer to restart), **lock again automatically after a change** (on by default), advanced actions, versions. |
+| **Tools & about** | Export a diagnostic report, language and theme (with an offer to restart), **lock again automatically after a change** (on by default), advanced actions. *Console*: firmware, Atmosphère, compatibility, **storage** (emuMMC or sysMMC), whether Atmosphère **blanks the serial number** (with the number the system sees, partly hidden until Ⓐ; a warning on emuMMC when it is not blanked), **game patches** (sys-patch or sigpatch files, with a warning recommending sys-patch when only files are used). The Overview repeats these two warnings. |
 
 ![Play timer](images/screenshots/play_timer.png)
 ![Per-day limits](images/screenshots/per_day.png)
@@ -69,7 +69,7 @@ Controls: ↑/↓ move, Ⓐ confirm, Ⓑ back (on the sidebar: press Ⓑ twice t
 
 ## Bug reports
 
-*Tools & about* › *Export a diagnostic report* saves a text file in `sd:/switch/playguard/logs/` with the firmware, Atmosphère version, clocks and the raw result of every parental-control query. **It never contains the PIN.** Attach it to the issue.
+*Tools & about* › *Export a diagnostic report* saves a text file in `sd:/switch/playguard/logs/` with the firmware, Atmosphère version, clocks and the raw result of every parental-control query. It also gives the storage, the serial-blanking state and the game-patch status. **It never contains the PIN or the serial number.** Attach it to the issue.
 
 A **read-only "PlayGuard Diagnostics" build** (`READ_ONLY=1`) cannot change anything; it is useful to investigate a new firmware safely.
 
@@ -85,7 +85,7 @@ make READ_ONLY=1 # "PlayGuard Diagnostics" build
 ./run.sh [ip]    # build in the devkitpro/devkita64 Docker image, optionally nxlink to a console
 ```
 
-The desktop build runs the real borealis UI against `source/sim/` (environment knobs: `PLAYGUARD_SIM_FW=20.5.0`, `PLAYGUARD_SIM_NO_CFW=1`, `PLAYGUARD_SIM_TIMER_OFF=1`, `PLAYGUARD_SIM_UNLOCKED=1`, `PLAYGUARD_SIM_UNPAIRED=1`, `PLAYGUARD_SIM_ACCURATE=1`). `tools/desktop_smoke.py` clicks through every screen headlessly; CI runs it with the unit tests, the resource checks (`tools/check_resources.py`) and the three Switch builds.
+The desktop build runs the real borealis UI against `source/sim/` (environment knobs: `PLAYGUARD_SIM_FW=20.5.0`, `PLAYGUARD_SIM_NO_CFW=1`, `PLAYGUARD_SIM_TIMER_OFF=1`, `PLAYGUARD_SIM_UNLOCKED=1`, `PLAYGUARD_SIM_UNPAIRED=1`, `PLAYGUARD_SIM_ACCURATE=1`, `PLAYGUARD_SIM_EMUMMC=1`, `PLAYGUARD_SIM_BLANK=1`; game patches are read from `./playguard_data/sd/`, the simulated SD card root). `tools/desktop_smoke.py` clicks through every screen headlessly; CI runs it with the unit tests, the resource checks (`tools/check_resources.py`) and the three Switch builds.
 
 Branding: `branding/*.svg` (sources), rendered to `icon.jpg` and `images/store/*.png` by `node tools/render_branding.mjs` (Node + Playwright).
 

@@ -7,6 +7,7 @@
 #include "activity/play_timer_perday_activity.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
+#include "util/paths.hpp"
 
 using namespace brls::literals;
 
@@ -41,6 +42,14 @@ DashboardTab::DashboardTab()
     link(pairing, ui::tab::pairing);
     link(fw, ui::tab::tools);
     link(compat, ui::tab::tools);
+    link(serial, ui::tab::tools);
+    link(game_patches, ui::tab::tools);
+
+    SysInfo si;
+    sysinfo_get(&si);
+    char fw_str[16];
+    sysinfo_version_string(si.hos_version, fw_str, sizeof(fw_str));
+    this->patch_report = patches::detect(paths::sd_root(), fw_str, si.emummc);
 }
 
 void DashboardTab::open_today_limit()
@@ -175,8 +184,18 @@ void DashboardTab::refresh()
     compat->setDetailText(ui::compat_text(si, &c));
     compat->setDetailTextColor(c);
 
+    // Serial number visible on emuMMC, sigpatch files only or sys-patch incomplete.
+    const bool serial_issue  = ui::serial_warning(si);
+    const bool patches_issue = ui::patches_warning(this->patch_report);
+    serial->setDetailText("playguard/dashboard/serial_visible"_i18n);
+    serial->setDetailTextColor(ui::color_warn());
+    c = ui::color_neutral();
+    game_patches->setDetailText(ui::patches_text(this->patch_report, &c));
+    game_patches->setDetailTextColor(c);
+
     // Visibility last, so a vanished focused cell hands the focus to a neighbour.
     ui::set_visible_all({ { fw.getView(), compat_issue }, { compat.getView(), compat_issue },
+                          { serial.getView(), serial_issue }, { game_patches.getView(), patches_issue },
                           { unlocked_banner.getView(), unlocked } });
 }
 

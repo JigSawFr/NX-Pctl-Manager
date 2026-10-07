@@ -7,6 +7,7 @@
 #include "ui/ui.hpp"
 #include "util/config.hpp"
 #include "util/diagnostics.hpp"
+#include "util/patches.hpp"
 #include "util/paths.hpp"
 
 using namespace brls::literals;
@@ -29,6 +30,15 @@ ToolsTab::ToolsTab()
     : TabBase("xml/tab/tools.xml")
 {
     export_note->setSingleLine(false);
+    serial_note->setSingleLine(false);
+    patches_note->setSingleLine(false);
+
+    // Ⓐ on the serial number shows / hides the masked digits.
+    serial->registerAction("playguard/tools/serial_show"_i18n, brls::BUTTON_A, [this](brls::View*) {
+        this->serial_revealed = !this->serial_revealed;
+        this->refresh();
+        return true;
+    }, false, false, brls::SOUND_CLICK);
     export_note->setText(brls::getStr("playguard/tools/export_note", paths::logs_dir()));
 
     export_cell->registerClickAction([](brls::View*) {
@@ -99,6 +109,29 @@ void ToolsTab::refresh()
     NVGcolor c = ui::color_neutral();
     compat->setDetailText(ui::compat_text(si, &c));
     compat->setDetailTextColor(c);
+
+    storage->setDetailText(ui::storage_text(si));
+    c = ui::color_neutral();
+    blank->setDetailText(ui::blank_text(si, &c));
+    blank->setDetailTextColor(c);
+    const bool maskable = si.serial_valid && si.serial[0] && !(si.blank_valid && si.blank);
+    serial->setDetailText(ui::serial_text(si, this->serial_revealed));
+    serial->setDetailTextColor(ui::serial_warning(si) ? ui::color_warn() : ui::color_neutral());
+    serial->setActionAvailable(brls::BUTTON_A, maskable);
+    serial->updateActionHint(brls::BUTTON_A, this->serial_revealed ? "playguard/tools/serial_hide"_i18n
+                                                                   : "playguard/tools/serial_show"_i18n);
+    brls::Application::getGlobalHintsUpdateEvent()->fire();   // redraw the footer hints
+
+    const patches::Report report = patches::detect(paths::sd_root(), fwv, si.emummc);
+    c = ui::color_neutral();
+    game_patches->setDetailText(ui::patches_text(report, &c));
+    game_patches->setDetailTextColor(c);
+    bool warn = false;
+    const std::string note = ui::patches_note(report, si, &warn);
+    patches_note->setText(note);
+    patches_note->setTextColor(warn ? ui::color_warn() : ui::color_note());
+    ui::set_visible_all({ { serial_note.getView(), ui::serial_warning(si) },
+                          { patches_note.getView(), !note.empty() } });
     mode->setDetailText(si.applet_mode ? "playguard/tools/mode_applet"_i18n : "playguard/tools/mode_app"_i18n);
     data->setDetailText(paths::data_dir());
     license->setDetailText("playguard/tools/license_value"_i18n);

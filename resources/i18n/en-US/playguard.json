@@ -76,7 +76,7 @@
         "title": "PlayGuard",
         "headline": "Could not open the parental-control service.",
         "body": "This homebrew only works on a console running custom firmware (Atmosphère). A retail console cannot open the pctl service.",
-        "firmware": "Firmware {} · Atmosphère {}"
+        "firmware": "Firmware {} · Atmosphère {} · {}"
     },
     "untested": {
         "body": "Firmware {} is newer than the last version checked with this app ({}).\n\nReading the state is safe. Changing settings may behave differently: check the result, and export a diagnostic if anything looks wrong.",
@@ -111,6 +111,9 @@
         "pairing": "Companion app",
         "pairing_on": "Linked",
         "pairing_off": "Not linked",
+        "serial": "Serial number",
+        "serial_visible": "Not blanked (emuMMC)",
+        "patches": "Game patches",
         "firmware": "Firmware",
         "compat": "Compatibility",
         "hint": "Press A on a line to open the matching tab. Values refresh on their own (X: now)."
@@ -328,7 +331,7 @@
     "tools": {
         "section_diag": "Diagnostics",
         "export": "Export a diagnostic report",
-        "export_note": "Saved in {}. Attach it to a bug report. It never contains the PIN.",
+        "export_note": "Saved in {}. Attach it to a bug report. It never contains the PIN or the serial number.",
         "section_prefs": "Preferences",
         "language": "Language",
         "languages": {
@@ -343,6 +346,29 @@
             "dark": "Dark"
         },
         "advanced": "Show advanced play-timer actions",
+        "section_console": "Console",
+        "storage": "Storage",
+        "storage_emummc": "emuMMC (Atmosphère)",
+        "storage_sysmmc": "sysMMC (Atmosphère)",
+        "storage_unknown": "Unknown (Atmosphère not detected)",
+        "blank": "Serial number blanked",
+        "serial": "Serial number",
+        "serial_blanked": "{} (blanked)",
+        "serial_show": "Show",
+        "serial_hide": "Hide",
+        "serial_note_emummc": "This emuMMC uses the console's real serial number: if it goes online, Nintendo's servers see it. To blank it, set blank_prodinfo_emummc=1 in atmosphere/config/exosphere.ini and reboot (Atmosphère warns that blanking is not guaranteed to be safe).",
+        "patches": "Game patches",
+        "patches_syspatch": "sys-patch",
+        "patches_files": "Sigpatch files ({})",
+        "patches_incomplete": "sys-patch, incomplete",
+        "patches_none": "None detected",
+        "patches_note_files": "The recommendation is now to use sys-patch: it patches the system at every boot, instead of files that must match each firmware version.",
+        "patches_note_redundant": "sys-patch is active: the sigpatch files ({}) are no longer needed.",
+        "patches_note_not_at_boot": "sys-patch is installed but not started at boot: turn it on in the sysmodules overlay (or create atmosphere/contents/420000000000000B/flags/boot2.flag), then reboot.",
+        "patches_note_no_log": "sys-patch left no log for this boot, so what it patched cannot be checked: set enable_logging=1 in config/sys-patch/config.ini, then reboot.",
+        "patches_note_stale": "sys-patch's log was written for firmware {} on {}: it did not run at this boot.",
+        "patches_note_skipped": "sys-patch is turned off for this storage: set {}=1 in config/sys-patch/config.ini, then reboot.",
+        "patches_note_unpatched": "sys-patch did not patch: {}. Update sys-patch for this firmware.",
         "auto_relock": "Lock again automatically after a change",
         "section_about": "About",
         "version": "Version",

@@ -10,6 +10,7 @@
 #include <utility>
 #include <vector>
 
+#include "util/patches.hpp"
 #include "util/pctl_ops_c.hpp"
 
 namespace ui
@@ -64,6 +65,21 @@ int         today_weekday();                    // 0 = Sunday, from the console'
 std::string fw_text(const SysInfo& info);                 // "23.0.1 · Atmosphère 1.12.0"
 std::string compat_text(const SysInfo& info, NVGcolor* color = nullptr);
 std::string level_name(uint32_t level);                    // localised restriction level
+
+// Console section (Tools) and Overview warnings.
+std::string storage_text(const SysInfo& info);             // "emuMMC (Atmosphère)"
+std::string storage_short(const SysInfo& info);            // "emuMMC" / "sysMMC" / "—"
+// The serial-number warning only applies on emuMMC: on sysMMC the real serial
+// is normal (online play), blanking it would cut Nintendo's services.
+bool        serial_warning(const SysInfo& info);
+std::string blank_text(const SysInfo& info, NVGcolor* color = nullptr);
+// As the system sees it; `reveal` false masks the middle ("XAW1000•••••01").
+std::string serial_text(const SysInfo& info, bool reveal);
+bool        patches_warning(const patches::Report& report);
+std::string patches_text(const patches::Report& report, NVGcolor* color = nullptr);
+// Explanation under the Game patches line ("" when there is nothing to say);
+// *warn tells whether it is a warning (amber) or a plain note.
+std::string patches_note(const patches::Report& report, const SysInfo& info, bool* warn);
 std::string time_text(uint64_t posix);                     // local time, or "—" for 0
 
 // Hides a view when `visible` is false (Visibility::GONE frees its space).

@@ -38,6 +38,8 @@
             <brls:Header title="@i18n/playguard/dashboard/section_system" marginTop="24" marginBottom="8"/>
             <brls:DetailCell id="dash_clock" title="@i18n/playguard/dashboard/clock"/>
             <brls:DetailCell id="dash_pairing" title="@i18n/playguard/dashboard/pairing"/>
+            <brls:DetailCell id="dash_serial" title="@i18n/playguard/dashboard/serial"/>
+            <brls:DetailCell id="dash_patches" title="@i18n/playguard/dashboard/patches"/>
             <brls:DetailCell id="dash_fw" title="@i18n/playguard/dashboard/firmware"/>
             <brls:DetailCell id="dash_compat" title="@i18n/playguard/dashboard/compat"/>
             <brls:Label id="dash_hint" text="@i18n/playguard/dashboard/hint" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>

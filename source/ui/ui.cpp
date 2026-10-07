@@ -223,6 +223,114 @@ std::string compat_text(const SysInfo& info, NVGcolor* color)
     }
 }
 
+std::string storage_text(const SysInfo& info)
+{
+    switch (sysinfo_storage(&info)) {
+        case SysStorage_EmuMMC: return "playguard/tools/storage_emummc"_i18n;
+        case SysStorage_SysMMC: return "playguard/tools/storage_sysmmc"_i18n;
+        default:                return "playguard/tools/storage_unknown"_i18n;
+    }
+}
+
+std::string storage_short(const SysInfo& info)
+{
+    switch (sysinfo_storage(&info)) {
+        case SysStorage_EmuMMC: return "emuMMC";
+        case SysStorage_SysMMC: return "sysMMC";
+        default:                return "—";
+    }
+}
+
+bool serial_warning(const SysInfo& info)
+{
+    return sysinfo_storage(&info) == SysStorage_EmuMMC && info.blank_valid && !info.blank;
+}
+
+std::string blank_text(const SysInfo& info, NVGcolor* color)
+{
+    if (!info.blank_valid) {
+        if (color) *color = color_neutral();
+        return "playguard/common/unavailable"_i18n;
+    }
+    if (color) *color = info.blank ? color_ok() : (serial_warning(info) ? color_warn() : color_neutral());
+    return info.blank ? "playguard/common/yes"_i18n : "playguard/common/no"_i18n;
+}
+
+std::string serial_text(const SysInfo& info, bool reveal)
+{
+    if (!info.serial_valid || !info.serial[0]) return "playguard/common/unavailable"_i18n;
+    std::string s = info.serial;
+    if (info.blank_valid && info.blank) return brls::getStr("playguard/tools/serial_blanked", s);
+    if (reveal || s.size() < 8) return s;
+    // Keep the prefix (model / region) and the last two digits.
+    std::string masked = s.substr(0, 7);
+    for (size_t i = 7; i + 2 < s.size(); i++) masked += "•";
+    return masked + s.substr(s.size() - 2);
+}
+
+bool patches_warning(const patches::Report& report)
+{
+    const auto st = patches::status(report);
+    return st == patches::Status::FilesOnly || st == patches::Status::SysPatchIncomplete;
+}
+
+static std::string join_list(const std::vector<std::string>& items)
+{
+    std::string out;
+    for (const auto& i : items) out += (out.empty() ? "" : ", ") + i;
+    return out;
+}
+
+std::string patches_text(const patches::Report& report, NVGcolor* color)
+{
+    switch (patches::status(report)) {
+        case patches::Status::SysPatch:
+            if (color) *color = color_ok();
+            return "playguard/tools/patches_syspatch"_i18n;
+        case patches::Status::SysPatchIncomplete:
+            if (color) *color = color_warn();
+            return "playguard/tools/patches_incomplete"_i18n;
+        case patches::Status::FilesOnly:
+            if (color) *color = color_warn();
+            return brls::getStr("playguard/tools/patches_files", join_list(report.files));
+        default:
+            if (color) *color = color_neutral();
+            return "playguard/tools/patches_none"_i18n;
+    }
+}
+
+std::string patches_note(const patches::Report& report, const SysInfo& info, bool* warn)
+{
+    *warn = true;
+    switch (patches::status(report)) {
+        case patches::Status::FilesOnly:
+            return "playguard/tools/patches_note_files"_i18n;
+        case patches::Status::SysPatch:
+            *warn = false;
+            return report.files.empty() ? std::string()
+                                        : brls::getStr("playguard/tools/patches_note_redundant", join_list(report.files));
+        case patches::Status::SysPatchIncomplete:
+            switch (patches::issue(report)) {
+                case patches::Issue::NotAtBoot: return "playguard/tools/patches_note_not_at_boot"_i18n;
+                case patches::Issue::NoLog:     return "playguard/tools/patches_note_no_log"_i18n;
+                case patches::Issue::StaleLog:
+                    return brls::getStr("playguard/tools/patches_note_stale",
+                                        report.log_fw.empty() ? std::string("?") : report.log_fw,
+                                        std::string(report.log_emummc ? "emuMMC" : "sysMMC"));
+                case patches::Issue::Skipped:
+                    return brls::getStr("playguard/tools/patches_note_skipped",
+                                        std::string(info.emummc ? "patch_emummc" : "patch_sysmmc"));
+                case patches::Issue::NotPatched:
+                    return brls::getStr("playguard/tools/patches_note_unpatched", join_list(patches::unpatched(report)));
+                default: break;
+            }
+            break;
+        default: break;
+    }
+    *warn = false;
+    return "";
+}
+
 std::string level_name(uint32_t level)
 {
     if (level > 4) return "?";

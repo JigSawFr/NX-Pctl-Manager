@@ -26,3 +26,8 @@ Result splInitialize(void);
 void splExit(void);
 Result splGetConfig(SplConfigItem item, u64 *out);
 AppletType appletGetAppletType(void);
+
+typedef struct { char number[0x18]; } SetSysSerialNumber;
+Result setsysInitialize(void);
+void setsysExit(void);
+Result setsysGetSerialNumber(SetSysSerialNumber *out);

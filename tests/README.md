@@ -12,7 +12,8 @@ make test
 |---|---|
 | `pctl_session/` | `source/core/pctl_ops.c`: one session per operation and release on every error path; firmware gates (no play-timer IPC below 21.0.0, 1459 on 20.0.0+, 1460 on 23.0.0+); the write gate for all enabled / restricted / unlocked combinations and all three write entry points; the temporary-unlock verification; restriction writes; the PIN never appearing in the dump; READ_ONLY builds refusing every mutation. |
 | `time_ops/` | `source/core/time_ops.c`: handle ownership, each clock / flag / time-zone failure, the automatic-correction gate, read-back verification and its overflow bound, local-time formatting, READ_ONLY. |
-| `sysinfo/` | `source/core/sysinfo.c`: Atmosphère version decoding, spl session release, applet detection, the compatibility policy. |
+| `sysinfo/` | `source/core/sysinfo.c`: Atmosphère version decoding, emuMMC and PRODINFO-blank detection (spl 65007 / 65005, with the blanked serial as fallback), the serial number, spl and set:sys session release, applet detection, the compatibility policy. |
+| `patches/` | `source/util/patches.cpp`: sys-patch `log.ini` parsing, stale logs (other firmware or storage), sigpatch file detection, and the verdict (sys-patch, incomplete, files only, none) on fake SD card trees. |
 | `ntp_packet/` | `source/util/ntp_packet.c`: every malformed / unsynchronised NTP reply is rejected; NTP era handling. |
 
 The `pctl_session`, `time_ops` and `ntp_packet` suites started from anbingxi's

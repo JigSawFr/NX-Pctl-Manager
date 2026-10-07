@@ -14,6 +14,10 @@ std::string logs_dir();
 std::string profiles_dir();
 std::string config_file();
 
+// Root of the SD card: "/" on the console; ./playguard_data/sd on desktop,
+// so the simulated build can be given fake Atmosphère / sys-patch files.
+std::string sd_root();
+
 // mkdir -p. Returns false (errno preserved) on failure.
 bool ensure_dir(const std::string& dir);
 
