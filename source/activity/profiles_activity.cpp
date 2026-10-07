@@ -79,7 +79,8 @@ void ProfilesActivity::rebuild(const std::string& focus_name)
             return true;
         });
         const std::string name = p.name;
-        cell->registerAction("playguard/common/delete"_i18n, brls::BUTTON_X, [this, name](brls::View*) {
+        // Y, not X: X refreshes everywhere else.
+        cell->registerAction("playguard/common/delete"_i18n, brls::BUTTON_Y, [this, name](brls::View*) {
             this->remove(name);
             return true;
         });

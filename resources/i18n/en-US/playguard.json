@@ -1,6 +1,9 @@
 {
     "title": "PlayGuard",
-    "title_read_only": "PlayGuard · read-only",
+    "title_tags": {
+        "read_only": "read-only",
+        "unlocked": "temporarily unlocked"
+    },
     "tabs": {
         "dashboard": "Overview",
         "play_timer": "Play timer",
@@ -191,7 +194,7 @@
         "profiles_title": "Profiles",
         "profiles_section_saved": "Saved profiles",
         "profiles_section_new": "New profile",
-        "profiles_hint": "A applies a profile, X deletes it.",
+        "profiles_hint": "A applies a profile, Y deletes it.",
         "profile_current": "{} (current)",
         "profile_range": "{} to {}",
         "profile_saved": "Profile \"{}\" saved.",
@@ -381,7 +384,15 @@
         "applied_err": "Could not set the network clock",
         "report_err_ask": "The report of the clocks before the change could not be saved ({}). Set the network clock anyway?",
         "seconds": "{} s",
-        "busy": "Please wait for the current request."
+        "busy": "Please wait for the current request.",
+        "autosync_off_note": "To set the network clock from it, first turn on \"Synchronise Clock via Internet\" in System Settings.",
+        "ntp_err": {
+            "bad_host": "not a server name",
+            "lookup": "server not found (no Internet connection?)",
+            "network": "network error",
+            "timeout": "no answer",
+            "bad_reply": "invalid answer"
+        }
     },
     "pairing": {
         "section": "Nintendo Switch Parental Controls app",

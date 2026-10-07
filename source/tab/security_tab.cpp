@@ -123,6 +123,7 @@ void SecurityTab::refresh()
 {
     PctlStatus s;
     pctl_status_fetch(&s);
+    ui::note_unlocked(s.temp_unlocked_ok, s.temp_unlocked);
     const std::string na = "playguard/common/unavailable"_i18n;
 
     if (!s.pin_length_ok) pin->setDetailText(na);
@@ -151,7 +152,8 @@ void SecurityTab::refresh()
                           { show_pin.getView(), writable && has_pin },
                           { unlock.getView(), writable && has_pin && !unlocked },
                           { relock.getView(), writable && unlocked },
-                          { pr_unlink.getView(), writable },
+                          // Nothing to unlink when the read says not linked.
+                          { pr_unlink.getView(), writable && (!s.pairing_active_ok || paired) },
                           { danger_header.getView(), writable },
                           { del.getView(), writable } });
 }

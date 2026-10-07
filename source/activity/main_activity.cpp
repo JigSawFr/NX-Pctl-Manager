@@ -4,6 +4,7 @@
 #include "action/fw_gate.hpp"
 #include "action/pt_flow.hpp"
 #include "app.hpp"
+#include "ui/ui.hpp"
 
 using namespace brls::literals;
 
@@ -38,6 +39,10 @@ void MainActivity::onContentAvailable()
 
 void MainActivity::update_title()
 {
-    if (auto* frame = dynamic_cast<brls::AppletFrame*>(this->getContentView()))
-        frame->setTitle(app::read_only() ? "playguard/title_read_only"_i18n : "playguard/title"_i18n);
+    // "PlayGuard", then what the user must know whatever the tab: read-only,
+    // temporarily unlocked (the play timer is not counting).
+    std::string title = "playguard/title"_i18n;
+    if (app::read_only()) title += " · " + "playguard/title_tags/read_only"_i18n;
+    if (ui::known_unlocked()) title += " · " + "playguard/title_tags/unlocked"_i18n;
+    if (auto* frame = dynamic_cast<brls::AppletFrame*>(this->getContentView())) frame->setTitle(title);
 }

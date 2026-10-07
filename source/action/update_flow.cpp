@@ -56,13 +56,21 @@ void show_result(const update::Result& r)
 
 void check_now()
 {
+    // One check at a time: pressing again while it runs says so, instead of
+    // starting another request and stacking a second result dialog.
+    static bool checking = false;
     ui::notify("playguard/update/checking"_i18n);
+    if (checking) return;
+    checking = true;
     SysInfo si;
     sysinfo_get(&si);
     const uint32_t fw = si.hos_version;
     brls::async([fw]() {
         const update::Result r = update::check(fw);
-        brls::sync([r]() { show_result(r); });
+        brls::sync([r]() {
+            checking = false;
+            show_result(r);
+        });
     });
 }
 

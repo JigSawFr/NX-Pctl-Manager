@@ -86,6 +86,7 @@ void DashboardTab::refresh()
 
     const bool unlocked = s.temp_unlocked_ok && s.temp_unlocked;
     const bool has_pin  = s.pin_length_ok && s.pin_length > 0;
+    ui::note_unlocked(s.temp_unlocked_ok, s.temp_unlocked);
 
     // Today's play time.
     const int today = ui::today_weekday();
@@ -116,7 +117,7 @@ void DashboardTab::refresh()
             uint16_t used = left >= limit ? 0 : (uint16_t)(limit - left);
             gauge->setFraction((float)used / (float)limit);
             gauge_text->setText(brls::getStr("playguard/dashboard/gauge_known",
-                                             ui::fmt_minutes(used), ui::fmt_minutes(limit)));
+                                             ui::fmt_played(used), ui::fmt_minutes(limit)));
         } else {
             gauge->setFraction(-1);
             gauge_text->setText("playguard/dashboard/gauge_idle"_i18n);

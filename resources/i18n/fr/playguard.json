@@ -1,6 +1,9 @@
 {
     "title": "PlayGuard",
-    "title_read_only": "PlayGuard · lecture seule",
+    "title_tags": {
+        "read_only": "lecture seule",
+        "unlocked": "déverrouillé temporairement"
+    },
     "tabs": {
         "dashboard": "Vue d'ensemble",
         "play_timer": "Temps de jeu",
@@ -191,7 +194,7 @@
         "profiles_title": "Profils",
         "profiles_section_saved": "Profils enregistrés",
         "profiles_section_new": "Nouveau profil",
-        "profiles_hint": "A applique un profil, X le supprime.",
+        "profiles_hint": "A applique un profil, Y le supprime.",
         "profile_current": "{} (actuel)",
         "profile_range": "{} à {}",
         "profile_saved": "Profil « {} » enregistré.",
@@ -381,7 +384,15 @@
         "applied_err": "Impossible de régler l'horloge réseau",
         "report_err_ask": "Le rapport des horloges avant la modification n'a pas pu être enregistré ({}). Régler quand même l'horloge réseau ?",
         "seconds": "{} s",
-        "busy": "Patientez jusqu'à la fin de la requête en cours."
+        "busy": "Patientez jusqu'à la fin de la requête en cours.",
+        "autosync_off_note": "Pour régler l'horloge réseau d'après cette mesure, activez d'abord « Synchroniser l'horloge via Internet » dans les paramètres de la console.",
+        "ntp_err": {
+            "bad_host": "nom de serveur invalide",
+            "lookup": "serveur introuvable (pas de connexion Internet ?)",
+            "network": "erreur réseau",
+            "timeout": "pas de réponse",
+            "bad_reply": "réponse invalide"
+        }
     },
     "pairing": {
         "section": "Application Contrôle parental Nintendo Switch",

@@ -38,6 +38,17 @@ std::string find_region(const std::string& host)
     return "custom";
 }
 
+std::string ntp_error_text(const ntp::Reply& r)
+{
+    switch (r.kind) {
+        case ntp::Error::BadHost:  return "playguard/clock/ntp_err/bad_host"_i18n;
+        case ntp::Error::Lookup:   return "playguard/clock/ntp_err/lookup"_i18n;
+        case ntp::Error::Timeout:  return "playguard/clock/ntp_err/timeout"_i18n;
+        case ntp::Error::BadReply: return "playguard/clock/ntp_err/bad_reply"_i18n;
+        default:                   return "playguard/clock/ntp_err/network"_i18n;
+    }
+}
+
 bool plausible_host(const std::string& h)
 {
     if (h.empty() || h.size() > 253) return false;
@@ -79,7 +90,8 @@ void ClockTab::refresh()
                                                             : ui::color_neutral());
     autosync->setDetailText(ui::bool_text(R_SUCCEEDED(s.automatic_rc), s.automatic,
                                           "playguard/common/on"_i18n, "playguard/common/off"_i18n));
-    autosync->setDetailTextColor(R_SUCCEEDED(s.automatic_rc) && !s.automatic ? ui::color_warn() : ui::color_neutral());
+    this->autosync_off = R_SUCCEEDED(s.automatic_rc) && !s.automatic;
+    autosync->setDetailTextColor(this->autosync_off ? ui::color_warn() : ui::color_neutral());
     zone->setDetailText(R_SUCCEEDED(s.location_rc) && s.location[0] ? std::string(s.location) : na);
 
     region->setDetailText(region_label(this->region_id));
@@ -205,7 +217,8 @@ void ClockTab::measure()
                     std::string diff = R_SUCCEEDED(s.network_rc) ? signed_seconds(now_est - (int64_t)s.network_time) : "?";
                     text += brls::getStr("playguard/clock/result_line_ok", hosts[i], ui::time_text((uint64_t)now_est), diff);
                 } else {
-                    text += brls::getStr("playguard/clock/result_line_err", hosts[i], r.error);
+                    text += brls::getStr("playguard/clock/result_line_err", hosts[i], ntp_error_text(r));
+                    brls::Logger::info("NTP {}: {}", hosts[i], r.error);
                 }
                 text += "\n";
             }
@@ -224,6 +237,8 @@ void ClockTab::measure()
             std::string diff = R_SUCCEEDED(s.network_rc) ? signed_seconds((int64_t)m.unix_seconds - (int64_t)s.network_time) : "?";
             text += brls::getStr("playguard/clock/result_summary", ui::time_text(m.unix_seconds), diff);
             if (m.spread > 5) text += "\n" + brls::getStr("playguard/clock/result_spread", (int)m.spread);
+            // Setting the clock would be refused: say so now, not after the confirmation.
+            if (this->autosync_off) text += "\n" + "playguard/clock/autosync_off_note"_i18n;
             this->result->setText(text);
             this->refresh();   // shows "Set the network clock"
         });
@@ -232,6 +247,10 @@ void ClockTab::measure()
 
 void ClockTab::apply()
 {
+    if (this->autosync_off) {
+        ui::info(ui::rc_text(NXM_RC_AUTOCORRECT_OFF));
+        return;
+    }
     if (!this->last.ok) {
         ui::info("playguard/clock/need_measure"_i18n);
         return;

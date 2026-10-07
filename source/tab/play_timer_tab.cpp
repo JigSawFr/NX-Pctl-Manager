@@ -59,7 +59,7 @@ PlayTimerTab::PlayTimerTab()
         ui::notify_result(rc, "playguard/common/applied"_i18n, "playguard/play_timer/write_err"_i18n);
     });
     pause->registerClickAction([this](brls::View*) {
-        ui::confirm("playguard/play_timer/pause_body"_i18n, "playguard/play_timer/pause_confirm"_i18n, [this]() {
+        ui::confirm_danger("playguard/play_timer/pause_body"_i18n, "playguard/play_timer/pause_confirm"_i18n, [this]() {
             ui::notify_result(pctl_play_timer_stop(), "playguard/common/applied"_i18n, "playguard/play_timer/write_err"_i18n);
             this->refresh();
         });
@@ -89,6 +89,7 @@ void PlayTimerTab::refresh()
     const bool advanced = writable && config::get().advanced;
     const bool dev      = fw_ok && app::dev_mode();
 
+    ui::note_unlocked(this->pt.temporary_unlocked_valid, this->pt.temporary_unlocked);
     ui::show_unlock_banner(unlocked_banner, this->pt.temporary_unlocked_valid && this->pt.temporary_unlocked);
     ui::set_visible(fw_note.getView(), !fw_ok);
     for (brls::View* v : { (brls::View*)limit_header.getView(), (brls::View*)quick.getView(),
@@ -141,7 +142,7 @@ void PlayTimerTab::remove_limit()
                                pt_flow::finish_write(rc, did_unlock, "playguard/play_timer/removed"_i18n,
                                                      "playguard/play_timer/remove_err"_i18n,
                                                      [this]() { this->refresh(); });
-                           });
+                           }, nullptr, true);
 }
 
 brls::View* PlayTimerTab::create()
