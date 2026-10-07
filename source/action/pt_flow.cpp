@@ -188,6 +188,13 @@ static void clear_extra_record()
     config::save();
 }
 
+bool can_add_extra_time(const PtState& pt)
+{
+    const int wd = ui::today_weekday();
+    return !app::read_only_build() && pt.fw_supported && pt.valid && pt.enabled_valid && pt.enabled &&
+           pt.day_min[wd] != PT_DAY_NOLIMIT && pt.day_min[wd] < 1440;
+}
+
 void add_extra_time(const PtState& pt, std::function<void()> refresh)
 {
     const int wd = ui::today_weekday();

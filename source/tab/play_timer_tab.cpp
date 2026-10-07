@@ -39,6 +39,10 @@ PlayTimerTab::PlayTimerTab()
         pt_flow::choose_uniform_limit(this->pt, [this]() { this->refresh(); });
         return true;
     });
+    extra->registerClickAction([this](brls::View*) {
+        pt_flow::add_extra_time(this->pt, [this]() { this->refresh(); });
+        return true;
+    });
     per_day->registerClickAction([](brls::View*) {
         brls::Application::pushActivity(new PlayTimerPerDayActivity());
         return true;
@@ -91,6 +95,7 @@ void PlayTimerTab::refresh()
                            (brls::View*)per_day.getView(), (brls::View*)remove.getView(),
                            (brls::View*)profiles_cell.getView() })
         ui::set_visible(v, writable);
+    ui::set_visible(extra.getView(), pt_flow::can_add_extra_time(this->pt));
     for (brls::View* v : { (brls::View*)bedtime_header.getView(), (brls::View*)bedtime.getView(),
                            (brls::View*)bedtime_reset.getView(), (brls::View*)bedtime_note.getView() })
         ui::set_visible(v, fw_ok);

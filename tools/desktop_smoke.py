@@ -2,7 +2,7 @@
 """Headless UI smoke test of the desktop build (simulated backend).
 
 Starts build-desktop/playguard on an X display (Xvfb), opens every tab,
-the per-day editor and a dropdown, and fails if the app dies on the way
+the extra-time picker, the per-day editor and a dropdown, and fails if the app dies on the way
 (borealis throws on unknown XML attributes, missing views, …). Screenshots of
 each screen are written to the output folder.
 
@@ -31,12 +31,21 @@ def alive():
     return proc.poll() is None
 
 
-def key(name, n=1):
+def key(name, n=1, hold=0.12):
     for _ in range(n):
         subprocess.run(["xdotool", "keydown", name], env=env)
-        time.sleep(0.12)
+        time.sleep(hold)
         subprocess.run(["xdotool", "keyup", name], env=env)
         time.sleep(0.3)
+
+
+def nav(name, n=1):
+    """A navigation key that must move exactly one step. borealis repeats a key
+    held for 250 ms, and a move that scrolls the tab renders slowly under
+    software GL: wait for the screen to settle, then press briefly."""
+    for _ in range(n):
+        time.sleep(1)
+        key(name, hold=0.04)
 
 
 def shot(name):
@@ -73,17 +82,21 @@ for i, tab in enumerate(tabs[1:], start=2):
     shot(f"{i:02d}_{tab}_end")
     key("Escape")     # back to the sidebar
 
-# Per-day editor and a dropdown.
+# Extra-time picker, per-day editor and a dropdown.
 key("Up", len(tabs) - 2)   # from Tools back to Play timer
 key("Right")
-key("Down")
+nav("Down")                # Extra time today…
 key("Return")
-shot("20_per_day")
+shot("20_extra_time")
+key("Escape")
+nav("Down")                # A different limit for each day…
 key("Return")
-shot("21_dropdown")
+shot("21_per_day")
+key("Return")
+shot("22_dropdown")
 key("Escape")
 key("Escape")
-shot("22_back")
+shot("23_back")
 
 proc.terminate()
 try:
