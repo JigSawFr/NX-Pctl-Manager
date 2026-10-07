@@ -81,7 +81,7 @@ Controls: ↑/↓ move, Ⓐ confirm, Ⓑ back or cancel (on the sidebar: press �
 ```sh
 make test        # unit tests of the C service layer (any gcc, no devkitPro; ASan + UBSan, SAN= to turn off)
 make desktop     # the UI on Linux with a simulated console (needs GLFW / X11 / D-Bus dev packages)
-make             # ./playguard.nro      (devkitPro switch-dev, DEVKITPRO set)
+make             # ./playguard.nro      (devkitPro switch-dev, DEVKITPRO set; drawn with deko3d, GL=1 for OpenGL)
 make dist        # ./playguard.zip      (SD-card layout)
 ./run.sh [ip]    # build in the devkitpro/devkita64 Docker image, optionally nxlink to a console
 ```

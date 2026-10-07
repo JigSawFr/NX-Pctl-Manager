@@ -3,6 +3,12 @@ cmake_minimum_required(VERSION 3.10)
 # Borealis lives in extern/ as a git submodule (xfangfang/borealis, wiliwili branch).
 set(BOREALIS_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/extern/borealis/library)
 
+# On the Switch, draw with deko3d (devkitPro's own GPU API) rather than mesa's
+# OpenGL: mesa (libEGL + libglapi) was ~5 MB of the 9.4 MB .nro and most of
+# the start-up time. -DUSE_DEKO3D=OFF (make GL=1) builds the OpenGL variant.
+# Declared before borealis' options so this default wins; ignored on desktop.
+option(USE_DEKO3D "Switch: draw with deko3d instead of OpenGL (mesa)" ON)
+
 # PLATFORM_SWITCH / PLATFORM_DESKTOP / USE_DEKO3D … options.
 include(${BOREALIS_LIBRARY}/cmake/commonOption.cmake)
 
@@ -23,6 +29,24 @@ endif ()
 # devkitPro's platform file defaults to Release (-O2 -g; elf2nro keeps no
 # debug data). borealis prints its "Build Type:" line before project() picks
 # that default, so say what is actually used.
+# deko3d draws with precompiled shaders: borealis' nanovg loads them from
+# romfs:/shaders/, so compile them (uam, part of switch-dev) for the romfs.
+set(PLAYGUARD_DKSH_DIR ${CMAKE_BINARY_DIR}/dksh)
+if (PLATFORM_SWITCH AND USE_DEKO3D)
+    gen_dksh(${PLAYGUARD_DKSH_DIR})
+    foreach (shader fill_vsh fill_fsh fill_aa_fsh)
+        if (NOT EXISTS ${PLAYGUARD_DKSH_DIR}/${shader}.dksh)
+            message(FATAL_ERROR "uam did not produce ${shader}.dksh")
+        endif ()
+    endforeach ()
+endif ()
+if (PLATFORM_SWITCH)
+    if (USE_DEKO3D)
+        message(STATUS "PlayGuard renderer: deko3d")
+    else ()
+        message(STATUS "PlayGuard renderer: OpenGL (mesa)")
+    endif ()
+endif ()
 string(TOUPPER "${CMAKE_BUILD_TYPE}" PLAYGUARD_BUILD_TYPE_UC)
 message(STATUS "PlayGuard build type: ${CMAKE_BUILD_TYPE}; C++ flags: ${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${PLAYGUARD_BUILD_TYPE_UC}}")
 
@@ -94,15 +118,23 @@ set(ASSEMBLE_RESOURCES
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${BOREALIS_RESOURCES} ${MERGED_RESOURCES}
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${MERGED_RESOURCES}/xml
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${MERGED_RESOURCES}/img/pokemon
+    COMMAND ${CMAKE_COMMAND} -E remove -f ${MERGED_RESOURCES}/img/tiles.png ${MERGED_RESOURCES}/img/demo_icon.jpg
+            ${MERGED_RESOURCES}/img/borealis_96.png ${MERGED_RESOURCES}/img/borealis_256.png
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_RESOURCES} ${MERGED_RESOURCES}
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_RESOURCES}/i18n/fr ${MERGED_RESOURCES}/i18n/fr-CA
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_ICON} ${MERGED_RESOURCES}/img/app_icon.jpg)
+
+set(PLAYGUARD_COPY_SHADERS)
+if (PLATFORM_SWITCH AND USE_DEKO3D)
+    set(PLAYGUARD_COPY_SHADERS COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLAYGUARD_DKSH_DIR} ${MERGED_RESOURCES}/shaders)
+endif ()
 
 if (PLATFORM_SWITCH)
     add_custom_target(${PROJECT_NAME}.nro ALL DEPENDS ${PROJECT_NAME}
         COMMAND ${NX_NACPTOOL_EXE} --create "PlayGuard" "${PROJECT_AUTHOR}"
                 "${APP_VERSION}" ${PROJECT_NAME}.nacp --titleid=${PROJECT_TITLEID}
         ${ASSEMBLE_RESOURCES}
+        ${PLAYGUARD_COPY_SHADERS}
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${MERGED_RESOURCES}/font
         COMMAND ${NX_ELF2NRO_EXE} ${PROJECT_NAME}.elf ${PROJECT_NAME}.nro
                 --icon=${PROJECT_ICON} --nacp=${PROJECT_NAME}.nacp
