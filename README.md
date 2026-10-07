@@ -91,6 +91,14 @@ Branding: `branding/*.svg` (sources), rendered to `icon.jpg` and `images/store/*
 
 Layout: `source/core/` (C, libnx: `pctl_ops`, `time_ops`, `sysinfo`), `source/tab/` (one class per tab), `source/ui/` (dialogs, formatting), `source/util/` (NTP, config, profiles, diagnostics), `resources/` (XML layouts, `i18n/en-US`, `i18n/fr`).
 
+## Contributing
+
+Releases are automated with [release-please](https://github.com/googleapis/release-please), which reads [conventional commits](https://www.conventionalcommits.org/):
+
+- Give each pull request a conventional title (`feat: …`, `fix: …`, `docs: …`, `feat!: …` for a breaking change); CI checks it.
+- **Squash-merge** pull requests, so each one lands as a single commit carrying that title. A plain merge commit makes release-please apply a PR's `BEGIN_COMMIT_OVERRIDE` block to every commit of the PR.
+- release-please then keeps a `chore(main): release X.Y.Z` PR open; merging it tags the release and attaches the `.nro` / `.zip`.
+
 ## License
 
 GPLv3 (see [`LICENSE`](LICENSE)). PlayGuard is maintained by **[JigSawFr](https://github.com/JigSawFr)**.
