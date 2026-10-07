@@ -9,6 +9,7 @@ using namespace brls::literals;
 SecurityTab::SecurityTab()
     : TabBase("xml/tab/security.xml")
 {
+    this->enable_auto_refresh(5000);
     set_pin->registerClickAction([this](brls::View*) {
         // Blocks while the system PIN applet is shown; the session is released first.
         Result rc = pctl_set_pin();
@@ -32,10 +33,10 @@ SecurityTab::SecurityTab()
         return true;
     });
     del->registerClickAction([this](brls::View*) {
-        ui::confirm("playguard/security/delete_body"_i18n, "playguard/security/delete_confirm"_i18n, [this]() {
-            // Second, separate confirmation: this cannot be undone.
+        ui::confirm_danger("playguard/security/delete_body"_i18n, "playguard/security/delete_confirm"_i18n, [this]() {
+            // Second, separate confirmation with a different button: this cannot be undone.
             brls::sync([this]() {
-                ui::confirm("playguard/security/delete_body2"_i18n, "playguard/security/delete_confirm"_i18n, [this]() {
+                ui::confirm_danger("playguard/security/delete_body2"_i18n, "playguard/security/delete_confirm2"_i18n, [this]() {
                     Result rc = pctl_delete_parental_controls();
                     ui::notify_result(rc, "playguard/security/deleted"_i18n, "playguard/security/delete_err"_i18n);
                     this->refresh();
@@ -65,12 +66,12 @@ void SecurityTab::refresh()
     const bool writable = !app::read_only_build();
     const bool has_pin  = s.pin_length_ok && s.pin_length > 0;
     const bool unlocked = s.temp_unlocked_ok && s.temp_unlocked;
-    ui::set_visible(actions_header.getView(), writable);
-    ui::set_visible(set_pin.getView(), writable);
-    ui::set_visible(unlock.getView(), writable && has_pin && !unlocked);
-    ui::set_visible(relock.getView(), writable && unlocked);
-    ui::set_visible(danger_header.getView(), writable);
-    ui::set_visible(del.getView(), writable);
+    ui::set_visible_all({ { actions_header.getView(), writable },
+                          { set_pin.getView(), writable },
+                          { unlock.getView(), writable && has_pin && !unlocked },
+                          { relock.getView(), writable && unlocked },
+                          { danger_header.getView(), writable },
+                          { del.getView(), writable } });
 }
 
 brls::View* SecurityTab::create()

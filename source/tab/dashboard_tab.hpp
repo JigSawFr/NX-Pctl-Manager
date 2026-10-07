@@ -1,23 +1,27 @@
-// DashboardTab — read-only overview, refreshed every 5 s while in focus.
+// DashboardTab — overview: today's play time, parental-control state, system
+// warnings. Refreshed every 5 s while shown; A on a line opens the matching tab.
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
 #include "tab/tab_base.hpp"
+#include "util/pctl_ops_c.hpp"
 #include "view/pt_gauge.hpp"
 
 class DashboardTab : public TabBase
 {
   public:
     DashboardTab();
-    ~DashboardTab() override;
     static brls::View* create();
 
   protected:
     void refresh() override;
 
   private:
-    brls::RepeatingTimer timer;
+    PtState pt = {};
 
+    void open_today_limit();
+
+    BRLS_BIND(brls::DetailCell, unlocked_banner, "dash_unlocked_banner");
     BRLS_BIND(brls::DetailCell, pc,          "dash_pc");
     BRLS_BIND(brls::DetailCell, pin,         "dash_pin");
     BRLS_BIND(brls::DetailCell, level,       "dash_level");
@@ -30,4 +34,5 @@ class DashboardTab : public TabBase
     BRLS_BIND(brls::DetailCell, pairing,     "dash_pairing");
     BRLS_BIND(brls::DetailCell, fw,          "dash_fw");
     BRLS_BIND(brls::DetailCell, compat,      "dash_compat");
+    BRLS_BIND(brls::Label,      hint,        "dash_hint");
 };

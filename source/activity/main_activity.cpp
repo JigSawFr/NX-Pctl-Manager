@@ -14,9 +14,17 @@ void MainActivity::onContentAvailable()
             frame->setTitle("playguard/title_read_only"_i18n);
     }
 
-    // B on the sidebar quits (the tabs themselves send B back to the sidebar).
+    // B on the sidebar quits (the tabs themselves send B back to the sidebar),
+    // but only when pressed twice within 2 s: one stray B never closes the app.
     this->getContentView()->registerAction("hints/exit"_i18n, brls::BUTTON_B, [](brls::View*) {
-        brls::Application::quit();
+        static brls::Time last_press = 0;
+        const brls::Time now = brls::getCPUTimeUsec();
+        if (last_press && now - last_press < 2000000) {
+            brls::Application::quit();
+            return true;
+        }
+        last_press = now;
+        brls::Application::notify("playguard/hints/exit_again"_i18n);
         return true;
     });
 

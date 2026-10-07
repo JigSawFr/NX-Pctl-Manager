@@ -1,6 +1,8 @@
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #include "ui/ui.hpp"
 
+#include "app.hpp"
+
 #include <ctime>
 #include <fmt/format.h>
 #include <memory>
@@ -19,17 +21,20 @@ void register_theme_colors()
     light.addColor("brand/warn", nvgRGB(0x8A, 0x52, 0x00));
     light.addColor("brand/bad", nvgRGB(0xB7, 0x1C, 0x1C));
     light.addColor("brand/gauge_track", nvgRGBA(0, 0, 0, 34));
+    light.addColor("brand/note", nvgRGB(0x5C, 0x5C, 0x5C));
     auto& dark = brls::Theme::getDarkTheme();
     dark.addColor("brand/ok", nvgRGB(0x2E, 0xC4, 0xA6));
     dark.addColor("brand/warn", nvgRGB(0xFF, 0xB5, 0x47));
     dark.addColor("brand/bad", nvgRGB(0xFF, 0x7A, 0x7A));
     dark.addColor("brand/gauge_track", nvgRGBA(255, 255, 255, 46));
+    dark.addColor("brand/note", nvgRGB(0xB8, 0xB8, 0xB8));
 }
 
 NVGcolor color_ok()      { return brls::Application::getTheme()["brand/ok"]; }
 NVGcolor color_warn()    { return brls::Application::getTheme()["brand/warn"]; }
 NVGcolor color_bad()     { return brls::Application::getTheme()["brand/bad"]; }
 NVGcolor color_track()   { return brls::Application::getTheme()["brand/gauge_track"]; }
+NVGcolor color_note()    { return brls::Application::getTheme()["brand/note"]; }
 NVGcolor color_neutral() { return brls::Application::getTheme()["brls/list/listItem_value_color"]; }
 NVGcolor color_text()    { return brls::Application::getTheme()["brls/text"]; }
 
@@ -76,14 +81,28 @@ void notify_result(Result rc, const std::string& ok_text, const std::string& err
     else notify(error_prefix + " — " + rc_text(rc));
 }
 
-void confirm(const std::string& body, const std::string& confirm_label,
-             std::function<void()> on_yes, std::function<void()> on_no)
+static void open_confirm(const std::string& body, const std::string& confirm_label,
+                         std::function<void()> on_yes, std::function<void()> on_no, bool danger)
 {
     auto* dialog = new brls::Dialog(body);
     dialog->addButton("hints/cancel"_i18n, [on_no]() { if (on_no) on_no(); });
     dialog->addButton(confirm_label, [on_yes]() { if (on_yes) on_yes(); });
     dialog->setCancelable(true);
+    if (danger)
+        if (auto* button = dynamic_cast<brls::Button*>(dialog->getView("brls/dialog/button2")))
+            button->setTextColor(color_bad());
     dialog->open();
+}
+
+void confirm(const std::string& body, const std::string& confirm_label,
+             std::function<void()> on_yes, std::function<void()> on_no)
+{
+    open_confirm(body, confirm_label, std::move(on_yes), std::move(on_no), false);
+}
+
+void confirm_danger(const std::string& body, const std::string& confirm_label, std::function<void()> on_yes)
+{
+    open_confirm(body, confirm_label, std::move(on_yes), nullptr, true);
 }
 
 void info(const std::string& body)
@@ -149,6 +168,12 @@ std::string day_name(int day)
 {
     if (day < 0 || day > 6) return "?";
     return brls::getStr(fmt::format("playguard/days/{}", day));
+}
+
+std::string day_name_in_text(int day)
+{
+    if (day < 0 || day > 6) return "?";
+    return brls::getStr(fmt::format("playguard/days_lower/{}", day));
 }
 
 std::string bool_text(bool ok, bool value, const std::string& yes, const std::string& no)
@@ -217,8 +242,83 @@ void set_visible(brls::View* view, bool visible)
     if (!view) return;
     const bool had_focus = !visible && view->isFocused();
     view->setVisibility(visible ? brls::Visibility::VISIBLE : brls::Visibility::GONE);
-    // Never leave the focus on a view that just disappeared.
-    if (had_focus && view->getParent()) brls::Application::giveFocus(view->getParent());
+    if (!had_focus) return;
+
+    // Never leave the focus on a view that just disappeared: prefer the
+    // nearest focusable sibling, then the container.
+    brls::Box* parent = view->getParent();
+    if (!parent) return;
+    const auto& children = parent->getChildren();
+    const int count = (int)children.size();
+    int index = -1;
+    for (int i = 0; i < count; i++)
+        if (children[i] == view) index = i;
+    for (int distance = 1; index >= 0 && distance < count; distance++) {
+        for (int i : { index + distance, index - distance }) {
+            if (i < 0 || i >= count) continue;
+            if (brls::View* target = children[i]->getDefaultFocus()) {
+                brls::Application::giveFocus(target);
+                return;
+            }
+        }
+    }
+    brls::Application::giveFocus(parent);
+}
+
+void set_visible_all(std::initializer_list<std::pair<brls::View*, bool>> changes)
+{
+    for (const auto& c : changes)
+        if (c.second) set_visible(c.first, true);
+    for (const auto& c : changes)
+        if (!c.second) set_visible(c.first, false);
+}
+
+void go_to_tab(brls::View* from, int position)
+{
+    brls::TabFrame* frame = nullptr;
+    for (brls::View* v = from; v && !frame; v = v->getParent())
+        frame = dynamic_cast<brls::TabFrame*>(v);
+    if (!frame) return;
+    brls::sync([frame, position]() {
+        frame->focusTab(position);   // replaces the tab content
+        const auto& children = frame->getChildren();
+        if (children.size() >= 2) brls::Application::giveFocus(children.back());
+    });
+}
+
+void init_unlock_banner(brls::DetailCell* cell, std::function<void()> after)
+{
+    cell->setText("playguard/security/banner_title"_i18n);
+    cell->title->setTextColor(color_warn());
+    cell->setBackgroundColor(nvgTransRGBA(color_warn(), 28));
+    cell->setCornerRadius(6);
+    if (app::read_only_build()) {
+        // No action: give the title the whole width (an empty detail label
+        // still reserves its space).
+        cell->detail->setVisibility(brls::Visibility::GONE);
+        return;
+    }
+    cell->setDetailText("playguard/security/banner_action"_i18n);
+    cell->registerClickAction([after](brls::View*) {
+        Result rc = pctl_relock();
+        notify_result(rc, "playguard/toast/relocked"_i18n, "playguard/toast/relock_err"_i18n);
+        if (after) after();
+        return true;
+    });
+}
+
+void show_unlock_banner(brls::DetailCell* cell, bool unlocked)
+{
+    set_visible(cell, unlocked);
+}
+
+void offer_restart()
+{
+    auto* dialog = new brls::Dialog("playguard/common/restart_body"_i18n);
+    dialog->addButton("playguard/common/later"_i18n, []() {});
+    dialog->addButton("playguard/common/quit"_i18n, []() { brls::Application::quit(); });
+    dialog->setCancelable(true);
+    dialog->open();
 }
 
 }   // namespace ui

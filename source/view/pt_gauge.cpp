@@ -24,7 +24,7 @@ void PtGauge::draw(NVGcontext* vg, float x, float y, float width, float height,
 
     nvgBeginPath(vg);
     nvgRoundedRect(vg, x, y, width, height, radius);
-    nvgFillColor(vg, nvgRGBA(128, 128, 128, 70));
+    nvgFillColor(vg, ui::color_track());
     nvgFill(vg);
 
     if (this->used <= 0.0f) return;

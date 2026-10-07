@@ -27,7 +27,7 @@
             <brls:DetailCell id="ck_accuracy" title="@i18n/playguard/clock/accuracy"/>
             <brls:DetailCell id="ck_auto" title="@i18n/playguard/clock/auto"/>
             <brls:DetailCell id="ck_zone" title="@i18n/playguard/clock/zone"/>
-            <brls:Label id="ck_why" text="@i18n/playguard/clock/why" fontSize="16" marginTop="10" marginBottom="6" textColor="@theme/brls/header/subtitle"/>
+            <brls:Label id="ck_why" text="@i18n/playguard/clock/why" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
             <brls:Header title="@i18n/playguard/clock/section_server" marginTop="24" marginBottom="8"/>
             <brls:DetailCell id="ck_region" title="@i18n/playguard/clock/region"/>
             <brls:DetailCell id="ck_server" title="@i18n/playguard/clock/server"/>
@@ -36,7 +36,6 @@
             <brls:DetailCell id="ck_measure" title="@i18n/playguard/clock/measure"/>
             <brls:Label id="ck_result" text="" marginTop="8" marginBottom="8" marginLeft="16" marginRight="16"/>
             <brls:DetailCell id="ck_apply" title="@i18n/playguard/clock/apply"/>
-            <brls:DetailCell id="ck_export" title="@i18n/playguard/clock/export"/>
 
         </brls:Box>
 

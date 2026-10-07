@@ -23,10 +23,11 @@
 
             <brls:Header title="@i18n/playguard/tools/section_diag" marginBottom="8"/>
             <brls:DetailCell id="tl_export" title="@i18n/playguard/tools/export"/>
-            <brls:Label id="tl_export_note" text="" fontSize="16" marginTop="10" marginBottom="6" textColor="@theme/brls/header/subtitle"/>
+            <brls:Label id="tl_export_note" text="" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
             <brls:Header title="@i18n/playguard/tools/section_prefs" marginTop="24" marginBottom="8"/>
             <brls:DetailCell id="tl_language" title="@i18n/playguard/tools/language"/>
             <brls:DetailCell id="tl_theme" title="@i18n/playguard/tools/theme"/>
+            <brls:BooleanCell id="tl_auto_relock"/>
             <brls:BooleanCell id="tl_advanced"/>
             <brls:Header title="@i18n/playguard/tools/section_about" marginTop="24" marginBottom="8"/>
             <brls:DetailCell id="tl_version" title="@i18n/playguard/tools/version"/>

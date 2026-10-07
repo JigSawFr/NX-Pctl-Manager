@@ -62,14 +62,8 @@ ClockTab::ClockTab()
     custom->registerClickAction([this](brls::View*) { this->enter_custom(); return true; });
     measure_cell->registerClickAction([this](brls::View*) { this->measure(); return true; });
     apply_cell->registerClickAction([this](brls::View*) { this->apply(); return true; });
-    export_cell->registerClickAction([](brls::View*) {
-        std::string err;
-        std::string path = diagnostic::save(diagnostic::current_report(), &err);
-        if (path.empty()) ui::notify("playguard/toast/diag_err"_i18n + ": " + err);
-        else ui::notify(brls::getStr("playguard/toast/diag_saved", path));
-        return true;
-    });
-    ui::set_visible(apply_cell.getView(), !app::read_only_build());
+    // Clocks tick and a measurement expires: keep the screen current.
+    this->enable_auto_refresh(1000);
 }
 
 void ClockTab::refresh()
@@ -90,6 +84,16 @@ void ClockTab::refresh()
 
     region->setDetailText(region_label(this->region_id));
     server_cell->setDetailText(this->server);
+
+    // "Set the network clock" only exists while a fresh measurement does.
+    if (this->last.ok) {
+        auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - this->last.at).count();
+        if (elapsed < 0 || elapsed > SAMPLE_LIFETIME_S) {
+            this->last = Measurement{};
+            this->result->setText("playguard/clock/expired"_i18n);
+        }
+    }
+    ui::set_visible(apply_cell.getView(), !app::read_only_build() && this->last.ok);
 }
 
 void ClockTab::set_server(const std::string& host, const std::string& reg)
@@ -160,6 +164,7 @@ void ClockTab::measure()
     }
     this->busy = true;
     this->last = Measurement{};
+    ui::set_visible(apply_cell.getView(), false);
     std::vector<std::string> hosts = { this->server };
     for (auto& h : ntp::cross_check_servers(this->server)) hosts.push_back(h);
     this->result->setText(brls::getStr("playguard/clock/measuring", this->server));
@@ -215,6 +220,7 @@ void ClockTab::measure()
             text += brls::getStr("playguard/clock/result_summary", ui::time_text(m.unix_seconds), diff);
             if (m.spread > 5) text += "\n" + brls::getStr("playguard/clock/result_spread", (int)m.spread);
             this->result->setText(text);
+            this->refresh();   // shows "Set the network clock"
         });
     });
 }

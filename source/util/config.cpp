@@ -23,6 +23,7 @@ void load()
         s_config.theme           = j.value("theme", s_config.theme);
         s_config.ntp_server      = j.value("ntp_server", s_config.ntp_server);
         s_config.advanced        = j.value("advanced", s_config.advanced);
+        s_config.auto_relock     = j.value("auto_relock", s_config.auto_relock);
         s_config.untested_fw_ack = j.value("untested_fw_ack", s_config.untested_fw_ack);
         if (j.contains("custom_servers") && j["custom_servers"].is_array())
             for (auto& v : j["custom_servers"])
@@ -40,6 +41,7 @@ bool save()
     j["ntp_server"]      = s_config.ntp_server;
     j["custom_servers"]  = s_config.custom_servers;
     j["advanced"]        = s_config.advanced;
+    j["auto_relock"]     = s_config.auto_relock;
     j["untested_fw_ack"] = s_config.untested_fw_ack;
     return paths::atomic_write(paths::config_file(), j.dump(2) + "\n");
 }

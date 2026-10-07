@@ -3,24 +3,58 @@
 
 #include <fmt/format.h>
 
+#include "action/pt_flow.hpp"
+#include "activity/play_timer_perday_activity.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
 
 using namespace brls::literals;
 
+namespace
+{
+void link(brls::DetailCell* cell, int tab)
+{
+    cell->registerClickAction([cell, tab](brls::View*) {
+        ui::go_to_tab(cell, tab);
+        return true;
+    });
+}
+}   // namespace
+
 DashboardTab::DashboardTab()
     : TabBase("xml/tab/dashboard.xml")
 {
-    this->timer.setPeriod(5000);
-    this->timer.setCallback([this]() {
-        if (app::in_focus()) this->refresh();
+    hint->setSingleLine(false);
+    ui::init_unlock_banner(unlocked_banner, [this]() { this->refresh(); });
+    this->enable_auto_refresh(5000);
+
+    today_limit->registerClickAction([this](brls::View*) {
+        this->open_today_limit();
+        return true;
     });
-    this->timer.start();
+    link(remaining, ui::tab::play_timer);
+    link(bedtime, ui::tab::play_timer);
+    link(pc, ui::tab::security);
+    link(pin, ui::tab::security);
+    link(level, ui::tab::restrictions);
+    link(clock, ui::tab::clock);
+    link(pairing, ui::tab::pairing);
+    link(fw, ui::tab::tools);
+    link(compat, ui::tab::tools);
 }
 
-DashboardTab::~DashboardTab()
+void DashboardTab::open_today_limit()
 {
-    this->timer.stop();
+    // Writable: change the limit right here (the same picker as the Play timer
+    // tab when every day shares one limit, the per-day editor otherwise).
+    if (app::read_only_build() || !this->pt.fw_supported || !this->pt.valid) {
+        ui::go_to_tab(today_limit, ui::tab::play_timer);
+        return;
+    }
+    bool uniform = true;
+    for (int i = 1; i < 7 && uniform; i++) uniform = this->pt.day_min[i] == this->pt.day_min[0];
+    if (uniform) pt_flow::choose_uniform_limit(this->pt, [this]() { this->refresh(); });
+    else brls::Application::pushActivity(new PlayTimerPerDayActivity());
 }
 
 void DashboardTab::refresh()
@@ -29,37 +63,20 @@ void DashboardTab::refresh()
 
     PctlStatus s;
     pctl_status_fetch(&s);
-    PtState pt;
-    pctl_play_timer_query(&pt);
+    pctl_play_timer_query(&this->pt);
+    const PtState& pt = this->pt;
     TimeSnapshot ts;
     time_clock_snapshot(&ts);
     SysInfo si;
     sysinfo_get(&si);
 
-    // Parental controls overall state.
-    if (!s.restriction_enabled_ok) {
-        pc->setDetailText(na);
-        pc->setDetailTextColor(ui::color_neutral());
-    } else if (s.temp_unlocked_ok && s.temp_unlocked) {
-        pc->setDetailText("playguard/dashboard/pc_unlocked"_i18n);
-        pc->setDetailTextColor(ui::color_warn());
-    } else if (s.restriction_enabled || (s.pin_length_ok && s.pin_length > 0)) {
-        pc->setDetailText("playguard/dashboard/pc_active"_i18n);
-        pc->setDetailTextColor(ui::color_ok());
-    } else {
-        pc->setDetailText("playguard/dashboard/pc_off"_i18n);
-        pc->setDetailTextColor(ui::color_neutral());
-    }
-
-    if (!s.pin_length_ok) pin->setDetailText(na);
-    else if (s.pin_length == 0) pin->setDetailText("playguard/common/not_set"_i18n);
-    else pin->setDetailText(brls::getStr("playguard/dashboard/pin_set", (int)s.pin_length));
-
-    level->setDetailText(s.safety_level_ok ? ui::level_name(s.safety_level) : na);
+    const bool unlocked = s.temp_unlocked_ok && s.temp_unlocked;
+    const bool has_pin  = s.pin_length_ok && s.pin_length > 0;
 
     // Today's play time.
     const int today = ui::today_weekday();
-    today_limit->setText(brls::getStr("playguard/dashboard/today_limit", ui::day_name(today)));
+    today_limit->setText(brls::getStr("playguard/dashboard/today_limit", ui::day_name_in_text(today)));
+    bool show_gauge = true;
     if (!pt.fw_supported) {
         gauge->setFraction(-1);
         gauge_text->setText("playguard/play_timer/fw_too_old_short"_i18n);
@@ -71,8 +88,11 @@ void DashboardTab::refresh()
     } else {
         const uint16_t limit = pt.day_min[today];
         today_limit->setDetailText(ui::fmt_minutes(limit));
-        if (limit == PT_DAY_NOLIMIT || !pt.enabled) {
-            gauge->setFraction(0);
+        if (limit != PT_DAY_NOLIMIT && unlocked) {
+            show_gauge = false;   // the countdown is suspended while unlocked
+            gauge_text->setText("playguard/dashboard/gauge_unlocked"_i18n);
+        } else if (limit == PT_DAY_NOLIMIT || !pt.enabled) {
+            show_gauge = false;   // nothing to measure against: the text says it
             gauge_text->setText("playguard/dashboard/gauge_none"_i18n);
         } else if (pt.restricted_valid && pt.restricted) {
             gauge->setFraction(1);
@@ -85,24 +105,55 @@ void DashboardTab::refresh()
                                              ui::fmt_minutes(used), ui::fmt_minutes(limit)));
         } else {
             gauge->setFraction(-1);
-            gauge_text->setText(brls::getStr("playguard/dashboard/gauge_limit_only", ui::fmt_minutes(limit)));
+            gauge_text->setText("playguard/dashboard/gauge_idle"_i18n);
         }
     }
+    ui::set_visible(gauge.getView(), show_gauge);
 
-    if (pt.fw_supported && pt.enabled_valid && pt.enabled && pt.remaining_valid && pt.remaining_ns > 0)
+    if (!pt.fw_supported || !pt.valid || !pt.enabled_valid)
+        remaining->setDetailText("—");
+    else if (unlocked && pt.day_min[today] != PT_DAY_NOLIMIT)
+        remaining->setDetailText("playguard/dashboard/remaining_unlocked"_i18n);
+    else if (!pt.enabled || pt.day_min[today] == PT_DAY_NOLIMIT)
+        remaining->setDetailText("playguard/common/no_limit"_i18n);
+    else if (pt.remaining_valid && pt.remaining_ns > 0)
         remaining->setDetailText(ui::fmt_duration_ns(pt.remaining_ns));
     else
-        remaining->setDetailText("—");
+        remaining->setDetailText("playguard/dashboard/remaining_idle"_i18n);
 
     if (pt.bedtime_valid) {
         std::string hm = fmt::format("{:02d}:{:02d}", pt.bedtime_hour, pt.bedtime_minute);
-        bedtime->setDetailText(pt.bedtime_enabled ? brls::getStr("playguard/play_timer/bedtime_value_on", hm)
-                                                  : "playguard/common/off"_i18n);
+        bedtime->setDetailText(brls::getStr(pt.bedtime_enabled ? "playguard/play_timer/bedtime_value_on"
+                                                               : "playguard/play_timer/bedtime_value_off", hm));
     } else {
         bedtime->setDetailText(pt.fw_supported ? na : "—");
     }
 
-    // System.
+    // Parental controls overall state.
+    if (!s.restriction_enabled_ok) {
+        pc->setDetailText(na);
+        pc->setDetailTextColor(ui::color_neutral());
+    } else if (unlocked) {
+        pc->setDetailText("playguard/dashboard/pc_unlocked"_i18n);
+        pc->setDetailTextColor(ui::color_warn());
+    } else if (s.restriction_enabled) {
+        pc->setDetailText("playguard/dashboard/pc_active"_i18n);
+        pc->setDetailTextColor(ui::color_ok());
+    } else if (has_pin) {
+        pc->setDetailText("playguard/dashboard/pc_pin_only"_i18n);
+        pc->setDetailTextColor(ui::color_neutral());
+    } else {
+        pc->setDetailText("playguard/dashboard/pc_off"_i18n);
+        pc->setDetailTextColor(ui::color_neutral());
+    }
+
+    if (!s.pin_length_ok) pin->setDetailText(na);
+    else if (s.pin_length == 0) pin->setDetailText("playguard/common/not_set"_i18n);
+    else pin->setDetailText(brls::getStr("playguard/dashboard/pin_set", (int)s.pin_length));
+
+    level->setDetailText(s.safety_level_ok ? ui::level_name(s.safety_level) : na);
+
+    // System: only what needs attention stands out.
     if (R_FAILED(ts.accuracy_rc)) {
         clock->setDetailText(na);
         clock->setDetailTextColor(ui::color_neutral());
@@ -110,13 +161,23 @@ void DashboardTab::refresh()
         clock->setDetailText(ts.accuracy ? "playguard/dashboard/clock_ok"_i18n : "playguard/dashboard/clock_bad"_i18n);
         clock->setDetailTextColor(ts.accuracy ? ui::color_ok() : ui::color_warn());
     }
+    const bool paired = s.pairing_active_ok && s.pairing_active;
     pairing->setDetailText(ui::bool_text(s.pairing_active_ok, s.pairing_active,
         "playguard/dashboard/pairing_on"_i18n, "playguard/dashboard/pairing_off"_i18n));
+    // A linked phone overwrites everything set here at its next sync.
+    pairing->setDetailTextColor(paired ? ui::color_warn() : ui::color_neutral());
 
+    // Firmware and compatibility appear here only when there is something to
+    // check; Tools › About always shows them.
+    const bool compat_issue = sysinfo_compat(&si) != SysCompat_Ok;
     fw->setDetailText(ui::fw_text(si));
     NVGcolor c = ui::color_neutral();
     compat->setDetailText(ui::compat_text(si, &c));
     compat->setDetailTextColor(c);
+
+    // Visibility last, so a vanished focused cell hands the focus to a neighbour.
+    ui::set_visible_all({ { fw.getView(), compat_issue }, { compat.getView(), compat_issue },
+                          { unlocked_banner.getView(), unlocked } });
 }
 
 brls::View* DashboardTab::create()

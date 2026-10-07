@@ -3,6 +3,7 @@
 
 #include <array>
 #include <fmt/format.h>
+#include <vector>
 
 #include "action/pt_flow.hpp"
 #include "activity/play_timer_perday_activity.hpp"
@@ -16,8 +17,6 @@ using namespace brls::literals;
 
 namespace
 {
-const uint16_t QUICK_VALUES[] = { 30, 45, 60, 90, 120, 180, 240, 0 };
-
 std::string days_summary(const uint16_t days[7])
 {
     std::string out;
@@ -28,6 +27,14 @@ std::string days_summary(const uint16_t days[7])
     }
     return out;
 }
+
+void export_diagnostic()
+{
+    std::string err;
+    std::string path = diagnostic::save(diagnostic::current_report(), &err);
+    if (path.empty()) ui::notify("playguard/toast/diag_err"_i18n + ": " + err);
+    else ui::notify(brls::getStr("playguard/toast/diag_saved", path));
+}
 }   // namespace
 
 PlayTimerTab::PlayTimerTab()
@@ -35,8 +42,13 @@ PlayTimerTab::PlayTimerTab()
 {
     fw_note->setSingleLine(false);
     bedtime_note->setSingleLine(false);
+    ui::init_unlock_banner(unlocked_banner, [this]() { this->refresh(); });
+    this->enable_auto_refresh(5000);
 
-    quick->registerClickAction([this](brls::View*) { this->choose_uniform(); return true; });
+    quick->registerClickAction([this](brls::View*) {
+        pt_flow::choose_uniform_limit(this->pt, [this]() { this->refresh(); });
+        return true;
+    });
     per_day->registerClickAction([](brls::View*) {
         brls::Application::pushActivity(new PlayTimerPerDayActivity());
         return true;
@@ -52,24 +64,22 @@ PlayTimerTab::PlayTimerTab()
         ui::notify_result(rc, "playguard/common/applied"_i18n, "playguard/play_timer/write_err"_i18n);
     });
     pause->registerClickAction([this](brls::View*) {
-        ui::confirm("playguard/play_timer/pause_body"_i18n, "playguard/play_timer/pause"_i18n, [this]() {
+        ui::confirm("playguard/play_timer/pause_body"_i18n, "playguard/play_timer/pause_confirm"_i18n, [this]() {
             ui::notify_result(pctl_play_timer_stop(), "playguard/common/applied"_i18n, "playguard/play_timer/write_err"_i18n);
             this->refresh();
         });
         return true;
     });
     resume->registerClickAction([this](brls::View*) {
-        ui::confirm("playguard/play_timer/resume_body"_i18n, "playguard/play_timer/resume"_i18n, [this]() {
+        ui::confirm("playguard/play_timer/resume_body"_i18n, "playguard/play_timer/resume_confirm"_i18n, [this]() {
             ui::notify_result(pctl_play_timer_start(), "playguard/common/applied"_i18n, "playguard/play_timer/write_err"_i18n);
             this->refresh();
         });
         return true;
     });
+    // Diagnostic shortcut for PROBE builds only; everyone else uses Tools.
     diag->registerClickAction([](brls::View*) {
-        std::string err;
-        std::string path = diagnostic::save(diagnostic::current_report(), &err);
-        if (path.empty()) ui::notify("playguard/toast/diag_err"_i18n + ": " + err);
-        else ui::notify(brls::getStr("playguard/toast/diag_saved", path));
+        export_diagnostic();
         return true;
     });
 }
@@ -82,7 +92,9 @@ void PlayTimerTab::refresh()
     const bool fw_ok    = this->pt.fw_supported;
     const bool writable = fw_ok && !app::read_only_build();
     const bool advanced = writable && config::get().advanced;
+    const bool probe    = fw_ok && app::probe_build();
 
+    ui::show_unlock_banner(unlocked_banner, this->pt.temporary_unlocked_valid && this->pt.temporary_unlocked);
     ui::set_visible(fw_note.getView(), !fw_ok);
     for (brls::View* v : { (brls::View*)limit_header.getView(), (brls::View*)quick.getView(),
                            (brls::View*)per_day.getView(), (brls::View*)remove.getView(),
@@ -94,8 +106,8 @@ void PlayTimerTab::refresh()
         ui::set_visible(v, fw_ok);
     for (brls::View* v : { (brls::View*)alarm.getView(), (brls::View*)pause.getView(), (brls::View*)resume.getView() })
         ui::set_visible(v, advanced);
-    ui::set_visible(diag.getView(), fw_ok && (advanced || app::probe_build()));
-    ui::set_visible(adv_header.getView(), fw_ok && (advanced || app::probe_build()));
+    ui::set_visible(diag.getView(), probe);
+    ui::set_visible(adv_header.getView(), advanced || probe);
 
     if (!fw_ok) return;
 
@@ -118,66 +130,26 @@ void PlayTimerTab::refresh()
     if (this->pt.alarm_disabled_valid) alarm->setOn(!this->pt.alarm_disabled, false);
 }
 
-void PlayTimerTab::choose_uniform()
-{
-    // Pre-select the current value only when every day shares it.
-    bool uniform = this->pt.valid;
-    for (int i = 1; i < 7 && uniform; i++) uniform = this->pt.day_min[i] == this->pt.day_min[0];
-    std::vector<std::string> labels;
-    int selected = -1;
-    for (size_t i = 0; i < sizeof(QUICK_VALUES) / sizeof(QUICK_VALUES[0]); i++) {
-        labels.push_back(ui::fmt_minutes(QUICK_VALUES[i]));
-        if (uniform && this->pt.day_min[0] == QUICK_VALUES[i]) selected = (int)i;
-    }
-    labels.push_back("playguard/common/custom"_i18n);
-
-    ui::pick("playguard/play_timer/quick_title"_i18n, labels, selected < 0 ? 0 : selected, [this](int index) {
-        const size_t count = sizeof(QUICK_VALUES) / sizeof(QUICK_VALUES[0]);
-        if ((size_t)index < count) {
-            this->apply_uniform(QUICK_VALUES[index]);
-            return;
-        }
-        uint16_t seed = (this->pt.valid && this->pt.day_min[0] != PT_DAY_NOLIMIT) ? this->pt.day_min[0] : 60;
-        ui::prompt_minutes("playguard/play_timer/quick_title"_i18n, seed,
-                           [this](uint16_t v) { this->apply_uniform(v); });
-    });
-}
-
-void PlayTimerTab::apply_uniform(uint16_t minutes)
-{
-    std::string body = minutes == 0 ? "playguard/play_timer/confirm_uniform_zero"_i18n
-                                    : brls::getStr("playguard/play_timer/confirm_uniform", ui::fmt_minutes(minutes));
-    ui::confirm(body, "playguard/play_timer/confirm_set"_i18n, [this, minutes]() {
-        uint16_t days[7];
-        for (auto& d : days) d = minutes;
-        this->apply_days(days, brls::getStr("playguard/play_timer/written_uniform", ui::fmt_minutes(minutes)));
-    });
-}
-
-void PlayTimerTab::apply_days(const uint16_t days_in[7], const std::string& ok_text)
+void PlayTimerTab::apply_days(const uint16_t days_in[7], const std::string& body)
 {
     std::array<uint16_t, 7> days;
     for (int i = 0; i < 7; i++) days[i] = days_in[i];
-    pt_flow::ready_to_write([this, days, ok_text](bool ok, bool did_unlock) {
-        if (!ok) return;
+    pt_flow::confirm_write(body, "playguard/play_timer/confirm_set"_i18n, [this, days](bool did_unlock) {
         Result rc = pctl_play_timer_set_days(days.data());
-        this->refresh();
-        ui::notify_result(rc, ok_text, "playguard/play_timer/write_err"_i18n);
-        if (R_SUCCEEDED(rc) && did_unlock) pt_flow::offer_relock([this]() { this->refresh(); });
+        pt_flow::finish_write(rc, did_unlock, "playguard/play_timer/written_days"_i18n,
+                              "playguard/play_timer/write_err"_i18n, [this]() { this->refresh(); });
     });
 }
 
 void PlayTimerTab::remove_limit()
 {
-    ui::confirm("playguard/play_timer/remove_body"_i18n, "playguard/play_timer/remove_confirm"_i18n, [this]() {
-        pt_flow::ready_to_write([this](bool ok, bool did_unlock) {
-            if (!ok) return;
-            Result rc = pctl_play_timer_clear();
-            this->refresh();
-            ui::notify_result(rc, "playguard/play_timer/removed"_i18n, "playguard/play_timer/remove_err"_i18n);
-            if (R_SUCCEEDED(rc) && did_unlock) pt_flow::offer_relock([this]() { this->refresh(); });
-        });
-    });
+    pt_flow::confirm_write("playguard/play_timer/remove_body"_i18n, "playguard/play_timer/remove_confirm"_i18n,
+                           [this](bool did_unlock) {
+                               Result rc = pctl_play_timer_clear();
+                               pt_flow::finish_write(rc, did_unlock, "playguard/play_timer/removed"_i18n,
+                                                     "playguard/play_timer/remove_err"_i18n,
+                                                     [this]() { this->refresh(); });
+                           });
 }
 
 void PlayTimerTab::save_profile()
@@ -186,13 +158,29 @@ void PlayTimerTab::save_profile()
         ui::notify(ui::rc_text(NXM_RC_STATE_UNKNOWN));
         return;
     }
-    ui::prompt_text("playguard/play_timer/profile_name"_i18n, "", 32, [this](std::string name) {
+    std::array<uint16_t, 7> days;
+    for (int i = 0; i < 7; i++) days[i] = this->pt.day_min[i];
+    ui::prompt_text("playguard/play_timer/profile_name"_i18n, "", 32, [days](std::string typed) {
         profiles::Profile p;
-        p.name = profiles::sanitize_name(name);
-        for (int i = 0; i < 7; i++) p.days[i] = this->pt.day_min[i];
-        std::string err;
-        if (profiles::save(p, &err)) ui::notify(brls::getStr("playguard/play_timer/profile_saved", p.name));
-        else ui::notify("playguard/toast/diag_err"_i18n + ": " + err);
+        p.name = profiles::sanitize_name(typed);
+        p.days = days;
+        if (p.name.empty()) {
+            ui::notify("playguard/play_timer/profile_save_err"_i18n + " — " + ui::rc_text(NXM_RC_INVALID_ARGUMENT));
+            return;
+        }
+        auto write = [p]() {
+            std::string err;
+            if (profiles::save(p, &err)) ui::notify(brls::getStr("playguard/play_timer/profile_saved", p.name));
+            else ui::notify("playguard/play_timer/profile_save_err"_i18n + ": " + err);
+        };
+        for (const auto& existing : profiles::list()) {
+            if (existing.name == p.name) {
+                ui::confirm(brls::getStr("playguard/play_timer/profile_replace", p.name),
+                            "playguard/play_timer/profile_replace_confirm"_i18n, write);
+                return;
+            }
+        }
+        write();
     });
 }
 
@@ -207,11 +195,8 @@ void PlayTimerTab::load_profile()
     for (auto& p : list) names.push_back(p.name);
     ui::pick("playguard/play_timer/profile_load"_i18n, names, 0, [this, list](int index) {
         const auto& p = list[index];
-        std::string name = p.name;
-        auto days = p.days;
-        ui::confirm(brls::getStr("playguard/play_timer/profile_apply", name, days_summary(days.data())),
-                    "playguard/play_timer/confirm_set"_i18n,
-                    [this, days]() { this->apply_days(days.data(), "playguard/play_timer/written_days"_i18n); });
+        this->apply_days(p.days.data(),
+                         brls::getStr("playguard/play_timer/profile_apply", p.name, days_summary(p.days.data())));
     });
 }
 
@@ -226,9 +211,13 @@ void PlayTimerTab::delete_profile()
     for (auto& p : list) names.push_back(p.name);
     ui::pick("playguard/play_timer/profile_delete"_i18n, names, 0, [names](int index) {
         std::string name = names[index];
-        ui::confirm(name, "playguard/common/delete"_i18n, [name]() {
-            if (profiles::remove(name)) ui::notify(brls::getStr("playguard/play_timer/profile_deleted", name));
-        });
+        ui::confirm_danger(brls::getStr("playguard/play_timer/profile_delete_body", name),
+                           "playguard/common/delete"_i18n, [name]() {
+                               if (profiles::remove(name))
+                                   ui::notify(brls::getStr("playguard/play_timer/profile_deleted", name));
+                               else
+                                   ui::notify(brls::getStr("playguard/play_timer/profile_delete_err", name));
+                           });
     });
 }
 

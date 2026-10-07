@@ -18,14 +18,13 @@ class PlayTimerTab : public TabBase
   private:
     PtState pt = {};
 
-    void choose_uniform();
-    void apply_uniform(uint16_t minutes);
-    void apply_days(const uint16_t days[7], const std::string& ok_text);
+    void apply_days(const uint16_t days[7], const std::string& body);
     void remove_limit();
     void save_profile();
     void load_profile();
     void delete_profile();
 
+    BRLS_BIND(brls::DetailCell,  unlocked_banner, "pt_unlocked_banner");
     BRLS_BIND(PtStateHeader,     state_header,    "pt_state_header");
     BRLS_BIND(brls::Label,       fw_note,         "pt_fw_note");
     BRLS_BIND(brls::Header,      limit_header,    "pt_limit_header");

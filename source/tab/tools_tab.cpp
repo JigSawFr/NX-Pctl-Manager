@@ -43,10 +43,11 @@ ToolsTab::ToolsTab()
         std::vector<std::string> labels;
         for (const char* l : LANGUAGES) labels.push_back(brls::getStr(std::string("playguard/tools/languages/") + l));
         ui::pick("playguard/tools/language"_i18n, labels, index_of(LANGUAGES, config::get().language), [this](int i) {
+            const bool changed = config::get().language != LANGUAGES[i];
             config::get().language = LANGUAGES[i];
             config::save();
-            ui::notify("playguard/common/restart_needed"_i18n);
             this->refresh();
+            if (changed) ui::offer_restart();
         });
         return true;
     });
@@ -55,10 +56,11 @@ ToolsTab::ToolsTab()
         std::vector<std::string> labels;
         for (const char* t : THEMES) labels.push_back(brls::getStr(std::string("playguard/tools/themes/") + t));
         ui::pick("playguard/tools/theme"_i18n, labels, index_of(THEMES, config::get().theme), [this](int i) {
+            const bool changed = config::get().theme != THEMES[i];
             config::get().theme = THEMES[i];
             config::save();
-            ui::notify("playguard/common/restart_needed"_i18n);
             this->refresh();
+            if (changed) ui::offer_restart();
         });
         return true;
     });
@@ -67,7 +69,12 @@ ToolsTab::ToolsTab()
         config::get().advanced = on;
         config::save();
     });
+    auto_relock->init("playguard/tools/auto_relock"_i18n, config::get().auto_relock, [](bool on) {
+        config::get().auto_relock = on;
+        config::save();
+    });
     ui::set_visible(advanced.getView(), !app::read_only_build());
+    ui::set_visible(auto_relock.getView(), !app::read_only_build());
 }
 
 void ToolsTab::refresh()
@@ -76,6 +83,7 @@ void ToolsTab::refresh()
     language->setDetailText(brls::getStr("playguard/tools/languages/" + std::string(LANGUAGES[index_of(LANGUAGES, cfg.language)])));
     theme->setDetailText(brls::getStr("playguard/tools/themes/" + std::string(THEMES[index_of(THEMES, cfg.theme)])));
     advanced->setOn(cfg.advanced, false);
+    auto_relock->setOn(cfg.auto_relock, false);
 
     SysInfo si;
     sysinfo_get(&si);

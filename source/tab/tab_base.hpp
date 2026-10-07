@@ -1,5 +1,6 @@
 // TabBase — common shape of every sidebar tab: inflate the XML, re-read the
-// state each time the tab (re)appears, X refreshes on demand.
+// state each time the tab (re)appears, X refreshes on demand, optional periodic
+// refresh, and the read-only note (a Label with id "tab_ro_note", if present).
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
@@ -17,4 +18,12 @@ class TabBase : public brls::Box
 
   protected:
     virtual void refresh() = 0;
+
+    // Calls refresh() every `period_ms` while the app is in the foreground and
+    // this tab's screen is the top one (not under a dialog or the per-day
+    // editor). Tabs are deleted when another one is opened, which stops it.
+    void enable_auto_refresh(int period_ms);
+
+  private:
+    brls::RepeatingTimer auto_timer;
 };

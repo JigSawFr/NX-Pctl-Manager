@@ -21,6 +21,7 @@
             paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
             paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
 
+            <brls:Label id="tab_ro_note" text="@i18n/playguard/common/read_only_note" fontSize="18" marginBottom="16" textColor="@theme/brand/warn"/>
             <brls:Header title="@i18n/playguard/security/section_status" marginBottom="8"/>
             <brls:DetailCell id="sc_pin" title="@i18n/playguard/security/pin"/>
             <brls:DetailCell id="sc_restrictions" title="@i18n/playguard/security/restrictions"/>
