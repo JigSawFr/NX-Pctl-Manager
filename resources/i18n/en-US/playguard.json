@@ -254,6 +254,25 @@
         "all_time": "All time",
         "section_games": "Games",
         "period": "Sort by",
+        "export": "Export to the SD card…",
+        "export_title": "Export format",
+        "formats": {
+            "0": "CSV (spreadsheet)",
+            "1": "JSON",
+            "2": "XLSX (Excel)",
+            "3": "PDF"
+        },
+        "exported": "Exported: {}",
+        "export_err": "Could not export",
+        "export_not_ready": "The play data is still being read.",
+        "export_subtitle": "Exported on {}, all accounts",
+        "columns": {
+            "game": "Game",
+            "id": "Title ID",
+            "today": "Today (min)",
+            "week": "Last 7 days (min)",
+            "total": "All time (min)"
+        },
         "periods": {
             "0": "Today",
             "1": "Last 7 days",

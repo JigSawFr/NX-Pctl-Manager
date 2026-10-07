@@ -7,6 +7,8 @@
 #include <vector>
 
 #include "ui/ui.hpp"
+#include "util/paths.hpp"
+#include "util/table_export.hpp"
 
 using namespace brls::literals;
 
@@ -54,6 +56,10 @@ ActivityTab::ActivityTab()
             this->period = index;
             this->rebuild();
         });
+        return true;
+    });
+    export_cell->registerClickAction([this](brls::View*) {
+        this->export_to_sd();
         return true;
     });
     this->rebuild();
@@ -162,6 +168,61 @@ void ActivityTab::show_details(const GameStat& g) const
         if (g.last_played) text += line("playguard/activity/last"_i18n, ui::time_text(g.last_played));
     }
     ui::info(text);
+}
+
+// Every game with any figure, in the order of the list on screen; minutes as
+// numbers, so a spreadsheet can add them up.
+void ActivityTab::export_to_sd() const
+{
+    if (!this->stats) {
+        ui::notify("playguard/activity/export_not_ready"_i18n);
+        return;
+    }
+    std::vector<std::string> labels;
+    for (int f = 0; f < 4; f++) labels.push_back(brls::getStr(fmt::format("playguard/activity/formats/{}", f)));
+    const std::shared_ptr<PlayStats> data = this->stats;
+    const int p = this->period;
+    ui::pick("playguard/activity/export_title"_i18n, labels, 0, [data, p](int index) {
+        const PlayStats& s = *data;
+        table_export::Table t;
+        t.title    = "PlayGuard — " + "playguard/tabs/activity"_i18n;
+        t.subtitle = brls::getStr("playguard/activity/export_subtitle", ui::time_text(s.now));
+        t.sheet    = "playguard/tabs/activity"_i18n;
+        t.columns  = {
+            { "game", "playguard/activity/columns/game"_i18n, false },
+            { "title_id", "playguard/activity/columns/id"_i18n, false },
+            { "today_min", "playguard/activity/columns/today"_i18n, true },
+            { "week_min", "playguard/activity/columns/week"_i18n, true },
+            { "total_min", "playguard/activity/columns/total"_i18n, true },
+            { "launches", "playguard/activity/launches"_i18n, true },
+            { "first_played", "playguard/activity/first"_i18n, false },
+            { "last_played", "playguard/activity/last"_i18n, false },
+        };
+        std::vector<const GameStat*> games;
+        for (uint32_t i = 0; i < s.count; i++) games.push_back(&s.games[i]);
+        std::sort(games.begin(), games.end(), [p](const GameStat* a, const GameStat* b) {
+            const uint64_t va = value_of(*a, p), vb = value_of(*b, p);
+            if (va != vb) return va > vb;
+            return a->total_s != b->total_s ? a->total_s > b->total_s : a->last_played > b->last_played;
+        });
+        auto minutes = [](uint64_t seconds) { return std::to_string((seconds + 30) / 60); };
+        for (const GameStat* g : games) {
+            t.rows.push_back({
+                game_name(*g),
+                fmt::format("{:016X}", (unsigned long long)g->app_id),
+                s.windows_ok ? minutes(g->today_s) : "",
+                s.windows_ok ? minutes(g->week_s) : "",
+                g->totals_ok ? minutes(g->total_s) : "",
+                g->totals_ok ? std::to_string(g->launches) : "",
+                g->totals_ok && g->first_played ? ui::time_text(g->first_played) : "",
+                g->totals_ok && g->last_played ? ui::time_text(g->last_played) : "",
+            });
+        }
+        std::string err;
+        const std::string path = table_export::save(t, (table_export::Format)index, paths::exports_dir(), "activity", &err);
+        if (path.empty()) ui::notify("playguard/activity/export_err"_i18n + ": " + err);
+        else ui::notify(brls::getStr("playguard/activity/exported", path));
+    });
 }
 
 brls::View* ActivityTab::create()

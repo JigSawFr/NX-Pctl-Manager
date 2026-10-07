@@ -254,6 +254,25 @@
         "all_time": "Depuis toujours",
         "section_games": "Jeux",
         "period": "Trier par",
+        "export": "Exporter sur la carte SD…",
+        "export_title": "Format d'export",
+        "formats": {
+            "0": "CSV (tableur)",
+            "1": "JSON",
+            "2": "XLSX (Excel)",
+            "3": "PDF"
+        },
+        "exported": "Exporté : {}",
+        "export_err": "Impossible d'exporter",
+        "export_not_ready": "Les données de jeu sont encore en cours de lecture.",
+        "export_subtitle": "Exporté le {}, tous les comptes",
+        "columns": {
+            "game": "Jeu",
+            "id": "ID du titre",
+            "today": "Aujourd'hui (min)",
+            "week": "7 derniers jours (min)",
+            "total": "Depuis toujours (min)"
+        },
         "periods": {
             "0": "Aujourd'hui",
             "1": "7 derniers jours",

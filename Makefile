@@ -62,6 +62,7 @@ test:
 	$(CXX) -std=c++17 -Wall -Wextra -Werror -Isource source/util/paths.cpp source/util/patches.cpp tests/patches/test.cpp -o $(TESTOUT)/patches && $(TESTOUT)/patches
 	$(CXX) -std=c++17 -Wall -Wextra -Werror -Isource source/util/duration.cpp tests/duration/test.cpp -o $(TESTOUT)/duration && $(TESTOUT)/duration
 	$(CXX) -std=c++17 -Wall -Wextra -Werror -Isource -Iextern/borealis/library/include source/util/paths.cpp source/util/backup.cpp tests/backup/test.cpp -o $(TESTOUT)/backup && $(TESTOUT)/backup
+	$(CXX) -std=c++17 -Wall -Wextra -Werror -Isource -Iextern/borealis/library/include source/util/paths.cpp source/util/table_export.cpp tests/table_export/test.cpp -o $(TESTOUT)/table_export && $(TESTOUT)/table_export
 
 check: test
 	python3 tools/check_resources.py .

@@ -2,10 +2,10 @@
 """Headless UI smoke test of the desktop build (simulated backend).
 
 Starts build-desktop/playguard on an X display (Xvfb), opens every tab, the
-extra-time picker, the per-day editor, a dropdown, the settings backup and a
-game in the Activity tab, and fails if the app dies on the way (borealis throws
-on unknown XML attributes, missing views, …). Screenshots of each screen are
-written to the output folder.
+extra-time picker, the per-day editor, a dropdown, the settings backup, a game
+in the Activity tab and its PDF export, and fails if the app dies on the way
+(borealis throws on unknown XML attributes, missing views, …) or the export is
+missing. Screenshots of each screen are written to the output folder.
 
 Usage: tools/desktop_smoke.py <out-dir>   (needs DISPLAY, xdotool, ImageMagick)
 Environment knobs of the simulated backend (PLAYGUARD_SIM_*) are passed through.
@@ -114,15 +114,22 @@ shot("26_backup_restore")
 key("Escape")
 shot("27_back")
 
-# Activity: one game's details.
+# Activity: one game's details, then a PDF export to the (simulated) SD card.
 key("Escape")              # back to the sidebar
 nav("Up", len(tabs) - 3)   # Activity
 key("Right")
-nav("Down", 3)             # past Today, Last 7 days and Sort by: the first game
+nav("Down", 4)             # past Today, Last 7 days, Sort by and Export: the first game
 key("Return")
 shot("28_activity_game")
 key("Escape")
-shot("29_back")
+nav("Up")                  # Export to the SD card…
+key("Return")
+nav("Down", 3)             # PDF
+key("Return")
+shot("29_activity_export")
+exports = os.path.join(run_dir, "playguard_data", "exports")
+if not any(f.endswith(".pdf") for f in (os.listdir(exports) if os.path.isdir(exports) else [])):
+    fail("no PDF export in " + exports)
 
 proc.terminate()
 try:
