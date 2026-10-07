@@ -31,8 +31,11 @@ int played_today_min(const PtState& pt);
 // progress will be suspended. With nothing to say and no unlock needed,
 // `write` runs at once. `write(did_unlock)` only runs when it is safe to
 // write; otherwise a toast has already explained why.
+// `danger`: the confirm button is drawn in the "bad" colour (removing or
+// overwriting limits).
 void confirm_write(const std::string& body, const std::string& confirm_label,
-                   std::function<void(bool did_unlock)> write, const uint16_t* new_days = nullptr);
+                   std::function<void(bool did_unlock)> write, const uint16_t* new_days = nullptr,
+                   bool danger = false);
 
 // After a write made through confirm_write: toast the result, then lock again
 // if the write needed an unlock (at once when the "lock again automatically"

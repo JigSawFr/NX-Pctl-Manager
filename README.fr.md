@@ -58,7 +58,7 @@ Au choix :
 3. *Temps de jeu* › *Même limite tous les jours* (ou *Limite différente selon le jour…*).
 4. Si l'horloge réseau n'est pas précise (Vue d'ensemble) : *Horloge réseau* › *Mesurer l'écart* puis *Régler l'horloge réseau* (activez d'abord *Synchroniser l'horloge via Internet* dans les paramètres).
 
-Commandes : ↑/↓ déplacer, Ⓐ valider, Ⓑ retour (sur la barre latérale : Ⓑ deux fois pour quitter), Ⓧ actualiser.
+Commandes : ↑/↓ déplacer, Ⓐ valider, Ⓑ retour ou annuler (sur la barre latérale : Ⓑ deux fois pour quitter), Ⓧ actualiser, Ⓨ supprime un profil enregistré. Le titre indique quand l'application est en lecture seule et tant que le contrôle parental est déverrouillé temporairement.
 
 ## Signaler un bug
 

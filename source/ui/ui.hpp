@@ -29,6 +29,8 @@ NVGcolor color_neutral();   // DetailCell value colour
 NVGcolor color_text();      // plain label text colour
 
 // "error 0x00001234" followed by a human explanation when one is known.
+// PlayGuard's own results (read-only, invalid value …) are just the sentence:
+// there is no code to look up.
 std::string rc_text(Result rc);
 
 // Deferred to the next frame (toasts fired right after a system applet returns
@@ -40,12 +42,16 @@ void notify_result(Result rc, const std::string& ok_text, const std::string& err
 
 // Two-button dialog. Cancel (left) has the focus when it opens;
 // `confirm_label` (right) runs `on_yes`, Cancel or B runs `on_no`.
+// `danger`: the confirm button is drawn in the "bad" colour (see below).
 void confirm(const std::string& body, const std::string& confirm_label,
-             std::function<void()> on_yes, std::function<void()> on_no = nullptr);
+             std::function<void()> on_yes, std::function<void()> on_no = nullptr, bool danger = false);
 // Same, for actions that delete something: the confirm button is drawn in the
 // "bad" colour so it never looks like an ordinary OK.
 void confirm_danger(const std::string& body, const std::string& confirm_label, std::function<void()> on_yes);
 void info(const std::string& body);
+
+// B closes `dialog` and runs `on_cancel` (borealis' own B only closes it).
+void on_cancel(brls::Dialog* dialog, std::function<void()> on_cancel);
 
 // Dropdown list; `on_pick(index)` runs after the list has closed.
 void pick(const std::string& title, const std::vector<std::string>& values, int selected,
@@ -57,7 +63,8 @@ void prompt_minutes(const std::string& header, uint16_t current, std::function<v
 void prompt_text(const std::string& header, const std::string& initial, int max_len,
                  std::function<void(std::string)> on_value);
 
-std::string fmt_minutes(uint16_t minutes);      // "No limit", "0 min", "45 min", "2 h 30"
+std::string fmt_minutes(uint16_t minutes);      // a limit: "No limit", "0 min (no play)", "45 min", "2 h 30"
+std::string fmt_played(uint16_t minutes);       // time played: "0 min", "45 min", "2 h 30"
 std::string fmt_duration_ns(uint64_t ns);       // remaining time, rounded to minutes
 std::string fmt_play_time(uint64_t seconds);    // "0 min", "< 1 min", "45 min", "152 h 30" (no 24 h cap)
 std::string day_name(int day);                  // 0 = Sunday, as a title ("Monday")
@@ -123,6 +130,11 @@ void show_unlock_banner(brls::DetailCell* cell, bool unlocked);
 
 // Asks before quitting so a language / theme change can take effect.
 void offer_restart();
+
+// Temporary unlock as last read by any tab (`valid` false: the read failed,
+// keep the previous value). The main screen's title says it while unlocked.
+void note_unlocked(bool valid, bool unlocked);
+bool known_unlocked();
 
 // After app::set_read_only / set_dev_mode: updates the main screen title and
 // re-reads the tab on screen.

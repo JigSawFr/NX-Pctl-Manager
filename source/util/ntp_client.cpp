@@ -63,6 +63,7 @@ Reply fetch(const std::string& host, int timeout_ms, unsigned max_addresses)
 {
     Reply reply;
     if (host.empty() || host.find('\0') != std::string::npos) {
+        reply.kind = Error::BadHost;
         reply.error = "Enter an NTP hostname or IP address.";
         return reply;
     }
@@ -76,36 +77,45 @@ Reply fetch(const std::string& host, int timeout_ms, unsigned max_addresses)
     // Own a non-null list even on a resolver error, so all paths release it.
     std::unique_ptr<addrinfo, decltype(&::freeaddrinfo)> addresses(resolved, &::freeaddrinfo);
     if (resolve_result != 0) {
+        reply.kind = Error::Lookup;
         reply.error = std::string("NTP address lookup failed: ") + ::gai_strerror(resolve_result);
         return reply;
     }
 
+    reply.kind = Error::Lookup;
     reply.error = "No usable NTP address was returned.";
     unsigned tried = 0;
     for (const addrinfo* address = addresses.get(); address != nullptr && tried < max_addresses;
          address = address->ai_next, ++tried) {
         Socket socket(::socket(address->ai_family, address->ai_socktype, address->ai_protocol));
         if (socket.get() < 0) {
+            reply.kind = Error::Network;
             reply.error = socket_error("Could not open NTP socket");
             continue;
         }
         const timeval timeout{timeout_ms / 1000, (timeout_ms % 1000) * 1000};
         if (::setsockopt(socket.get(), SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0) {
+            reply.kind = Error::Network;
             reply.error = socket_error("Could not set NTP receive timeout");
             continue;
         }
         // Connected UDP restricts received datagrams to this server and port.
         if (::connect(socket.get(), address->ai_addr, address->ai_addrlen) < 0) {
+            reply.kind = Error::Network;
             reply.error = socket_error("Could not connect to NTP server");
             continue;
         }
 
         std::uint8_t cookie[NTP_COOKIE_SIZE];
-        if (!make_cookie(cookie, reply.error)) return reply;
+        if (!make_cookie(cookie, reply.error)) {
+            reply.kind = Error::Network;
+            return reply;
+        }
         std::uint8_t request[NTP_PACKET_SIZE];
         ntp_packet_make_request(request, cookie);
         const ssize_t sent = ::send(socket.get(), request, sizeof(request), 0);
         if (sent != static_cast<ssize_t>(sizeof(request))) {
+            reply.kind = Error::Network;
             reply.error = sent < 0 ? socket_error("Could not send NTP request")
                                    : "NTP request was not sent completely.";
             continue;
@@ -115,16 +125,19 @@ Reply fetch(const std::string& host, int timeout_ms, unsigned max_addresses)
         const ssize_t received = ::recv(socket.get(), response, sizeof(response), 0);
         const auto received_at = std::chrono::steady_clock::now();
         if (received < 0) {
+            reply.kind = Error::Timeout;
             reply.error = socket_error("No NTP response before the timeout");
             continue;
         }
         std::uint64_t seconds = 0;
         const NtpPacketResult result = ntp_packet_parse(response, static_cast<std::size_t>(received), cookie, &seconds);
         if (result != NTP_PACKET_OK) {
+            reply.kind = Error::BadReply;
             reply.error = ntp_packet_error(result);
             continue;
         }
         reply.ok = true;
+        reply.kind = Error::None;
         reply.unix_seconds = seconds;
         reply.received_at = received_at;
         reply.error.clear();

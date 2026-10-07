@@ -105,9 +105,10 @@ void restore(const backup::Snapshot& s, std::function<void()> refresh)
     // Limits to write: through the play-timer gate (unlock first when the
     // timer is counting down). Restrictions only: a plain confirmation, as in
     // the Restrictions tab.
-    if (s.days_ok) pt_flow::confirm_write(body, "playguard/backup/restore_confirm"_i18n, run, s.days.data());
+    // It overwrites the current settings: the confirm button says so by its colour.
+    if (s.days_ok) pt_flow::confirm_write(body, "playguard/backup/restore_confirm"_i18n, run, s.days.data(), true);
     else if (app::read_only()) ui::notify(ui::rc_text(NXM_RC_READ_ONLY));
-    else ui::confirm(body, "playguard/backup/restore_confirm"_i18n, [run]() { run(false); });
+    else ui::confirm(body, "playguard/backup/restore_confirm"_i18n, [run]() { run(false); }, nullptr, true);
 }
 
 std::string save_snapshot(std::string* error)

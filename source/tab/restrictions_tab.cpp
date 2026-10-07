@@ -107,6 +107,7 @@ void RestrictionsTab::write_custom(const PctlCustomSettings& s)
 void RestrictionsTab::refresh()
 {
     pctl_status_fetch(&this->st);
+    ui::note_unlocked(this->st.temp_unlocked_ok, this->st.temp_unlocked);
     const std::string na = "playguard/common/unavailable"_i18n;
 
     level->setDetailText(this->st.safety_level_ok ? ui::level_name(this->st.safety_level) : na);

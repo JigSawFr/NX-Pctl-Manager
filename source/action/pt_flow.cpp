@@ -54,7 +54,7 @@ void relock_if_interrupted()
 }
 
 void confirm_write(const std::string& body_in, const std::string& confirm_label,
-                   std::function<void(bool did_unlock)> write, const uint16_t* new_days)
+                   std::function<void(bool did_unlock)> write, const uint16_t* new_days, bool danger)
 {
     if (app::read_only()) {
         ui::notify(ui::rc_text(NXM_RC_READ_ONLY));
@@ -87,7 +87,7 @@ void confirm_write(const std::string& body_in, const std::string& confirm_label,
     const bool needs_unlock = (pt.enabled || pt.restricted) && !pt.temporary_unlocked;
     if (!needs_unlock) {
         if (body.empty()) write(false);
-        else ui::confirm(body, confirm_label, [write]() { write(false); });
+        else ui::confirm(body, confirm_label, [write]() { write(false); }, nullptr, danger);
         return;
     }
 
@@ -105,7 +105,7 @@ void confirm_write(const std::string& body_in, const std::string& confirm_label,
             return;
         }
         write(true);
-    });
+    }, nullptr, danger);
 }
 
 static void offer_relock(std::function<void()> after)
@@ -117,6 +117,7 @@ static void offer_relock(std::function<void()> after)
         ui::notify_result(rc, "playguard/toast/relocked"_i18n, "playguard/toast/relock_err"_i18n);
         if (after) after();
     });
+    ui::on_cancel(dialog, after);   // B: "Later"
     dialog->open();
 }
 
@@ -303,7 +304,8 @@ void offer_extra_time_restore()
             });
         });
     });
-    dialog->setCancelable(false);
+    // B: decide at the next start (the record stays).
+    dialog->setCancelable(true);
     dialog->open();
 }
 

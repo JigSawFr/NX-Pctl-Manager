@@ -68,7 +68,7 @@ Files the app writes: `sd:/switch/playguard/config.json` (preferences), `profile
 3. *Play timer* › *Same limit every day* (or *A different limit for each day…*).
 4. If the network clock is not accurate (Overview), use *Network clock* › *Measure* then *Set the network clock* (enable *Synchronise Clock via Internet* in System Settings first).
 
-Controls: ↑/↓ move, Ⓐ confirm, Ⓑ back (on the sidebar: press Ⓑ twice to exit), Ⓧ refresh.
+Controls: ↑/↓ move, Ⓐ confirm, Ⓑ back or cancel (on the sidebar: press Ⓑ twice to exit), Ⓧ refresh, Ⓨ deletes a saved profile. The title says when the app is read-only and while parental controls are temporarily unlocked.
 
 ## Bug reports
 

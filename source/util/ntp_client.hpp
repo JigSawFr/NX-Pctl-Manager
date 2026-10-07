@@ -6,9 +6,13 @@
 #include <string>
 
 namespace ntp {
+// What went wrong, for the user (the English `error` is for the logs).
+enum class Error { None, BadHost, Lookup, Network, Timeout, BadReply };
+
 struct Reply {
     bool ok = false;
     std::uint64_t unix_seconds = 0;
+    Error kind = Error::None;
     std::string error;
     std::chrono::steady_clock::time_point received_at;
 };

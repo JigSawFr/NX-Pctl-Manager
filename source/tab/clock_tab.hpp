@@ -31,6 +31,7 @@ class ClockTab : public TabBase
 
     std::shared_ptr<bool> alive = std::make_shared<bool>(true);
     bool busy = false;
+    bool autosync_off = false;   // "Synchronise Clock via Internet" read as off
     std::string region_id;
     std::string server;
     Measurement last;

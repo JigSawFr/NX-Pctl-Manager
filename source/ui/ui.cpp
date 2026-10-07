@@ -71,6 +71,10 @@ static std::string hint_for(Result rc)
 std::string rc_text(Result rc)
 {
     std::string hint = hint_for(rc);
+    if (NXM_IS_APP_RESULT(rc) && !hint.empty()) {
+        if (hint[0] >= 'a' && hint[0] <= 'z') hint[0] = (char)(hint[0] - 'a' + 'A');
+        return hint;
+    }
     std::string code = fmt::format("0x{:08X}", (unsigned)rc);
     return hint.empty() ? brls::getStr("playguard/error/code", code)
                         : brls::getStr("playguard/error/code_hint", code, hint);
@@ -94,13 +98,25 @@ void notify_result(Result rc, const std::string& ok_text, const std::string& err
     else notify(error_prefix + " — " + rc_text(rc));
 }
 
+void on_cancel(brls::Dialog* dialog, std::function<void()> on_cancel)
+{
+    dialog->setCancelable(true);
+    dialog->getAppletFrame()->registerAction(
+        "hints/back"_i18n, brls::BUTTON_B,
+        [dialog, on_cancel](brls::View*) {
+            dialog->close([on_cancel]() { if (on_cancel) on_cancel(); });
+            return true;
+        },
+        false, false, brls::SOUND_BACK);
+}
+
 static void open_confirm(const std::string& body, const std::string& confirm_label,
                          std::function<void()> on_yes, std::function<void()> on_no, bool danger)
 {
     auto* dialog = new brls::Dialog(body);
     dialog->addButton("hints/cancel"_i18n, [on_no]() { if (on_no) on_no(); });
     dialog->addButton(confirm_label, [on_yes]() { if (on_yes) on_yes(); });
-    dialog->setCancelable(true);
+    on_cancel(dialog, on_no);
     if (danger)
         if (auto* button = dynamic_cast<brls::Button*>(dialog->getView("brls/dialog/button2")))
             button->setTextColor(color_bad());
@@ -108,9 +124,9 @@ static void open_confirm(const std::string& body, const std::string& confirm_lab
 }
 
 void confirm(const std::string& body, const std::string& confirm_label,
-             std::function<void()> on_yes, std::function<void()> on_no)
+             std::function<void()> on_yes, std::function<void()> on_no, bool danger)
 {
-    open_confirm(body, confirm_label, std::move(on_yes), std::move(on_no), false);
+    open_confirm(body, confirm_label, std::move(on_yes), std::move(on_no), danger);
 }
 
 void confirm_danger(const std::string& body, const std::string& confirm_label, std::function<void()> on_yes)
@@ -192,6 +208,12 @@ std::string fmt_minutes(uint16_t m)
     if (m < 60) return brls::getStr("playguard/common/minutes", (int)m);
     if (m % 60 == 0) return brls::getStr("playguard/common/hours", (int)(m / 60));
     return brls::getStr("playguard/common/hours_minutes", (int)(m / 60), fmt::format("{:02d}", (int)(m % 60)));
+}
+
+std::string fmt_played(uint16_t m)
+{
+    if (m == 0) return brls::getStr("playguard/common/minutes", 0);
+    return fmt_minutes(m);
 }
 
 std::string fmt_duration_ns(uint64_t ns)
@@ -474,6 +496,22 @@ void offer_restart()
     dialog->addButton("playguard/common/quit"_i18n, []() { brls::Application::quit(); });
     dialog->setCancelable(true);
     dialog->open();
+}
+
+static bool s_unlocked = false;
+
+bool known_unlocked() { return s_unlocked; }
+
+void note_unlocked(bool valid, bool unlocked)
+{
+    if (!valid || unlocked == s_unlocked) return;
+    s_unlocked = unlocked;
+    // Next frame: at start-up the first tab is read before the main screen is
+    // on the activity stack.
+    brls::sync([]() {
+        for (brls::Activity* activity : brls::Application::getActivitiesStack())
+            if (auto* main = dynamic_cast<MainActivity*>(activity)) main->update_title();
+    });
 }
 
 void on_mode_changed()
