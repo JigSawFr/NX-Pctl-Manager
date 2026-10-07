@@ -22,6 +22,8 @@
             paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
             paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
 
+            <brls:Label id="dash_applet" text="@i18n/playguard/dashboard/applet" fontSize="18" marginBottom="12" textColor="@theme/brand/warn"/>
+            <brls:Label id="dash_setup" text="@i18n/playguard/dashboard/setup" fontSize="18" marginBottom="12" textColor="@theme/brand/warn"/>
             <brls:DetailCell id="dash_unlocked_banner" marginBottom="12"/>
             <brls:Header title="@i18n/playguard/dashboard/section_today" marginBottom="8"/>
             <brls:Box axis="column" alignItems="stretch" marginTop="8" marginBottom="12" paddingLeft="16" paddingRight="16">

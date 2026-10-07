@@ -48,7 +48,10 @@ void PlayTimerPerDayActivity::onContentAvailable()
         };
         bool changes_others = false;
         for (u16 p : this->pending) changes_others |= p != v;
-        if (!changes_others) return true;
+        if (!changes_others) {
+            ui::notify("playguard/play_timer/perday/already_same"_i18n);
+            return true;
+        }
         ui::confirm(brls::getStr("playguard/play_timer/perday/copy_today_body", ui::day_name_in_text(today), ui::fmt_minutes(v)),
                     "playguard/play_timer/perday/copy_today_confirm"_i18n, copy);
         return true;

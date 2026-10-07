@@ -24,6 +24,7 @@ class PlayTimerTab : public TabBase
 
     BRLS_BIND(brls::DetailCell,  unlocked_banner, "pt_unlocked_banner");
     BRLS_BIND(PtStateHeader,     state_header,    "pt_state_header");
+    BRLS_BIND(brls::Header,      week_header,     "pt_week_header");
     BRLS_BIND(PtWeekView,        week,            "pt_week");
     BRLS_BIND(brls::Label,       fw_note,         "pt_fw_note");
     BRLS_BIND(brls::Header,      limit_header,    "pt_limit_header");
