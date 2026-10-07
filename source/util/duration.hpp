@@ -1,5 +1,6 @@
-// duration — reads a daily limit typed as minutes ("90") or hours and minutes
-// ("1:30", "1h30", "2h"). Plain C++ so the host tests can run it.
+// duration — reads a daily limit typed as minutes ("90", "90m", "90 min") or
+// hours and minutes ("1:30", "1h30", "1h30min", "2h"). Plain C++ so the host
+// tests can run it.
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).
 #pragma once
 

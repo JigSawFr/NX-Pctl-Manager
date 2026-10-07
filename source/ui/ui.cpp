@@ -83,6 +83,8 @@ std::string rc_text(Result rc)
 
 void notify(const std::string& text)
 {
+    // Logged too: the desktop smoke test checks what the user was told.
+    brls::Logger::info("toast: {}", text);
     brls::sync([text]() { brls::Application::notify(text); });
 }
 
@@ -111,10 +113,46 @@ void on_cancel(brls::Dialog* dialog, std::function<void()> on_cancel)
         false, false, brls::SOUND_BACK);
 }
 
+// Lines `text` takes at `per_line` characters a line (a rough count: the
+// font is proportional, but the paragraphs are what makes a text tall).
+static int estimated_lines(const std::string& text, size_t per_line)
+{
+    int lines = 0;
+    size_t start = 0;
+    while (start <= text.size()) {
+        size_t end = text.find('\n', start);
+        if (end == std::string::npos) end = text.size();
+        // UTF-8 continuation bytes are not characters.
+        size_t chars = 0;
+        for (size_t i = start; i < end; i++) chars += ((unsigned char)text[i] & 0xC0) != 0x80;
+        lines += chars == 0 ? 1 : (int)((chars + per_line - 1) / per_line);
+        start = end + 1;
+    }
+    return lines;
+}
+
+brls::Dialog* dialog(const std::string& text)
+{
+    // borealis' layout (720 px wide, 115 px side margins, 24 px font) holds
+    // about 40 characters a line and 13 lines above the buttons.
+    if (estimated_lines(text, 40) <= 13) return new brls::Dialog(text);
+    auto* label = new brls::Label();
+    label->setText(text);
+    label->setFontSize(19);
+    label->setHorizontalAlign(brls::HorizontalAlign::CENTER);
+    label->setSingleLine(false);
+    auto* box = new brls::Box();
+    box->addView(label);
+    box->setAlignItems(brls::AlignItems::CENTER);
+    box->setJustifyContent(brls::JustifyContent::CENTER);
+    box->setPadding(28, 40, 28, 40);
+    return new brls::Dialog(box);
+}
+
 static void open_confirm(const std::string& body, const std::string& confirm_label,
                          std::function<void()> on_yes, std::function<void()> on_no, bool danger)
 {
-    auto* dialog = new brls::Dialog(body);
+    auto* dialog = ui::dialog(body);
     dialog->addButton("hints/cancel"_i18n, [on_no]() { if (on_no) on_no(); });
     dialog->addButton(confirm_label, [on_yes]() { if (on_yes) on_yes(); });
     on_cancel(dialog, on_no);
@@ -137,7 +175,7 @@ void confirm_danger(const std::string& body, const std::string& confirm_label, s
 
 void info(const std::string& body)
 {
-    auto* dialog = new brls::Dialog(body);
+    auto* dialog = ui::dialog(body);
     dialog->addButton("hints/ok"_i18n, []() {});
     dialog->open();
 }
@@ -221,7 +259,7 @@ std::string fmt_duration_ns(uint64_t ns)
 {
     uint64_t minutes = (ns + 30000000000ULL) / 60000000000ULL;
     if (minutes > 1440) minutes = 1440;
-    return fmt_minutes((uint16_t)minutes);
+    return fmt_played((uint16_t)minutes);   // a time left: "0 min", not "0 min (no play)"
 }
 
 std::string fmt_play_time(uint64_t seconds)

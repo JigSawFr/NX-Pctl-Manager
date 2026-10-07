@@ -3,6 +3,7 @@
 // General Public License v3 or later; it comes with NO WARRANTY. See the
 // LICENSE file or <https://www.gnu.org/licenses/gpl-3.0.html> for details.
 #include "pctl_ops.h"
+#include "pure.h"
 #include "write_guard.h"
 #include <string.h>
 #include <stdio.h>
@@ -162,28 +163,6 @@ void pctl_status_fetch(PctlStatus *out)
     status_read_core(srv, out);
     status_read_rest(srv, out);
     pctl_ops_exit();
-}
-
-const char *pctl_safety_level_name(u32 level)
-{
-    switch (level) {
-        case PctlSafetyLevel_None:       return "None";
-        case PctlSafetyLevel_Custom:     return "Custom";
-        case PctlSafetyLevel_YoungChild: return "Young Child";
-        case PctlSafetyLevel_Child:      return "Child";
-        case PctlSafetyLevel_Teen:       return "Teen";
-        default:                         return "Unknown";
-    }
-}
-
-const char *pctl_rating_org_name(u32 org)
-{
-    // nn::ns::RatingOrganization
-    static const char *names[] = {
-        "CERO", "GRAC", "GSRMR", "ESRB", "ClassInd", "USK", "PEGI",
-        "PEGI Portugal", "PEGI BBFC", "Russian", "ACB", "OFLC", "IARC Generic",
-    };
-    return org < sizeof(names) / sizeof(names[0]) ? names[org] : "?";
 }
 
 // ---------------------------------------------------------------- PIN / unlock
@@ -346,63 +325,9 @@ Result pctl_set_stereo_vision_restricted(bool restricted)
 
 // ---------------------------------------------------------------- play timer
 
-// PlayTimerSettings (fw 21.0.0+): u16[34] (0x44 bytes). Layout decoded from a
-// console with a real limit configured through the companion app (fw 22.1.0):
-//   [0]   = 0x0101    observed header (non-zero <=> IsPlayTimerEnabled)
-//   [1]   = 0x0001    ?
-//   [2..6]= 0         reserved
-//   7 per-day groups, group n at [7+4n .. 7+4n+3], Sun..Sat:
-//     [+0] = 0x0600   ? (constant in the observed config)
-//     [+1] = 0x0100   "this day has a configured limit" flag
-//     [+2] = minutes  that day's limit
-//     [+3] = 0        reserved (absent for the last group: the array stops at 34)
-// A group left all-zero means "no limit that day". 1454 is in nanoseconds.
-// Only the flag and the minutes are understood; the other fields (the header,
-// [+0], [+3], [2..6]) may hold what the companion app sets and this app does
-// not show (bedtime, "alarm only" vs "suspend the software"), so a write keeps
-// them as read (pt_encode below).
-#define PT_U16_COUNT 34
+// PlayTimerSettings: layout and codec in pure.h. 1454 is in nanoseconds.
 
 static bool pt_fw_supported(void) { return hosversionAtLeast(21, 0, 0); }
-
-// Turns the block read with 145601 into the one to write with 195101 for the
-// per-day limits `days_min`, changing as little as possible:
-//  - a day that keeps its limit gets the new minutes, nothing else changes;
-//  - a day that gains a limit gets the observed 0x0600 / 0x0100 / minutes in
-//    [+0..+2] (its [+3] stays);
-//  - a day that loses its limit gets [+0..+2] cleared, the encoding seen
-//    working on hardware (its [+3] stays);
-//  - a day without a limit before and after is left exactly as read;
-//  - the header stays as read, or gets the observed 0x0101 / 0x0001 when the
-//    timer was off;
-//  - no limit on any day: all zeros, the one "timer off" block seen working.
-// So writing back the limits just read gives the same block, byte for byte.
-static void pt_encode(u16 c[PT_U16_COUNT], const u16 days_min[7])
-{
-    bool any = false;
-    for (int n = 0; n < 7; n++) if (days_min[n] != PT_DAY_NOLIMIT) any = true;
-    if (!any) {
-        memset(c, 0, PT_U16_COUNT * sizeof(u16));
-        return;
-    }
-    if (c[0] == 0) {
-        c[0] = 0x0101;
-        c[1] = 0x0001;
-    }
-    for (int n = 0; n < 7; n++) {
-        u16 *g = &c[7 + 4 * n];
-        const bool had = g[1] != 0;
-        if (days_min[n] == PT_DAY_NOLIMIT) {
-            if (had) g[0] = g[1] = g[2] = 0;
-            continue;
-        }
-        if (!had) {
-            g[0] = 0x0600;
-            g[1] = 0x0100;
-        }
-        g[2] = days_min[n];
-    }
-}
 
 static void pt_init(PtState *out)
 {
@@ -427,8 +352,7 @@ static void pt_read_core(Service *srv, PtState *out)
     out->config_rc = serviceDispatchOut(srv, 145601, c);
     if (R_SUCCEEDED(out->config_rc)) {
         out->valid = true;
-        for (int n = 0; n < 7; n++)
-            out->day_min[n] = c[7 + 4 * n + 1] ? c[7 + 4 * n + 2] : PT_DAY_NOLIMIT;
+        pt_decode(c, out->day_min);
     }
 
     bool be = false;
@@ -677,11 +601,12 @@ void pctl_dump(char *buf, size_t bufsz)
       rep(&p, e, "\n145601 GetPlayTimerSettings rc=0x%08X (0x44 bytes)\n", (unsigned)r);
       if (R_SUCCEEDED(r)) {
           rep_hex(&p, e, b, sizeof(b));
-          u16 c[PT_U16_COUNT];
+          u16 c[PT_U16_COUNT], d[7];
           memcpy(c, b, sizeof(c));
+          pt_decode(c, d);
           rep(&p, e, "decoded per-day minutes Sun..Sat:");
           for (int n = 0; n < 7; n++) {
-              if (c[7 + 4 * n + 1]) rep(&p, e, " %u", (unsigned)c[7 + 4 * n + 2]);
+              if (d[n] != PT_DAY_NOLIMIT) rep(&p, e, " %u", (unsigned)d[n]);
               else rep(&p, e, " -");
           }
           rep(&p, e, "   header=%04X %04X\n", c[0], c[1]);

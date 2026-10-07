@@ -64,14 +64,6 @@ void sysinfo_get(SysInfo *out)
 void sysinfo_reset_cache(void) { s_cached = false; }
 #endif
 
-SysCompat sysinfo_compat(const SysInfo *info)
-{
-    if (!info->is_atmosphere)                       return SysCompat_NotAtmosphere;
-    if (info->hos_version < PCTL_FW_MIN_PLAYTIMER)  return SysCompat_PlayTimerUnsupported;
-    if (info->hos_version > PCTL_FW_TESTED_MAX)     return SysCompat_UntestedNewer;
-    return SysCompat_Ok;
-}
-
 bool sysinfo_fw_at_least(u32 version)
 {
     SysInfo info;

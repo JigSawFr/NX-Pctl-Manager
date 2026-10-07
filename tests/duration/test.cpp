@@ -24,6 +24,14 @@ int main()
     assert(parsed("2H30") == 150);
     assert(parsed("1 h 30") == 90);
     assert(parsed("1h30m") == 90);
+    assert(parsed("90m") == 90);
+    assert(parsed("90 min") == 90);
+    assert(parsed("90 MIN") == 90);
+    assert(parsed("45mn") == 45);
+    assert(parsed(" 90 m ") == 90);
+    assert(parsed("1h30min") == 90);
+    assert(parsed("1 h 30 min") == 90);
+    assert(parsed("2 h") == 120);
 
     assert(parsed("") == -1);
     assert(parsed(":30") == -1);
@@ -37,6 +45,12 @@ int main()
     assert(parsed("2:001") == -1);
     assert(parsed("2h005") == -1);
     assert(parsed("abc") == -1);
+    assert(parsed("90m30") == -1);
+    assert(parsed("1m30") == -1);
+    assert(parsed("2hm") == -1);
+    assert(parsed("90 mins") == -1);
+    assert(parsed("1441m") == -1);
+    assert(parsed("m") == -1);
 
     assert(duration::format_hm(90) == "1:30");
     assert(duration::format_hm(45) == "0:45");

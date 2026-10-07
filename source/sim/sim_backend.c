@@ -14,6 +14,14 @@
 //   PLAYGUARD_SIM_NO_PDM=1      the play-data service (Activity tab) fails
 //   PLAYGUARD_SIM_NOT_SET_UP=1  parental controls never set up (no PIN, no restriction)
 //   PLAYGUARD_SIM_APPLET=1      started from the album (applet mode)
+//   PLAYGUARD_SIM_RESTRICTED=1  today's limit is reached (the game is suspended)
+//   PLAYGUARD_SIM_AUTOSYNC_OFF=1 "Synchronise clock via Internet" is off
+//   PLAYGUARD_SIM_FAIL=a,b,...  make these fail: unlock (1201), unverified
+//                               (1201 fine, 1006 still false), write (every
+//                               setting write), relock (1007), timer (145601
+//                               read), clock (network clock write), pin (1208)
+// The play-timer limits are kept as the real 0x44 block (core/pure.c encodes
+// and decodes it, as on the console); the read-only switch is core/write_guard.c.
 // Game patches are read from ./playguard_data/sd/ (the simulated SD card root).
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #define _POSIX_C_SOURCE 200809L
@@ -25,6 +33,7 @@
 #include "../core/pctl_ops.h"
 #include "../core/playstats.h"
 #include "../core/sysinfo.h"
+#include "../core/pure.h"
 #include "../core/time_ops.h"
 #include "../core/write_guard.h"
 
@@ -34,10 +43,29 @@ static struct {
     u32  safety_level;
     u32  pin_length;
     bool restriction_enabled, temp_unlocked, pairing_active, stereo_restricted, alarm_disabled, paused;
+    bool limit_reached, autosync_off;
     PctlCustomSettings custom;
-    u16  day_min[7];
+    u16  block[PT_U16_COUNT];   // PlayTimerSettings, as 145601 returns it
     s64  clock_offset;
 } S;
+
+// A service error the UI does not translate (pctl module 142), as the console
+// would return for a refused command.
+#define SIM_FAIL_RC ((Result)(142 | (100 << 9)))
+
+// True when PLAYGUARD_SIM_FAIL lists `what` (comma separated).
+static bool fails(const char *what)
+{
+    const char *list = getenv("PLAYGUARD_SIM_FAIL");
+    const size_t n = strlen(what);
+    for (const char *p = list; p && *p;) {
+        const char *end = strchr(p, ',');
+        const size_t len = end ? (size_t)(end - p) : strlen(p);
+        if (len == n && strncmp(p, what, n) == 0) return true;
+        p = end ? end + 1 : NULL;
+    }
+    return false;
+}
 
 static void sim_init(void)
 {
@@ -55,15 +83,18 @@ static void sim_init(void)
     S.temp_unlocked = getenv("PLAYGUARD_SIM_UNLOCKED") != NULL;
     S.custom.rating_age = 12;
     S.custom.sns_post_restriction = true;
+    S.limit_reached = getenv("PLAYGUARD_SIM_RESTRICTED") != NULL;
+    S.autosync_off = getenv("PLAYGUARD_SIM_AUTOSYNC_OFF") != NULL;
     bool off = blank || getenv("PLAYGUARD_SIM_TIMER_OFF") != NULL;
-    for (int i = 0; i < 7; i++) S.day_min[i] = off ? PT_DAY_NOLIMIT : ((i == 0 || i == 6) ? 180 : 120);
+    u16 days[7];
+    for (int i = 0; i < 7; i++) days[i] = off ? PT_DAY_NOLIMIT : ((i == 0 || i == 6) ? 180 : 120);
+    pt_encode(S.block, days);
 }
 
+// The header is non-zero while any day has a limit (pure.h).
 static bool timer_enabled(void)
 {
-    if (S.temp_unlocked) return false;
-    for (int i = 0; i < 7; i++) if (S.day_min[i] != PT_DAY_NOLIMIT) return true;
-    return false;
+    return !S.temp_unlocked && S.block[0] != 0;
 }
 
 // ---------------------------------------------------------------- sysinfo
@@ -82,13 +113,6 @@ void sysinfo_get(SysInfo *out)
     out->applet_mode = getenv("PLAYGUARD_SIM_APPLET") != NULL;
     out->serial_valid = true;
     snprintf(out->serial, sizeof(out->serial), "%s", out->blank ? SYSINFO_BLANK_SERIAL : "XAW10000000001");
-}
-SysCompat sysinfo_compat(const SysInfo *info)
-{
-    if (!info->is_atmosphere)                      return SysCompat_NotAtmosphere;
-    if (info->hos_version < PCTL_FW_MIN_PLAYTIMER) return SysCompat_PlayTimerUnsupported;
-    if (info->hos_version > PCTL_FW_TESTED_MAX)    return SysCompat_UntestedNewer;
-    return SysCompat_Ok;
 }
 bool sysinfo_fw_at_least(u32 v) { sim_init(); return S.hos >= v; }
 void sysinfo_version_string(u32 v, char *buf, size_t size)
@@ -118,57 +142,53 @@ void pctl_status_fetch(PctlStatus *o)
     o->last_updated_ok = true;        o->last_updated = (u64)time(NULL) - 3600 * 26;
 }
 
-const char *pctl_safety_level_name(u32 level)
-{
-    static const char *n[] = {"None", "Custom", "Young Child", "Child", "Teen"};
-    return level < 5 ? n[level] : "Unknown";
-}
-const char *pctl_rating_org_name(u32 org)
-{
-    static const char *names[] = {"CERO", "GRAC", "GSRMR", "ESRB", "ClassInd", "USK", "PEGI",
-        "PEGI Portugal", "PEGI BBFC", "Russian", "ACB", "OFLC", "IARC Generic"};
-    return org < 13 ? names[org] : "?";
-}
-
-// write_guard.h (core/write_guard.c is not compiled on desktop).
-static bool s_read_only = false;
-void core_set_read_only(bool on) { s_read_only = on; }
-bool core_read_only(void)        { return s_read_only; }
-
-#define RO_GUARD() do { if (s_read_only) return NXM_RC_READ_ONLY; } while (0)
+#define RO_GUARD() do { if (core_read_only()) return NXM_RC_READ_ONLY; } while (0)
+// Refuses like the console when PLAYGUARD_SIM_FAIL lists `what`.
+#define FAIL_IF(what) do { if (fails(what)) return SIM_FAIL_RC; } while (0)
 
 Result pctl_set_pin(void)                         { RO_GUARD(); S.pin_length = 4; return 0; }
-Result pctl_unlock_restriction_temporarily(void)  { RO_GUARD(); if (!S.pin_length) return 0x1A08E; S.temp_unlocked = true; return 0; }
+Result pctl_unlock_restriction_temporarily(void)
+{
+    RO_GUARD();
+    FAIL_IF("unlock");
+    if (!S.pin_length) return 0x1A08E;
+    if (fails("unverified")) return NXM_RC_UNLOCK_NOT_EFFECTIVE;
+    S.temp_unlocked = true;
+    return 0;
+}
 Result pctl_get_pin(char *out, size_t out_size)
 {
     if (out && out_size) memset(out, 0, out_size);
     RO_GUARD();
+    FAIL_IF("pin");
     if (!out || out_size < 5) return NXM_RC_INVALID_ARGUMENT;
     if (!S.pin_length) return NXM_RC_STATE_UNKNOWN;
     snprintf(out, out_size, "1234");
     return 0;
 }
-Result pctl_relock(void)                          { RO_GUARD(); S.temp_unlocked = false; return 0; }
+Result pctl_relock(void)                          { RO_GUARD(); FAIL_IF("relock"); S.temp_unlocked = false; return 0; }
 Result pctl_delete_parental_controls(void)
 {
     RO_GUARD();
+    FAIL_IF("write");
     S.pin_length = 0; S.restriction_enabled = false; S.safety_level = 0; S.temp_unlocked = false;
-    for (int i = 0; i < 7; i++) S.day_min[i] = PT_DAY_NOLIMIT;
+    memset(S.block, 0, sizeof(S.block));
     return 0;
 }
-Result pctl_delete_pairing(void)                  { RO_GUARD(); S.pairing_active = false; return 0; }
-Result pctl_set_safety_level(u32 l)               { RO_GUARD(); if (l > 4) return NXM_RC_INVALID_ARGUMENT; S.safety_level = l; return 0; }
+Result pctl_delete_pairing(void)                  { RO_GUARD(); FAIL_IF("write"); S.pairing_active = false; return 0; }
+Result pctl_set_safety_level(u32 l)               { RO_GUARD(); FAIL_IF("write"); if (l > 4) return NXM_RC_INVALID_ARGUMENT; S.safety_level = l; return 0; }
 Result pctl_set_custom_settings(const PctlCustomSettings *c)
 {
     RO_GUARD();
+    FAIL_IF("write");
     if (S.safety_level != PctlSafetyLevel_Custom) return NXM_RC_NOT_CUSTOM;
     S.custom = *c;
     return 0;
 }
-Result pctl_set_stereo_vision_restricted(bool r)  { RO_GUARD(); S.stereo_restricted = r; return 0; }
-Result pctl_play_timer_set_alarm_disabled(bool d) { RO_GUARD(); S.alarm_disabled = d; return 0; }
-Result pctl_play_timer_start(void)                { RO_GUARD(); S.paused = false; return 0; }
-Result pctl_play_timer_stop(void)                 { RO_GUARD(); S.paused = true; return 0; }
+Result pctl_set_stereo_vision_restricted(bool r)  { RO_GUARD(); FAIL_IF("write"); S.stereo_restricted = r; return 0; }
+Result pctl_play_timer_set_alarm_disabled(bool d) { RO_GUARD(); FAIL_IF("write"); S.alarm_disabled = d; return 0; }
+Result pctl_play_timer_start(void)                { RO_GUARD(); FAIL_IF("write"); S.paused = false; return 0; }
+Result pctl_play_timer_stop(void)                 { RO_GUARD(); FAIL_IF("write"); S.paused = true; return 0; }
 
 void pctl_play_timer_query(PtState *o)
 {
@@ -179,13 +199,18 @@ void pctl_play_timer_query(PtState *o)
     if (!o->fw_supported) return;
     if (R_FAILED(o->session_rc = pctl_ops_init())) return;
     o->session_valid = true;
-    o->valid = true;
-    memcpy(o->day_min, S.day_min, sizeof(S.day_min));
+    if (fails("timer")) {
+        o->config_rc = SIM_FAIL_RC;
+    } else {
+        o->valid = true;
+        pt_decode(S.block, o->day_min);
+    }
     o->enabled_valid = true;  o->enabled = timer_enabled();
     o->temporary_unlocked_valid = true; o->temporary_unlocked = S.temp_unlocked;
+    const bool reached = o->enabled && S.limit_reached;
     o->remaining_valid = true;
-    o->remaining_ns = o->enabled ? 45ULL * 60 * 1000000000ULL : 0;
-    o->restricted_valid = true; o->restricted = false;
+    o->remaining_ns = o->enabled && !reached ? 45ULL * 60 * 1000000000ULL : 0;
+    o->restricted_valid = true; o->restricted = reached;
     o->alarm_disabled_valid = true; o->alarm_disabled = S.alarm_disabled;
     o->bedtime_valid = true; o->bedtime_enabled = true; o->bedtime_hour = 21; o->bedtime_minute = 0;
     o->bedtime_reset_valid = true; o->bedtime_reset_hour = 6; o->bedtime_reset_minute = 0;
@@ -197,8 +222,10 @@ Result pctl_play_timer_set_days(const u16 d[7])
     sim_init();
     if (S.hos < PCTL_FW_MIN_PLAYTIMER) return NXM_RC_FW_UNSUPPORTED;
     for (int i = 0; i < 7; i++) if (d[i] != PT_DAY_NOLIMIT && d[i] > 1440) return NXM_RC_INVALID_ARGUMENT;
-    if (timer_enabled() && !S.temp_unlocked) return NXM_RC_WRITE_GATED;
-    memcpy(S.day_min, d, sizeof(S.day_min));
+    if ((timer_enabled() || S.limit_reached) && !S.temp_unlocked) return NXM_RC_WRITE_GATED;
+    FAIL_IF("write");
+    pt_encode(S.block, d);   // read-modify-write, as pctl_ops.c does
+    S.limit_reached = false;
     return 0;
 }
 Result pctl_play_timer_set_uniform(u16 m) { u16 d[7]; for (int i = 0; i < 7; i++) d[i] = m; return pctl_play_timer_set_days(d); }
@@ -206,8 +233,12 @@ Result pctl_play_timer_clear(void)        { u16 d[7]; for (int i = 0; i < 7; i++
 
 void pctl_dump(char *buf, size_t n)
 {
-    snprintf(buf, n, "=== pctl state (simulated desktop backend) ===\nsafety_level=%u pin_length=%u enabled=%d temp_unlocked=%d\n",
-             (unsigned)S.safety_level, (unsigned)S.pin_length, (int)S.restriction_enabled, (int)S.temp_unlocked);
+    int used = snprintf(buf, n, "=== pctl state (simulated desktop backend) ===\n"
+                        "safety_level=%u pin_length=%u enabled=%d temp_unlocked=%d\n145601 block:",
+                        (unsigned)S.safety_level, (unsigned)S.pin_length, (int)S.restriction_enabled, (int)S.temp_unlocked);
+    for (int i = 0; i < PT_U16_COUNT && used > 0 && (size_t)used < n; i++)
+        used += snprintf(buf + used, n - (size_t)used, " %04X", S.block[i]);
+    if (used > 0 && (size_t)used < n) snprintf(buf + used, n - (size_t)used, "\n");
 }
 
 // ---------------------------------------------------------------- time
@@ -232,7 +263,7 @@ void time_clock_snapshot(TimeSnapshot *o)
     o->user_time = now + S.clock_offset;
     o->network_time = now + S.clock_offset;
     o->local_time = now;
-    o->automatic = true;
+    o->automatic = !S.autosync_off;
     o->accuracy = S.clock_offset != 0 || getenv("PLAYGUARD_SIM_ACCURATE");
     snprintf(o->location, sizeof(o->location), "Europe/Paris");
 }
@@ -240,8 +271,13 @@ void time_clock_apply(u64 utc, TimeApply *o)
 {
     memset(o, 0, sizeof(*o));
     time_clock_snapshot(&o->before);
-    if (s_read_only) {
+    if (core_read_only()) {
         o->open_rc = NXM_RC_READ_ONLY;
+    } else if (!o->before.automatic) {
+        o->refused_automatic = true;   // as time_ops.c: the user clock would not follow
+    } else if (fails("clock")) {
+        o->write_attempted = true;
+        o->write_rc = SIM_FAIL_RC;
     } else {
         S.clock_offset = (s64)utc - (s64)time(NULL);
         if (!S.clock_offset) S.clock_offset = 1;

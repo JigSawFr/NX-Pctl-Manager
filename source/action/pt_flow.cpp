@@ -1,10 +1,10 @@
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #include "action/pt_flow.hpp"
 
-#include <algorithm>
 #include <borealis.hpp>
 #include <ctime>
 
+#include "action/pt_logic.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
 #include "util/config.hpp"
@@ -22,14 +22,7 @@ const std::vector<uint16_t>& quick_values()
 
 int played_today_min(const PtState& pt)
 {
-    if (!pt.valid || !pt.enabled_valid || !pt.enabled) return -1;
-    const uint16_t limit = pt.day_min[ui::today_weekday()];
-    if (limit == PT_DAY_NOLIMIT) return -1;
-    if (pt.restricted_valid && pt.restricted) return limit;
-    // The remaining time reads 0 until a game has been counted today.
-    if (!pt.remaining_valid || pt.remaining_ns == 0) return -1;
-    const uint64_t left = pt.remaining_ns / 60000000000ULL;
-    return left >= limit ? 0 : (int)(limit - left);
+    return pt_logic::played_today_min(pt, ui::today_weekday());
 }
 
 static void set_relock_pending(bool on)
@@ -67,25 +60,20 @@ void confirm_write(const std::string& body_in, const std::string& confirm_label,
         ui::notify(ui::rc_text(NXM_RC_FW_UNSUPPORTED));
         return;
     }
-    if (!pt.valid || !pt.enabled_valid || !pt.restricted_valid || !pt.temporary_unlocked_valid) {
+    if (!pt_logic::state_known(pt)) {
         ui::notify(ui::rc_text(NXM_RC_STATE_UNKNOWN));
         return;
     }
 
     // A limit below what was already played suspends the game at the relock.
     std::string body = body_in;
-    if (new_days) {
-        const int played = played_today_min(pt);
-        const uint16_t next = new_days[ui::today_weekday()];
-        if (played > 0 && next != PT_DAY_NOLIMIT && next < played) {
-            const std::string warning = brls::getStr("playguard/play_timer/suspend_warning",
-                                                     ui::fmt_minutes((uint16_t)played));
-            body = body.empty() ? warning : body + "\n\n" + warning;
-        }
+    const int played = pt_logic::suspend_warning_min(pt, ui::today_weekday(), new_days);
+    if (played > 0) {
+        const std::string warning = brls::getStr("playguard/play_timer/suspend_warning", ui::fmt_minutes((uint16_t)played));
+        body = body.empty() ? warning : body + "\n\n" + warning;
     }
 
-    const bool needs_unlock = (pt.enabled || pt.restricted) && !pt.temporary_unlocked;
-    if (!needs_unlock) {
+    if (!pt_logic::needs_unlock(pt)) {
         if (body.empty()) write(false);
         else ui::confirm(body, confirm_label, [write]() { write(false); }, nullptr, danger);
         return;
@@ -110,7 +98,7 @@ void confirm_write(const std::string& body_in, const std::string& confirm_label,
 
 static void offer_relock(std::function<void()> after)
 {
-    auto* dialog = new brls::Dialog("playguard/play_timer/relock/body"_i18n);
+    auto* dialog = ui::dialog("playguard/play_timer/relock/body"_i18n);
     dialog->addButton("playguard/play_timer/relock/later"_i18n, [after]() { if (after) after(); });
     dialog->addButton("playguard/play_timer/relock/now"_i18n, [after]() {
         Result rc = pctl_relock();
@@ -216,9 +204,18 @@ static void clear_extra_record()
 
 bool can_add_extra_time(const PtState& pt)
 {
-    const int wd = ui::today_weekday();
-    return !app::read_only() && pt.fw_supported && pt.valid && pt.enabled_valid && pt.enabled &&
-           pt.day_min[wd] != PT_DAY_NOLIMIT && pt.day_min[wd] < 1440;
+    return pt_logic::can_add_extra_time(pt, ui::today_weekday(), app::read_only());
+}
+
+static pt_logic::ExtraRecord extra_record()
+{
+    const auto& cfg = config::get();
+    pt_logic::ExtraRecord rec;
+    rec.weekday = cfg.extra_weekday;
+    rec.date    = cfg.extra_date;
+    rec.base    = (uint16_t)cfg.extra_base;
+    rec.value   = (uint16_t)cfg.extra_value;
+    return rec;
 }
 
 void add_extra_time(const PtState& pt, std::function<void()> refresh)
@@ -231,11 +228,11 @@ void add_extra_time(const PtState& pt, std::function<void()> refresh)
     const uint16_t base = pt.day_min[wd];
     ui::pick("playguard/dashboard/extra_title"_i18n, labels, 0, [refresh, wd, base](int index) {
         const uint16_t extra = EXTRA[index];
-        const uint16_t value = (uint16_t)std::min<int>(1440, base + extra);
         // What gets put back later is the limit before any extra time today.
-        const auto& cfg = config::get();
-        const bool again = cfg.extra_weekday == wd && cfg.extra_date == today_date();
-        const uint16_t original = again ? (uint16_t)cfg.extra_base : base;
+        const pt_logic::ExtraRecord rec = extra_record();
+        const bool again = rec.weekday == wd && rec.date == today_date();
+        const pt_logic::ExtraPlan plan = pt_logic::plan_extra(base, extra, again, rec.base);
+        const uint16_t value = plan.value, original = plan.original;
         const std::string body = brls::getStr("playguard/dashboard/extra_body", ui::fmt_minutes(extra),
                                               ui::day_name_in_text(wd), ui::fmt_minutes(base),
                                               ui::fmt_minutes(value), ui::fmt_minutes(original));
@@ -266,20 +263,20 @@ void add_extra_time(const PtState& pt, std::function<void()> refresh)
 
 void offer_extra_time_restore()
 {
-    const auto& cfg = config::get();
-    if (app::read_only() || cfg.extra_weekday < 0 || cfg.extra_weekday > 6) return;
-    if (cfg.extra_date == today_date()) return;   // still the day it was added
+    const pt_logic::ExtraRecord rec = extra_record();
+    if (app::read_only() || rec.weekday < 0 || rec.weekday > 6 || rec.date == today_date()) return;
 
     PtState pt;
     pctl_play_timer_query(&pt);
-    if (!pt.fw_supported || !pt.valid) return;    // ask again next time
-    const int wd = cfg.extra_weekday;
-    if (pt.day_min[wd] != cfg.extra_value) {      // changed since: nothing to put back
-        clear_extra_record();
-        return;
+    switch (pt_logic::restore_action(rec, today_date(), pt, app::read_only())) {
+        case pt_logic::Restore::None:
+        case pt_logic::Restore::Later:  return;                       // ask again next time
+        case pt_logic::Restore::Forget: clear_extra_record(); return;  // changed since
+        case pt_logic::Restore::Offer:  break;
     }
-    const uint16_t base = (uint16_t)cfg.extra_base, value = (uint16_t)cfg.extra_value;
-    auto* dialog = new brls::Dialog(brls::getStr("playguard/dashboard/extra_restore_body", cfg.extra_date,
+    const int wd = rec.weekday;
+    const uint16_t base = rec.base, value = rec.value;
+    auto* dialog = ui::dialog(brls::getStr("playguard/dashboard/extra_restore_body", rec.date,
                                                  ui::day_name_in_text(wd), ui::fmt_minutes(value),
                                                  ui::fmt_minutes(base)));
     dialog->addButton(brls::getStr("playguard/dashboard/extra_keep", ui::fmt_minutes(value)), []() { clear_extra_record(); });

@@ -67,6 +67,8 @@ jobs:
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke
       - name: Smoke test (firmware not supported yet, developer mode)
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-gate gate
+      - name: Smoke test (limit reached, unlock refused, clock sync off)
+        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-errors errors
       - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -75,6 +77,7 @@ jobs:
           path: |
             smoke/*.png
             smoke-gate/*.png
+            smoke-errors/*.png
 
   # The real .nro, built in the official devkitPro image (same as ./run.sh),
   # and compat.json (what the app's update check reads from the latest release).
