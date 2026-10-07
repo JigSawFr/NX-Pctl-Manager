@@ -135,8 +135,8 @@ if GATE:
     # Tools: seven presses on Version turn the developer mode on.
     key("Down", len(tabs) - 2)
     key("Right")
-    key("Down", 40)            # to the last cell (Source code)
-    key("Up", 5)               # Licence, Data folder, Launched as, Check for updates, Version
+    key("Down", 40, hold=0.15) # to the last cell (Source code), held: a long tab
+    key("Up", 4)               # Licence, Data folder, Launched as, Version
     key("Return", 7)
     shot("04_dev_enabled")
     # A short press does not get past the bottom edge of a long tab (borealis'
@@ -214,9 +214,12 @@ shot("23_back")
 key("Left")                # back to the sidebar
 key("Down", len(tabs) - 2) # Tools & about
 key("Right")
-key("Down")                # Back up the settings
-key("Return")
+backups = os.path.join(run_dir, "playguard_data", "backups")
+before = len(os.listdir(backups)) if os.path.isdir(backups) else 0
+key("Return")              # Back up the settings (the first cell)
 shot("24_backup_saved")
+if (len(os.listdir(backups)) if os.path.isdir(backups) else 0) != before + 1:
+    fail("Return on 'Back up the settings' saved no backup (wrong cell focused?)")
 key("Down")                # Restore a backup…
 key("Return")
 shot("25_backup_list")

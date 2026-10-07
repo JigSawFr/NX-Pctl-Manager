@@ -18,6 +18,14 @@ struct Config
     bool auto_relock = true;           // lock again right after a change that needed an unlock
     bool dev_mode = false;             // developer tools (7 presses on Tools > Version)
     std::string update_via = "auto";   // "auto", "sphaira", "appstore", "manual"
+    bool update_daily = false;         // check for updates at start-up, once a day
+    std::string update_checked;        // "YYYY-MM-DD" of the last check, any kind
+    std::string start_tab = "dashboard";   // tab shown at start-up (main.xml order: START_TABS)
+    std::vector<int> extra_amounts = { 15, 30, 60 };   // "Extra time today" choices, minutes
+    int  activity_period = 1;          // Activity's period: 0 today, 1 last 7 days, 2 all time
+    int  export_format   = 0;          // last export format (table_export::Format)
+    int  backup_keep     = 0;          // backups kept after a new one (0: all of them)
+    bool clock_check_at_start = false; // measure the network clock at start-up, say when it is off
 
     // Choice made on the "firmware not supported yet" screen, remembered for
     // one firmware with one app version: "read_only", "probe" or "risk".
@@ -42,6 +50,12 @@ struct Config
 };
 
 constexpr int    SCHEMA             = 1;    // "schema" in config.json
+// What start_tab may be, in the sidebar's order.
+constexpr const char* START_TABS[] = { "dashboard", "play_timer", "activity", "restrictions",
+                                       "clock", "security", "tools" };
+// What extra_amounts may be (the Tools picker offers these sets).
+constexpr int EXTRA_SETS[][3] = { { 15, 30, 60 }, { 10, 20, 30 }, { 30, 60, 90 }, { 5, 10, 15 } };
+constexpr int BACKUP_KEEP[]   = { 0, 5, 10, 20 };
 constexpr size_t MAX_HOST           = 253;  // longest DNS name
 constexpr size_t MAX_CUSTOM_SERVERS = 10;
 

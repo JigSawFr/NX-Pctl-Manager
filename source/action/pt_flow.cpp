@@ -207,12 +207,13 @@ void add_extra_time(const PtState& pt, std::function<void()> refresh)
 {
     const int wd = ui::today_weekday();
     if (!pt.valid || pt.day_min[wd] == PT_DAY_NOLIMIT) return;
-    static const uint16_t EXTRA[] = { 15, 30, 60 };
+    // Tools › Extra time amounts.
+    const std::vector<int> amounts = config::get().extra_amounts;
     std::vector<std::string> labels;
-    for (uint16_t e : EXTRA) labels.push_back("+" + ui::fmt_minutes(e));
+    for (int e : amounts) labels.push_back("+" + ui::fmt_minutes((uint16_t)e));
     const uint16_t base = pt.day_min[wd];
-    ui::pick("playguard/dashboard/extra_title"_i18n, labels, 0, [refresh, wd, base](int index) {
-        const uint16_t extra = EXTRA[index];
+    ui::pick("playguard/dashboard/extra_title"_i18n, labels, 0, [refresh, wd, base, amounts](int index) {
+        const uint16_t extra = (uint16_t)amounts[index];
         // What gets put back later is the limit before any extra time today.
         const pt_logic::ExtraRecord rec = extra_record();
         const bool again = rec.weekday == wd && rec.date == ui::today_date();

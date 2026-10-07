@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "ui/ui.hpp"
+#include "util/config.hpp"
 #include "util/paths.hpp"
 #include "util/table_export.hpp"
 
@@ -65,6 +66,8 @@ ActivityTab::ActivityTab()
         for (int p = 0; p < 3; p++) labels.push_back(brls::getStr(fmt::format("playguard/activity/periods/{}", p)));
         ui::pick("playguard/activity/period"_i18n, labels, this->period, [this](int index) {
             this->period = index;
+            config::get().activity_period = index;   // the next visit starts there
+            ui::save_config();
             this->rebuild();
         });
         return true;
@@ -73,6 +76,7 @@ ActivityTab::ActivityTab()
         this->export_to_sd();
         return true;
     });
+    this->period = config::get().activity_period;
     s_cache.shown = this;
     this->rebuild();
 }
@@ -200,7 +204,9 @@ void ActivityTab::export_to_sd() const
     for (int f = 0; f < 4; f++) labels.push_back(brls::getStr(fmt::format("playguard/activity/formats/{}", f)));
     const std::shared_ptr<PlayStats> data = s_cache.stats;
     const int p = this->period;
-    ui::pick("playguard/activity/export_title"_i18n, labels, 0, [data, p](int index) {
+    ui::pick("playguard/activity/export_title"_i18n, labels, config::get().export_format, [data, p](int index) {
+        config::get().export_format = index;
+        ui::save_config();
         const PlayStats& s = *data;
         table_export::Table t;
         t.title    = "PlayGuard — " + "playguard/tabs/activity"_i18n;

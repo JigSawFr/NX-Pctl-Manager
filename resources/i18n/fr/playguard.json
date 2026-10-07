@@ -399,7 +399,8 @@
             "network": "erreur réseau",
             "timeout": "pas de réponse",
             "bad_reply": "réponse invalide"
-        }
+        },
+        "start_off": "L'horloge réseau a {} d'écart (vérifiée avec {}). La limite de temps de jeu s'appuie dessus : voir l'onglet Horloge réseau."
     },
     "pairing": {
         "section": "Application Contrôle parental Nintendo Switch",
@@ -448,8 +449,12 @@
         "export": "Exporter un rapport de diagnostic",
         "export_note": "Enregistré dans {}. Joignez-le à un signalement de bug. Il ne contient jamais le code PIN ni le numéro de série.",
         "section_backup": "Sauvegarde des réglages",
+        "section_update": "Mises à jour",
         "backup_save": "Sauvegarder les réglages",
         "backup_restore": "Restaurer une sauvegarde…",
+        "backup_keep": "Sauvegardes conservées",
+        "backup_keep_all": "Toutes",
+        "backup_keep_n": "Les {} plus récentes",
         "backup_count": "{} sur la carte SD",
         "backup_note": "Enregistre le niveau de restriction, les réglages personnalisés, le mode VR et les limites de temps de jeu dans {}. Le code PIN n'est pas sauvegardé.",
         "section_prefs": "Préférences",
@@ -460,6 +465,7 @@
             "fr": "Français"
         },
         "theme": "Thème",
+        "start_tab": "Ouvrir sur",
         "themes": {
             "system": "Console",
             "light": "Clair",
@@ -490,7 +496,9 @@
         "patches_note_skipped": "sys-patch est désactivé pour ce stockage : mettez {}=1 dans config/sys-patch/config.ini, puis redémarrez.",
         "patches_note_unpatched": "sys-patch n'a pas patché : {}. Mettez sys-patch à jour pour ce firmware.",
         "auto_relock": "Reverrouiller automatiquement après une modification",
+        "extra_amounts": "Montants du temps en plus",
         "extra_auto": "Remettre la limite habituelle le lendemain, sans demander",
+        "clock_check": "Vérifier l'horloge réseau au lancement",
         "section_about": "À propos",
         "version": "Version",
         "firmware": "Firmware",
@@ -514,6 +522,8 @@
             "manual": "À la main"
         },
         "update": "Rechercher une mise à jour",
+        "update_daily": "Rechercher les mises à jour chaque jour",
+        "update_last": "Dernière recherche le {}",
         "flag_read_only": "lecture seule",
         "flag_dev": "développeur"
     },
@@ -536,6 +546,7 @@
     "update": {
         "checking": "Recherche d'une mise à jour…",
         "available": "PlayGuard {} est disponible (version actuelle : {}).",
+        "available_toast": "PlayGuard {} est disponible : Outils › Rechercher une mise à jour.",
         "available_no_fw": "Elle ne prend pas encore en charge le firmware {}.",
         "up_to_date": "PlayGuard {} est la dernière version.",
         "failed": "Impossible de rechercher une mise à jour ({}).",

@@ -2,6 +2,7 @@
 #include "util/backup.hpp"
 
 #include <algorithm>
+#include <cstdio>
 #include <borealis/extern/nlohmann/json.hpp>
 #include <ctime>
 
@@ -153,6 +154,16 @@ bool load(const std::string& name, Snapshot& out)
 {
     std::string text;
     return paths::read_file(paths::backups_dir() + "/" + name, text) && from_json(text, out);
+}
+
+size_t prune(size_t keep)
+{
+    if (keep == 0) return 0;
+    const std::vector<std::string> names = list();
+    size_t removed = 0;
+    for (size_t i = keep; i < names.size(); i++)
+        if (std::remove((paths::backups_dir() + "/" + names[i]).c_str()) == 0) removed++;
+    return removed;
 }
 
 }   // namespace backup

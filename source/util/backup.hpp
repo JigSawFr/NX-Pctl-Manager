@@ -53,4 +53,8 @@ std::vector<std::string> list();
 
 bool load(const std::string& name, Snapshot& out);
 
+// Deletes all but the `keep` newest backups (keep 0: deletes nothing).
+// Returns how many were deleted.
+size_t prune(size_t keep);
+
 }   // namespace backup

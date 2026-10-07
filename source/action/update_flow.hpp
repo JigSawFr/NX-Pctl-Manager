@@ -13,6 +13,10 @@ namespace update_flow
 // Checks in the background, then says what it found and offers to update.
 void check_now();
 
+// At start-up, with Tools › Check for updates every day on: checks at most
+// once a day, and only says something when a newer version is out.
+void check_daily();
+
 // Says which store opens, then closes PlayGuard and starts it; explains how
 // to update by hand when no store can be opened.
 void open_store();

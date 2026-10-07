@@ -399,7 +399,8 @@
             "network": "network error",
             "timeout": "no answer",
             "bad_reply": "invalid answer"
-        }
+        },
+        "start_off": "The network clock is {} off (checked against {}). The play timer counts on it: see the Network clock tab."
     },
     "pairing": {
         "section": "Nintendo Switch Parental Controls app",
@@ -448,8 +449,12 @@
         "export": "Export a diagnostic report",
         "export_note": "Saved in {}. Attach it to a bug report. It never contains the PIN or the serial number.",
         "section_backup": "Settings backup",
+        "section_update": "Updates",
         "backup_save": "Back up the settings",
         "backup_restore": "Restore a backup…",
+        "backup_keep": "Backups kept",
+        "backup_keep_all": "All",
+        "backup_keep_n": "The {} newest",
         "backup_count": "{} on the SD card",
         "backup_note": "Saves the restriction level, the custom settings, VR mode and the daily play-time limits in {}. The PIN is not saved.",
         "section_prefs": "Preferences",
@@ -460,6 +465,7 @@
             "fr": "Français"
         },
         "theme": "Theme",
+        "start_tab": "Start on",
         "themes": {
             "system": "System",
             "light": "Light",
@@ -490,7 +496,9 @@
         "patches_note_skipped": "sys-patch is turned off for this storage: set {}=1 in config/sys-patch/config.ini, then reboot.",
         "patches_note_unpatched": "sys-patch did not patch: {}. Update sys-patch for this firmware.",
         "auto_relock": "Lock again automatically after a change",
+        "extra_amounts": "Extra time amounts",
         "extra_auto": "Put the usual limit back the next day by itself",
+        "clock_check": "Check the network clock at start-up",
         "section_about": "About",
         "version": "Version",
         "firmware": "Firmware",
@@ -514,6 +522,8 @@
             "manual": "By hand"
         },
         "update": "Check for updates",
+        "update_daily": "Check for updates every day",
+        "update_last": "Last checked {}",
         "flag_read_only": "read-only",
         "flag_dev": "developer"
     },
@@ -536,6 +546,7 @@
     "update": {
         "checking": "Checking for updates…",
         "available": "PlayGuard {} is available (this is {}).",
+        "available_toast": "PlayGuard {} is available: Tools › Check for updates.",
         "available_no_fw": "It does not support firmware {} yet.",
         "up_to_date": "PlayGuard {} is the latest version.",
         "failed": "Could not check for updates ({}).",

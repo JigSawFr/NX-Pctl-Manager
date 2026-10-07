@@ -2,6 +2,7 @@
 #include "action/update_flow.hpp"
 
 #include <borealis.hpp>
+#include <functional>
 
 #include "app.hpp"
 #include "ui/ui.hpp"
@@ -54,23 +55,54 @@ void show_result(const update::Result& r)
 }
 }   // namespace
 
-void check_now()
+namespace
 {
-    // One check at a time: pressing again while it runs says so, instead of
-    // starting another request and stacking a second result dialog.
-    static bool checking = false;
-    ui::notify("playguard/update/checking"_i18n);
-    if (checking) return;
-    checking = true;
+bool s_checking = false;   // one check at a time, whoever started it
+
+// Remembers the day of a check that reached the server.
+void record_check(const update::Result& r)
+{
+    if (r.verdict != update::Verdict::UpdateSupports && r.verdict != update::Verdict::UpdateNoSupport &&
+        r.verdict != update::Verdict::UpToDate)
+        return;
+    config::get().update_checked = ui::today_date();
+    ui::save_config();
+}
+
+void run_check(std::function<void(const update::Result&)> done)
+{
+    s_checking = true;
     SysInfo si;
     sysinfo_get(&si);
     const uint32_t fw = si.hos_version;
-    brls::async([fw]() {
+    brls::async([fw, done]() {
         const update::Result r = update::check(fw);
-        brls::sync([r]() {
-            checking = false;
-            show_result(r);
+        brls::sync([r, done]() {
+            s_checking = false;
+            record_check(r);
+            done(r);
         });
+    });
+}
+}   // namespace
+
+void check_now()
+{
+    // Pressing again while it runs says so, instead of starting another
+    // request and stacking a second result dialog.
+    ui::notify("playguard/update/checking"_i18n);
+    if (s_checking) return;
+    run_check([](const update::Result& r) { show_result(r); });
+}
+
+void check_daily()
+{
+    const auto& cfg = config::get();
+    if (!cfg.update_daily || s_checking || cfg.update_checked == ui::today_date()) return;
+    // Quietly: only a newer version is worth a word (no network, no news).
+    run_check([](const update::Result& r) {
+        if (r.verdict == update::Verdict::UpdateSupports || r.verdict == update::Verdict::UpdateNoSupport)
+            ui::notify(brls::getStr("playguard/update/available_toast", r.latest.version));
     });
 }
 
