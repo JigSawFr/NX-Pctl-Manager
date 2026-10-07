@@ -6,6 +6,7 @@
 #   make test         -> host unit tests of the C service layer (plain gcc, ASan + UBSan)
 #   make nxlink       -> push to a Switch running hbmenu (press Y there first)
 #
+# GL=1 builds the Switch .nro with OpenGL (mesa) instead of deko3d.
 # JOBS=n sets the parallel build jobs (default: every core). SAN= turns the
 # sanitizers of the host tests off (e.g. a compiler without them).
 # CMAKE_C_COMPILER_LAUNCHER / CMAKE_CXX_COMPILER_LAUNCHER=ccache in the
@@ -23,8 +24,10 @@ CWARN   := -Wall -Wextra -Werror $(SAN)
 
 .PHONY: all clean dist nxlink desktop test check
 
+RENDERER := $(if $(GL),-DUSE_DEKO3D=OFF,-DUSE_DEKO3D=ON)
+
 all:
-	@cmake -B $(BUILD) -S . -DPLATFORM_SWITCH=ON
+	@cmake -B $(BUILD) -S . -DPLATFORM_SWITCH=ON $(RENDERER)
 	@cmake --build $(BUILD) --target $(TARGET).nro -j $(JOBS)
 	@cp $(BUILD)/$(TARGET).nro  $(TARGET).nro
 	@cp $(BUILD)/$(TARGET).nacp $(TARGET).nacp
