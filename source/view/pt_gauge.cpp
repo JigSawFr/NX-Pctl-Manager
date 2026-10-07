@@ -4,6 +4,9 @@
 #include "ui/ui.hpp"
 
 PtGauge::PtGauge()
+    // Looked up once: a theme change needs a restart, and each lookup builds a
+    // std::string key (one malloc per frame for "brand/gauge_track").
+    : track(ui::color_track()), ok(ui::color_ok()), warn(ui::color_warn()), bad(ui::color_bad())
 {
     this->setHeight(14);
     this->setFocusable(false);
@@ -24,13 +27,11 @@ void PtGauge::draw(NVGcontext* vg, float x, float y, float width, float height,
 
     nvgBeginPath(vg);
     nvgRoundedRect(vg, x, y, width, height, radius);
-    nvgFillColor(vg, ui::color_track());
+    nvgFillColor(vg, this->track);
     nvgFill(vg);
 
     if (this->used <= 0.0f) return;
-    NVGcolor color = this->used >= 1.0f ? ui::color_bad()
-                   : this->used >= 0.75f ? ui::color_warn()
-                                         : ui::color_ok();
+    NVGcolor color = this->used >= 1.0f ? this->bad : this->used >= 0.75f ? this->warn : this->ok;
     float w = width * this->used;
     if (w < height) w = height;
     nvgBeginPath(vg);

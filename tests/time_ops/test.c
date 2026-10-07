@@ -116,6 +116,31 @@ Result mock_dispatch(Service *service, u32 command, void *out, size_t out_size,
     return 0;
 }
 
+static void test_network_accuracy(void)
+{
+    bool accurate = true;
+    reset();
+    model.accuracy = false;
+    assert(time_network_accuracy(&accurate) == 0 && !accurate);
+    assert(model.root_calls == 1 && model.opened == 1);   /* no clock sub-session */
+    assert_released();
+
+    reset();
+    assert(time_network_accuracy(&accurate) == 0 && accurate);
+    assert_released();
+
+    reset();
+    model.fail_root_call = 1;
+    assert(time_network_accuracy(&accurate) == MOCK_ERROR && !accurate);
+    assert_released();
+
+    reset();
+    model.fail_flag_root = 1;
+    model.fail_flag_command = 200;
+    assert(time_network_accuracy(&accurate) == MOCK_ERROR && !accurate);
+    assert_released();
+}
+
 static void test_snapshot_failures(void)
 {
     TimeSnapshot snapshot;
@@ -322,6 +347,7 @@ static void test_dump_and_repetition(void)
 int main(void)
 {
     test_snapshot_failures();
+    test_network_accuracy();
     test_automatic_gate(false);
     test_automatic_gate(true);
     test_apply_failures();

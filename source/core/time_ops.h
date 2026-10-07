@@ -21,6 +21,9 @@ typedef struct {
 } TimeApply;
 
 void time_clock_snapshot(TimeSnapshot *out);
+// Only 200 IsStandardNetworkSystemClockAccuracySufficient: one command instead
+// of the snapshot's three clock sessions, for the Overview's periodic refresh.
+Result time_network_accuracy(bool *accurate);
 // Writes utc_seconds to the standard network clock. Refuses (refused_automatic)
 // when automatic correction is disabled or unknown: the user clock would then
 // not follow, and the user asked for the system's own setting to stay in charge.

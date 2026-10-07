@@ -23,4 +23,5 @@ class PtGauge : public brls::View
 
   private:
     float used = -1.0f;
+    NVGcolor track, ok, warn, bad;
 };

@@ -111,8 +111,11 @@ void restore(const backup::Snapshot& s, std::function<void()> refresh)
     else ui::confirm(body, "playguard/backup/restore_confirm"_i18n, [run]() { run(false); }, nullptr, true);
 }
 
+int s_count = -1;   // backups on the SD card, -1: not listed yet
+
 std::string save_snapshot(std::string* error)
 {
+    s_count = -1;   // list again next time: one more file, or a failed save
     const backup::Snapshot s = capture();
     if (s.empty()) {
         *error = "playguard/backup/unreadable_console"_i18n;
@@ -121,6 +124,12 @@ std::string save_snapshot(std::string* error)
     return backup::save(s, error);
 }
 }   // namespace
+
+size_t count()
+{
+    if (s_count < 0) s_count = (int)backup::list().size();
+    return (size_t)s_count;
+}
 
 backup::Snapshot capture()
 {

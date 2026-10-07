@@ -19,7 +19,6 @@ class DashboardTab : public TabBase
 
   private:
     PtState pt = {};
-    patches::Report patch_report;   // scanned once per opening (SD card files)
 
     void open_today_limit();
 
