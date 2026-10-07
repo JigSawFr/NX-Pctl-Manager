@@ -32,14 +32,16 @@ The app is organised in tabs, like System Settings.
 | Tab | What you can do |
 |---|---|
 | **Overview** | Today first (a gauge of today's play time, today's limit, time left, bedtime alarm), then the parental-control state, PIN and restriction level, then what needs attention: network-clock accuracy, companion-app link (in amber while linked), firmware / compatibility only when there is a problem. Ⓐ on a line opens the matching tab; Ⓐ on *Today's limit* changes it right there. **Extra time today** (+15 min, +30 min, +1 h on today's limit; the next time the app opens on another day, it offers to put the usual limit back). A banner with **Lock now** appears while parental controls are temporarily unlocked. Refreshes every 5 s and shows the time of the last refresh (Ⓧ refreshes now). |
-| **Play timer** | The week at a glance (one bar per day, today highlighted, the matching profile named in the header). Same limit every day (quick list or any value, typed in minutes or as `1:30`), a different limit per day (quick values, Monday–Friday / weekend presets, "no limit" per day, a count of unsaved changes), remove the limit, a **Profiles** screen for limits saved on the SD card (e.g. *School week*, *Holidays*: apply, save the current limits, delete), bedtime alarm (read-only). Advanced, opt-in: "time's up" alarm on/off, pause / resume the countdown. |
+| **Play timer** | The week at a glance (one bar per day, today highlighted, the matching profile named in the header). Same limit every day (quick list or any value, typed in minutes or as `1:30`), a different limit per day (quick values, Monday–Friday / weekend presets, "no limit" per day, a count of unsaved changes), remove the limit, **extra time today** (as on the Overview), a **Profiles** screen for limits saved on the SD card (e.g. *School week*, *Holidays*: apply, save the current limits, delete), bedtime alarm (read-only). Advanced, opt-in: "time's up" alarm on/off, pause / resume the countdown. |
+| **Activity** | How long each game was played **today**, in the **last 7 days** and **in all**, for every account, from the console's own activity log, with today's and the week's totals. Sort the list by period; Ⓐ on a game also shows its launches and its first and last play. **Export to the SD card** as CSV, JSON, XLSX (Excel) or PDF. Times are approximate if the console clock was changed. |
 | **Restrictions** | Restriction level (None, Young child, Child, Teen, Custom); in Custom: age rating, social-media posting, communication with others; VR mode; rating organisation. |
 | **Network clock** | Console / network clocks, time zone, accuracy. Pick a public NTP server (≈ 50 built-in, by region, or your own), **measure** against 3 servers (median, warning when they disagree) and **set the network clock** (a measurement stays usable for 2 minutes, with a countdown). The play timer relies on this clock; a console that never reaches Nintendo's servers keeps it inaccurate. |
-| **Security & app** | Set / change the PIN (system PIN screen), unlock temporarily, **lock now**. *Companion app*: whether the Nintendo Switch Parental Controls phone app is linked, last synchronisation, unlink it (otherwise its next sync overwrites the limits set here). Delete all parental controls (two confirmations with different red buttons, irreversible). |
-| **Tools & about** | Export a diagnostic report, language and theme (with an offer to restart), **lock again automatically after a change** (on by default), advanced actions. *Console*: firmware, Atmosphère, compatibility, **storage** (emuMMC or sysMMC), whether Atmosphère **blanks the serial number** (with the number the system sees, partly hidden until Ⓐ; a warning on emuMMC when it is not blanked), **game patches** (sys-patch or sigpatch files, with a warning recommending sys-patch when only files are used). The Overview repeats these two warnings. |
+| **Security & app** | Set / change the PIN (system PIN screen), **show the PIN** (after a warning, for when it is forgotten), unlock temporarily, **lock now**. *Companion app*: whether the Nintendo Switch Parental Controls phone app is linked, last synchronisation, unlink it (otherwise its next sync overwrites the limits set here). Delete all parental controls (two confirmations with different red buttons, irreversible; a backup of the settings is saved first). |
+| **Tools & about** | Export a diagnostic report, **back up / restore the settings** on the SD card (restriction level, custom settings, VR mode, daily limits; not the PIN), language and theme (with an offer to restart), **lock again automatically after a change** (on by default), advanced actions. *Console*: firmware, Atmosphère, compatibility, **storage** (emuMMC or sysMMC), whether Atmosphère **blanks the serial number** (with the number the system sees, partly hidden until Ⓐ; a warning on emuMMC when it is not blanked), **game patches** (sys-patch or sigpatch files, with a warning recommending sys-patch when only files are used). The Overview repeats these two warnings. |
 
 ![Play timer](images/screenshots/play_timer.png)
 ![Per-day limits](images/screenshots/per_day.png)
+![Activity](images/screenshots/activity.png)
 
 ### How the play-time limit is written safely
 
@@ -55,7 +57,7 @@ Pick one:
 - **sphaira's GitHub menu**: the release zip already contains the entry (`/config/sphaira/github/playguard.json`), so after a first install you can update from *GitHub* in sphaira.
 - **Manually**: download `playguard.zip` from the [Releases](../../releases/latest) and extract it to the **root** of the SD card. The app lands in `sd:/switch/playguard/`.
 
-Files the app writes: `sd:/switch/playguard/config.json` (preferences), `profiles/` (saved limits), `logs/` (diagnostics). More in [packaging/README.md](packaging/README.md).
+Files the app writes: `sd:/switch/playguard/config.json` (preferences), `profiles/` (saved limits), `backups/` (settings backups), `exports/` (Activity exports), `logs/` (diagnostics). More in [packaging/README.md](packaging/README.md).
 
 ### First steps
 
@@ -84,11 +86,11 @@ make READ_ONLY=1 # "PlayGuard Diagnostics" build
 ./run.sh [ip]    # build in the devkitpro/devkita64 Docker image, optionally nxlink to a console
 ```
 
-The desktop build runs the real borealis UI against `source/sim/` (environment knobs: `PLAYGUARD_SIM_FW=20.5.0`, `PLAYGUARD_SIM_NO_CFW=1`, `PLAYGUARD_SIM_TIMER_OFF=1`, `PLAYGUARD_SIM_UNLOCKED=1`, `PLAYGUARD_SIM_UNPAIRED=1`, `PLAYGUARD_SIM_ACCURATE=1`, `PLAYGUARD_SIM_EMUMMC=1`, `PLAYGUARD_SIM_BLANK=1`; game patches are read from `./playguard_data/sd/`, the simulated SD card root). `tools/desktop_smoke.py` clicks through every screen headlessly; CI runs it with the unit tests, the resource checks (`tools/check_resources.py`) and the three Switch builds.
+The desktop build runs the real borealis UI against `source/sim/` (environment knobs: `PLAYGUARD_SIM_FW=20.5.0`, `PLAYGUARD_SIM_NO_CFW=1`, `PLAYGUARD_SIM_TIMER_OFF=1`, `PLAYGUARD_SIM_UNLOCKED=1`, `PLAYGUARD_SIM_UNPAIRED=1`, `PLAYGUARD_SIM_ACCURATE=1`, `PLAYGUARD_SIM_EMUMMC=1`, `PLAYGUARD_SIM_BLANK=1`, `PLAYGUARD_SIM_NO_PDM=1`; game patches are read from `./playguard_data/sd/`, the simulated SD card root). `tools/desktop_smoke.py` clicks through every screen headlessly; CI runs it with the unit tests, the resource checks (`tools/check_resources.py`) and the three Switch builds.
 
 Branding: `branding/*.svg` (sources), rendered to `icon.jpg` and `images/store/*.png` by `node tools/render_branding.mjs` (Node + Playwright).
 
-Layout: `source/core/` (C, libnx: `pctl_ops`, `time_ops`, `sysinfo`), `source/tab/` (one class per tab), `source/action/` (the play-timer write flow), `source/ui/` (dialogs, formatting, theme colours), `source/util/` (NTP, config, profiles, diagnostics), `resources/` (XML layouts, `i18n/en-US/playguard.json`, `i18n/fr/playguard.json`).
+Layout: `source/core/` (C, libnx: `pctl_ops`, `time_ops`, `sysinfo`, `playstats`), `source/tab/` (one class per tab), `source/action/` (the play-timer write flow, the settings restore), `source/ui/` (dialogs, formatting, theme colours), `source/util/` (NTP, config, profiles, settings backups, play-log folding, table export, diagnostics), `resources/` (XML layouts, `i18n/en-US/playguard.json`, `i18n/fr/playguard.json`).
 
 ## Contributing
 

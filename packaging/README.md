@@ -12,6 +12,8 @@ At runtime the app writes, next to itself:
 ```
 switch/playguard/config.json             preferences (language, theme, NTP server, …)
 switch/playguard/profiles/*.json         saved play-time limit profiles
+switch/playguard/backups/*.json          settings backups (never contain the PIN)
+switch/playguard/exports/activity_*      Activity exports (CSV, JSON, XLSX, PDF)
 switch/playguard/logs/*.txt              diagnostic reports (never contain the PIN)
 ```
 
