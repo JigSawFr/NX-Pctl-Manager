@@ -7,7 +7,7 @@ the per-day editor and a dropdown, and fails if the app dies on the way
 each screen are written to the output folder.
 
 Usage: tools/desktop_smoke.py <out-dir>   (needs DISPLAY, xdotool, ImageMagick)
-Environment knobs of the simulated backend (NXPM_SIM_*) are passed through.
+Environment knobs of the simulated backend (PLAYGUARD_SIM_*) are passed through.
 """
 import os
 import subprocess
@@ -63,7 +63,7 @@ else:
     fail("no window after 30 s")
 time.sleep(2)
 
-tabs = ["dashboard", "play_timer", "restrictions", "clock", "pairing", "security", "tools"]
+tabs = ["dashboard", "play_timer", "restrictions", "clock", "security", "tools"]
 shot("01_dashboard")
 for i, tab in enumerate(tabs[1:], start=2):
     key("Down")
@@ -74,7 +74,7 @@ for i, tab in enumerate(tabs[1:], start=2):
     key("Escape")     # back to the sidebar
 
 # Per-day editor and a dropdown.
-key("Up", 5)
+key("Up", len(tabs) - 2)   # from Tools back to Play timer
 key("Right")
 key("Down")
 key("Return")

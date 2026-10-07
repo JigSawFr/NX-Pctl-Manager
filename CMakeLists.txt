@@ -44,15 +44,15 @@ list(APPEND APP_PLATFORM_LIB ${CMAKE_THREAD_LIBS_INIT})
 # Sources: UI (C++) + service layer. The real service layer (source/core/*.c)
 # talks to libnx and is Switch-only; the desktop build swaps in the simulated
 # backend from source/sim/ so the UI can be run and screenshotted on a PC.
-file(GLOB_RECURSE NX_PCTL_SRC CONFIGURE_DEPENDS source/*.cpp source/*.c)
+file(GLOB_RECURSE PLAYGUARD_SRC CONFIGURE_DEPENDS source/*.cpp source/*.c)
 if (PLATFORM_SWITCH)
-    list(FILTER NX_PCTL_SRC EXCLUDE REGEX ".*/source/sim/.*")
-    list(APPEND NX_PCTL_SRC ${BOREALIS_LIBRARY}/lib/platforms/switch/switch_wrapper.c)
+    list(FILTER PLAYGUARD_SRC EXCLUDE REGEX ".*/source/sim/.*")
+    list(APPEND PLAYGUARD_SRC ${BOREALIS_LIBRARY}/lib/platforms/switch/switch_wrapper.c)
 else ()
-    list(FILTER NX_PCTL_SRC EXCLUDE REGEX ".*/source/core/.*\\.c$")
+    list(FILTER PLAYGUARD_SRC EXCLUDE REGEX ".*/source/core/.*\\.c$")
 endif ()
 
-program_target(${PROJECT_NAME} "${NX_PCTL_SRC}")
+program_target(${PROJECT_NAME} "${PLAYGUARD_SRC}")
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
 
 target_include_directories(${PROJECT_NAME} PRIVATE source ${APP_PLATFORM_INCLUDE})

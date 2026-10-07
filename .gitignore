@@ -68,7 +68,6 @@ HB_APPSTORE_SUBMISSION.md
 *.elf
 *.zip
 .DS_Store
-nx_pctl_probe.txt
 /build-desktop
 /playguard_data
 /smoke

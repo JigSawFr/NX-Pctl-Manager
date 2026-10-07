@@ -21,18 +21,19 @@
             paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
             paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
 
-            <brls:Header title="@i18n/nx_pctl/restrictions/section_level" marginBottom="8"/>
-            <brls:DetailCell id="rs_level" title="@i18n/nx_pctl/restrictions/level"/>
-            <brls:Header id="rs_custom_header" title="@i18n/nx_pctl/restrictions/section_custom" marginTop="24" marginBottom="8"/>
-            <brls:DetailCell id="rs_age" title="@i18n/nx_pctl/restrictions/age"/>
+            <brls:Label id="tab_ro_note" text="@i18n/playguard/common/read_only_note" fontSize="18" marginBottom="16" textColor="@theme/brand/warn"/>
+            <brls:Header title="@i18n/playguard/restrictions/section_level" marginBottom="8"/>
+            <brls:DetailCell id="rs_level" title="@i18n/playguard/restrictions/level"/>
+            <brls:Header id="rs_custom_header" title="@i18n/playguard/restrictions/section_custom" marginTop="24" marginBottom="8"/>
+            <brls:DetailCell id="rs_age" title="@i18n/playguard/restrictions/age"/>
             <brls:BooleanCell id="rs_sns"/>
             <brls:BooleanCell id="rs_comm"/>
-            <brls:Label id="rs_custom_note" text="@i18n/nx_pctl/restrictions/custom_only" fontSize="16" marginTop="10" marginBottom="6" textColor="@theme/brls/header/subtitle"/>
-            <brls:Header title="@i18n/nx_pctl/restrictions/section_other" marginTop="24" marginBottom="8"/>
+            <brls:Label id="rs_custom_note" text="@i18n/playguard/restrictions/custom_only" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
+            <brls:Header title="@i18n/playguard/restrictions/section_other" marginTop="24" marginBottom="8"/>
             <brls:BooleanCell id="rs_vr"/>
-            <brls:DetailCell id="rs_org" title="@i18n/nx_pctl/restrictions/org"/>
-            <brls:DetailCell id="rs_free_comm" title="@i18n/nx_pctl/restrictions/free_comm"/>
-            <brls:Label id="rs_note" text="@i18n/nx_pctl/restrictions/note" fontSize="16" marginTop="10" marginBottom="6" textColor="@theme/brls/header/subtitle"/>
+            <brls:DetailCell id="rs_org" title="@i18n/playguard/restrictions/org"/>
+            <brls:DetailCell id="rs_free_comm" title="@i18n/playguard/restrictions/free_comm"/>
+            <brls:Label id="rs_note" text="@i18n/playguard/restrictions/note" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
 
         </brls:Box>
 

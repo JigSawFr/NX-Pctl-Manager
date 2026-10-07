@@ -54,5 +54,4 @@ class ClockTab : public TabBase
     BRLS_BIND(brls::DetailCell, measure_cell, "ck_measure");
     BRLS_BIND(brls::Label,      result,   "ck_result");
     BRLS_BIND(brls::DetailCell, apply_cell, "ck_apply");
-    BRLS_BIND(brls::DetailCell, export_cell, "ck_export");
 };

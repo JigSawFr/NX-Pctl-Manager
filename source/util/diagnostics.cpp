@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "app.hpp"
+#include "util/patches.hpp"
 #include "util/paths.hpp"
 #include "util/pctl_ops_c.hpp"
 
@@ -19,6 +20,24 @@ std::string current_report()
     char fw[16];
     sysinfo_version_string(si.hos_version, fw, sizeof(fw));
 
+    // Game patches: sys-patch state and sigpatch files (no personal data).
+    const patches::Report pr = patches::detect(paths::sd_root(), fw, si.emummc);
+    std::string files;
+    for (const auto& f : pr.files) files += (files.empty() ? "" : ",") + f;
+    static const char* const STATUS[] = { "none", "sys-patch", "sys-patch incomplete", "sigpatch files only" };
+    static const char* const ISSUE[]  = { "none", "not at boot", "no log", "stale log", "skipped", "not patched" };
+    const std::string patch_line = fmt::format(
+        "{} (issue: {}; sys-patch installed={} boot2={} log={}{}; fs={} ldr={} es={}; files={})",
+        STATUS[(int)patches::status(pr)], ISSUE[(int)patches::issue(pr)],
+        pr.syspatch_installed ? 1 : 0, pr.syspatch_at_boot ? 1 : 0,
+        !pr.log_present ? "none" : (pr.log_current ? "current" : "stale"),
+        pr.log_present ? fmt::format(" fw={} emummc={}", pr.log_fw, pr.log_emummc ? 1 : 0) : std::string(),
+        patches::module_name(pr.fs), patches::module_name(pr.ldr), patches::module_name(pr.es),
+        files.empty() ? std::string("none") : files);
+
+    // The serial number itself is never written: reports are attached to
+    // public bug reports.
+    const SysStorage storage = sysinfo_storage(&si);
     std::string out = fmt::format(
         "=== PlayGuard diagnostic ===\n"
         "app version : {}\n"
@@ -27,6 +46,8 @@ std::string current_report()
         "atmosphere  : {} ({})\n"
         "launch mode : {}\n"
         "storage     : {}\n"
+        "prodinfo    : {}\n"
+        "game patches: {}\n"
         "compat      : {}\n\n",
         app::version(), app::probe_build() ? 1 : 0, app::read_only_build() ? 1 : 0,
 #ifdef __SWITCH__
@@ -38,7 +59,9 @@ std::string current_report()
         si.ams_valid ? fmt::format("{}.{}.{}", si.ams_major, si.ams_minor, si.ams_micro) : std::string("unknown"),
         si.is_atmosphere ? "detected" : "not detected",
         si.applet_mode ? "applet (album)" : "application",
-        si.emummc ? "emuMMC" : "sysMMC or unknown",
+        storage == SysStorage_EmuMMC ? "emuMMC" : storage == SysStorage_SysMMC ? "sysMMC" : "unknown",
+        !si.blank_valid ? "unknown" : (si.blank ? "blanked" : "not blanked"),
+        patch_line,
         (int)sysinfo_compat(&si));
 
     std::vector<char> buf(4096);

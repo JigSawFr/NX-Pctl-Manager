@@ -26,6 +26,15 @@ std::string logs_dir()     { return data_dir() + "/logs"; }
 std::string profiles_dir() { return data_dir() + "/profiles"; }
 std::string config_file()  { return data_dir() + "/config.json"; }
 
+std::string sd_root()
+{
+#ifdef __SWITCH__
+    return "/";
+#else
+    return "./playguard_data/sd";
+#endif
+}
+
 bool ensure_dir(const std::string& dir)
 {
     std::string partial;

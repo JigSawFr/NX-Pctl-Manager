@@ -1,22 +1,54 @@
 // pt_flow — the "write-before-temporary-unlock" gate used by every play-timer
 // write. If the timer is counting down, writing a new limit destabilises
 // Atmosphère, so: ask the user → UnlockRestrictionTemporarily (1201) →
-// verify IsRestrictionTemporaryUnlocked (1006) → let the caller write. The
-// service layer re-checks the same state right before the write.
+// verify IsRestrictionTemporaryUnlocked (1006) → let the caller write → lock
+// again (automatically, or offered). The service layer re-checks the same state
+// right before the write.
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
+#include <cstdint>
 #include <functional>
+#include <string>
+#include <vector>
+
+#include "util/pctl_ops_c.hpp"
 
 namespace pt_flow
 {
 
-// on_ready(true, did_unlock) when it is safe to write; on_ready(false, false)
-// when the user declined or the state could not be verified (a toast has
-// already explained why). The caller must not write in that case.
-void ready_to_write(std::function<void(bool ok, bool did_unlock)> on_ready);
+// Limits offered by the pickers, in minutes (0 = no play that day).
+const std::vector<uint16_t>& quick_values();
 
-// After a write that needed an unlock: offer to re-lock immediately (1007).
-void offer_relock(std::function<void()> after = nullptr);
+// Minutes already played today, or -1 when the system does not say (timer
+// off, no limit today, or no game counted yet).
+int played_today_min(const PtState& pt);
+
+// One dialog for the whole change. `body` asks the question ("Set 2 h for every
+// day?"); when the timer is counting down the same dialog explains the
+// temporary unlock and its button unlocks first. When `new_days` would put
+// today's limit below the time already played, the dialog says the game in
+// progress will be suspended. With nothing to say and no unlock needed,
+// `write` runs at once. `write(did_unlock)` only runs when it is safe to
+// write; otherwise a toast has already explained why.
+void confirm_write(const std::string& body, const std::string& confirm_label,
+                   std::function<void(bool did_unlock)> write, const uint16_t* new_days = nullptr);
+
+// After a write made through confirm_write: toast the result, then lock again
+// if the write needed an unlock (at once when the "lock again automatically"
+// preference is on, else by offering it), then `refresh`.
+void finish_write(Result rc, bool did_unlock, const std::string& ok_text,
+                  const std::string& error_prefix, std::function<void()> refresh);
+
+// "Same limit every day" picker (quick values + Custom…), then confirm_write.
+void choose_uniform_limit(const PtState& pt, std::function<void()> refresh);
+
+// "Extra time today": raises today's weekday limit by 15 / 30 / 60 min and
+// remembers the previous value (config extra_*), so that it can be put back.
+void add_extra_time(const PtState& pt, std::function<void()> refresh);
+
+// At start-up: extra time added on an earlier day is still on its weekday
+// limit -> offer to put the previous value back (or keep it).
+void offer_extra_time_restore();
 
 }   // namespace pt_flow

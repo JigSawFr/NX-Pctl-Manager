@@ -10,7 +10,7 @@ namespace ntp
 
 struct Region
 {
-    const char* id;          // also the i18n key suffix: nx_pctl/clock/region/<id>
+    const char* id;          // also the i18n key suffix: playguard/clock/region/<id>
     std::vector<const char*> hosts;
 };
 

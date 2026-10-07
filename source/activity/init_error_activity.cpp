@@ -17,8 +17,8 @@ void InitErrorActivity::onContentAvailable()
     char fw[16];
     sysinfo_version_string(si.hos_version, fw, sizeof(fw));
     std::string ams = si.ams_valid ? fmt::format("{}.{}.{}", si.ams_major, si.ams_minor, si.ams_micro)
-                                   : "nx_pctl/common/unavailable"_i18n;
-    this->error_fw->setText(brls::getStr("nx_pctl/init_error/firmware", std::string(fw), ams));
+                                   : "playguard/common/unavailable"_i18n;
+    this->error_fw->setText(brls::getStr("playguard/init_error/firmware", std::string(fw), ams, ui::storage_short(si)));
 
     this->getContentView()->registerAction("hints/exit"_i18n, brls::BUTTON_B, [](brls::View*) {
         brls::Application::quit();

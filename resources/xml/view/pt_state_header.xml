@@ -10,27 +10,27 @@
     marginBottom="20">
 
     <brls:Box axis="row" alignItems="center" marginBottom="6">
-        <brls:Label text="@i18n/nx_pctl/play_timer/state/enabled" grow="1.0"/>
+        <brls:Label text="@i18n/playguard/play_timer/state/enabled" grow="1.0"/>
         <brls:Label id="pt_enabled_value" text="—"/>
     </brls:Box>
 
     <brls:Box axis="row" alignItems="center" marginBottom="6">
-        <brls:Label text="@i18n/nx_pctl/play_timer/state/restricted" grow="1.0"/>
+        <brls:Label text="@i18n/playguard/play_timer/state/restricted" grow="1.0"/>
         <brls:Label id="pt_restricted_value" text="—"/>
     </brls:Box>
 
     <brls:Box axis="row" alignItems="center" marginBottom="6">
-        <brls:Label text="@i18n/nx_pctl/play_timer/state/temporary" grow="1.0"/>
+        <brls:Label text="@i18n/playguard/play_timer/state/temporary" grow="1.0"/>
         <brls:Label id="pt_temporary_value" text="—"/>
     </brls:Box>
 
     <brls:Box axis="row" alignItems="center" marginBottom="6">
-        <brls:Label text="@i18n/nx_pctl/play_timer/state/remaining" grow="1.0"/>
+        <brls:Label text="@i18n/playguard/play_timer/state/remaining" grow="1.0"/>
         <brls:Label id="pt_remaining_value" text="—"/>
     </brls:Box>
 
     <brls:Box axis="row" alignItems="center" marginBottom="6">
-        <brls:Label text="@i18n/nx_pctl/play_timer/state/configured" grow="1.0"/>
+        <brls:Label text="@i18n/playguard/play_timer/state/configured" grow="1.0"/>
         <brls:Label id="pt_configured_value" text="—"/>
     </brls:Box>
 

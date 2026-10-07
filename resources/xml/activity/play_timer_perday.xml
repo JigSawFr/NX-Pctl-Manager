@@ -7,7 +7,7 @@
     iconInterpolation="linear">
 
     <brls:ScrollingFrame
-        title="@i18n/nx_pctl/play_timer/perday/title"
+        title="@i18n/playguard/play_timer/perday/title"
         icon="@res/img/app_icon.jpg"
         width="auto"
         height="auto"
@@ -28,7 +28,7 @@
 
             <PtStateHeader id="pt_state_header"/>
 
-            <brls:Header title="@i18n/nx_pctl/play_timer/perday/section_days" marginBottom="8"/>
+            <brls:Header title="@i18n/playguard/play_timer/perday/section_days" marginBottom="8"/>
 
             <brls:DetailCell id="pt_d1"/>
             <brls:DetailCell id="pt_d2"/>
@@ -38,16 +38,16 @@
             <brls:DetailCell id="pt_d6"/>
             <brls:DetailCell id="pt_d0"/>
 
-            <brls:Header title="@i18n/nx_pctl/play_timer/perday/section_presets" marginTop="16" marginBottom="8"/>
+            <brls:Header title="@i18n/playguard/play_timer/perday/section_presets" marginTop="16" marginBottom="8"/>
 
-            <brls:DetailCell id="pt_weekdays" title="@i18n/nx_pctl/play_timer/perday/weekdays"/>
-            <brls:DetailCell id="pt_weekend"  title="@i18n/nx_pctl/play_timer/perday/weekend"/>
+            <brls:DetailCell id="pt_weekdays" title="@i18n/playguard/play_timer/perday/weekdays"/>
+            <brls:DetailCell id="pt_weekend"  title="@i18n/playguard/play_timer/perday/weekend"/>
             <brls:DetailCell id="pt_copy_today"/>
-            <brls:DetailCell id="pt_revert"   title="@i18n/nx_pctl/play_timer/perday/revert"/>
+            <brls:DetailCell id="pt_revert"   title="@i18n/playguard/play_timer/perday/revert"/>
 
-            <brls:Header title="@i18n/nx_pctl/play_timer/perday/section_save" marginTop="16" marginBottom="8"/>
+            <brls:Header title="@i18n/playguard/play_timer/perday/section_save" marginTop="16" marginBottom="8"/>
 
-            <brls:DetailCell id="pt_save" title="@i18n/nx_pctl/play_timer/perday/save"/>
+            <brls:DetailCell id="pt_save" title="@i18n/playguard/play_timer/perday/save"/>
 
         </brls:Box>
 

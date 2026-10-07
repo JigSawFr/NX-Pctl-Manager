@@ -21,23 +21,31 @@
             paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
             paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
 
-            <brls:Header title="@i18n/nx_pctl/tools/section_diag" marginBottom="8"/>
-            <brls:DetailCell id="tl_export" title="@i18n/nx_pctl/tools/export"/>
-            <brls:Label id="tl_export_note" text="" fontSize="16" marginTop="10" marginBottom="6" textColor="@theme/brls/header/subtitle"/>
-            <brls:Header title="@i18n/nx_pctl/tools/section_prefs" marginTop="24" marginBottom="8"/>
-            <brls:DetailCell id="tl_language" title="@i18n/nx_pctl/tools/language"/>
-            <brls:DetailCell id="tl_theme" title="@i18n/nx_pctl/tools/theme"/>
+            <brls:Header title="@i18n/playguard/tools/section_diag" marginBottom="8"/>
+            <brls:DetailCell id="tl_export" title="@i18n/playguard/tools/export"/>
+            <brls:Label id="tl_export_note" text="" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
+            <brls:Header title="@i18n/playguard/tools/section_prefs" marginTop="24" marginBottom="8"/>
+            <brls:DetailCell id="tl_language" title="@i18n/playguard/tools/language"/>
+            <brls:DetailCell id="tl_theme" title="@i18n/playguard/tools/theme"/>
+            <brls:BooleanCell id="tl_auto_relock"/>
             <brls:BooleanCell id="tl_advanced"/>
-            <brls:Header title="@i18n/nx_pctl/tools/section_about" marginTop="24" marginBottom="8"/>
-            <brls:DetailCell id="tl_version" title="@i18n/nx_pctl/tools/version"/>
-            <brls:DetailCell id="tl_fw" title="@i18n/nx_pctl/tools/firmware"/>
-            <brls:DetailCell id="tl_ams" title="@i18n/nx_pctl/tools/atmosphere"/>
-            <brls:DetailCell id="tl_compat" title="@i18n/nx_pctl/tools/compat"/>
-            <brls:DetailCell id="tl_mode" title="@i18n/nx_pctl/tools/mode"/>
-            <brls:DetailCell id="tl_data" title="@i18n/nx_pctl/tools/data"/>
-            <brls:DetailCell id="tl_license" title="@i18n/nx_pctl/tools/license"/>
-            <brls:DetailCell id="tl_source" title="@i18n/nx_pctl/tools/source"/>
-            <brls:DetailCell id="tl_credits" title="@i18n/nx_pctl/tools/credits"/>
+            <brls:Header title="@i18n/playguard/tools/section_console" marginTop="24" marginBottom="8"/>
+            <brls:DetailCell id="tl_fw" title="@i18n/playguard/tools/firmware"/>
+            <brls:DetailCell id="tl_ams" title="@i18n/playguard/tools/atmosphere"/>
+            <brls:DetailCell id="tl_compat" title="@i18n/playguard/tools/compat"/>
+            <brls:DetailCell id="tl_storage" title="@i18n/playguard/tools/storage"/>
+            <brls:DetailCell id="tl_blank" title="@i18n/playguard/tools/blank"/>
+            <brls:DetailCell id="tl_serial" title="@i18n/playguard/tools/serial"/>
+            <brls:Label id="tl_serial_note" text="@i18n/playguard/tools/serial_note_emummc" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/warn"/>
+            <brls:DetailCell id="tl_patches" title="@i18n/playguard/tools/patches"/>
+            <brls:Label id="tl_patches_note" text="" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
+            <brls:Header title="@i18n/playguard/tools/section_about" marginTop="24" marginBottom="8"/>
+            <brls:DetailCell id="tl_version" title="@i18n/playguard/tools/version"/>
+            <brls:DetailCell id="tl_mode" title="@i18n/playguard/tools/mode"/>
+            <brls:DetailCell id="tl_data" title="@i18n/playguard/tools/data"/>
+            <brls:DetailCell id="tl_license" title="@i18n/playguard/tools/license"/>
+            <brls:DetailCell id="tl_source" title="@i18n/playguard/tools/source"/>
+            <brls:Label id="tl_credits" text="" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
 
         </brls:Box>
 

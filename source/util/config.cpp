@@ -23,7 +23,12 @@ void load()
         s_config.theme           = j.value("theme", s_config.theme);
         s_config.ntp_server      = j.value("ntp_server", s_config.ntp_server);
         s_config.advanced        = j.value("advanced", s_config.advanced);
+        s_config.auto_relock     = j.value("auto_relock", s_config.auto_relock);
         s_config.untested_fw_ack = j.value("untested_fw_ack", s_config.untested_fw_ack);
+        s_config.extra_weekday   = j.value("extra_weekday", s_config.extra_weekday);
+        s_config.extra_date      = j.value("extra_date", s_config.extra_date);
+        s_config.extra_base      = j.value("extra_base", s_config.extra_base);
+        s_config.extra_value     = j.value("extra_value", s_config.extra_value);
         if (j.contains("custom_servers") && j["custom_servers"].is_array())
             for (auto& v : j["custom_servers"])
                 if (v.is_string()) s_config.custom_servers.push_back(v.get<std::string>());
@@ -40,7 +45,12 @@ bool save()
     j["ntp_server"]      = s_config.ntp_server;
     j["custom_servers"]  = s_config.custom_servers;
     j["advanced"]        = s_config.advanced;
+    j["auto_relock"]     = s_config.auto_relock;
     j["untested_fw_ack"] = s_config.untested_fw_ack;
+    j["extra_weekday"]   = s_config.extra_weekday;
+    j["extra_date"]      = s_config.extra_date;
+    j["extra_base"]      = s_config.extra_base;
+    j["extra_value"]     = s_config.extra_value;
     return paths::atomic_write(paths::config_file(), j.dump(2) + "\n");
 }
 

@@ -1,7 +1,8 @@
 // PlayTimerPerDayActivity — per-day limits editor. Each day cell stages an edit
-// into `pending[]` ("Enter minutes…" or "No limit"); presets fill several days
-// at once; "Save" writes the seven values through the play-timer gate.
-// B leaves, asking first when there are unsaved edits.
+// into `pending[]` (a quick value, "Enter minutes…" or "No limit"); presets
+// fill several days at once; "Save" writes the seven values through the
+// play-timer gate. X re-reads the state, B leaves (asking first when there are
+// unsaved edits).
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
@@ -27,6 +28,7 @@ class PlayTimerPerDayActivity : public brls::Activity
     bool has_changes() const;
     void edit_day(int d);
     void fill_days(std::initializer_list<int> days, const std::string& title);
+    void pick_limit(const std::string& title, u16 current, std::function<void(u16)> on_value);
     void save();
 
     brls::DetailCell* day_cell(int d);

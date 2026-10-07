@@ -1,6 +1,7 @@
 // PtGauge — horizontal bar showing how much of today's play time is used.
-// The colour goes green → orange (≥ 75 %) → red (limit reached); the exact
+// The colour goes teal → amber (≥ 75 %) → red (limit reached); the exact
 // numbers are always also written in text next to it (never colour only).
+// With no limit the caller hides the bar; an unknown value draws the track only.
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 

@@ -21,25 +21,25 @@
             paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
             paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
 
+            <brls:Label id="tab_ro_note" text="@i18n/playguard/common/read_only_note" fontSize="18" marginBottom="16" textColor="@theme/brand/warn"/>
+            <brls:DetailCell id="pt_unlocked_banner" marginBottom="12"/>
             <PtStateHeader id="pt_state_header"/>
-            <brls:Label id="pt_fw_note" text="@i18n/nx_pctl/play_timer/fw_too_old" fontSize="16" marginTop="10" marginBottom="6" textColor="@theme/brls/header/subtitle"/>
-            <brls:Header id="pt_limit_header" title="@i18n/nx_pctl/play_timer/section_limit" marginBottom="8"/>
-            <brls:DetailCell id="pt_quick" title="@i18n/nx_pctl/play_timer/quick"/>
-            <brls:DetailCell id="pt_per_day" title="@i18n/nx_pctl/play_timer/per_day"/>
-            <brls:DetailCell id="pt_remove" title="@i18n/nx_pctl/play_timer/remove"/>
-            <brls:Header id="pt_profiles_header" title="@i18n/nx_pctl/play_timer/section_profiles" marginTop="24" marginBottom="8"/>
-            <brls:DetailCell id="pt_profile_save" title="@i18n/nx_pctl/play_timer/profile_save"/>
-            <brls:DetailCell id="pt_profile_load" title="@i18n/nx_pctl/play_timer/profile_load"/>
-            <brls:DetailCell id="pt_profile_delete" title="@i18n/nx_pctl/play_timer/profile_delete"/>
-            <brls:Header id="pt_bedtime_header" title="@i18n/nx_pctl/play_timer/section_bedtime" marginTop="24" marginBottom="8"/>
-            <brls:DetailCell id="pt_bedtime" title="@i18n/nx_pctl/play_timer/bedtime"/>
-            <brls:DetailCell id="pt_bedtime_reset" title="@i18n/nx_pctl/play_timer/bedtime_reset"/>
-            <brls:Label id="pt_bedtime_note" text="@i18n/nx_pctl/play_timer/bedtime_note" fontSize="16" marginTop="10" marginBottom="6" textColor="@theme/brls/header/subtitle"/>
-            <brls:Header id="pt_adv_header" title="@i18n/nx_pctl/play_timer/section_advanced" marginTop="24" marginBottom="8"/>
+            <PtWeekView id="pt_week" width="auto" height="auto" marginBottom="16"/>
+            <brls:Label id="pt_fw_note" text="@i18n/playguard/play_timer/fw_too_old" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
+            <brls:Header id="pt_limit_header" title="@i18n/playguard/play_timer/section_limit" marginBottom="8"/>
+            <brls:DetailCell id="pt_quick" title="@i18n/playguard/play_timer/quick"/>
+            <brls:DetailCell id="pt_per_day" title="@i18n/playguard/play_timer/per_day"/>
+            <brls:DetailCell id="pt_remove" title="@i18n/playguard/play_timer/remove"/>
+            <brls:DetailCell id="pt_profiles" title="@i18n/playguard/play_timer/profiles"/>
+            <brls:Header id="pt_bedtime_header" title="@i18n/playguard/play_timer/section_bedtime" marginTop="24" marginBottom="8"/>
+            <brls:DetailCell id="pt_bedtime" title="@i18n/playguard/play_timer/bedtime"/>
+            <brls:DetailCell id="pt_bedtime_reset" title="@i18n/playguard/play_timer/bedtime_reset"/>
+            <brls:Label id="pt_bedtime_note" text="@i18n/playguard/play_timer/bedtime_note" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
+            <brls:Header id="pt_adv_header" title="@i18n/playguard/play_timer/section_advanced" marginTop="24" marginBottom="8"/>
             <brls:BooleanCell id="pt_alarm"/>
-            <brls:DetailCell id="pt_pause" title="@i18n/nx_pctl/play_timer/pause"/>
-            <brls:DetailCell id="pt_resume" title="@i18n/nx_pctl/play_timer/resume"/>
-            <brls:DetailCell id="pt_diag" title="@i18n/nx_pctl/play_timer/diag"/>
+            <brls:DetailCell id="pt_pause" title="@i18n/playguard/play_timer/pause"/>
+            <brls:DetailCell id="pt_resume" title="@i18n/playguard/play_timer/resume"/>
+            <brls:DetailCell id="pt_diag" title="@i18n/playguard/play_timer/diag"/>
 
         </brls:Box>
 

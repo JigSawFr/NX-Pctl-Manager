@@ -6,7 +6,7 @@
     iconInterpolation="linear">
 
     <brls:Box
-        title="@i18n/nx_pctl/init_error/title"
+        title="@i18n/playguard/init_error/title"
         icon="@res/img/app_icon.jpg"
         width="auto"
         height="auto"
@@ -18,7 +18,7 @@
         paddingRight="60">
 
         <brls:Label
-            text="@i18n/nx_pctl/init_error/headline"
+            text="@i18n/playguard/init_error/headline"
             fontSize="28"
             horizontalAlign="center"
             marginBottom="20"/>
@@ -29,7 +29,7 @@
             fontSize="20"
             horizontalAlign="center"
             marginBottom="12"
-            textColor="@theme/brls/header/subtitle"/>
+            textColor="@theme/brand/note"/>
 
         <brls:Label
             id="error_fw"
@@ -37,10 +37,10 @@
             fontSize="18"
             horizontalAlign="center"
             marginBottom="32"
-            textColor="@theme/brls/header/subtitle"/>
+            textColor="@theme/brand/note"/>
 
         <brls:Label
-            text="@i18n/nx_pctl/init_error/body"
+            text="@i18n/playguard/init_error/body"
             horizontalAlign="center"/>
 
     </brls:Box>

@@ -15,7 +15,15 @@ struct Config
     std::string ntp_server;            // empty: pick from the console region
     std::vector<std::string> custom_servers;
     bool advanced = false;             // show debug-class play-timer actions
+    bool auto_relock = true;           // lock again right after a change that needed an unlock
     std::string untested_fw_ack;       // firmware for which the "untested" notice was accepted
+
+    // "Extra time today": the weekday limit raised on extra_date (YYYY-MM-DD)
+    // from extra_base to extra_value minutes. extra_weekday < 0: none pending.
+    int         extra_weekday = -1;
+    std::string extra_date;
+    int         extra_base  = 0;
+    int         extra_value = 0;
 };
 
 Config& get();
