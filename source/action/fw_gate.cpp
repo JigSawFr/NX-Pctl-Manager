@@ -101,7 +101,7 @@ void apply(Choice choice, bool remember)
         cfg.fw_gate_fw     = firmware();
         cfg.fw_gate_app    = app::version();
         cfg.fw_gate_choice = NAMES[(int)choice];
-        config::save();
+        ui::save_config();
     } else {
         forget();
     }
@@ -115,7 +115,7 @@ void forget()
     cfg.fw_gate_fw.clear();
     cfg.fw_gate_app.clear();
     cfg.fw_gate_choice.clear();
-    config::save();
+    ui::save_config();
 }
 
 std::string summary()

@@ -25,8 +25,12 @@ void MainActivity::onContentAvailable()
         return true;
     });
 
-    // Extra time added on an earlier day: offer to put the limit back.
-    brls::sync([]() { pt_flow::offer_extra_time_restore(); });
+    // Stopped in the middle of a change last time: lock again first. Then, for
+    // extra time added on an earlier day, offer to put the limit back.
+    brls::sync([]() {
+        pt_flow::relock_if_interrupted();
+        pt_flow::offer_extra_time_restore();
+    });
 
     // Firmware newer than the checked one: the firmware screen (or the remembered choice).
     fw_gate::on_main_screen();

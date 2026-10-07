@@ -379,7 +379,7 @@
         "applied_pending": "Horloge réseau réglée et relue. Le système ne la considère pas encore comme précise.",
         "applied_refused": "Rien n'a changé : activez d'abord « Synchroniser l'horloge via Internet » dans Paramètres de la console › Console › Date et heure.",
         "applied_err": "Impossible de régler l'horloge réseau",
-        "report_err": "Rien n'a changé : le rapport « avant » n'a pas pu être enregistré",
+        "report_err_ask": "Le rapport des horloges avant la modification n'a pas pu être enregistré ({}). Régler quand même l'horloge réseau ?",
         "seconds": "{} s",
         "busy": "Patientez jusqu'à la fin de la requête en cours."
     },
@@ -545,6 +545,8 @@
         "diag_saved": "Diagnostic enregistré : {}",
         "diag_err": "Impossible d'enregistrer le diagnostic",
         "relocked": "Contrôle parental de nouveau verrouillé.",
-        "relock_err": "Impossible de verrouiller de nouveau le contrôle parental"
+        "relock_err": "Impossible de verrouiller de nouveau le contrôle parental",
+        "relocked_after_stop": "PlayGuard s'est arrêté pendant une modification : le contrôle parental est de nouveau verrouillé.",
+        "config_err": "Impossible d'enregistrer les préférences sur la carte SD"
     }
 }

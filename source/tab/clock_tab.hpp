@@ -41,6 +41,7 @@ class ClockTab : public TabBase
     void set_server(const std::string& host, const std::string& region);
     void measure();
     void apply();
+    void write_clock(const std::string& before);   // after the confirmation, with the "before" report
 
     BRLS_BIND(brls::DetailCell, user,     "ck_user");
     BRLS_BIND(brls::DetailCell, network,  "ck_network");

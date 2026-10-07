@@ -55,4 +55,8 @@ void add_extra_time(const PtState& pt, std::function<void()> refresh);
 // limit -> offer to put the previous value back (or keep it).
 void offer_extra_time_restore();
 
+// At start-up: the app stopped between an unlock made for a change and the
+// lock that follows it (config relock_pending) -> lock again now, with a toast.
+void relock_if_interrupted();
+
 }   // namespace pt_flow
