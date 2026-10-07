@@ -9,6 +9,8 @@ name: release-please
 on:
   push:
     branches: [ main ]
+  # Re-run by hand, e.g. after editing a merged PR's release notes.
+  workflow_dispatch:
 
 permissions:
   contents: read
