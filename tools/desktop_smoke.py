@@ -54,7 +54,7 @@ def fail(msg):
 
 
 for _ in range(60):
-    if subprocess.run(["xdotool", "search", "--name", "Pctl"], env=env, capture_output=True).returncode == 0:
+    if subprocess.run(["xdotool", "search", "--name", "PlayGuard"], env=env, capture_output=True).returncode == 0:
         break
     if not alive():
         fail("app exited during start-up")
