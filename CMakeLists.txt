@@ -11,6 +11,21 @@ include(${BOREALIS_LIBRARY}/cmake/toolchain.cmake)
 
 project(playguard LANGUAGES CXX C)
 
+# borealis' toolchain.cmake sets CMAKE_C_FLAGS / CMAKE_CXX_FLAGS as normal
+# variables (include paths), which hides the cache values devkitPro's
+# NintendoSwitch platform file initialises: the Cortex-A57 tuning, the crc and
+# crypto extensions and the thread-local model libnx is built with. Put them
+# back for every target (borealis, yoga, fmt, tinyxml2 and the app).
+if (PLATFORM_SWITCH AND NX_ARCH_SETTINGS)
+    string(PREPEND CMAKE_C_FLAGS "${NX_ARCH_SETTINGS} ")
+    string(PREPEND CMAKE_CXX_FLAGS "${NX_ARCH_SETTINGS} ")
+endif ()
+# devkitPro's platform file defaults to Release (-O2 -g; elf2nro keeps no
+# debug data). borealis prints its "Build Type:" line before project() picks
+# that default, so say what is actually used.
+string(TOUPPER "${CMAKE_BUILD_TYPE}" PLAYGUARD_BUILD_TYPE_UC)
+message(STATUS "PlayGuard build type: ${CMAKE_BUILD_TYPE}; C++ flags: ${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${PLAYGUARD_BUILD_TYPE_UC}}")
+
 # App metadata. The NACP version must match the release tag (CI checks it).
 # release-please bumps these three lines (see release-please-config.json).
 set(VERSION_MAJOR "1") # x-release-please-major
@@ -61,9 +76,13 @@ program_target(${PROJECT_NAME} "${PLAYGUARD_SRC}")
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
 
 target_include_directories(${PROJECT_NAME} PRIVATE source ${APP_PLATFORM_INCLUDE})
-target_compile_options(${PROJECT_NAME} PRIVATE -ffunction-sections -fdata-sections ${APP_PLATFORM_OPTION})
+# -ffunction-sections / -fdata-sections come from borealis (PUBLIC) and
+# --gc-sections from libnx's switch.specs.
+target_compile_options(${PROJECT_NAME} PRIVATE ${APP_PLATFORM_OPTION})
 target_compile_definitions(${PROJECT_NAME} PRIVATE APP_VERSION="${APP_VERSION}")
 target_link_libraries(${PROJECT_NAME} PRIVATE borealis ${APP_PLATFORM_LIB})
+# On the Switch: a linker map (build/borealis.map) to see what makes the .nro big.
+target_link_options(${PROJECT_NAME} PRIVATE ${APP_PLATFORM_LINK_OPTION})
 
 # Resources: borealis built-ins first, then ours on top. On the Switch the
 # bundled fonts and demo assets are dropped (the system shared font is used).

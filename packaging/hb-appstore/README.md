@@ -19,7 +19,7 @@ Short description:
 
 Long description:
 
-> PlayGuard brings the Nintendo Switch parental-control settings that normally need the phone app onto the console, fully offline. Set one daily play-time limit or one per day, save limit profiles, change the restriction level, age rating, social-media and communication restrictions, set the network clock from a public NTP server, set or reset the PIN, unlock or re-lock temporarily, unlink the companion app, or delete everything when the PIN is forgotten. Requires Atmosphère. Firmware 21.0.0 to 23.0.1. English and French.
+> PlayGuard brings the Nintendo Switch parental-control settings that normally need the phone app onto the console, fully offline. Set one daily play-time limit or one per day, save limit profiles, change the restriction level, age rating, social-media and communication restrictions, set the network clock from a public NTP server, set or reset the PIN, unlock or re-lock temporarily, unlink the companion app, or delete everything when the PIN is forgotten. Requires Atmosphère. Play-time limit on firmware 21.0.0 to 23.0.1; the other features also work on older firmware. English and French.
 
 ## Updates
 
@@ -27,4 +27,4 @@ Once listed, new GitHub releases are detected automatically and published after 
 
 1. Merge pull requests with a conventional-commit title (`feat: …`, `fix: …`; checked by `.github/workflows/pr-title.yml`).
 2. release-please keeps a `chore(main): release X.Y.Z` PR open with the next version, the `CHANGELOG.md` entry and the bumped `VERSION_*` lines of `CMakeLists.txt`.
-3. Merging that PR creates the `vX.Y.Z` tag and the GitHub release; `.github/workflows/release-please.yml` then builds and attaches `playguard.nro`, `playguard.zip` and `SHA256SUMS.txt`.
+3. Merging that PR creates the `vX.Y.Z` tag and the GitHub release; `.github/workflows/release-please.yml` then builds and attaches `playguard.nro`, `playguard.zip`, `compat.json`, `build-info.txt` and `SHA256SUMS.txt`.

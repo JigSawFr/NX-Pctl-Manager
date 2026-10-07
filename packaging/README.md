@@ -4,6 +4,7 @@ The release zip (`playguard.zip`) is meant to be extracted at the root of the SD
 
 ```
 switch/playguard/playguard.nro     the app (hbmenu, sphaira, hb-appstore)
+switch/playguard/LICENSE.txt       the GPLv3 text
 config/sphaira/github/playguard.json     sphaira "GitHub" updater entry
 ```
 
@@ -25,4 +26,4 @@ switch/playguard/logs/*.txt              diagnostic reports (never contain the P
 | sphaira › GitHub | Reads [`sphaira/playguard.json`](sphaira/playguard.json): downloads the `playguard.nro` asset of the latest release into `/switch/playguard/`. |
 | Manual | Extract the zip at the SD card root. |
 
-Release assets are produced by `.github/workflows/build.yml`, called by `release-please.yml` when a release PR is merged: `playguard.nro`, `playguard.zip`, `compat.json` (the version and the newest checked firmware, read by the app's update check from `releases/latest/download/compat.json`), `SHA256SUMS.txt`. The job refuses to publish when the tag differs from the version in `CMakeLists.txt` (which is also the NACP version the stores display).
+Release assets are produced by `.github/workflows/build.yml`, called by `release-please.yml` when a release PR is merged: `playguard.nro`, `playguard.zip`, `compat.json` (the version and the newest checked firmware, read by the app's update check from `releases/latest/download/compat.json`), `build-info.txt` (the commit, the submodules and the devkitPro image and packages used), `SHA256SUMS.txt`. The Switch job runs in the `devkitpro/devkita64` image pinned by digest in `build.yml`, so a release can be rebuilt with the same toolchain. The job refuses to publish when the tag differs from the version in `CMakeLists.txt` (which is also the NACP version the stores display).

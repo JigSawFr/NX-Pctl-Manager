@@ -69,6 +69,8 @@ HB_APPSTORE_SUBMISSION.md
 *.zip
 .DS_Store
 /build-desktop
+/build-*
+/.ccache
 /playguard_data
 /smoke
 /smoke-gate

@@ -79,7 +79,7 @@ Controls: ↑/↓ move, Ⓐ confirm, Ⓑ back (on the sidebar: press Ⓑ twice t
 ## Build from source
 
 ```sh
-make test        # unit tests of the C service layer (any gcc, no devkitPro)
+make test        # unit tests of the C service layer (any gcc, no devkitPro; ASan + UBSan, SAN= to turn off)
 make desktop     # the UI on Linux with a simulated console (needs GLFW / X11 / D-Bus dev packages)
 make             # ./playguard.nro      (devkitPro switch-dev, DEVKITPRO set)
 make dist        # ./playguard.zip      (SD-card layout)
