@@ -35,6 +35,20 @@ void MainActivity::onContentAvailable()
 
     // Firmware newer than the checked one: the firmware screen (or the remembered choice).
     fw_gate::on_main_screen();
+
+    this->day = ui::today_date();
+    this->day_timer.setPeriod(30000);
+    this->day_timer.setCallback([this]() {
+        // Only on the main screen, not behind a dialog: the date is compared
+        // again at the next tick otherwise.
+        auto stack = brls::Application::getActivitiesStack();
+        if (!app::in_focus() || stack.empty() || stack.back() != this) return;
+        const std::string today = ui::today_date();
+        if (today == this->day) return;
+        this->day = today;
+        pt_flow::offer_extra_time_restore();
+    });
+    this->day_timer.start();
 }
 
 void MainActivity::update_title()

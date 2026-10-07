@@ -289,16 +289,50 @@ std::string bool_text(bool ok, bool value, const std::string& yes, const std::st
     return value ? yes : no;
 }
 
-int today_weekday()
+LocalTime local_now()
 {
-    std::time_t now = std::time(nullptr);
+    LocalTime l{};
+    u64 posix = 0;
+    if (time_local_now(&posix, &l)) return l;
+    // No time-zone rule: the C library's idea of local time.
+    std::time_t now = (std::time_t)posix;
     std::tm tmv{};
 #ifdef _WIN32
     localtime_s(&tmv, &now);
 #else
     localtime_r(&now, &tmv);
 #endif
-    return tmv.tm_wday;
+    l.year = (uint16_t)(tmv.tm_year + 1900);
+    l.month = (uint8_t)(tmv.tm_mon + 1);
+    l.day = (uint8_t)tmv.tm_mday;
+    l.hour = (uint8_t)tmv.tm_hour;
+    l.minute = (uint8_t)tmv.tm_min;
+    l.second = (uint8_t)tmv.tm_sec;
+    l.wday = (uint8_t)tmv.tm_wday;
+    return l;
+}
+
+int today_weekday()
+{
+    return local_now().wday;
+}
+
+std::string today_date()
+{
+    const LocalTime l = local_now();
+    return fmt::format("{:04d}-{:02d}-{:02d}", (int)l.year, (int)l.month, (int)l.day);
+}
+
+std::string now_hms()
+{
+    const LocalTime l = local_now();
+    return fmt::format("{:02d}:{:02d}:{:02d}", (int)l.hour, (int)l.minute, (int)l.second);
+}
+
+std::string now_stamp()
+{
+    const LocalTime l = local_now();
+    return fmt::format("{:04d}-{:02d}-{:02d} {:02d}:{:02d}", (int)l.year, (int)l.month, (int)l.day, (int)l.hour, (int)l.minute);
 }
 
 std::string fw_text(const SysInfo& info)

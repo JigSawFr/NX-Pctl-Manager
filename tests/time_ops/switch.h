@@ -7,6 +7,8 @@ typedef uint8_t u8;
 typedef uint16_t u16;
 typedef uint32_t u32;
 typedef uint64_t u64;
+typedef int32_t s32;
+typedef int64_t s64;
 typedef u32 Result;
 typedef struct { unsigned handle; } Service;
 typedef struct {
@@ -20,6 +22,9 @@ typedef struct {
 typedef struct { u16 year; u8 month, day, hour, minute, second, pad; } TimeCalendarTime;
 typedef struct { u32 wday, yday; char timezoneName[8]; u32 DST; int32_t offset; } TimeCalendarAdditionalInfo;
 Result timeToCalendarTimeWithMyRule(u64 timestamp, TimeCalendarTime *caltime, TimeCalendarAdditionalInfo *info);
+Result timeToPosixTimeWithMyRule(const TimeCalendarTime *caltime, u64 *timestamp_list, s32 timestamp_list_count, s32 *timestamp_count);
+typedef enum { TimeType_UserSystemClock, TimeType_NetworkSystemClock, TimeType_LocalSystemClock } TimeType;
+Result timeGetCurrentTime(TimeType type, u64 *timestamp);
 
 Result smGetService(Service *service, const char *name);
 void serviceClose(Service *service);

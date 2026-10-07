@@ -4,9 +4,10 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
 #include "../util/playlog.h"
+#include "calendar.h"
+#include "time_ops.h"
 
 #define RECORD_CHUNK 64
 #define EVENT_CHUNK  256
@@ -26,23 +27,6 @@ static GameStat *find_or_add(PlayStats *out, u64 id)
     memset(g, 0, sizeof(*g));
     g->app_id = id;
     return g;
-}
-
-// Midnight today on the console's local time, as a user-clock POSIX time.
-static u64 local_day_start(u64 now)
-{
-    TimeCalendarTime cal;
-    TimeCalendarAdditionalInfo info;
-    u64 since_midnight;
-    if (R_SUCCEEDED(timeToCalendarTimeWithMyRule(now, &cal, &info))) {
-        since_midnight = (u64)cal.hour * 3600 + (u64)cal.minute * 60 + cal.second;
-    } else {
-        time_t t = (time_t)now;
-        struct tm tmv;
-        if (!localtime_r(&t, &tmv)) return now - now % DAY_S;
-        since_midnight = (u64)tmv.tm_hour * 3600 + (u64)tmv.tm_min * 60 + (u64)tmv.tm_sec;
-    }
-    return now >= since_midnight ? now - since_midnight : 0;
 }
 
 // One raw log entry as a playlog event; false for entries that do not matter.
@@ -166,7 +150,7 @@ static void read_name(GameStat *g, NsApplicationControlData *cd)
 void playstats_fetch(PlayStats *out)
 {
     memset(out, 0, sizeof(*out));
-    out->now = (u64)time(NULL);
+    time_local_now(&out->now, NULL);   // live, unlike time() (calendar.h)
 
     out->rc = nsInitialize();
     if (R_FAILED(out->rc)) return;
@@ -222,8 +206,10 @@ void playstats_fetch(PlayStats *out)
 
         // Today and the last 7 days. A session can start up to a day before
         // the window and still end inside it.
-        const u64 day_start  = local_day_start(out->now);
-        const u64 week_start = day_start >= 6 * DAY_S ? day_start - 6 * DAY_S : 0;
+        // Midnights through the console's rule: a day with a daylight-saving
+        // change is 23 or 25 h long, and the week counts it as one day.
+        const u64 day_start  = local_midnight(time_console_rule(), out->now, 0);
+        const u64 week_start = local_midnight(time_console_rule(), out->now, 6);
         PlayLogEvent *events = NULL;
         size_t event_count = 0;
         out->events_rc = read_events(week_start >= DAY_S ? week_start - DAY_S : 0, &events, &event_count);

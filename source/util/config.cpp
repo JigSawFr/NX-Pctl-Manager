@@ -105,6 +105,7 @@ void load()
     read_string(j, "ntp_server", c.ntp_server);
     read_bool(j, "advanced", c.advanced);
     read_bool(j, "auto_relock", c.auto_relock);
+    read_bool(j, "extra_auto_restore", c.extra_auto_restore);
     read_bool(j, "dev_mode", c.dev_mode);
     read_string(j, "update_via", c.update_via);
     read_bool(j, "relock_pending", c.relock_pending);
@@ -136,6 +137,7 @@ bool save()
     j["custom_servers"]  = s_config.custom_servers;
     j["advanced"]        = s_config.advanced;
     j["auto_relock"]     = s_config.auto_relock;
+    j["extra_auto_restore"] = s_config.extra_auto_restore;
     j["dev_mode"]        = s_config.dev_mode;
     j["update_via"]      = s_config.update_via;
     j["fw_gate_fw"]      = s_config.fw_gate_fw;

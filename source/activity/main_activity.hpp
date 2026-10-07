@@ -14,4 +14,10 @@ class MainActivity : public brls::Activity
 
     // "PlayGuard", or "PlayGuard · read-only" in read-only mode.
     void update_title();
+
+  private:
+    // Midnight while the app is open: what start-up does for a new day
+    // (extra time from the day before) is done then too.
+    brls::RepeatingTimer day_timer;
+    std::string day;
 };

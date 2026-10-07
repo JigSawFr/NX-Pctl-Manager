@@ -33,6 +33,7 @@
             <brls:DetailCell id="tl_language" title="@i18n/playguard/tools/language"/>
             <brls:DetailCell id="tl_theme" title="@i18n/playguard/tools/theme"/>
             <brls:BooleanCell id="tl_auto_relock"/>
+            <brls:BooleanCell id="tl_extra_auto"/>
             <brls:BooleanCell id="tl_advanced"/>
             <brls:DetailCell id="tl_update_via" title="@i18n/playguard/tools/update_via"/>
             <brls:Header title="@i18n/playguard/tools/section_console" marginTop="24" marginBottom="8"/>

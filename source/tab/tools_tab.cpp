@@ -103,6 +103,10 @@ ToolsTab::ToolsTab()
         config::get().auto_relock = on;
         ui::save_config();
     });
+    extra_auto->init("playguard/tools/extra_auto"_i18n, config::get().extra_auto_restore, [](bool on) {
+        config::get().extra_auto_restore = on;
+        ui::save_config();
+    });
 
     update_via->registerClickAction([this](brls::View*) {
         std::vector<std::string> labels;
@@ -192,6 +196,7 @@ void ToolsTab::refresh()
     theme->setDetailText(brls::getStr("playguard/tools/themes/" + std::string(THEMES[index_of(THEMES, cfg.theme)])));
     advanced->setOn(cfg.advanced, false);
     auto_relock->setOn(cfg.auto_relock, false);
+    extra_auto->setOn(cfg.extra_auto_restore, false);
     const size_t backups = backup_flow::count();
     backup_restore->setDetailText(backups ? brls::getStr("playguard/tools/backup_count", (int)backups) : "");
 
@@ -241,6 +246,7 @@ void ToolsTab::refresh()
                           { backup_restore.getView(), !ro },
                           { advanced.getView(), !ro },
                           { auto_relock.getView(), !ro },
+                          { extra_auto.getView(), !ro },
                           { dev_header.getView(), dev },
                           { dev_mode.getView(), dev },
                           { dev_read_only.getView(), dev },

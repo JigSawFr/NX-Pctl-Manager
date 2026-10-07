@@ -3,6 +3,7 @@
 // Adapted from anbingxi/NX-Pctl-Manager (diag/fw22-5-readonly).
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
+#include "calendar.h"
 #include "nx_types.h"
 
 typedef struct {
@@ -29,6 +30,14 @@ Result time_network_accuracy(bool *accurate);
 // not follow, and the user asked for the system's own setting to stay in charge.
 void time_clock_apply(u64 utc_seconds, TimeApply *out);
 void time_clock_dump(char *buf, size_t size);
+
+// The console's time-zone rule (Settings > Time Zone), daylight saving included.
+const TimeRule *time_console_rule(void);
+
+// The user clock now (what the HOME menu shows), read live, and the same in
+// local time. False when the local time is unknown (`posix` is still set).
+// Use this rather than time()/localtime(): see calendar.h.
+bool time_local_now(u64 *posix, LocalTime *local);
 
 // Formats a POSIX time in the console's configured time zone
 // ("2026-10-07 14:03:12"). Falls back to UTC (with a " UTC" suffix) on failure.

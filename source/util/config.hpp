@@ -31,6 +31,9 @@ struct Config
     std::string extra_date;
     int         extra_base  = 0;
     int         extra_value = 0;
+    // Put that limit back by itself the next day (when the timer needs the
+    // temporary unlock, that is still asked) instead of asking keep / put back.
+    bool        extra_auto_restore = false;
 
     // Set right before PlayGuard unlocks parental controls for a change it
     // locks again afterwards, cleared once it has. Still set at the next start:
