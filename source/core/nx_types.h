@@ -37,7 +37,7 @@ typedef u32      Result;
 // usual Horizon one: module in bits 0..8, description in bits 9..21.
 #define NXM_MODULE 400u
 #define NXM_RESULT(desc) ((Result)((NXM_MODULE & 0x1FFu) | (((u32)(desc) & 0x1FFFu) << 9)))
-#define NXM_RC_READ_ONLY            NXM_RESULT(1)   // build has PCTL_READ_ONLY: no mutation allowed
+#define NXM_RC_READ_ONLY            NXM_RESULT(1)   // read-only mode (write_guard.h): no mutation allowed
 #define NXM_RC_WRITE_GATED          NXM_RESULT(2)   // play timer active and not temporarily unlocked
 #define NXM_RC_FW_UNSUPPORTED       NXM_RESULT(3)   // command / struct layout not known on this firmware
 #define NXM_RC_UNLOCK_NOT_EFFECTIVE NXM_RESULT(4)   // 1201 returned OK but 1006 still reads false

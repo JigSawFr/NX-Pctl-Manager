@@ -24,10 +24,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true   # nlohmann/json (bundled with borealis) for the backup and export tests
-      - name: Unit tests (service layer — writable and READ_ONLY — and UI-free helpers)
+      - name: Unit tests (service layer — writable and read-only — and UI-free helpers)
         run: make test
       - name: Resources (i18n keys, translations, XML layouts)
         run: python3 tools/check_resources.py .
+      - name: compat.json generator
+        run: python3 tools/gen_compat.py . build/compat.json
 
   # Builds the UI on Linux against the simulated backend and clicks through
   # every screen headlessly: catches borealis XML / view errors without a console.
@@ -45,62 +47,60 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y cmake libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev \
             libxcursor-dev libxi-dev libxkbcommon-dev libwayland-dev wayland-protocols libdbus-1-dev \
-            xvfb xdotool imagemagick dbus
+            libcurl4-openssl-dev xvfb xdotool imagemagick dbus
       - name: Build (desktop simulation)
         run: make desktop
       - name: Smoke test
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke
+      - name: Smoke test (firmware not supported yet, developer mode)
+        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-gate gate
       - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: desktop_smoke_screenshots
-          path: smoke/*.png
+          path: |
+            smoke/*.png
+            smoke-gate/*.png
 
-  # The real .nro, built in the official devkitPro image (same as ./run.sh).
+  # The real .nro, built in the official devkitPro image (same as ./run.sh),
+  # and compat.json (what the app's update check reads from the latest release).
   switch:
     runs-on: ubuntu-latest
     needs: host-tests
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - variant: release
-            flags: ""
-          - variant: probe
-            flags: "PROBE=1"
-          - variant: readonly
-            flags: "READ_ONLY=1"
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.tag || github.ref }}
           submodules: true
       - name: Build .nro / .zip (devkitpro/devkita64)
-        run: docker run --rm -v "$PWD:/project" -w /project devkitpro/devkita64 sh -c "make dist ${{ matrix.flags }} && (dkp-pacman -Q libnx switch-tools 2>/dev/null || true) > toolchain.txt"
+        run: docker run --rm -v "$PWD:/project" -w /project devkitpro/devkita64 sh -c "make dist && (dkp-pacman -Q libnx switch-tools switch-curl 2>/dev/null || true) > toolchain.txt"
+      - name: compat.json
+        run: python3 tools/gen_compat.py . compat.json
       - name: Build identity
         run: |
           {
             echo "commit: $(git rev-parse HEAD)"
-            echo "variant: ${{ matrix.variant }} ${{ matrix.flags }}"
             git submodule status
             cat toolchain.txt
           } > build-info.txt
-          sha256sum playguard.nro playguard.zip > SHA256SUMS.txt
+          sha256sum playguard.nro playguard.zip compat.json > SHA256SUMS.txt
           unzip -l playguard.zip
       - uses: actions/upload-artifact@v4
         with:
-          name: playguard_${{ matrix.variant }}
+          name: playguard_release
           path: |
             playguard.nro
             playguard.zip
+            compat.json
             build-info.txt
             SHA256SUMS.txt
 
   # Only when called by release-please.yml: check the NACP version matches the
   # tag, then attach the assets to the release. The raw .nro is what sphaira's
   # GitHub updater downloads; the .zip is what the Homebrew App Store
-  # (hb-appstore) picks up.
+  # (hb-appstore) picks up; compat.json is what PlayGuard's update check reads
+  # (releases/latest/download/compat.json).
   release:
     if: inputs.tag
     runs-on: ubuntu-latest
@@ -128,4 +128,5 @@ jobs:
           files: |
             dist/playguard.nro
             dist/playguard.zip
+            dist/compat.json
             dist/SHA256SUMS.txt

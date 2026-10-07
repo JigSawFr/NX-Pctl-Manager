@@ -24,7 +24,11 @@ void load()
         s_config.ntp_server      = j.value("ntp_server", s_config.ntp_server);
         s_config.advanced        = j.value("advanced", s_config.advanced);
         s_config.auto_relock     = j.value("auto_relock", s_config.auto_relock);
-        s_config.untested_fw_ack = j.value("untested_fw_ack", s_config.untested_fw_ack);
+        s_config.dev_mode        = j.value("dev_mode", s_config.dev_mode);
+        s_config.update_via      = j.value("update_via", s_config.update_via);
+        s_config.fw_gate_fw      = j.value("fw_gate_fw", s_config.fw_gate_fw);
+        s_config.fw_gate_app     = j.value("fw_gate_app", s_config.fw_gate_app);
+        s_config.fw_gate_choice  = j.value("fw_gate_choice", s_config.fw_gate_choice);
         s_config.extra_weekday   = j.value("extra_weekday", s_config.extra_weekday);
         s_config.extra_date      = j.value("extra_date", s_config.extra_date);
         s_config.extra_base      = j.value("extra_base", s_config.extra_base);
@@ -46,7 +50,11 @@ bool save()
     j["custom_servers"]  = s_config.custom_servers;
     j["advanced"]        = s_config.advanced;
     j["auto_relock"]     = s_config.auto_relock;
-    j["untested_fw_ack"] = s_config.untested_fw_ack;
+    j["dev_mode"]        = s_config.dev_mode;
+    j["update_via"]      = s_config.update_via;
+    j["fw_gate_fw"]      = s_config.fw_gate_fw;
+    j["fw_gate_app"]     = s_config.fw_gate_app;
+    j["fw_gate_choice"]  = s_config.fw_gate_choice;
     j["extra_weekday"]   = s_config.extra_weekday;
     j["extra_date"]      = s_config.extra_date;
     j["extra_base"]      = s_config.extra_base;

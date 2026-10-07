@@ -22,11 +22,6 @@ set(PROJECT_AUTHOR "JigSawFr")
 set(PROJECT_ICON ${CMAKE_CURRENT_SOURCE_DIR}/icon.jpg)
 set(PROJECT_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 
-# PROBE=1: extra diagnostic shortcuts in the Play timer tab.
-option(PCTL_PROBE "Include the diagnostic shortcuts" OFF)
-# READ_ONLY=1: "PlayGuard Diagnostics" build that cannot change anything.
-option(PCTL_READ_ONLY "Disable all parental-control and clock changes" OFF)
-
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_EXTENSIONS ON)
 
@@ -40,6 +35,16 @@ add_subdirectory(${BOREALIS_LIBRARY} ${CMAKE_BINARY_DIR}/borealis_library)
 
 find_package(Threads REQUIRED)
 list(APPEND APP_PLATFORM_LIB ${CMAKE_THREAD_LIBS_INIT})
+
+# libcurl for the update check (util/http.cpp). On the Switch: devkitPro's
+# switch-curl portlib (TLS through the console's ssl service), static, so its
+# own dependencies are listed after it.
+if (PLATFORM_SWITCH)
+    list(APPEND APP_PLATFORM_LIB curl z nx)
+else ()
+    find_package(CURL REQUIRED)
+    list(APPEND APP_PLATFORM_LIB CURL::libcurl)
+endif ()
 
 # Sources: UI (C++) + service layer. The real service layer (source/core/*.c)
 # talks to libnx and is Switch-only; the desktop build swaps in the simulated
@@ -60,16 +65,6 @@ target_compile_options(${PROJECT_NAME} PRIVATE -ffunction-sections -fdata-sectio
 target_compile_definitions(${PROJECT_NAME} PRIVATE APP_VERSION="${APP_VERSION}")
 target_link_libraries(${PROJECT_NAME} PRIVATE borealis ${APP_PLATFORM_LIB})
 
-if (PCTL_PROBE)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE PCTL_PROBE=1)
-endif ()
-if (PCTL_READ_ONLY)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE PCTL_READ_ONLY=1)
-    set(PCTL_APP_TITLE "PlayGuard Diagnostics")
-else ()
-    set(PCTL_APP_TITLE "PlayGuard")
-endif ()
-
 # Resources: borealis built-ins first, then ours on top. On the Switch the
 # bundled fonts and demo assets are dropped (the system shared font is used).
 # fr-CA reuses the French strings (borealis looks the locale up verbatim).
@@ -86,7 +81,7 @@ set(ASSEMBLE_RESOURCES
 
 if (PLATFORM_SWITCH)
     add_custom_target(${PROJECT_NAME}.nro ALL DEPENDS ${PROJECT_NAME}
-        COMMAND ${NX_NACPTOOL_EXE} --create "${PCTL_APP_TITLE}" "${PROJECT_AUTHOR}"
+        COMMAND ${NX_NACPTOOL_EXE} --create "PlayGuard" "${PROJECT_AUTHOR}"
                 "${APP_VERSION}" ${PROJECT_NAME}.nacp --titleid=${PROJECT_TITLEID}
         ${ASSEMBLE_RESOURCES}
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${MERGED_RESOURCES}/font

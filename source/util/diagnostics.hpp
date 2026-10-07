@@ -7,7 +7,7 @@
 namespace diagnostic
 {
 
-// Header (app version, build flags, firmware, Atmosphère, launch mode) +
+// Header (app version, read-only / developer modes, firmware, Atmosphère, launch mode) +
 // system clocks + every pctl query. Read-only; never contains the PIN.
 std::string current_report();
 

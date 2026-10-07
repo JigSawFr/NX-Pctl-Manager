@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Firmware newer than the checked range: the app is read-only until a choice
+     is made. The update cell appears once a newer release is found. B
+     continues read-only. Filled by source/activity/firmware_gate_activity.cpp. -->
+
+<brls:AppletFrame
+    iconInterpolation="linear">
+
+    <brls:ScrollingFrame
+        title="@i18n/playguard/fw_gate/title"
+        icon="@res/img/app_icon.jpg"
+        width="auto"
+        height="auto"
+        axis="column"
+        alignItems="stretch"
+        scrollingBehavior="centered"
+        grow="1.0">
+
+        <brls:Box
+            width="auto"
+            height="auto"
+            axis="column"
+            alignItems="stretch"
+            paddingTop="@style/brls/sidebar/padding_top"
+            paddingRight="@style/brls/sidebar/padding_right"
+            paddingBottom="@style/brls/sidebar/padding_bottom"
+            paddingLeft="@style/brls/sidebar/padding_left">
+
+            <brls:Label id="fg_headline" text="" fontSize="26" marginBottom="12"/>
+            <brls:Label id="fg_body" text="" marginBottom="16"/>
+            <brls:Label id="fg_status" text="@i18n/playguard/fw_gate/status_checking" fontSize="20" marginBottom="16" textColor="@theme/brand/note"/>
+            <brls:DetailCell id="fg_update"/>
+            <brls:Header title="@i18n/playguard/fw_gate/section_continue" marginTop="16" marginBottom="8"/>
+            <brls:DetailCell id="fg_read_only" title="@i18n/playguard/fw_gate/read_only"/>
+            <brls:DetailCell id="fg_probe" title="@i18n/playguard/fw_gate/probe"/>
+            <brls:DetailCell id="fg_risk" title="@i18n/playguard/fw_gate/risk"/>
+            <brls:BooleanCell id="fg_remember"/>
+            <brls:Label id="fg_note" text="@i18n/playguard/fw_gate/note" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
+            <brls:DetailCell id="fg_quit" title="@i18n/playguard/common/quit" marginTop="16"/>
+
+        </brls:Box>
+
+    </brls:ScrollingFrame>
+
+</brls:AppletFrame>

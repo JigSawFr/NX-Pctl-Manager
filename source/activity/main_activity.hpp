@@ -11,4 +11,7 @@ class MainActivity : public brls::Activity
     CONTENT_FROM_XML_RES("activity/main.xml");
 
     void onContentAvailable() override;
+
+    // "PlayGuard", or "PlayGuard · read-only" in read-only mode.
+    void update_title();
 };

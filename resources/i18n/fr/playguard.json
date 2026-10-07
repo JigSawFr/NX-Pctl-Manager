@@ -1,6 +1,6 @@
 {
     "title": "PlayGuard",
-    "title_read_only": "PlayGuard Diagnostics",
+    "title_read_only": "PlayGuard · lecture seule",
     "tabs": {
         "dashboard": "Vue d'ensemble",
         "play_timer": "Temps de jeu",
@@ -35,7 +35,7 @@
         "delete": "Supprimer",
         "applied": "Enregistré.",
         "restart_body": "Enregistré. Le changement s'appliquera au prochain lancement.\n\nQuitter maintenant ?",
-        "read_only_note": "Version de diagnostic en lecture seule : rien ne peut être modifié depuis cette application."
+        "read_only_note": "Mode lecture seule : rien ne peut être modifié depuis l'application pour le moment."
     },
     "days": {
         "0": "Dimanche",
@@ -70,7 +70,7 @@
     "error": {
         "code": "erreur {}",
         "code_hint": "erreur {} : {}",
-        "read_only": "cette version est la version de diagnostic en lecture seule",
+        "read_only": "le mode lecture seule est activé",
         "write_gated": "le minuteur est en cours ; déverrouillez d'abord temporairement le contrôle parental",
         "fw_unsupported": "non pris en charge par ce firmware",
         "unlock_not_effective": "le système n'a pas confirmé le déverrouillage temporaire ; utilisez l'icône du contrôle parental dans le menu HOME puis réessayez",
@@ -88,9 +88,25 @@
         "body": "Ce homebrew ne fonctionne que sur une console sous firmware personnalisé (Atmosphère). Une console non modifiée ne peut pas ouvrir le service pctl.",
         "firmware": "Firmware {} · Atmosphère {} · {}"
     },
-    "untested": {
-        "body": "Le firmware {} est plus récent que la dernière version vérifiée avec cette application ({}).\n\nLa lecture de l'état est sans risque. Les modifications peuvent se comporter différemment : vérifiez le résultat et exportez un diagnostic en cas de doute.",
-        "continue": "J'ai compris"
+    "fw_gate": {
+        "title": "Firmware pas encore pris en charge",
+        "headline": "Le firmware {} n'est pas encore pris en charge",
+        "body": "PlayGuard {} a été vérifié jusqu'au firmware {}. Par sécurité, rien ne sera modifié tant que vous n'avez pas choisi comment continuer. Tout reste consultable.",
+        "status_checking": "Recherche d'une version de PlayGuard qui le prend en charge…",
+        "status_supports": "PlayGuard {} prend en charge le firmware {} : mettez à jour pour tout utiliser sans risque.",
+        "status_no_support": "PlayGuard {} est disponible, mais ne prend pas encore en charge le firmware {}.",
+        "status_latest": "Aucune version de PlayGuard ne le prend encore en charge : vous avez la dernière ({}).",
+        "status_unknown": "Impossible de chercher une version plus récente ({}).",
+        "section_continue": "Ou continuer",
+        "read_only": "Continuer en lecture seule",
+        "read_only_short": "Lecture seule",
+        "probe": "Lecture seule avec les outils développeur (pour diagnostiquer)",
+        "risk": "Continuer avec toutes les fonctions, à mes risques",
+        "risk_body": "Le firmware {} n'a pas été vérifié : modifier le contrôle parental ou l'horloge peut se comporter différemment ou planter la console.\n\nVérifiez chaque résultat et exportez un diagnostic en cas de doute.",
+        "risk_confirm": "Continuer à mes risques",
+        "remember": "Mémoriser ce choix pour ce firmware et cette version",
+        "note": "Vous pouvez revenir à cet écran depuis Outils › Compatibilité.",
+        "update_toast": "PlayGuard {} prend en charge le firmware {} : Outils › Rechercher une mise à jour."
     },
     "dashboard": {
         "section_status": "Contrôle parental",
@@ -470,7 +486,17 @@
         "source": "Code source",
         "credits": "Crédits",
         "credits_value": "JigSawFr · d'après Pctl Manager de Taylor · anbingxi (NTP, correctifs 22.5)",
-        "credits_line": "Crédits : {}"
+        "credits_line": "Crédits : {}",
+        "update_via": "Mettre à jour avec",
+        "update_via_values": {
+            "auto": "Automatique (sphaira, sinon App Store)",
+            "sphaira": "sphaira",
+            "appstore": "Homebrew App Store",
+            "manual": "À la main"
+        },
+        "update": "Rechercher une mise à jour",
+        "flag_read_only": "lecture seule",
+        "flag_dev": "développeur"
     },
     "backup": {
         "saved": "Réglages sauvegardés : {}",
@@ -487,6 +513,33 @@
         "restore_err": "Non restauré : {}",
         "before_delete_err": "Aucune sauvegarde n'a pu être enregistrée avant ({}).\n\nTout supprimer quand même ?",
         "delete_anyway": "Supprimer quand même"
+    },
+    "update": {
+        "checking": "Recherche d'une mise à jour…",
+        "available": "PlayGuard {} est disponible (version actuelle : {}).",
+        "available_no_fw": "Elle ne prend pas encore en charge le firmware {}.",
+        "up_to_date": "PlayGuard {} est la dernière version.",
+        "failed": "Impossible de rechercher une mise à jour ({}).",
+        "manual_body": "Pour mettre à jour, ouvrez sphaira (son menu GitHub connaît déjà PlayGuard) ou le Homebrew App Store, ou téléchargez playguard.nro sur {} et copiez-le dans /switch/playguard/ sur la carte SD.",
+        "open_body": "PlayGuard va se fermer et ouvrir {}. Retrouvez-y PlayGuard pour le mettre à jour.",
+        "open_confirm": "Ouvrir {}",
+        "update_with": "Mettre à jour avec {}",
+        "update_manual": "Comment mettre à jour",
+        "appstore": "Homebrew App Store"
+    },
+    "dev": {
+        "section": "Développeur",
+        "mode": "Mode développeur",
+        "read_only": "Mode lecture seule",
+        "report": "Voir le rapport de diagnostic",
+        "report_title": "Rapport de diagnostic",
+        "report_save": "Enregistrer",
+        "gate": "Revoir l'écran firmware",
+        "forget": "Oublier le choix pour le firmware",
+        "forgotten": "Le choix pour le firmware sera redemandé au prochain lancement.",
+        "already_on": "Le mode développeur est déjà activé.",
+        "enabled": "Mode développeur activé : voir la fin de l'onglet Outils.",
+        "presses_left": "Encore {} appuis pour activer le mode développeur."
     },
     "toast": {
         "diag_saved": "Diagnostic enregistré : {}",

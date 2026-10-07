@@ -4,6 +4,10 @@
 #include <fmt/format.h>
 
 #include "action/backup_flow.hpp"
+#include "action/fw_gate.hpp"
+#include "action/update_flow.hpp"
+#include "activity/diagnostic_activity.hpp"
+#include "activity/firmware_gate_activity.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
 #include "util/config.hpp"
@@ -15,8 +19,9 @@ using namespace brls::literals;
 
 namespace
 {
-const char* LANGUAGES[] = { "system", "en-US", "fr" };
-const char* THEMES[]    = { "system", "light", "dark" };
+const char* LANGUAGES[]  = { "system", "en-US", "fr" };
+const char* THEMES[]     = { "system", "light", "dark" };
+const char* UPDATE_VIA[] = { "auto", "sphaira", "appstore", "manual" };
 
 template <size_t N>
 int index_of(const char* const (&list)[N], const std::string& value)
@@ -52,7 +57,7 @@ ToolsTab::ToolsTab()
         return true;
     });
 
-    // Saving a backup only writes to the SD card: also offered in READ_ONLY builds.
+    // Saving a backup only writes to the SD card: also offered in read-only mode.
     backup_note->setText(brls::getStr("playguard/tools/backup_note", paths::backups_dir()));
     backup_save->registerClickAction([this](brls::View*) {
         backup_flow::save_now();
@@ -63,7 +68,6 @@ ToolsTab::ToolsTab()
         backup_flow::choose_and_restore([this]() { this->refresh(); });
         return true;
     });
-    ui::set_visible(backup_restore.getView(), !app::read_only_build());
 
     language->registerClickAction([this](brls::View*) {
         std::vector<std::string> labels;
@@ -99,8 +103,84 @@ ToolsTab::ToolsTab()
         config::get().auto_relock = on;
         config::save();
     });
-    ui::set_visible(advanced.getView(), !app::read_only_build());
-    ui::set_visible(auto_relock.getView(), !app::read_only_build());
+
+    update_via->registerClickAction([this](brls::View*) {
+        std::vector<std::string> labels;
+        for (const char* u : UPDATE_VIA) labels.push_back(brls::getStr(std::string("playguard/tools/update_via_values/") + u));
+        ui::pick("playguard/tools/update_via"_i18n, labels, index_of(UPDATE_VIA, config::get().update_via), [this](int i) {
+            config::get().update_via = UPDATE_VIA[i];
+            config::save();
+            this->refresh();
+        });
+        return true;
+    });
+    update_cell->registerClickAction([](brls::View*) {
+        update_flow::check_now();
+        return true;
+    });
+    version->registerClickAction([this](brls::View*) {
+        this->count_version_press();
+        return true;
+    });
+    // On a firmware newer than the checked one, the firmware screen again.
+    compat->registerClickAction([](brls::View*) {
+        if (fw_gate::needed()) brls::Application::pushActivity(new FirmwareGateActivity());
+        return true;
+    });
+
+    // Developer tools.
+    dev_mode->init("playguard/dev/mode"_i18n, app::dev_mode(), [](bool on) {
+        app::set_dev_mode(on, true);
+        ui::on_mode_changed();
+    });
+    dev_read_only->init("playguard/dev/read_only"_i18n, app::read_only(), [this](bool on) {
+        if (on || !fw_gate::needed()) {
+            app::set_read_only(on);
+            ui::on_mode_changed();
+            return;
+        }
+        // Untested firmware: same warning as "Continue at my own risk".
+        this->dev_read_only->setOn(true, false);
+        ui::confirm_danger(brls::getStr("playguard/fw_gate/risk_body", fw_gate::firmware()),
+                           "playguard/fw_gate/risk_confirm"_i18n, []() {
+                               app::set_read_only(false);
+                               ui::on_mode_changed();
+                           });
+    });
+    dev_report->registerClickAction([](brls::View*) {
+        brls::Application::pushActivity(new DiagnosticActivity());
+        return true;
+    });
+    dev_gate->registerClickAction([](brls::View*) {
+        brls::Application::pushActivity(new FirmwareGateActivity());
+        return true;
+    });
+    dev_forget->registerClickAction([](brls::View*) {
+        fw_gate::forget();
+        ui::notify("playguard/dev/forgotten"_i18n);
+        return true;
+    });
+}
+
+void ToolsTab::count_version_press()
+{
+    if (app::dev_mode()) {
+        ui::notify("playguard/dev/already_on"_i18n);
+        return;
+    }
+    // Seven presses, at most 3 s apart.
+    const brls::Time now = brls::getCPUTimeUsec();
+    if (now - this->last_version_press > 3000000) this->version_presses = 0;
+    this->last_version_press = now;
+    const int left = 7 - ++this->version_presses;
+    if (left > 0) {
+        if (left <= 3) ui::notify(brls::getStr("playguard/dev/presses_left", left));
+        return;
+    }
+    this->version_presses = 0;
+    app::set_dev_mode(true, true);
+    ui::notify("playguard/dev/enabled"_i18n);
+    ui::on_mode_changed();
 }
 
 void ToolsTab::refresh()
@@ -117,10 +197,16 @@ void ToolsTab::refresh()
     sysinfo_get(&si);
     char fwv[16];
     sysinfo_version_string(si.hos_version, fwv, sizeof(fwv));
+    const bool ro  = app::read_only();
+    const bool dev = app::dev_mode();
     std::string flags;
-    if (app::probe_build()) flags += " · PROBE";
-    if (app::read_only_build()) flags += " · READ_ONLY";
+    if (ro) flags += " · " + "playguard/tools/flag_read_only"_i18n;
+    if (dev) flags += " · " + "playguard/tools/flag_dev"_i18n;
     version->setDetailText(app::version() + flags);
+    update_via->setDetailText(brls::getStr("playguard/tools/update_via_values/" +
+                                           std::string(UPDATE_VIA[index_of(UPDATE_VIA, cfg.update_via)])));
+    dev_mode->setOn(dev, false);
+    dev_read_only->setOn(ro, false);
     fw->setDetailText(fwv);
     ams->setDetailText(si.ams_valid ? fmt::format("{}.{}.{}", si.ams_major, si.ams_minor, si.ams_micro)
                                     : "playguard/common/unavailable"_i18n);
@@ -149,7 +235,16 @@ void ToolsTab::refresh()
     patches_note->setText(note);
     patches_note->setTextColor(warn ? ui::color_warn() : ui::color_note());
     ui::set_visible_all({ { serial_note.getView(), ui::serial_warning(si) },
-                          { patches_note.getView(), !note.empty() } });
+                          { patches_note.getView(), !note.empty() },
+                          { backup_restore.getView(), !ro },
+                          { advanced.getView(), !ro },
+                          { auto_relock.getView(), !ro },
+                          { dev_header.getView(), dev },
+                          { dev_mode.getView(), dev },
+                          { dev_read_only.getView(), dev },
+                          { dev_report.getView(), dev },
+                          { dev_gate.getView(), dev && fw_gate::needed() },
+                          { dev_forget.getView(), dev } });
     mode->setDetailText(si.applet_mode ? "playguard/tools/mode_applet"_i18n : "playguard/tools/mode_app"_i18n);
     data->setDetailText(paths::data_dir());
     license->setDetailText("playguard/tools/license_value"_i18n);

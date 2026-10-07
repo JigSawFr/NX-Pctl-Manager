@@ -72,7 +72,7 @@ PlayTimerTab::PlayTimerTab()
         });
         return true;
     });
-    // Diagnostic shortcut for PROBE builds only; everyone else uses Tools.
+    // Diagnostic shortcut in developer mode; everyone else uses Tools.
     diag->registerClickAction([](brls::View*) {
         export_diagnostic();
         return true;
@@ -85,9 +85,9 @@ void PlayTimerTab::refresh()
     state_header->show(this->pt);
 
     const bool fw_ok    = this->pt.fw_supported;
-    const bool writable = fw_ok && !app::read_only_build();
+    const bool writable = fw_ok && !app::read_only();
     const bool advanced = writable && config::get().advanced;
-    const bool probe    = fw_ok && app::probe_build();
+    const bool dev      = fw_ok && app::dev_mode();
 
     ui::show_unlock_banner(unlocked_banner, this->pt.temporary_unlocked_valid && this->pt.temporary_unlocked);
     ui::set_visible(fw_note.getView(), !fw_ok);
@@ -101,8 +101,8 @@ void PlayTimerTab::refresh()
         ui::set_visible(v, fw_ok);
     for (brls::View* v : { (brls::View*)alarm.getView(), (brls::View*)pause.getView(), (brls::View*)resume.getView() })
         ui::set_visible(v, advanced);
-    ui::set_visible(diag.getView(), probe);
-    ui::set_visible(adv_header.getView(), advanced || probe);
+    ui::set_visible(diag.getView(), dev);
+    ui::set_visible(adv_header.getView(), advanced || dev);
 
     ui::set_visible(week.getView(), fw_ok && this->pt.valid);
     if (!fw_ok) return;

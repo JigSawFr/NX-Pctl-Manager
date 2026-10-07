@@ -1,5 +1,6 @@
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #include "time_ops.h"
+#include "write_guard.h"
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -66,10 +67,11 @@ void time_clock_apply(u64 utc_seconds, TimeApply *out)
 {
     memset(out, 0, sizeof(*out));
     time_clock_snapshot(&out->before);
-#ifdef PCTL_READ_ONLY
-    (void)utc_seconds;
-    out->open_rc = NXM_RC_READ_ONLY;
-#else
+    if (core_read_only()) {
+        out->open_rc = NXM_RC_READ_ONLY;
+        time_clock_snapshot(&out->after);
+        return;
+    }
     if (R_FAILED(out->before.automatic_rc) || !out->before.automatic) {
         out->refused_automatic = true;
         out->after = out->before;
@@ -91,7 +93,6 @@ void time_clock_apply(u64 utc_seconds, TimeApply *out)
     }
     serviceClose(&network);
     serviceClose(&root);
-#endif
     time_clock_snapshot(&out->after);
 }
 

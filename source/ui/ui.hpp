@@ -114,11 +114,16 @@ constexpr int tools        = 9;
 void go_to_tab(brls::View* from, int position);
 
 // "Parental controls are temporarily unlocked — Lock now" cell shown at the
-// top of the Overview and Play timer tabs. `after` runs once it relocked.
+// top of the Overview and Play timer tabs (no "Lock now" in read-only mode).
+// `after` runs once it relocked.
 void init_unlock_banner(brls::DetailCell* cell, std::function<void()> after);
 void show_unlock_banner(brls::DetailCell* cell, bool unlocked);
 
 // Asks before quitting so a language / theme change can take effect.
 void offer_restart();
+
+// After app::set_read_only / set_dev_mode: updates the main screen title and
+// re-reads the tab on screen.
+void on_mode_changed();
 
 }   // namespace ui

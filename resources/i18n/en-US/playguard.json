@@ -1,6 +1,6 @@
 {
     "title": "PlayGuard",
-    "title_read_only": "PlayGuard Diagnostics",
+    "title_read_only": "PlayGuard · read-only",
     "tabs": {
         "dashboard": "Overview",
         "play_timer": "Play timer",
@@ -35,7 +35,7 @@
         "delete": "Delete",
         "applied": "Saved.",
         "restart_body": "Saved. The change applies the next time the app starts.\n\nQuit now?",
-        "read_only_note": "Read-only diagnostic build: nothing can be changed from this app."
+        "read_only_note": "Read-only mode: nothing can be changed from this app for now."
     },
     "days": {
         "0": "Sunday",
@@ -70,7 +70,7 @@
     "error": {
         "code": "error {}",
         "code_hint": "error {}: {}",
-        "read_only": "this is the read-only diagnostic build",
+        "read_only": "read-only mode is on",
         "write_gated": "the play timer is running; unlock parental controls temporarily first",
         "fw_unsupported": "not supported on this firmware",
         "unlock_not_effective": "the system did not confirm the temporary unlock; use the parental-control icon in the HOME menu, then try again",
@@ -88,9 +88,25 @@
         "body": "This homebrew only works on a console running custom firmware (Atmosphère). A retail console cannot open the pctl service.",
         "firmware": "Firmware {} · Atmosphère {} · {}"
     },
-    "untested": {
-        "body": "Firmware {} is newer than the last version checked with this app ({}).\n\nReading the state is safe. Changing settings may behave differently: check the result, and export a diagnostic if anything looks wrong.",
-        "continue": "I understand"
+    "fw_gate": {
+        "title": "Firmware not supported yet",
+        "headline": "Firmware {} is not supported yet",
+        "body": "PlayGuard {} was checked up to firmware {}. To be safe, nothing will be changed until you choose how to continue. Everything can still be viewed.",
+        "status_checking": "Looking for a PlayGuard version that supports it…",
+        "status_supports": "PlayGuard {} supports firmware {}: update to use every feature safely.",
+        "status_no_support": "PlayGuard {} is available, but it does not support firmware {} yet.",
+        "status_latest": "No PlayGuard version supports it yet: you have the latest one ({}).",
+        "status_unknown": "Could not look for a newer version ({}).",
+        "section_continue": "Or continue",
+        "read_only": "Continue in read-only mode",
+        "read_only_short": "Read-only",
+        "probe": "Read-only with the developer tools (to investigate)",
+        "risk": "Continue with every feature, at my own risk",
+        "risk_body": "Firmware {} has not been checked: changing parental controls or the clock may behave differently or crash the console.\n\nCheck every result, and export a diagnostic if anything looks wrong.",
+        "risk_confirm": "Continue at my own risk",
+        "remember": "Remember this choice for this firmware and this version",
+        "note": "You can come back to this screen from Tools › Compatibility.",
+        "update_toast": "PlayGuard {} supports firmware {}: Tools › Check for updates."
     },
     "dashboard": {
         "section_status": "Parental controls",
@@ -470,7 +486,17 @@
         "source": "Source code",
         "credits": "Credits",
         "credits_value": "JigSawFr · based on Pctl Manager by Taylor · anbingxi (NTP, fw 22.5 fixes)",
-        "credits_line": "Credits: {}"
+        "credits_line": "Credits: {}",
+        "update_via": "Update with",
+        "update_via_values": {
+            "auto": "Automatic (sphaira, else App Store)",
+            "sphaira": "sphaira",
+            "appstore": "Homebrew App Store",
+            "manual": "By hand"
+        },
+        "update": "Check for updates",
+        "flag_read_only": "read-only",
+        "flag_dev": "developer"
     },
     "backup": {
         "saved": "Settings backed up: {}",
@@ -487,6 +513,33 @@
         "restore_err": "Not restored: {}",
         "before_delete_err": "No backup could be saved first ({}).\n\nDelete everything anyway?",
         "delete_anyway": "Delete anyway"
+    },
+    "update": {
+        "checking": "Checking for updates…",
+        "available": "PlayGuard {} is available (this is {}).",
+        "available_no_fw": "It does not support firmware {} yet.",
+        "up_to_date": "PlayGuard {} is the latest version.",
+        "failed": "Could not check for updates ({}).",
+        "manual_body": "To update, open sphaira (its GitHub menu already knows PlayGuard) or the Homebrew App Store, or download playguard.nro from {} and copy it to /switch/playguard/ on the SD card.",
+        "open_body": "PlayGuard will close and open {}. Find PlayGuard there to update it.",
+        "open_confirm": "Open {}",
+        "update_with": "Update with {}",
+        "update_manual": "How to update",
+        "appstore": "Homebrew App Store"
+    },
+    "dev": {
+        "section": "Developer",
+        "mode": "Developer mode",
+        "read_only": "Read-only mode",
+        "report": "Show the diagnostic report",
+        "report_title": "Diagnostic report",
+        "report_save": "Save",
+        "gate": "Show the firmware screen again",
+        "forget": "Forget the firmware choice",
+        "forgotten": "The firmware choice will be asked again at the next launch.",
+        "already_on": "Developer mode is already on.",
+        "enabled": "Developer mode is on: see the end of Tools.",
+        "presses_left": "{} more presses to turn on developer mode."
     },
     "toast": {
         "diag_saved": "Diagnostic saved: {}",

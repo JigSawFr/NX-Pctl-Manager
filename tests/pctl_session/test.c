@@ -1,10 +1,11 @@
 // Host tests for source/core/pctl_ops.c: session ownership, firmware gating,
-// the play-timer write gate, the unlock verification and READ_ONLY builds.
+// the play-timer write gate, the unlock verification and read-only mode.
 // Based on the lifecycle tests from anbingxi/NX-Pctl-Manager (diag/fw22-5-readonly).
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include "pctl_ops.h"
+#include "write_guard.h"
 
 enum { MOCK_ERROR = 0x701 };
 static Service service;
@@ -280,10 +281,10 @@ static Result write_variant(unsigned variant)
     }
 }
 
-#ifdef PCTL_READ_ONLY
 static void test_read_only(void)
 {
     PctlCustomSettings cs = {0, false, false};
+    core_set_read_only(true);
     for (unsigned variant = 0; variant < 3; ++variant) {
         reset();
         assert(pctl_ops_init() == 0);
@@ -307,8 +308,15 @@ static void test_read_only(void)
     assert(pctl_play_timer_start() == NXM_RC_READ_ONLY);
     assert(pctl_play_timer_stop() == NXM_RC_READ_ONLY);
     assert(model.init_calls == 0 && model.applets == 0 && model.writes == 0);
+
+    /* Leaving read-only mode makes the same calls write again. */
+    reset();
+    core_set_read_only(false);
+    assert(pctl_relock() == 0 && model.writes == 1 && model.last_write_cmd == 1007);
+    assert(write_variant(1) == 0 && model.writes == 2);
+    assert(model.refs == 0);
 }
-#else
+
 static void test_write_gate(void)
 {
     /* states bit0 enabled, bit1 restricted, bit2 temporarily unlocked */
@@ -465,22 +473,17 @@ static void test_other_writes(void)
         assert(model.init_calls == 1 && model.exit_calls == 1);
     }
 }
-#endif
 
 int main(void)
 {
     test_ownership();
     test_reads();
-#ifdef PCTL_READ_ONLY
-    test_read_only();
-    puts("pctl_ops read-only assertions passed");
-#else
     test_write_gate();
     test_unlock_and_relock();
     test_get_pin();
     test_other_writes();
-    puts("pctl_ops lifecycle, gating and write assertions passed");
-#endif
+    test_read_only();
+    puts("pctl_ops lifecycle, gating, write and read-only assertions passed");
     (void)assert_released;
     return 0;
 }

@@ -106,7 +106,7 @@ void restore(const backup::Snapshot& s, std::function<void()> refresh)
     // timer is counting down). Restrictions only: a plain confirmation, as in
     // the Restrictions tab.
     if (s.days_ok) pt_flow::confirm_write(body, "playguard/backup/restore_confirm"_i18n, run, s.days.data());
-    else if (app::read_only_build()) ui::notify(ui::rc_text(NXM_RC_READ_ONLY));
+    else if (app::read_only()) ui::notify(ui::rc_text(NXM_RC_READ_ONLY));
     else ui::confirm(body, "playguard/backup/restore_confirm"_i18n, [run]() { run(false); });
 }
 

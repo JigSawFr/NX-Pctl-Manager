@@ -98,7 +98,7 @@ void ClockTab::refresh()
                                                    fmt::format("{}:{:02d}", (int)(left / 60), (int)(left % 60))));
         }
     }
-    ui::set_visible(apply_cell.getView(), !app::read_only_build() && this->last.ok);
+    ui::set_visible(apply_cell.getView(), !app::read_only() && this->last.ok);
 }
 
 void ClockTab::set_server(const std::string& host, const std::string& reg)

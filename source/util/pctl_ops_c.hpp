@@ -8,4 +8,5 @@ extern "C" {
 #include "core/playstats.h"
 #include "core/sysinfo.h"
 #include "core/time_ops.h"
+#include "core/write_guard.h"
 }
