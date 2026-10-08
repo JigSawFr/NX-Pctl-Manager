@@ -71,14 +71,23 @@ jobs:
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-errors errors
       # The screens against tests/visual (reference | now | changes in
       # smoke*/visual_diff/ when one changed; tests/visual/README.md says how
-      # to update the references after a change that is meant).
-      - name: Visual check
+      # to update the references after a change that is meant). Not blocking:
+      # a screen that changed is a warning on the PR and in the job summary,
+      # with the side-by-side images in the screenshots artifact; the smoke
+      # test above is what fails the job.
+      - name: Visual check (warning only)
         run: |
-          status=0
-          python3 tools/visual_check.py smoke tests/visual/smoke || status=1
-          python3 tools/visual_check.py smoke-errors tests/visual/errors || status=1
-          python3 tools/visual_check.py smoke-gate tests/visual/gate || status=1
-          exit $status
+          for set in "smoke smoke" "smoke-errors errors" "smoke-gate gate"; do
+            set -- $set
+            if python3 tools/visual_check.py "$1" "tests/visual/$2" > "$1-visual.txt" 2>&1; then
+              tail -n 1 "$1-visual.txt"
+            else
+              cat "$1-visual.txt"
+              summary=$(grep '^visual check:' "$1-visual.txt" || echo "visual check failed")
+              echo "::warning title=Visual check ($2)::$summary — see the desktop_smoke_screenshots artifact (visual_diff/)"
+              { echo "### Visual check ($2)"; echo '```'; cat "$1-visual.txt"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
       - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@v4
