@@ -22,7 +22,7 @@ JOBS    ?= $(shell nproc 2>/dev/null || echo 4)
 SAN     ?= -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=undefined
 CWARN   := -Wall -Wextra -Werror $(SAN)
 
-.PHONY: all clean dist nxlink desktop test check
+.PHONY: all clean dist nxlink desktop test check rescue dist-rescue
 
 RENDERER := $(if $(GL),-DUSE_DEKO3D=OFF,-DUSE_DEKO3D=ON)
 
@@ -44,6 +44,22 @@ dist: all
 	@cp packaging/sphaira/$(TARGET).json out/config/sphaira/github/
 	@cd out && zip -r ../$(TARGET).zip ./*
 
+# The optional recovery sysmodule (sysmodule/), as its own asset so it is a
+# deliberate install, never part of the default one. The zip drops into the
+# SD-card root: Atmosphère runs 4200000000505247 at boot (the boot2.flag).
+RESCUE_TID := 4200000000505247
+rescue:
+	@$(MAKE) --no-print-directory -C sysmodule
+
+dist-rescue: rescue
+	@echo making rescue dist ...
+	@rm -rf out-rescue/ playguard-rescue.zip
+	@mkdir -p out-rescue/atmosphere/contents/$(RESCUE_TID)/flags
+	@cp sysmodule/out/playguard-rescue.nsp out-rescue/atmosphere/contents/$(RESCUE_TID)/exefs.nsp
+	@touch out-rescue/atmosphere/contents/$(RESCUE_TID)/flags/boot2.flag
+	@cp LICENSE out-rescue/atmosphere/contents/$(RESCUE_TID)/LICENSE.txt
+	@cd out-rescue && zip -r ../playguard-rescue.zip ./*
+
 desktop:
 	@cmake -B $(DESKTOP) -S . -DPLATFORM_DESKTOP=ON -DCMAKE_BUILD_TYPE=Release
 	@cmake --build $(DESKTOP) -j $(JOBS)
@@ -54,6 +70,7 @@ test:
 	$(CC) -std=gnu11 $(CWARN) -DNX_HOST_TEST -Itests/time_ops -Isource/core source/core/time_ops.c source/core/calendar.c source/core/write_guard.c tests/time_ops/test.c -o $(TESTOUT)/time && $(TESTOUT)/time
 	$(CC) -std=gnu11 $(CWARN) -DNX_HOST_TEST -Itests/sysinfo -Isource/core source/core/sysinfo.c source/core/pure.c tests/sysinfo/test.c -o $(TESTOUT)/sysinfo && $(TESTOUT)/sysinfo
 	$(CC) -std=gnu11 $(CWARN) -Isource/core source/core/calendar.c tests/calendar/test.c -o $(TESTOUT)/calendar && $(TESTOUT)/calendar
+	$(CC) -std=c11 $(CWARN) -Isource/core source/core/rescue.c tests/rescue/test.c -o $(TESTOUT)/rescue && $(TESTOUT)/rescue
 	$(CC) -std=c11 $(CWARN) -Isource/util source/util/ntp_packet.c tests/ntp_packet/test.c -o $(TESTOUT)/ntp && $(TESTOUT)/ntp
 	$(CC) -std=c11 $(CWARN) -Isource/util source/util/playlog.c tests/playlog/test.c -o $(TESTOUT)/playlog && $(TESTOUT)/playlog
 	$(CXX) -std=c++17 $(CWARN) -Isource source/util/paths.cpp source/util/patches.cpp tests/patches/test.cpp -o $(TESTOUT)/patches && $(TESTOUT)/patches
@@ -74,7 +91,8 @@ check: test
 
 clean:
 	@echo clean ...
-	@rm -rf $(BUILD) $(DESKTOP) out $(TARGET).zip $(TARGET).nro $(TARGET).nacp $(TARGET).elf
+	@rm -rf $(BUILD) $(DESKTOP) out out-rescue $(TARGET).zip playguard-rescue.zip $(TARGET).nro $(TARGET).nacp $(TARGET).elf
+	@$(MAKE) --no-print-directory -C sysmodule clean 2>/dev/null || true
 
 nxlink: all
 	nxlink $(BUILD)/$(TARGET).nro

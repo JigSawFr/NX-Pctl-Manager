@@ -72,6 +72,18 @@ Files the app writes: `sd:/switch/playguard/config.json` (preferences), `history
 
 Controls: ↑/↓ move, Ⓐ confirm, Ⓑ back or cancel (on the sidebar: press Ⓑ twice to exit), Ⓧ refresh, **+** saves the per-day limits. Only status lines are skipped by the focus; what failed is said in a dialog, what worked in a toast. The title says when the app is read-only and while parental controls are temporarily unlocked; in read-only mode the actions stay in place, greyed, and say why when pressed.
 
+## Locked out? (second-hand console, forgotten PIN)
+
+PlayGuard needs Atmosphère, and it only sees the parental controls of the system it runs on: **emuMMC and sysMMC each have their own** (a PIN removed on one is still there on the other). Run it on each one that needs fixing.
+
+| Situation | What to do |
+|---|---|
+| **Second-hand console: you know the PIN, but the previous owner's phone app is still linked** (unlinking fails, or a factory reset asks for their account) | *Security & app* › *Unlink the companion app*, then, if you want no parental controls at all, *Delete all parental controls*. Both work offline, on emuMMC as on sysMMC. |
+| **PIN forgotten** | *Security & app* › *Show the PIN*. Or *Delete all parental controls* to start again (a backup of the settings is saved first; it never contains the PIN). |
+| **PIN forgotten, and *Ask for the PIN* is set to *To open PlayGuard* or *Before a change*** | That setting is in `sd:/switch/playguard/config.json`, on purpose: put the SD card in a computer and set `"pin_lock"` to `"off"`. |
+| **The play timer blocks everything (a 0-minute limit) and the PIN is forgotten** | PlayGuard itself cannot start then. Install the optional recovery sysmodule (`playguard-rescue.zip`) beforehand, then drop an empty `switch/playguard/RESCUE` file on the SD card and boot: it unlocks the console so PlayGuard can open. See [`sysmodule/README.md`](sysmodule/README.md). |
+| **Console not modded** | PlayGuard cannot help: it needs Atmosphère. Nintendo support's master-key procedure is the official way. |
+
 ## Bug reports
 
 *Tools & about* › *Export a diagnostic report* saves a text file in `sd:/switch/playguard/logs/` with the firmware, Atmosphère version, clocks and the raw result of every parental-control query. It also gives the storage, the serial-blanking state and the game-patch status. **It never contains the PIN or the serial number.** Attach it to the issue.
@@ -92,7 +104,7 @@ The desktop build runs the real borealis UI against `source/sim/` (environment k
 
 Branding: `branding/*.svg` (sources), rendered to `icon.jpg` and `images/store/*.png` by `node tools/render_branding.mjs` (Node + Playwright).
 
-Layout: `source/core/` (C, libnx: `pctl_ops`, `time_ops`, `sysinfo`, `playstats`), `source/tab/` (one class per tab), `source/action/` (the play-timer write flow, the clock flow, the settings restore, the firmware screen, updates), `source/activity/` (the screens: per-day editor, profiles, a game, first steps, change history, firmware), `source/view/` (the week chart, the gauge, the day bars, the game cell), `source/ui/` (dialogs, formatting, theme colours), `source/util/` (NTP, config, profiles, settings backups, change history, play-log folding, table export, diagnostics, update check, store launcher), `resources/` (XML layouts, `i18n/<language>/playguard.json`).
+Layout: `source/core/` (C, libnx: `pctl_ops`, `time_ops`, `sysinfo`, `playstats`), `source/tab/` (one class per tab), `source/action/` (the play-timer write flow, the clock flow, the settings restore, the firmware screen, updates), `source/activity/` (the screens: per-day editor, profiles, a game, first steps, change history, firmware), `source/view/` (the week chart, the gauge, the day bars, the game cell), `source/ui/` (dialogs, formatting, theme colours), `source/util/` (NTP, config, profiles, settings backups, change history, play-log folding, table export, diagnostics, update check, store launcher), `resources/` (XML layouts, `i18n/<language>/playguard.json`). `sysmodule/` is the optional recovery boot sysmodule (`make dist-rescue` → `playguard-rescue.zip`); it shares `source/core/rescue.c` with the app (host-tested in `tests/rescue/`). See [`sysmodule/README.md`](sysmodule/README.md).
 
 ## Contributing
 

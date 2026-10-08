@@ -522,6 +522,29 @@
         "off_confirm": "Konsole entsperren",
         "off_done": "Konsole entsperrt."
     },
+    "rescue": {
+        "title": "Wiederherstellung",
+        "section_actions": "Was möchten Sie tun?",
+        "section_done": "Fertig",
+        "reset_pin": "Neue Geheimzahl festlegen",
+        "continue": "PlayGuard öffnen",
+        "note": "Sie sind über die RESCUE-Datei hierher gelangt, daher wird hier keine Geheimzahl abgefragt. Legen Sie eine neue Geheimzahl fest oder entfernen Sie die Altersbeschränkungen und öffnen Sie dann PlayGuard.",
+        "note_failed": "Die Wiederherstellung wurde nicht von selbst abgeschlossen. Sie können es hier noch einmal versuchen oder die SD-Karte entnehmen und die Einstellungen an einem Computer ändern.",
+        "note_deleted": "Alle Altersbeschränkungen wurden entfernt, einschließlich der Geheimzahl. Öffnen Sie PlayGuard – dort können Sie sie jederzeit neu einrichten.",
+        "note_no_pin": "Es war keine Geheimzahl für die Altersbeschränkungen festgelegt, daher gab es nichts aufzuheben. Sie können hier eine festlegen und dann PlayGuard öffnen.",
+        "failed_code": "Meldung der Konsole: {}.",
+        "outcome": {
+            "unlocked": "Die Altersbeschränkungen wurden aufgehoben, sodass PlayGuard geöffnet werden konnte.",
+            "deleted": "Alle Altersbeschränkungen wurden gelöscht.",
+            "no_pin": "Es gab keine Geheimzahl wiederherzustellen: Es ist keine Geheimzahl festgelegt.",
+            "failed": "Die Wiederherstellung konnte nicht abgeschlossen werden."
+        },
+        "hint": {
+            "show_pin": "falls vergessen",
+            "reset_pin": "eine neue wählen",
+            "delete": "alles entfernen"
+        }
+    },
     "tools": {
         "section_diag": "Diagnose",
         "export": "Diagnosebericht exportieren",
@@ -716,6 +739,7 @@
             "delete": "Alle Altersbeschränkungen gelöscht",
             "clock": "Netzwerkuhr gestellt",
             "restore": "Sicherung wiederhergestellt",
+            "rescue": "Wiederherstellung verwendet",
             "console_lock": "Konsolensperre"
         },
         "sources": {

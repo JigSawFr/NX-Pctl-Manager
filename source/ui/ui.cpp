@@ -679,6 +679,57 @@ void offer_restart()
     dialog->open();
 }
 
+namespace
+{
+void wipe(char* p, size_t n)
+{
+    volatile char* b = p;
+    while (n--) *b++ = 0;
+}
+}   // namespace
+
+void show_pin_dialog()
+{
+    char pin[16];
+    Result rc = pctl_get_pin(pin, sizeof(pin));
+    brls::Logger::info("pctl_get_pin returned 0x{:08X}", (unsigned)rc);
+    if (R_FAILED(rc)) {
+        notify_result(rc, "", "playguard/security/show_pin_err"_i18n);
+        return;
+    }
+    std::string spaced;   // "1 2 3 4": easier to read out and to type
+    spaced.reserve(2 * sizeof(pin));   // no reallocation, so no stray copy
+    for (const char* c = pin; *c; c++) {
+        if (!spaced.empty()) spaced += ' ';
+        spaced += *c;
+    }
+    wipe(pin, sizeof(pin));
+
+    auto* title = new brls::Label();
+    title->setText("playguard/security/show_pin_title"_i18n);
+    title->setFontSize(22);
+    title->setHorizontalAlign(brls::HorizontalAlign::CENTER);
+    title->setTextColor(color_note());
+    auto* digits = new brls::Label();
+    digits->setText(spaced);
+    digits->setFontSize(56);
+    digits->setHorizontalAlign(brls::HorizontalAlign::CENTER);
+    digits->setMarginTop(16);
+    wipe(&spaced[0], spaced.size());
+
+    auto* box = new brls::Box(brls::Axis::COLUMN);
+    box->setAlignItems(brls::AlignItems::CENTER);
+    box->setJustifyContent(brls::JustifyContent::CENTER);
+    box->setPadding(40, 40, 40, 40);
+    box->addView(title);
+    box->addView(digits);
+
+    auto* d = new brls::Dialog(box);
+    d->addButton("hints/ok"_i18n, []() {});
+    d->setCancelable(true);
+    d->open();
+}
+
 static bool s_unlocked = false;
 
 bool known_unlocked() { return s_unlocked; }

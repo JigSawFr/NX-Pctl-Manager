@@ -193,6 +193,14 @@ Result pctl_get_pin(char *out, size_t out_size)
     return 0;
 }
 // Locking again never asks for the PIN (write_guard.h): read-only only.
+Result pctl_lock_state(u32 *pin_length, bool *unlocked)
+{
+    Result rc = pctl_ops_init();
+    if (R_FAILED(rc)) return rc;
+    if (pin_length) *pin_length = S.pin_length;
+    if (unlocked) *unlocked = S.temp_unlocked;
+    return 0;
+}
 Result pctl_relock(void)                          { if (core_read_only()) return NXM_RC_READ_ONLY; FAIL_IF("relock"); S.temp_unlocked = false; return 0; }
 // PLAYGUARD_SIM_FAIL=pin_entry: the PIN screen is cancelled.
 Result pctl_ask_pin(void)                         { sim_init(); if (!S.pin_length) return NXM_RC_NO_PIN; FAIL_IF("pin_entry"); return 0; }
