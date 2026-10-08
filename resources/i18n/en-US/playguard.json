@@ -142,7 +142,7 @@
         "gauge_idle": "Time left is reported while a game is running.",
         "gauge_unlocked": "Play time is not counted while parental controls are unlocked.",
         "bedtime": "Bedtime alarm",
-        "alarm_off": "Off: no warning when time is up",
+        "alarm_off": "Off",
         "clock": "Network clock",
         "clock_ok": "Accurate",
         "clock_bad": "Not accurate",

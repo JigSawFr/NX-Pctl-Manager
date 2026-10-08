@@ -67,7 +67,7 @@ DashboardTab::DashboardTab()
         pt_flow::offer_extra_time_restore([this]() { this->refresh(); });
         return true;
     });
-    // Shown only while the alarm is off: A turns it back on.
+    // Shown only while the alarm is off: A turns it back on (the dialog says why).
     alarm->setDetailText("playguard/dashboard/alarm_off"_i18n);
     alarm->setDetailTextColor(ui::color_warn());
     alarm->registerClickAction([this](brls::View*) {

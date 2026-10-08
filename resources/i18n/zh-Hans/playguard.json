@@ -142,7 +142,7 @@
         "gauge_idle": "游戏运行时才会显示剩余时间。",
         "gauge_unlocked": "家长控制暂时解除期间不计算游戏时间。",
         "bedtime": "就寝提醒",
-        "alarm_off": "已关闭：时间到时不会提醒",
+        "alarm_off": "已关闭",
         "clock": "网络时钟",
         "clock_ok": "准确",
         "clock_bad": "不准确",

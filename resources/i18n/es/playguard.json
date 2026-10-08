@@ -142,7 +142,7 @@
         "gauge_idle": "El tiempo restante se indica mientras se ejecuta un juego.",
         "gauge_unlocked": "El tiempo de juego no se cuenta mientras el control parental está desbloqueado.",
         "bedtime": "Alarma de hora de dormir",
-        "alarm_off": "Desactivada: nada avisa cuando se acaba el tiempo",
+        "alarm_off": "Desactivada",
         "clock": "Reloj de red",
         "clock_ok": "Preciso",
         "clock_bad": "Impreciso",
@@ -186,7 +186,7 @@
         "step_clock": "3. Comprobar el reloj de red",
         "todo": "Pendiente",
         "step_unlink": "4. Desvincular la app para móvil (su próxima sincronización lo desharía)",
-        "step_alarm": "{}. Volver a activar la alarma de «Se acabó el tiempo» (nada avisa cuando se acaba el tiempo)",
+        "step_alarm": "{}. Reactivar la alarma de «Se acabó el tiempo» (nada avisa al terminar)",
         "at_start": "Mostrar al iniciar mientras no haya PIN",
         "note": "El PIN es el de la propia consola; el límite se comprueba con el reloj de red, así que debe ser preciso.",
         "close": "Cerrar"

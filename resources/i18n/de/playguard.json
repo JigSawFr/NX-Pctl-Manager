@@ -142,7 +142,7 @@
         "gauge_idle": "Die verbleibende Zeit wird angezeigt, während ein Spiel läuft.",
         "gauge_unlocked": "Die Spielzeit wird nicht gezählt, solange die Altersbeschränkungen aufgehoben sind.",
         "bedtime": "Gute-Nacht-Alarm",
-        "alarm_off": "Aus: keine Warnung, wenn die Zeit um ist",
+        "alarm_off": "Aus",
         "clock": "Netzwerkuhr",
         "clock_ok": "Genau",
         "clock_bad": "Ungenau",

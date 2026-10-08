@@ -37,7 +37,7 @@ void OnboardingActivity::onContentAvailable()
         });
         return true;
     });
-    alarm->setDetailText("playguard/dashboard/alarm_off"_i18n);
+    alarm->setDetailText("playguard/dashboard/alarm_off"_i18n);   // the title says why
     alarm->setDetailTextColor(ui::color_warn());
     alarm->registerClickAction([this](brls::View*) {
         pt_flow::turn_alarm_on("first_steps", [this]() { this->refresh(); });

@@ -142,7 +142,7 @@
         "gauge_idle": "Le temps restant s'affiche pendant qu'un jeu tourne.",
         "gauge_unlocked": "Le temps de jeu n'est pas décompté tant que le contrôle parental est déverrouillé.",
         "bedtime": "Alarme du coucher",
-        "alarm_off": "Désactivée : rien ne prévient quand le temps est écoulé",
+        "alarm_off": "Désactivée",
         "clock": "Horloge réseau",
         "clock_ok": "Précise",
         "clock_bad": "Imprécise",
