@@ -160,7 +160,7 @@
         "extra_body_auto": "今天要增加{}嗎？\n\n{}的上限將從{}改為{}。隔天起，PlayGuard會自動改回{}。",
         "extra_confirm": "增加",
         "extra_done": "已延長時間：今天的上限為{}。",
-        "extra_restore_body": "於{}延長的時間仍套用在{}的上限中（{}）。要改回{}嗎？",
+        "extra_restore_body": "於{}延長的時間仍讓{}的上限維持在{}。要改回{}嗎？",
         "extra_keep": "保留{}",
         "extra_restore": "改回",
         "extra_restored": "{}的上限已改回{}。",
@@ -330,7 +330,7 @@
         "exported": "已匯出：{}",
         "export_err": "無法匯出",
         "export_not_ready": "仍在讀取遊玩資料。",
-        "export_subtitle": "匯出時間：{}，{}",
+        "export_subtitle": "匯出時間：{} · {}",
         "columns": {
             "game": "遊戲",
             "id": "軟體ID",
@@ -406,7 +406,7 @@
         "custom_header": "NTP伺服器名稱或IP位址",
         "region_names": {
             "global": "全球（pool.ntp.org）",
-            "public": "公用服務",
+            "public": "大型服務商",
             "europe": "歐洲",
             "americas": "美洲",
             "asia": "亞洲與大洋洲",
@@ -701,7 +701,7 @@
             "relock": "已重新鎖定",
             "unlink": "已解除手機應用程式的連動",
             "delete": "已刪除所有家長監護設定",
-            "clock": "已設定主機時鐘",
+            "clock": "已設定網路時鐘",
             "restore": "已還原備份"
         },
         "sources": {

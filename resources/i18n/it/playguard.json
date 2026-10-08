@@ -159,8 +159,8 @@
         "extra_body": "Vuoi aggiungere {} oggi?\n\nIl limite di {} passa da {} a {}. Dal giorno seguente, PlayGuard ti proporrà di riportarlo a {}.",
         "extra_body_auto": "Vuoi aggiungere {} oggi?\n\nIl limite di {} passa da {} a {}. Dal giorno seguente, PlayGuard lo riporterà automaticamente a {}.",
         "extra_confirm": "Aggiungi",
-        "extra_done": "Tempo extra aggiunto: {} oggi.",
-        "extra_restore_body": "Il tempo extra aggiunto il {} è ancora applicato al limite di {} ({}). Vuoi riportarlo a {}?",
+        "extra_done": "Tempo extra aggiunto: limite di {} oggi.",
+        "extra_restore_body": "Il tempo extra aggiunto il {} porta ancora il limite di {} a {}. Vuoi riportarlo a {}?",
         "extra_keep": "Mantieni {}",
         "extra_restore": "Ripristina",
         "extra_restored": "Limite di {} riportato a {}.",
@@ -330,7 +330,7 @@
         "exported": "Esportato: {}",
         "export_err": "Impossibile esportare",
         "export_not_ready": "I dati di gioco sono ancora in fase di lettura.",
-        "export_subtitle": "Esportato il {}, {}",
+        "export_subtitle": "Esportato il {} · {}",
         "columns": {
             "game": "Gioco",
             "id": "ID titolo",
@@ -406,7 +406,7 @@
         "custom_header": "Nome o indirizzo IP del server NTP",
         "region_names": {
             "global": "Tutto il mondo (pool.ntp.org)",
-            "public": "Servizi pubblici",
+            "public": "Grandi fornitori",
             "europe": "Europa",
             "americas": "Americhe",
             "asia": "Asia e Oceania",
@@ -701,7 +701,7 @@
             "relock": "Bloccato di nuovo",
             "unlink": "App Filtro famiglia scollegata",
             "delete": "Filtro famiglia eliminato",
-            "clock": "Orologio della console impostato",
+            "clock": "Orologio di rete impostato",
             "restore": "Backup ripristinato"
         },
         "sources": {

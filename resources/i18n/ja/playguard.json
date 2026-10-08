@@ -160,7 +160,7 @@
         "extra_body_auto": "今日のプレイ時間を{}延長しますか？\n\n{}の上限が{}から{}になります。翌日以降、PlayGuardが自動で{}に戻します。",
         "extra_confirm": "延長",
         "extra_done": "延長しました。今日の上限は{}です。",
-        "extra_restore_body": "{}に延長した時間が、{}の上限（{}）にまだ残っています。{}に戻しますか？",
+        "extra_restore_body": "{}に延長した時間により、{}の上限はまだ{}になっています。{}に戻しますか？",
         "extra_keep": "{}のままにする",
         "extra_restore": "元に戻す",
         "extra_restored": "{}の上限を{}に戻しました。",
@@ -330,7 +330,7 @@
         "exported": "エクスポートしました：{}",
         "export_err": "エクスポートできませんでした",
         "export_not_ready": "プレイデータを読み込み中です。",
-        "export_subtitle": "エクスポート日時：{}、{}",
+        "export_subtitle": "エクスポート日時：{} · {}",
         "columns": {
             "game": "ゲーム",
             "id": "タイトルID",
@@ -406,7 +406,7 @@
         "custom_header": "NTPサーバー名またはIPアドレス",
         "region_names": {
             "global": "全世界（pool.ntp.org）",
-            "public": "公開サービス",
+            "public": "大手プロバイダー",
             "europe": "ヨーロッパ",
             "americas": "南北アメリカ",
             "asia": "アジア・オセアニア",
@@ -571,7 +571,7 @@
         "patches_note_redundant": "sys-patchが有効です。sigpatchファイル（{}）は不要になりました。",
         "patches_note_not_at_boot": "sys-patchはインストールされていますが、起動時に開始されていません。sysmodulesのオーバーレイでONにして（またはatmosphere/contents/420000000000000B/flags/boot2.flagを作成して）、再起動してください。",
         "patches_note_no_log": "sys-patchは今回の起動のログを残していないため、何にパッチを当てたか確認できません。config/sys-patch/config.iniでenable_logging=1を設定して、再起動してください。",
-        "patches_note_stale": "sys-patchのログはファームウェア{}の{}で書かれたものです。今回の起動では実行されていません。",
+        "patches_note_stale": "sys-patchのログはファームウェア{}・{}上で書かれたものです。今回の起動では実行されていません。",
         "patches_note_skipped": "このストレージではsys-patchがOFFになっています。config/sys-patch/config.iniで{}=1を設定して、再起動してください。",
         "patches_note_unpatched": "sys-patchがパッチを当てていません：{}。このファームウェア用にsys-patchをアップデートしてください。",
         "auto_relock": "変更後に自動で再びロック",
@@ -701,7 +701,7 @@
             "relock": "再ロック",
             "unlink": "スマホアプリの連携解除",
             "delete": "みまもり設定をすべて削除",
-            "clock": "本体の時計を設定",
+            "clock": "ネットワーク時計を設定",
             "restore": "バックアップを復元"
         },
         "sources": {

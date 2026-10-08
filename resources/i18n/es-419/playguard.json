@@ -113,8 +113,8 @@
         "risk_body": "El firmware {} no se ha verificado: los cambios en el control parental o en el reloj pueden tener efectos inesperados o hacer que la consola se cuelgue.\n\nVerifique cada resultado y exporte un diagnóstico si algo parece incorrecto.",
         "risk_confirm": "Continuar bajo mi responsabilidad",
         "remember": "Recordar esta elección para este firmware y esta versión",
-        "note": "Puede volver a esta pantalla desde Herramientas › Compatibilidad.",
-        "update_toast": "PlayGuard {} es compatible con el firmware {}: Herramientas › Buscar actualizaciones."
+        "note": "Puede volver a esta pantalla desde Herramientas e info › Compatibilidad.",
+        "update_toast": "PlayGuard {} es compatible con el firmware {}: Herramientas e info › Buscar actualizaciones."
     },
     "dashboard": {
         "section_status": "Control parental",
@@ -159,8 +159,8 @@
         "extra_body": "¿Agregar {} hoy?\n\nEl límite del {} pasa de {} a {}. A partir del día siguiente, PlayGuard le propondrá volver a dejarlo en {}.",
         "extra_body_auto": "¿Agregar {} hoy?\n\nEl límite del {} pasa de {} a {}. A partir del día siguiente, PlayGuard lo volverá a dejar en {} automáticamente.",
         "extra_confirm": "Agregar",
-        "extra_done": "Tiempo extra agregado: {} hoy.",
-        "extra_restore_body": "El tiempo extra agregado el {} sigue en el límite del {} ({}). ¿Volver a dejarlo en {}?",
+        "extra_done": "Tiempo extra agregado: límite de {} hoy.",
+        "extra_restore_body": "El tiempo extra agregado el {} todavía eleva el límite del {} a {}. ¿Volver a dejarlo en {}?",
         "extra_keep": "Mantener {}",
         "extra_restore": "Restablecer",
         "extra_restored": "Límite del {} restablecido a {}.",
@@ -201,7 +201,7 @@
         "state": {
             "active": "Temporizador activo",
             "inactive": "Temporizador desactivado",
-            "remaining_short": "Quedan {} hoy",
+            "remaining_short": "Tiempo restante hoy: {}",
             "unlocked_short": "desbloqueado temporalmente, no se cuenta",
             "reached_alert": "Se alcanzó el límite de hoy: el juego se suspendió.",
             "not_set": "Sin límite",
@@ -330,7 +330,7 @@
         "exported": "Exportado: {}",
         "export_err": "No se pudo exportar",
         "export_not_ready": "Todavía se están leyendo los datos de juego.",
-        "export_subtitle": "Exportado el {}, {}",
+        "export_subtitle": "Exportado el {} · {}",
         "columns": {
             "game": "Juego",
             "id": "ID del título",
@@ -406,7 +406,7 @@
         "custom_header": "Nombre o dirección IP del servidor NTP",
         "region_names": {
             "global": "Mundial (pool.ntp.org)",
-            "public": "Servicios públicos",
+            "public": "Grandes proveedores",
             "europe": "Europa",
             "americas": "América",
             "asia": "Asia y Oceanía",
@@ -482,7 +482,7 @@
         "banner_action": "Bloquear ahora",
         "section_danger": "Zona de peligro",
         "delete": "Eliminar todo el control parental",
-        "delete_body": "¿Eliminar todo el control parental?\n\nEsto borra el PIN, todas las restricciones y el límite de tiempo de juego. No se puede deshacer, pero antes se guarda un respaldo de la configuración (sin el PIN) en la tarjeta SD: Herramientas › Restaurar un respaldo.",
+        "delete_body": "¿Eliminar todo el control parental?\n\nEsto borra el PIN, todas las restricciones y el límite de tiempo de juego. No se puede deshacer, pero antes se guarda un respaldo de la configuración (sin el PIN) en la tarjeta SD: Herramientas e info › Restaurar un respaldo.",
         "delete_body2": "Última confirmación: ¿eliminarlo todo ahora?",
         "delete_confirm": "Eliminar",
         "delete_confirm2": "Eliminar definitivamente",
@@ -571,7 +571,7 @@
         "patches_note_redundant": "sys-patch está activo: los archivos sigpatch ({}) ya no son necesarios.",
         "patches_note_not_at_boot": "sys-patch está instalado pero no se inicia al arrancar: actívelo en el overlay de sysmodules (o cree atmosphere/contents/420000000000000B/flags/boot2.flag) y reinicie.",
         "patches_note_no_log": "sys-patch no dejó ningún registro de este arranque, así que no se puede verificar qué parcheó: ponga enable_logging=1 en config/sys-patch/config.ini y reinicie.",
-        "patches_note_stale": "El registro de sys-patch se escribió para el firmware {} el {}: no se ejecutó en este arranque.",
+        "patches_note_stale": "El registro de sys-patch se escribió para el firmware {} en {}: no se ejecutó en este arranque.",
         "patches_note_skipped": "sys-patch está desactivado para este almacenamiento: ponga {}=1 en config/sys-patch/config.ini y reinicie.",
         "patches_note_unpatched": "sys-patch no parcheó: {}. Actualice sys-patch para este firmware.",
         "auto_relock": "Volver a bloquear automáticamente tras un cambio",
@@ -623,7 +623,7 @@
         "restore_body": "¿Restaurar la configuración guardada el {}?",
         "change_line": "{}: {} → {}",
         "nothing_differs": "La consola ya tiene esta configuración: no cambiaría nada.",
-        "same_count": "Otros {} ajuste(s) ya son iguales.",
+        "same_count": "Otros ajustes ya iguales: {}.",
         "restore_confirm": "Restaurar",
         "not_restored_advanced": " (no restaurado: las acciones avanzadas del temporizador están desactivadas)",
         "no_pin_note": "Esta consola no tiene ningún PIN definido: el respaldo no contiene ninguno. Defínalo después en Seguridad y app.",
@@ -634,8 +634,8 @@
     },
     "update": {
         "checking": "Buscando actualizaciones…",
-        "available": "PlayGuard {} está disponible (esta es la {}).",
-        "available_toast": "PlayGuard {} está disponible: Herramientas › Buscar actualizaciones.",
+        "available": "PlayGuard {} está disponible (tiene la {}).",
+        "available_toast": "PlayGuard {} está disponible: Herramientas e info › Buscar actualizaciones.",
         "available_no_fw": "Aún no es compatible con el firmware {}.",
         "up_to_date": "PlayGuard {} es la versión más reciente.",
         "failed": "No se pudieron buscar actualizaciones ({}).",
@@ -668,7 +668,7 @@
         "forget": "Olvidar la elección del firmware",
         "forgotten": "La elección del firmware se volverá a pedir en el próximo inicio.",
         "already_on": "El modo desarrollador ya está activado.",
-        "enabled": "Modo desarrollador activado: vea el final de Herramientas.",
+        "enabled": "Modo desarrollador activado: vea el final de Herramientas e info.",
         "presses_left": "Faltan {} pulsaciones para activar el modo desarrollador.",
         "presses_left_one": "Falta 1 pulsación para activar el modo desarrollador."
     },
@@ -701,7 +701,7 @@
             "relock": "Bloqueado de nuevo",
             "unlink": "App para celular desvinculada",
             "delete": "Todo el control parental eliminado",
-            "clock": "Reloj de la consola ajustado",
+            "clock": "Reloj de red ajustado",
             "restore": "Respaldo restaurado"
         },
         "sources": {

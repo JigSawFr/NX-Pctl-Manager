@@ -113,8 +113,8 @@
         "risk_body": "Firmware {} is niet gecontroleerd: het wijzigen van ouderlijk toezicht of de klok kan anders werken of de console laten vastlopen.\n\nControleer elk resultaat en exporteer een diagnose als er iets niet klopt.",
         "risk_confirm": "Doorgaan op eigen risico",
         "remember": "Deze keuze onthouden voor deze firmware en deze versie",
-        "note": "Je kunt via Tools › Compatibiliteit naar dit scherm terugkeren.",
-        "update_toast": "PlayGuard {} ondersteunt firmware {}: Tools › Op updates controleren."
+        "note": "Je kunt via Tools & info › Compatibiliteit naar dit scherm terugkeren.",
+        "update_toast": "PlayGuard {} ondersteunt firmware {}: Tools & info › Op updates controleren."
     },
     "dashboard": {
         "section_status": "Ouderlijk toezicht",
@@ -159,8 +159,8 @@
         "extra_body": "Vandaag {} toevoegen?\n\nDe limiet voor {} gaat van {} naar {}. Vanaf de volgende dag stelt PlayGuard voor om deze terug te zetten naar {}.",
         "extra_body_auto": "Vandaag {} toevoegen?\n\nDe limiet voor {} gaat van {} naar {}. Vanaf de volgende dag zet PlayGuard deze vanzelf terug naar {}.",
         "extra_confirm": "Toevoegen",
-        "extra_done": "Extra tijd toegevoegd: {} voor vandaag.",
-        "extra_restore_body": "De extra tijd die op {} is toegevoegd, zit nog in de limiet voor {} ({}). Terugzetten naar {}?",
+        "extra_done": "Extra tijd toegevoegd: limiet van {} voor vandaag.",
+        "extra_restore_body": "De extra tijd die op {} is toegevoegd, verhoogt de limiet voor {} nog naar {}. Terugzetten naar {}?",
         "extra_keep": "{} behouden",
         "extra_restore": "Terugzetten",
         "extra_restored": "Limiet voor {} teruggezet naar {}.",
@@ -330,7 +330,7 @@
         "exported": "Geëxporteerd: {}",
         "export_err": "Kan niet exporteren",
         "export_not_ready": "De speelgegevens worden nog gelezen.",
-        "export_subtitle": "Geëxporteerd op {}, {}",
+        "export_subtitle": "Geëxporteerd op {} · {}",
         "columns": {
             "game": "Game",
             "id": "Titel-ID",
@@ -406,7 +406,7 @@
         "custom_header": "Naam of IP-adres van de NTP-server",
         "region_names": {
             "global": "Wereldwijd (pool.ntp.org)",
-            "public": "Openbare diensten",
+            "public": "Grote aanbieders",
             "europe": "Europa",
             "americas": "Amerika",
             "asia": "Azië & Oceanië",
@@ -482,7 +482,7 @@
         "banner_action": "Nu vergrendelen",
         "section_danger": "Gevarenzone",
         "delete": "Ouderlijk toezicht volledig verwijderen",
-        "delete_body": "Ouderlijk toezicht volledig verwijderen?\n\nHiermee worden de pincode, alle beperkingen en de speeltijdlimiet gewist. Dit kan niet ongedaan worden gemaakt, maar eerst wordt een back-up van de instellingen (zonder de pincode) op de SD-kaart opgeslagen: Tools › Back-up terugzetten.",
+        "delete_body": "Ouderlijk toezicht volledig verwijderen?\n\nHiermee worden de pincode, alle beperkingen en de speeltijdlimiet gewist. Dit kan niet ongedaan worden gemaakt, maar eerst wordt een back-up van de instellingen (zonder de pincode) op de SD-kaart opgeslagen: Tools & info › Back-up terugzetten.",
         "delete_body2": "Laatste controle: nu alles verwijderen?",
         "delete_confirm": "Verwijderen",
         "delete_confirm2": "Definitief verwijderen",
@@ -623,7 +623,7 @@
         "restore_body": "De instellingen van de back-up van {} terugzetten?",
         "change_line": "{}: {} → {}",
         "nothing_differs": "De console heeft deze instellingen al: er zou niets veranderen.",
-        "same_count": "{} andere instelling(en) zijn al hetzelfde.",
+        "same_count": "Al hetzelfde: {} andere instelling(en).",
         "restore_confirm": "Terugzetten",
         "not_restored_advanced": " (niet teruggezet: de geavanceerde speeltijdacties staan uit)",
         "no_pin_note": "Er is geen pincode ingesteld op deze console: de back-up bevat er geen. Stel deze daarna in via Beveiliging & app.",
@@ -634,8 +634,8 @@
     },
     "update": {
         "checking": "Controleren op updates…",
-        "available": "PlayGuard {} is beschikbaar (dit is {}).",
-        "available_toast": "PlayGuard {} is beschikbaar: Tools › Op updates controleren.",
+        "available": "PlayGuard {} is beschikbaar (je hebt {}).",
+        "available_toast": "PlayGuard {} is beschikbaar: Tools & info › Op updates controleren.",
         "available_no_fw": "Die versie ondersteunt firmware {} nog niet.",
         "up_to_date": "PlayGuard {} is de nieuwste versie.",
         "failed": "Kan niet op updates controleren ({}).",
@@ -668,7 +668,7 @@
         "forget": "Firmwarekeuze vergeten",
         "forgotten": "Bij de volgende start wordt opnieuw naar de firmwarekeuze gevraagd.",
         "already_on": "De ontwikkelaarsmodus staat al aan.",
-        "enabled": "De ontwikkelaarsmodus staat aan: zie het einde van Tools.",
+        "enabled": "De ontwikkelaarsmodus staat aan: zie het einde van Tools & info.",
         "presses_left": "Nog {} keer drukken om de ontwikkelaarsmodus aan te zetten.",
         "presses_left_one": "Nog 1 keer drukken om de ontwikkelaarsmodus aan te zetten."
     },
@@ -701,7 +701,7 @@
             "relock": "Weer vergrendeld",
             "unlink": "Smartphone-app ontkoppeld",
             "delete": "Ouderlijk toezicht volledig verwijderd",
-            "clock": "Consoleklok ingesteld",
+            "clock": "Netwerkklok ingesteld",
             "restore": "Back-up teruggezet"
         },
         "sources": {
@@ -718,7 +718,7 @@
             "profile": "Profiel \"{}\""
         },
         "when": "Wanneer",
-        "how": "Via",
+        "how": "Bron",
         "before": "Vóór",
         "after": "Na",
         "needs_advanced": "Om dit terug te zetten is \"Geavanceerde speeltijdacties tonen\" nodig (Voorkeuren).",

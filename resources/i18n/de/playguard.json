@@ -159,8 +159,8 @@
         "extra_body": "Heute {} hinzufügen?\n\nDas Limit für {} steigt von {} auf {}. Ab dem nächsten Tag bietet PlayGuard an, es wieder auf {} zu setzen.",
         "extra_body_auto": "Heute {} hinzufügen?\n\nDas Limit für {} steigt von {} auf {}. Ab dem nächsten Tag setzt PlayGuard es automatisch wieder auf {}.",
         "extra_confirm": "Hinzufügen",
-        "extra_done": "Zusatzzeit hinzugefügt: {} für heute.",
-        "extra_restore_body": "Die am {} hinzugefügte Zusatzzeit ist noch im Limit für {} enthalten ({}). Wieder auf {} setzen?",
+        "extra_done": "Zusatzzeit hinzugefügt: Limit heute {}.",
+        "extra_restore_body": "Die am {} hinzugefügte Zusatzzeit hebt das Limit für {} noch auf {} an. Wieder auf {} setzen?",
         "extra_keep": "{} behalten",
         "extra_restore": "Wiederherstellen",
         "extra_restored": "Limit für {} wieder auf {} gesetzt.",
@@ -330,7 +330,7 @@
         "exported": "Exportiert: {}",
         "export_err": "Export fehlgeschlagen",
         "export_not_ready": "Die Spieldaten werden noch gelesen.",
-        "export_subtitle": "Exportiert am {}, {}",
+        "export_subtitle": "Exportiert am {} · {}",
         "columns": {
             "game": "Spiel",
             "id": "Title-ID",
@@ -406,7 +406,7 @@
         "custom_header": "Name oder IP-Adresse des NTP-Servers",
         "region_names": {
             "global": "Weltweit (pool.ntp.org)",
-            "public": "Öffentliche Dienste",
+            "public": "Große Anbieter",
             "europe": "Europa",
             "americas": "Amerika",
             "asia": "Asien & Ozeanien",
@@ -623,7 +623,7 @@
         "restore_body": "Die am {} gesicherten Einstellungen wiederherstellen?",
         "change_line": "{}: {} → {}",
         "nothing_differs": "Die Konsole hat bereits diese Einstellungen: Es würde sich nichts ändern.",
-        "same_count": "{} weitere Einstellung(en) sind bereits gleich.",
+        "same_count": "{} weitere Einstellung(en) bereits gleich.",
         "restore_confirm": "Wiederherstellen",
         "not_restored_advanced": " (nicht wiederhergestellt: Die erweiterten Spielzeit-Aktionen sind aus)",
         "no_pin_note": "Auf dieser Konsole ist keine Geheimzahl festgelegt: Die Sicherung enthält keine. Legen Sie sie anschließend unter Sicherheit & App fest.",
@@ -701,7 +701,7 @@
             "relock": "Wieder aktiviert",
             "unlink": "Smart-Geräte-App getrennt",
             "delete": "Alle Altersbeschränkungen gelöscht",
-            "clock": "Konsolenuhr gestellt",
+            "clock": "Netzwerkuhr gestellt",
             "restore": "Sicherung wiederhergestellt"
         },
         "sources": {
@@ -718,7 +718,7 @@
             "profile": "Profil „{}“"
         },
         "when": "Wann",
-        "how": "Über",
+        "how": "Quelle",
         "before": "Vorher",
         "after": "Nachher",
         "needs_advanced": "Zum Wiederherstellen wird „Erweiterte Spielzeit-Aktionen anzeigen“ benötigt (Optionen).",

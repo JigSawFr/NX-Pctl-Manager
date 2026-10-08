@@ -159,8 +159,8 @@
         "extra_body": "¿Añadir {} hoy?\n\nEl límite del {} pasa de {} a {}. A partir del día siguiente, PlayGuard le propondrá volver a dejarlo en {}.",
         "extra_body_auto": "¿Añadir {} hoy?\n\nEl límite del {} pasa de {} a {}. A partir del día siguiente, PlayGuard lo volverá a dejar en {} automáticamente.",
         "extra_confirm": "Añadir",
-        "extra_done": "Tiempo extra añadido: {} hoy.",
-        "extra_restore_body": "El tiempo extra añadido el {} sigue en el límite del {} ({}). ¿Volver a dejarlo en {}?",
+        "extra_done": "Tiempo extra añadido: límite de {} hoy.",
+        "extra_restore_body": "El tiempo extra añadido el {} aún eleva el límite del {} a {}. ¿Volver a dejarlo en {}?",
         "extra_keep": "Mantener {}",
         "extra_restore": "Restablecer",
         "extra_restored": "Límite del {} restablecido a {}.",
@@ -201,7 +201,7 @@
         "state": {
             "active": "Temporizador activo",
             "inactive": "Temporizador desactivado",
-            "remaining_short": "{} restantes hoy",
+            "remaining_short": "tiempo restante hoy: {}",
             "unlocked_short": "desbloqueado temporalmente, no se cuenta",
             "reached_alert": "Se ha alcanzado el límite de hoy: el juego se ha suspendido.",
             "not_set": "Sin límite",
@@ -330,7 +330,7 @@
         "exported": "Exportado: {}",
         "export_err": "No se ha podido exportar",
         "export_not_ready": "Todavía se están leyendo los datos de juego.",
-        "export_subtitle": "Exportado el {}, {}",
+        "export_subtitle": "Exportado el {} · {}",
         "columns": {
             "game": "Juego",
             "id": "ID del título",
@@ -406,7 +406,7 @@
         "custom_header": "Nombre o dirección IP del servidor NTP",
         "region_names": {
             "global": "Mundial (pool.ntp.org)",
-            "public": "Servicios públicos",
+            "public": "Grandes proveedores",
             "europe": "Europa",
             "americas": "América",
             "asia": "Asia y Oceanía",
@@ -623,7 +623,7 @@
         "restore_body": "¿Restaurar los ajustes guardados el {}?",
         "change_line": "{}: {} → {}",
         "nothing_differs": "La consola ya tiene estos ajustes: no cambiaría nada.",
-        "same_count": "Otros {} ajuste(s) ya son iguales.",
+        "same_count": "Otros ajustes ya iguales: {}.",
         "restore_confirm": "Restaurar",
         "not_restored_advanced": " (no restaurado: las acciones avanzadas del temporizador están desactivadas)",
         "no_pin_note": "Esta consola no tiene ningún PIN definido: la copia no contiene ninguno. Defínalo después en Seguridad y app.",
@@ -701,7 +701,7 @@
             "relock": "Bloqueado de nuevo",
             "unlink": "App para móvil desvinculada",
             "delete": "Todo el control parental eliminado",
-            "clock": "Reloj de la consola ajustado",
+            "clock": "Reloj de red ajustado",
             "restore": "Copia restaurada"
         },
         "sources": {

@@ -159,8 +159,8 @@
         "extra_body": "Adicionar {} hoje?\n\nO limite de {} passa de {} para {}. A partir do dia seguinte, o PlayGuard vai sugerir voltar o limite para {}.",
         "extra_body_auto": "Adicionar {} hoje?\n\nO limite de {} passa de {} para {}. A partir do dia seguinte, o PlayGuard volta o limite para {} automaticamente.",
         "extra_confirm": "Adicionar",
-        "extra_done": "Tempo extra adicionado: {} hoje.",
-        "extra_restore_body": "O tempo extra adicionado em {} ainda está aplicado ao limite de {} ({}). Voltar para {}?",
+        "extra_done": "Tempo extra adicionado: limite de {} hoje.",
+        "extra_restore_body": "O tempo extra adicionado em {} ainda eleva o limite de {} para {}. Voltar para {}?",
         "extra_keep": "Manter {}",
         "extra_restore": "Restaurar",
         "extra_restored": "Limite de {} restaurado para {}.",
@@ -201,7 +201,7 @@
         "state": {
             "active": "Limite ativo",
             "inactive": "Limite desativado",
-            "remaining_short": "Restam {} hoje",
+            "remaining_short": "Tempo restante hoje: {}",
             "unlocked_short": "desbloqueado temporariamente, sem contagem",
             "reached_alert": "O limite de hoje foi atingido: o jogo está suspenso.",
             "not_set": "Sem limite",
@@ -330,7 +330,7 @@
         "exported": "Exportado: {}",
         "export_err": "Não foi possível exportar",
         "export_not_ready": "Os dados de jogo ainda estão sendo lidos.",
-        "export_subtitle": "Exportado em {}, {}",
+        "export_subtitle": "Exportado em {} · {}",
         "columns": {
             "game": "Jogo",
             "id": "ID do título",
@@ -406,7 +406,7 @@
         "custom_header": "Nome ou endereço IP do servidor NTP",
         "region_names": {
             "global": "Mundial (pool.ntp.org)",
-            "public": "Serviços públicos",
+            "public": "Grandes provedores",
             "europe": "Europa",
             "americas": "Américas",
             "asia": "Ásia e Oceania",
@@ -701,7 +701,7 @@
             "relock": "Bloqueado de novo",
             "unlink": "App do celular desvinculado",
             "delete": "Todo o controle dos pais excluído",
-            "clock": "Relógio do console ajustado",
+            "clock": "Relógio de rede ajustado",
             "restore": "Backup restaurado"
         },
         "sources": {

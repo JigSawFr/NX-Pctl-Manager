@@ -160,7 +160,7 @@
         "extra_body_auto": "要为今天增加{}吗？\n\n{}的限制将从{}变为{}。从第二天起，PlayGuard会自动恢复为{}。",
         "extra_confirm": "增加",
         "extra_done": "已加时：今天的限制为{}。",
-        "extra_restore_body": "{}的加时仍计入{}的限制（{}）。要恢复为{}吗？",
+        "extra_restore_body": "{}的加时仍使{}的限制保持在{}。要恢复为{}吗？",
         "extra_keep": "保留{}",
         "extra_restore": "恢复",
         "extra_restored": "{}的限制已恢复为{}。",
@@ -330,7 +330,7 @@
         "exported": "已导出：{}",
         "export_err": "无法导出",
         "export_not_ready": "仍在读取游玩数据。",
-        "export_subtitle": "导出于{}，{}",
+        "export_subtitle": "导出于{} · {}",
         "columns": {
             "game": "游戏",
             "id": "Title ID",
@@ -406,7 +406,7 @@
         "custom_header": "NTP服务器名称或IP地址",
         "region_names": {
             "global": "全球（pool.ntp.org）",
-            "public": "公共服务",
+            "public": "大型服务商",
             "europe": "欧洲",
             "americas": "美洲",
             "asia": "亚洲与大洋洲",
@@ -571,7 +571,7 @@
         "patches_note_redundant": "sys-patch已生效：不再需要签名补丁文件（{}）。",
         "patches_note_not_at_boot": "sys-patch已安装，但未在启动时运行：请在sysmodules插件中开启它（或创建atmosphere/contents/420000000000000B/flags/boot2.flag），然后重启。",
         "patches_note_no_log": "sys-patch未留下本次启动的日志，因此无法确认它修补了什么：请在config/sys-patch/config.ini中设置enable_logging=1，然后重启。",
-        "patches_note_stale": "sys-patch的日志对应系统版本{}（写于{}）：本次启动时它未运行。",
+        "patches_note_stale": "sys-patch的日志对应系统版本{}（{}存储）：本次启动时它未运行。",
         "patches_note_skipped": "sys-patch已对此存储关闭：请在config/sys-patch/config.ini中设置{}=1，然后重启。",
         "patches_note_unpatched": "sys-patch未修补：{}。请更新适用于此系统版本的sys-patch。",
         "auto_relock": "更改后自动重新启用",
@@ -701,7 +701,7 @@
             "relock": "已重新启用",
             "unlink": "已解除手机应用的关联",
             "delete": "已删除所有家长控制",
-            "clock": "已设置主机时钟",
+            "clock": "已设置网络时钟",
             "restore": "已恢复备份"
         },
         "sources": {

@@ -159,8 +159,8 @@
         "extra_body": "Adicionar {} hoje?\n\nO limite de {} passa de {} para {}. A partir do dia seguinte, o PlayGuard propõe repô-lo em {}.",
         "extra_body_auto": "Adicionar {} hoje?\n\nO limite de {} passa de {} para {}. A partir do dia seguinte, o PlayGuard repõe-no em {} automaticamente.",
         "extra_confirm": "Adicionar",
-        "extra_done": "Tempo extra adicionado: {} hoje.",
-        "extra_restore_body": "O tempo extra adicionado em {} continua no limite de {} ({}). Repor o limite em {}?",
+        "extra_done": "Tempo extra adicionado: limite de {} hoje.",
+        "extra_restore_body": "O tempo extra adicionado em {} ainda eleva o limite de {} para {}. Repor o limite em {}?",
         "extra_keep": "Manter {}",
         "extra_restore": "Repor",
         "extra_restored": "Limite de {} reposto em {}.",
@@ -201,7 +201,7 @@
         "state": {
             "active": "Temporizador ativo",
             "inactive": "Temporizador desativado",
-            "remaining_short": "Restam {} hoje",
+            "remaining_short": "Tempo restante hoje: {}",
             "unlocked_short": "desbloqueado temporariamente, sem contagem",
             "reached_alert": "O limite de hoje foi atingido: o jogo está suspenso.",
             "not_set": "Sem limite",
@@ -330,7 +330,7 @@
         "exported": "Exportado: {}",
         "export_err": "Não foi possível exportar",
         "export_not_ready": "Os dados de jogo ainda estão a ser lidos.",
-        "export_subtitle": "Exportado em {}, {}",
+        "export_subtitle": "Exportado em {} · {}",
         "columns": {
             "game": "Jogo",
             "id": "ID do título",
@@ -406,7 +406,7 @@
         "custom_header": "Nome ou endereço IP do servidor NTP",
         "region_names": {
             "global": "Mundial (pool.ntp.org)",
-            "public": "Serviços públicos",
+            "public": "Grandes fornecedores",
             "europe": "Europa",
             "americas": "Américas",
             "asia": "Ásia e Oceânia",
@@ -623,7 +623,7 @@
         "restore_body": "Restaurar as definições guardadas em {}?",
         "change_line": "{}: {} → {}",
         "nothing_differs": "A consola já tem estas definições: nada mudaria.",
-        "same_count": "{} outra(s) definição(ões) já são iguais.",
+        "same_count": "Já iguais: {} outra(s) definição(ões).",
         "restore_confirm": "Restaurar",
         "not_restored_advanced": " (não restaurado: as ações avançadas do temporizador estão desativadas)",
         "no_pin_note": "Esta consola não tem PIN definido: a cópia de segurança não contém nenhum. Defina-o depois em Segurança e aplicação.",
@@ -634,7 +634,7 @@
     },
     "update": {
         "checking": "A procurar atualizações…",
-        "available": "O PlayGuard {} está disponível (esta é a {}).",
+        "available": "O PlayGuard {} está disponível (tem a {}).",
         "available_toast": "O PlayGuard {} está disponível: Ferramentas e info › Procurar atualizações.",
         "available_no_fw": "Ainda não suporta o firmware {}.",
         "up_to_date": "O PlayGuard {} é a versão mais recente.",
@@ -701,7 +701,7 @@
             "relock": "Bloqueado novamente",
             "unlink": "Aplicação móvel desvinculada",
             "delete": "Todo o controlo parental eliminado",
-            "clock": "Relógio da consola acertado",
+            "clock": "Relógio de rede acertado",
             "restore": "Cópia de segurança restaurada"
         },
         "sources": {
