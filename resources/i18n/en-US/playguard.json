@@ -528,7 +528,12 @@
         "languages": {
             "system": "System language",
             "en-US": "English",
-            "fr": "Français"
+            "fr": "Français",
+            "de": "Deutsch",
+            "es": "Español",
+            "it": "Italiano",
+            "nl": "Nederlands",
+            "pt": "Português"
         },
         "theme": "Theme",
         "start_tab": "Start on",

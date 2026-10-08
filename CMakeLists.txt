@@ -114,7 +114,8 @@ target_link_options(${PROJECT_NAME} PRIVATE ${APP_PLATFORM_LINK_OPTION})
 
 # Resources: borealis built-ins first, then ours on top. On the Switch the
 # bundled fonts and demo assets are dropped (the system shared font is used).
-# fr-CA reuses the French strings (borealis looks the locale up verbatim).
+# fr-CA, es-419 and pt-BR reuse the French, Spanish and Portuguese strings
+# (borealis looks the locale up verbatim).
 set(BOREALIS_RESOURCES ${BOREALIS_LIBRARY}/../resources)
 set(MERGED_RESOURCES ${CMAKE_BINARY_DIR}/resources)
 set(ASSEMBLE_RESOURCES
@@ -126,6 +127,8 @@ set(ASSEMBLE_RESOURCES
             ${MERGED_RESOURCES}/img/borealis_96.png ${MERGED_RESOURCES}/img/borealis_256.png
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_RESOURCES} ${MERGED_RESOURCES}
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_RESOURCES}/i18n/fr ${MERGED_RESOURCES}/i18n/fr-CA
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_RESOURCES}/i18n/es ${MERGED_RESOURCES}/i18n/es-419
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_RESOURCES}/i18n/pt ${MERGED_RESOURCES}/i18n/pt-BR
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_ICON} ${MERGED_RESOURCES}/img/app_icon.jpg)
 
 set(PLAYGUARD_COPY_SHADERS)

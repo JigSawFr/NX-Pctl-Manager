@@ -528,7 +528,12 @@
         "languages": {
             "system": "Langue de la console",
             "en-US": "English",
-            "fr": "Français"
+            "fr": "Français",
+            "de": "Deutsch",
+            "es": "Español",
+            "it": "Italiano",
+            "nl": "Nederlands",
+            "pt": "Português"
         },
         "theme": "Thème",
         "start_tab": "Ouvrir sur",

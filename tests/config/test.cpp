@@ -50,7 +50,7 @@ static void test_fields()
     assert(c.custom_servers.size() == 2 && c.custom_servers[1] == "b.example");
 
     // Unknown values go back to their defaults.
-    write_config(R"({"language": "de", "theme": "pink", "update_via": "ftp", "fw_gate_fw": "24.0.0",
+    write_config(R"({"language": "ja", "theme": "pink", "update_via": "ftp", "fw_gate_fw": "24.0.0",
                     "fw_gate_app": "1.0.0", "fw_gate_choice": "maybe"})");
     config::load();
     c = config::get();

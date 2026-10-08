@@ -62,7 +62,7 @@ constexpr int    SCHEMA             = 1;    // "schema" in config.json
 // own): each has resources/i18n/<code>/playguard.json and a name under
 // playguard/tools/languages/. tools/check_resources.py checks both; README
 // "Translating PlayGuard" lists the steps to add one.
-constexpr const char* LANGUAGES[] = { "system", "en-US", "fr" };
+constexpr const char* LANGUAGES[] = { "system", "en-US", "fr", "de", "es", "it", "nl", "pt" };
 // What start_tab may be, in the sidebar's order.
 constexpr const char* START_TABS[] = { "dashboard", "play_timer", "activity", "restrictions",
                                        "clock", "security", "preferences", "tools" };
