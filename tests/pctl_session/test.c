@@ -30,6 +30,8 @@ static struct {
     unsigned checks;          /* calls of the change check below */
     bool check_answer;
     u32 rating_org;           /* what SetDefaultRatingOrganization (1038) received */
+    u32 exempt;               /* what GetExemptApplicationListCountForDebug (1903) returns */
+    bool saw_1904;
 } model;
 
 static void reset_with(u32 hos)
@@ -107,7 +109,8 @@ Result mock_dispatch(Service *srv, u32 command, void *out, size_t out_size,
     model.ipc_calls++;
 
     /* Inputs that only select what to read: the level (1034), the offset (1044). */
-    const bool is_write = (in != NULL && command != 1460 && command != 1034 && command != 1044) ||
+    const bool is_write = (in != NULL && command != 1460 && command != 1034 && command != 1044 &&
+                           command != 1904) ||
         command == 1007 || command == 1043 || command == 1941 || command == 1201 ||
         command == 1451 || command == 1452;
     if (is_write) {
@@ -182,6 +185,13 @@ Result mock_dispatch(Service *srv, u32 command, void *out, size_t out_size,
             assert(params.buffers[0].ptr != NULL && params.buffers[0].size >= 0x20);
             memset((void *)params.buffers[0].ptr, 0xAB, 0x20);
             w = 1; return put(out, out_size, &w, 4);
+        case 1903: w = model.exempt; return put(out, out_size, &w, 4);
+        case 1904:
+            model.saw_1904 = true;
+            assert(in_size == 4 && params.buffer_attrs[0] == (SfBufferAttr_HipcMapAlias | SfBufferAttr_Out));
+            assert(params.buffers[0].ptr != NULL && params.buffers[0].size >= 8 * model.exempt);
+            memset((void *)params.buffers[0].ptr, 0xCD, 8 * model.exempt);
+            w = model.exempt; return put(out, out_size, &w, 4);
         case 1459: model.saw_1459 = true; assert(out_size == 0x20); return 0;
         case 1460: model.saw_1460 = true; assert(out_size == 0x18 && in_size == 1); return 0;
         case 145601: return put(out, out_size, model.pt_block, sizeof(model.pt_block));
@@ -292,6 +302,13 @@ static void test_reads(void)
     }
     assert(model.saw_1459 && model.saw_1460 && model.saw_1952);
     assert(strcmp(pctl_rating_org_name(6), "PEGI") == 0);
+
+    /* The exemption list is listed only when 1903 counts an entry. */
+    assert(!model.saw_1904 && strstr(report, "GetExemptApplicationListCountForDebug") != NULL);
+    reset();
+    model.exempt = 2;
+    pctl_dump(report, sizeof(report));
+    assert(model.saw_1904 && strstr(report, "count=2\nCD CD CD CD") != NULL && model.refs == 0 && model.writes == 0);
 
     /* 1460 exists only on 23.0.0+, 1459 only on 20.0.0+. */
     reset_with(MAKEHOSVERSION(22, 1, 0));

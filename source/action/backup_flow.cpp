@@ -1,6 +1,7 @@
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).
 #include "action/backup_flow.hpp"
 
+#include <algorithm>
 #include <borealis.hpp>
 #include <fmt/format.h>
 #include <memory>
@@ -11,6 +12,7 @@
 #include "ui/ui.hpp"
 #include "util/config.hpp"
 #include "util/pctl_ops_c.hpp"
+#include "util/pt_block.hpp"
 
 using namespace brls::literals;
 
@@ -167,8 +169,11 @@ backup::Snapshot capture()
         s.days[d] = pt.day_min[d];
         if (s.days[d] != PT_DAY_NOLIMIT && s.days[d] > 1440) s.days_ok = false;
     }
-    if (s.days_ok)
-        for (uint16_t w : pt.block) s.raw_block += fmt::format("{:04X}", (unsigned)w);
+    if (s.days_ok) {
+        pt_block::Block b;
+        std::copy(std::begin(pt.block), std::end(pt.block), b.begin());
+        s.raw_block = pt_block::to_hex(b);
+    }
     s.alarm_ok       = s.days_ok && pt.alarm_disabled_valid;
     s.alarm_disabled = pt.alarm_disabled;
 

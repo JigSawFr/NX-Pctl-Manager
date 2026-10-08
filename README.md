@@ -74,7 +74,7 @@ Controls: ↑/↓ move, Ⓐ confirm, Ⓑ back or cancel (on the sidebar: press �
 
 *Tools & about* › *Export a diagnostic report* saves a text file in `sd:/switch/playguard/logs/` with the firmware, Atmosphère version, clocks and the raw result of every parental-control query. It also gives the storage, the serial-blanking state and the game-patch status. **It never contains the PIN or the serial number.** Attach it to the issue.
 
-**Developer mode** (press *Tools & about* › *Version* seven times) adds a read-only switch, the diagnostic report on screen and a shortcut to export it from the Play timer tab. With read-only on, the app cannot change anything: that is the safe way to investigate a new firmware (the firmware screen offers it directly).
+**Developer mode** (press *Tools & about* › *Version* seven times) adds a read-only switch, the diagnostic report on screen and a shortcut to export it from the Play timer tab. With read-only on, the app cannot change anything: that is the safe way to investigate a new firmware (the firmware screen offers it directly). *Compare the play-timer block* helps decode the play-timer settings PlayGuard does not show yet. Save the raw block as a reference, change one setting in the Nintendo Switch Parental Controls app, then come back: PlayGuard lists the values that changed (in `logs/` on request). Settings it could find this way include bedtime and "alarm only" vs "suspend the software". Attach that file to an issue.
 
 ## Build from source
 

@@ -9,8 +9,8 @@ missing. Screenshots of each screen are written to the output folder.
 
 The "gate" scenario starts on a firmware newer than the checked one, with a
 simulated release that supports it: the firmware screen, read-only mode,
-seven presses on Version for the developer mode, its report and the firmware
-screen again.
+seven presses on Version for the developer mode, its report, a play-timer
+block reference and the firmware screen again.
 
 The "errors" scenario starts with today's limit reached, the temporary unlock
 failing and "Synchronise clock via Internet" off (PLAYGUARD_SIM_FAIL & co.):
@@ -38,6 +38,9 @@ os.makedirs(run_dir, exist_ok=True)
 config_file = os.path.join(run_dir, "playguard_data", "config.json")
 if (GATE or ERRORS) and os.path.exists(config_file):
     os.remove(config_file)   # no remembered choice, developer mode off
+block_ref = os.path.join(run_dir, "playguard_data", "logs", "play_timer_block.json")
+if GATE and os.path.exists(block_ref):
+    os.remove(block_ref)     # the developer tool must write a new one
 
 env = dict(os.environ, LIBGL_ALWAYS_SOFTWARE="1")
 if GATE:
@@ -141,12 +144,19 @@ if GATE:
     shot("04_dev_enabled")
     # A short press does not get past the bottom edge of a long tab (borealis'
     # natural scrolling needs the button held for a few frames): press like a hand.
-    key("Down", 12, hold=0.15) # the Developer section, down to its last cell
+    key("Down", 14, hold=0.15) # the Developer section, down to its last cell
     shot("05_dev_tools")
-    key("Up", 2)               # Show the diagnostic report
+    key("Up", 3)               # Show the diagnostic report
     key("Return")
     shot("06_dev_report")
     key("Escape")
+    key("Down")                # Compare the play-timer block: none saved yet
+    key("Return")
+    shot("06_dev_block")
+    key("Right")               # Save the reference (read-only mode only writes to the SD card)
+    key("Return")
+    if not os.path.exists(block_ref):
+        fail("no play-timer block reference in " + block_ref)
     key("Down")                # Show the firmware screen again
     key("Return")
     shot("07_gate_again")
