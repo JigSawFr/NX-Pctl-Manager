@@ -105,7 +105,7 @@ static void test_validation()
 
     // The fields kept for the record are validated too.
     assert(!parses(with("\"alarm_disabled\": true", "\"alarm_disabled\": 1")));
-    assert(!parses(with("\"rating_organization\": 6", "\"rating_organization\": 64")));
+    assert(!parses(with("\"rating_organization\": 6", "\"rating_organization\": 13")));
     assert(!parses(with("\"raw_0x44\": \"0000", "\"raw_0x44\": \"zz00")));
     assert(!parses(with("\"raw_0x44\": \"0000", "\"raw_0x44\": \"00")));       // 134 digits
     assert(parses(with("\"raw_0x44\": \"0000", "\"raw_0x44\": \"abcd")));      // either case

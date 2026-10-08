@@ -19,6 +19,8 @@ class RestrictionsTab : public TabBase
     PctlStatus st = {};
 
     void write_custom(const PctlCustomSettings& s);
+    // "Restrict software by age rating: Up to 12 years (PEGI)" and the two others.
+    std::string settings_text(const PctlCustomSettings& s) const;
 
     BRLS_BIND(brls::DetailCell,  level,         "rs_level");
     BRLS_BIND(brls::Header,      custom_header, "rs_custom_header");

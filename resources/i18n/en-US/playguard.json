@@ -340,6 +340,7 @@
             "4": "Teen"
         },
         "confirm_level": "Change the restriction level to \"{}\"?",
+        "custom_hint": "Then choose each restriction below.",
         "section_custom": "Custom settings",
         "age": "Restrict software by age rating",
         "age_none": "No restriction",
@@ -350,6 +351,7 @@
         "section_other": "Other",
         "vr": "Restrict VR mode",
         "org": "Rating organisation",
+        "confirm_org": "Use {} age ratings? The age limit of the restriction level is read with this organisation's ratings.",
         "free_comm": "Software allowed to communicate",
         "free_comm_value": "{} title(s)",
         "note": "These are the same settings as System Settings › Parental Controls.",
