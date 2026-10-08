@@ -81,6 +81,7 @@ PlayGuard needs Atmosphère, and it only sees the parental controls of the syste
 | **Second-hand console: you know the PIN, but the previous owner's phone app is still linked** (unlinking fails, or a factory reset asks for their account) | *Security & app* › *Unlink the companion app*, then, if you want no parental controls at all, *Delete all parental controls*. Both work offline, on emuMMC as on sysMMC. |
 | **PIN forgotten** | *Security & app* › *Show the PIN*. Or *Delete all parental controls* to start again (a backup of the settings is saved first; it never contains the PIN). |
 | **PIN forgotten, and *Ask for the PIN* is set to *To open PlayGuard* or *Before a change*** | That setting is in `sd:/switch/playguard/config.json`, on purpose: put the SD card in a computer and set `"pin_lock"` to `"off"`. |
+| **The play timer blocks everything (a 0-minute limit) and the PIN is forgotten** | PlayGuard itself cannot start then. Install the optional recovery sysmodule (`playguard-rescue.zip`) beforehand, then drop an empty `switch/playguard/RESCUE` file on the SD card and boot: it unlocks the console so PlayGuard can open. See [`sysmodule/README.md`](sysmodule/README.md). |
 | **Console not modded** | PlayGuard cannot help: it needs Atmosphère. Nintendo support's master-key procedure is the official way. |
 
 ## Bug reports
