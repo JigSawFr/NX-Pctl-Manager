@@ -30,12 +30,19 @@ int played_today_min(const PtState& pt);
 // today's limit below the time already played, the dialog says the game in
 // progress will be suspended. With nothing to say and no unlock needed,
 // `write` runs at once. `write(did_unlock)` only runs when it is safe to
-// write; otherwise a toast has already explained why.
+// write; otherwise the user has already been told why.
 // `danger`: the confirm button is drawn in the "bad" colour (removing or
 // overwriting limits).
 void confirm_write(const std::string& body, const std::string& confirm_label,
                    std::function<void(bool did_unlock)> write, const uint16_t* new_days = nullptr,
                    bool danger = false);
+
+// Writes the seven limits (pctl_play_timer_set_days) and records the change
+// in the history with `source` ("uniform", "profile" …) and `detail` (a
+// profile's name). Every limit write of the app goes through here.
+Result write_days(const uint16_t days[7], const std::string& source, const std::string& detail = "");
+// Removes the play-time limit (pctl_play_timer_clear), recorded the same way.
+Result clear_days(const std::string& source);
 
 // After a write made through confirm_write: toast the result, then lock again
 // if the write needed an unlock (at once when the "lock again automatically"
@@ -46,13 +53,23 @@ void finish_write(Result rc, bool did_unlock, const std::string& ok_text,
 // "Same limit every day" picker (quick values + Custom…), then confirm_write.
 void choose_uniform_limit(const PtState& pt, std::function<void()> refresh);
 
-// True when "Extra time today…" can be offered: a writable build, a limit
-// applies today and it is below 24 h.
-bool can_add_extra_time(const PtState& pt);
+// One day's limit picker: the quick values, "Enter a duration…" (the number
+// pad) and "No limit", with `current` pre-selected. `on_value` gets the
+// minutes (PT_DAY_NOLIMIT for no limit).
+void pick_limit(const std::string& title, uint16_t current, std::function<void(uint16_t)> on_value);
+
+// Changes one weekday's limit (0 = Sunday) on the console, through pick_limit
+// and confirm_write: what the week chart does on A.
+void change_day_limit(int day, uint16_t current, std::function<void()> refresh);
 
 // "Extra time today": raises today's weekday limit by 15 / 30 / 60 min and
 // remembers the previous value (config extra_*), so that it can be put back.
 void add_extra_time(const PtState& pt, std::function<void()> refresh);
+
+// "No more play today": today's weekday limit to 0 for today only (through
+// confirm_write: the suspend warning says the game in progress stops at the
+// lock). Recorded like extra time, so the usual limit comes back the next day.
+void stop_today(const PtState& pt, std::function<void()> refresh);
 
 // Extra time added on an earlier day is still on its weekday limit -> offer
 // to put the previous value back (or keep it), or put it back at once when the

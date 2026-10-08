@@ -67,7 +67,9 @@ void one_of(std::string& value, std::initializer_list<const char*> allowed, cons
 
 void sanitize(Config& c)
 {
-    one_of(c.language, { "system", "en-US", "fr" }, "system");
+    bool language_ok = false;
+    for (const char* l : LANGUAGES) language_ok |= c.language == l;
+    if (!language_ok) c.language = "system";
     one_of(c.theme, { "system", "light", "dark" }, "system");
     one_of(c.update_via, { "auto", "sphaira", "appstore", "manual" }, "auto");
     one_of(c.pin_lock, { "off", "changes", "open" }, "off");
@@ -96,8 +98,10 @@ void sanitize(Config& c)
     // A pending extra-time record must describe a real weekday limit, or it
     // could later "put back" a nonsense value (or "no limit").
     const bool weekday_ok = c.extra_weekday >= 0 && c.extra_weekday <= 6;
-    const bool values_ok  = c.extra_base >= 0 && c.extra_base <= 1440 && c.extra_value >= 0 &&
-                           c.extra_value <= 1440 && c.extra_date.size() == 10;
+    // extra_base may be "no limit" (0xFFFF): No more play today on a day
+    // that had no limit puts "no limit" back.
+    const bool base_ok    = (c.extra_base >= 0 && c.extra_base <= 1440) || c.extra_base == 0xFFFF;
+    const bool values_ok  = base_ok && c.extra_value >= 0 && c.extra_value <= 1440 && c.extra_date.size() == 10;
     if (!weekday_ok || !values_ok) clear_extra(c);
 }
 
@@ -131,6 +135,7 @@ void load()
     read_int(j, "backup_keep", c.backup_keep);
     read_bool(j, "clock_check_at_start", c.clock_check_at_start);
     read_string(j, "pin_lock", c.pin_lock);
+    read_bool(j, "onboarding_at_start", c.onboarding_at_start);
     auto amounts = j.find("extra_amounts");
     if (amounts != j.end() && amounts->is_array()) {
         std::vector<int> v;
@@ -179,6 +184,7 @@ bool save()
     j["backup_keep"]     = s_config.backup_keep;
     j["clock_check_at_start"] = s_config.clock_check_at_start;
     j["pin_lock"]        = s_config.pin_lock;
+    j["onboarding_at_start"] = s_config.onboarding_at_start;
     j["fw_gate_fw"]      = s_config.fw_gate_fw;
     j["fw_gate_app"]     = s_config.fw_gate_app;
     j["fw_gate_choice"]  = s_config.fw_gate_choice;

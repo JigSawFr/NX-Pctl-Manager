@@ -20,21 +20,11 @@ PlayTimerPerDayActivity::PlayTimerPerDayActivity(std::string title, const Days& 
     for (int i = 0; i < 7; i++) this->live.day_min[i] = this->pending[i] = days[i];
 }
 
-brls::DetailCell* PlayTimerPerDayActivity::day_cell(int d)
-{
-    brls::DetailCell* cells[7] = { pt_d0, pt_d1, pt_d2, pt_d3, pt_d4, pt_d5, pt_d6 };
-    return cells[d];
-}
-
 void PlayTimerPerDayActivity::onContentAvailable()
 {
-    for (int d = 0; d < 7; d++) {
-        day_cell(d)->setText(ui::day_name(d));
-        day_cell(d)->registerClickAction([this, d](brls::View*) {
-            this->edit_day(d);
-            return true;
-        });
-    }
+    unavailable->setSingleLine(false);
+    week->set_on_pick([this](int d) { this->edit_day(d); });
+    week->set_editable(true);
     pt_weekdays->registerClickAction([this](brls::View*) {
         this->fill_days({ 1, 2, 3, 4, 5 }, "playguard/play_timer/perday/weekdays"_i18n);
         return true;
@@ -78,6 +68,12 @@ void PlayTimerPerDayActivity::onContentAvailable()
         return true;
     });
     pt_save->registerClickAction([this](brls::View*) {
+        this->save();
+        return true;
+    });
+    // + saves from anywhere on the screen (the cell stays for the eye). Not Y:
+    // Y deleted a profile elsewhere, and a button must not mean both.
+    this->getContentView()->registerAction("hints/save"_i18n, brls::BUTTON_START, [this](brls::View*) {
         this->save();
         return true;
     });
@@ -130,51 +126,17 @@ bool PlayTimerPerDayActivity::has_changes() const
 void PlayTimerPerDayActivity::rerender()
 {
     if (!this->profile_mode) state_header->show(this->live);
-    for (int d = 0; d < 7; d++) {
-        if (!this->live.valid) {
-            day_cell(d)->setDetailText("playguard/common/unavailable"_i18n);
-            continue;
-        }
-        std::string text = ui::fmt_minutes(this->pending[d]);
-        if (this->pending[d] != this->live.day_min[d]) text += "playguard/play_timer/perday/unsaved"_i18n;
-        day_cell(d)->setDetailText(text);
-        day_cell(d)->setDetailTextColor(this->pending[d] != this->live.day_min[d] ? ui::color_warn()
-                                                                                  : ui::color_neutral());
-    }
+    ui::set_visible(unavailable.getView(), !this->live.valid);
+    ui::set_visible(week.getView(), this->live.valid);
+    if (this->live.valid) week->show(this->pending, this->live.day_min);
     int unsaved = 0;
     for (int d = 0; d < 7 && this->live.valid; d++) unsaved += this->pending[d] != this->live.day_min[d];
     pt_save->setDetailText(unsaved ? brls::getStr("playguard/play_timer/perday/unsaved_count", unsaved) : "");
     pt_save->setDetailTextColor(unsaved ? ui::color_warn() : ui::color_neutral());
-}
-
-void PlayTimerPerDayActivity::pick_limit(const std::string& title, u16 current, std::function<void(u16)> on_value)
-{
-    // Quick values first (as in "Same limit every day"), then any value, then
-    // no limit; the current value is pre-selected.
-    const auto& values = pt_flow::quick_values();
-    std::vector<std::string> options;
-    int selected = -1;
-    for (size_t i = 0; i < values.size(); i++) {
-        options.push_back(ui::fmt_minutes(values[i]));
-        if (values[i] == current) selected = (int)i;
-    }
-    const int custom_index  = (int)options.size();
-    const int nolimit_index = custom_index + 1;
-    options.push_back("playguard/play_timer/perday/pick_minutes"_i18n);
-    options.push_back("playguard/play_timer/perday/pick_no_limit"_i18n);
-    if (current == PT_DAY_NOLIMIT) selected = nolimit_index;
-    else if (selected < 0) selected = custom_index;
-
-    ui::pick(title, options, selected, [title, current, on_value, custom_index, nolimit_index](int index) {
-        if (index == nolimit_index) {
-            on_value(PT_DAY_NOLIMIT);
-        } else if (index == custom_index) {
-            u16 seed = current == PT_DAY_NOLIMIT ? 60 : current;
-            ui::prompt_minutes(title, seed, [on_value](uint16_t v) { on_value(v); });
-        } else {
-            on_value(pt_flow::quick_values()[index]);
-        }
-    });
+    // The footer's + hint carries the count too: it is visible from any row.
+    this->getContentView()->updateActionHint(brls::BUTTON_START, unsaved ? brls::getStr("playguard/play_timer/perday/save_hint", unsaved)
+                                                                     : "hints/save"_i18n);
+    brls::Application::getGlobalHintsUpdateEvent()->fire();
 }
 
 void PlayTimerPerDayActivity::edit_day(int d)
@@ -183,11 +145,11 @@ void PlayTimerPerDayActivity::edit_day(int d)
         ui::notify("playguard/play_timer/perday/unavailable"_i18n);
         return;
     }
-    this->pick_limit(brls::getStr("playguard/play_timer/perday/pick_title", ui::day_name(d)), this->pending[d],
-                     [this, d](u16 v) {
-                         this->pending[d] = v;
-                         this->rerender();
-                     });
+    pt_flow::pick_limit(brls::getStr("playguard/play_timer/perday/pick_title", ui::day_name(d)), this->pending[d],
+                        [this, d](u16 v) {
+                            this->pending[d] = v;
+                            this->rerender();
+                        });
 }
 
 void PlayTimerPerDayActivity::fill_days(std::initializer_list<int> days, const std::string& title)
@@ -197,7 +159,7 @@ void PlayTimerPerDayActivity::fill_days(std::initializer_list<int> days, const s
         return;
     }
     std::vector<int> list(days);
-    this->pick_limit(title, this->pending[list.front()], [this, list](u16 v) {
+    pt_flow::pick_limit(title, this->pending[list.front()], [this, list](u16 v) {
         for (int d : list) this->pending[d] = v;
         this->rerender();
     });
@@ -227,7 +189,7 @@ void PlayTimerPerDayActivity::save()
     // "Save" is the explicit action: no extra question unless the timer is
     // counting down (then the one dialog explains the temporary unlock).
     pt_flow::confirm_write("", "playguard/play_timer/confirm_set"_i18n, [this, snapshot](bool did_unlock) {
-        Result rc = pctl_play_timer_set_days(snapshot.data());
+        Result rc = pt_flow::write_days(snapshot.data(), "per_day");
         pt_flow::finish_write(rc, did_unlock, "playguard/play_timer/written_days"_i18n,
                               "playguard/play_timer/write_err"_i18n, [this]() {
                                   this->reload_from_service();

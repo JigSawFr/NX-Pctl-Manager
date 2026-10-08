@@ -2,10 +2,11 @@
 """Headless UI smoke test of the desktop build (simulated backend).
 
 Starts build-desktop/playguard on an X display (Xvfb), opens every tab, the
-extra-time picker, the per-day editor, a dropdown, the settings backup, a game
-in the Activity tab and its PDF export, and fails if the app dies on the way
-(borealis throws on unknown XML attributes, missing views, …) or the export is
-missing. Screenshots of each screen are written to the output folder.
+extra-time picker, the per-day editor (the week chart's day picker and the
+number pad), the settings backup, a game's screen in the Activity tab and its
+PDF export, and fails if the app dies on the way (borealis throws on unknown
+XML attributes, missing views, …) or the export is missing. Screenshots of
+each screen are written to the output folder.
 
 The "gate" scenario starts on a firmware newer than the checked one, with a
 simulated release that supports it: the firmware screen, read-only mode,
@@ -15,11 +16,12 @@ to sphaira (simulated hbloader).
 
 The "errors" scenario starts with today's limit reached, the temporary unlock
 failing and "Synchronise clock via Internet" off (PLAYGUARD_SIM_FAIL & co.):
-a limit change must end in the "could not unlock" toast, with the app alive,
+a limit change must end in the "could not unlock" dialog, with the app alive,
 and the clock tab must say why the network clock cannot be set.
 
 Usage: tools/desktop_smoke.py <out-dir> [gate|errors]   (needs DISPLAY, xdotool, ImageMagick)
-Environment knobs of the simulated backend (PLAYGUARD_SIM_*) are passed through.
+Environment knobs of the simulated backend (PLAYGUARD_SIM_*) are passed through;
+the console time is fixed (PLAYGUARD_SIM_NOW, TZ) unless set.
 """
 import json
 import os
@@ -44,6 +46,11 @@ if GATE and os.path.exists(block_ref):
     os.remove(block_ref)     # the developer tool must write a new one
 
 env = dict(os.environ, LIBGL_ALWAYS_SOFTWARE="1")
+# One console time and time zone for every run, so the screenshots can be
+# compared with the reference ones (tools/visual_check.py): Thursday
+# 8 October 2026, 16:00 UTC. Only the footer clock follows the host.
+env.setdefault("PLAYGUARD_SIM_NOW", "1791475200")
+env.setdefault("TZ", "UTC")
 if GATE:
     env.setdefault("PLAYGUARD_SIM_FW", "24.0.0")
     env.setdefault("PLAYGUARD_SIM_LATEST", "1.1.0:24.0.0")
@@ -64,7 +71,7 @@ def have(tool):
     return subprocess.run(["which", tool], capture_output=True).returncode == 0
 
 
-# Line-buffered output, so app.log is complete at any moment (toasts()).
+# Line-buffered output, so app.log is complete at any moment (messages()).
 cmd = (["stdbuf", "-oL", "-eL"] if have("stdbuf") else []) + [APP]
 if have("dbus-run-session"):
     cmd = ["dbus-run-session", "--"] + cmd
@@ -96,10 +103,16 @@ def shot(name):
         fail(f"app exited while showing {name}")
 
 
-def toasts():
-    """What the app told the user so far (ui::notify logs every toast)."""
+def messages():
+    """What the app told the user so far: every toast (ui::notify) and every
+    error dialog (ui::error), both logged."""
     log.flush()
-    return [l.split("toast: ", 1)[1].strip() for l in open(os.path.join(OUT, "app.log"), errors="replace") if "toast: " in l]
+    out = []
+    for l in open(os.path.join(OUT, "app.log"), errors="replace"):
+        for tag in ("toast: ", "error: "):
+            if tag in l:
+                out.append(l.split(tag, 1)[1].strip())
+    return out
 
 
 def fail(msg):
@@ -119,7 +132,7 @@ else:
     fail("no window after 30 s")
 time.sleep(2)
 
-tabs = ["dashboard", "play_timer", "activity", "restrictions", "clock", "security", "tools"]
+tabs = ["dashboard", "play_timer", "activity", "restrictions", "clock", "security", "preferences", "tools"]
 
 
 def finish(check=None):
@@ -147,8 +160,7 @@ if GATE:
     # Tools: seven presses on Version turn the developer mode on.
     key("Down", len(tabs) - 2)
     key("Right")
-    key("Down", 40, hold=0.15) # to the last cell (Source code), held: a long tab
-    key("Up", 4)               # Licence, Data folder, Launched as, Version
+    key("Down", 40, hold=0.15) # to the last focusable cell (Version), held: a long tab
     key("Return", 7)
     shot("04_dev_enabled")
     # A short press does not get past the bottom edge of a long tab (borealis'
@@ -193,8 +205,9 @@ if GATE:
     finish()
 if ERRORS:
     shot("01_limit_reached")   # Overview: today's limit reached
-    key("Down")                # Play timer
-    key("Right")               # Same limit every day
+    key("Down")                # Play timer: the state line says the limit is reached
+    key("Right")               # the week chart (today)
+    key("Down")                # Same limit every day
     key("Return")
     shot("02_picker")          # the days differ: "Custom…" is selected
     key("Up")                  # No play (0 min)
@@ -202,15 +215,16 @@ if ERRORS:
     shot("03_gate")            # the change needs the temporary unlock
     key("Right")               # Unlock and apply
     key("Return")
-    shot("04_unlock_failed")
+    shot("04_unlock_failed")   # a dialog, not a toast
+    key("Return")              # OK
     key("Left")                # back to the sidebar
     key("Down", 3)             # Network clock
     key("Right")
     shot("05_clock_autosync_off")
 
     def told_unlock_failed():
-        if not any(t.startswith("Could not unlock parental controls") for t in toasts()):
-            fail("no 'could not unlock' toast; toasts: " + repr(toasts()))
+        if not any(t.startswith("Could not unlock parental controls") for t in messages()):
+            fail("no 'could not unlock' dialog; messages: " + repr(messages()))
     finish(told_unlock_failed)
 
 shot("01_dashboard")
@@ -224,22 +238,28 @@ for i, tab in enumerate(tabs[1:], start=2):
     shot(f"{i:02d}_{tab}_end")
     key("Left")       # back to the sidebar
 
-# Extra-time picker, per-day editor and a dropdown.
+# Extra-time picker, per-day editor (the week chart is the editor) and its
+# day picker.
 key("Up", len(tabs) - 2)   # from Tools back to Play timer
-key("Right")
+key("Right")               # the week chart, on today
+key("Right")               # tomorrow's day
+key("Return")              # its limit picker, from the tab itself
+shot("19_day_picker")
+key("Escape")
+key("Down")                # Same limit every day
 key("Down")                # Extra time today…
 key("Return")
 shot("20_extra_time")
 key("Escape")
-key("Down")                # A different limit for each day…
+key("Down", 2)             # past No more play today: A different limit for each day…
 key("Return")
 shot("21_per_day")
-key("Return")
+key("Return")              # today's limit (the chart has the focus)
 shot("22_dropdown")
 key("Down", 15)            # to the end of the list (No limit) …
 key("Up")                  # … then Enter minutes…: the number pad types "1:30"
 key("Return")
-shot("22_numpad")          # the first day: 1 h 30 (not saved)
+shot("22_numpad")          # today: 1 h 30, drawn as unsaved; "+ Save (1)" in the footer
 if not any("numpad: " in l and l.rstrip().endswith("-> 1:30") for l in open(os.path.join(OUT, "app.log"), errors="replace")):
     fail("the number pad was not asked for the minutes")
 key("Escape")              # unsaved: asks before leaving
@@ -251,10 +271,11 @@ shot("23_back")
 # Settings backup: save one, open the list and the restore summary (cancelled).
 key("Left")                # back to the sidebar
 key("Down", len(tabs) - 2) # Tools & about
-key("Right")
+key("Right")               # First steps…
+key("Down", 2)             # past the change history: Back up the settings
 backups = os.path.join(run_dir, "playguard_data", "backups")
 before = len(os.listdir(backups)) if os.path.isdir(backups) else 0
-key("Return")              # Back up the settings (the first cell)
+key("Return")              # Back up the settings
 shot("24_backup_saved")
 if (len(os.listdir(backups)) if os.path.isdir(backups) else 0) != before + 1:
     fail("Return on 'Back up the settings' saved no backup (wrong cell focused?)")
@@ -266,17 +287,17 @@ shot("26_backup_restore")
 key("Escape")
 shot("27_back")
 
-# Activity: one game's details, then a PDF export to the (simulated) SD card.
+# Activity: one game's screen, then a PDF export to the (simulated) SD card.
 exports = os.path.join(run_dir, "playguard_data", "exports")
 def pdfs():
     return {f for f in (os.listdir(exports) if os.path.isdir(exports) else []) if f.endswith(".pdf")}
 pdfs_before = pdfs()   # the run folder is kept between local runs
 key("Left")                # back to the sidebar
 key("Up", len(tabs) - 3)   # Activity
-key("Right")
-key("Down", 5)             # past Today, Last 7 days, All time, Period and Export: the first game
+key("Right")               # Account (the simulated console has two; the totals are not focusable)
+key("Down", 3)             # past Period and Export: the first game
 key("Return")
-shot("28_activity_game")
+shot("28_activity_game")   # its own screen: icon, seven days, figures, accounts
 key("Escape")
 key("Up")                  # Export to the SD card…
 key("Return")

@@ -16,6 +16,10 @@
 //   PLAYGUARD_SIM_APPLET=1      started from the album (applet mode)
 //   PLAYGUARD_SIM_RESTRICTED=1  today's limit is reached (the game is suspended)
 //   PLAYGUARD_SIM_AUTOSYNC_OFF=1 "Synchronise clock via Internet" is off
+//   PLAYGUARD_SIM_NOW=1791471600  the console's time, frozen (POSIX seconds):
+//                               the same screens at every run (visual check)
+//   PLAYGUARD_SIM_IDLE=1        no game running: the timer reports no time left
+//                               yet (the Overview falls back on the activity log)
 //   PLAYGUARD_SIM_FAIL=a,b,...  make these fail: unlock (1201), unverified
 //                               (1201 fine, 1006 still false), write (every
 //                               setting write), relock (1007), timer (145601
@@ -37,6 +41,7 @@
 #include "../core/pure.h"
 #include "../core/time_ops.h"
 #include "../core/write_guard.h"
+#include "sim_icons.h"
 
 static struct {
     bool init;
@@ -50,6 +55,23 @@ static struct {
     u16  block[PT_U16_COUNT];   // PlayTimerSettings, as 145601 returns it
     s64  clock_offset;
 } S;
+
+// Minutes played today in the made-up activity log below (45 + 20 + 15): the
+// timer's time left is the day's limit minus this.
+#define SIM_PLAYED_TODAY_MIN 80
+
+// "Now" before any network-clock change: frozen by PLAYGUARD_SIM_NOW, else
+// the host's.
+static u64 base_now(void)
+{
+    const char *frozen = getenv("PLAYGUARD_SIM_NOW");
+    if (frozen && *frozen) {
+        char *end = NULL;
+        const unsigned long long v = strtoull(frozen, &end, 10);
+        if (end && !*end && v) return (u64)v;
+    }
+    return (u64)time(NULL);
+}
 
 // A service error the UI does not translate (pctl module 142), as the console
 // would return for a refused command.
@@ -142,7 +164,7 @@ void pctl_status_fetch(PctlStatus *o)
     o->rating_org_ok = true;          o->rating_org = S.rating_org;
     o->stereo_vision_ok = true;       o->stereo_vision_restricted = S.stereo_restricted;
     o->free_comm_count_ok = true;     o->free_comm_count = 3;
-    o->last_updated_ok = true;        o->last_updated = (u64)time(NULL) - 3600 * 26;
+    o->last_updated_ok = true;        o->last_updated = base_now() - 3600 * 26;
 }
 
 // Read-only, then the change check (write_guard.h), as pctl_ops.c does.
@@ -225,9 +247,16 @@ void pctl_play_timer_query(PtState *o)
     }
     o->enabled_valid = true;  o->enabled = timer_enabled();
     o->temporary_unlocked_valid = true; o->temporary_unlocked = S.temp_unlocked;
-    const bool reached = o->enabled && S.limit_reached;
+    // Today's limit against what the made-up log says was played today.
+    LocalTime today;
+    const int wd = time_local_now(NULL, &today) ? today.wday : 0;
+    u16 days[7];
+    pt_decode(S.block, days);
+    const u16 limit = days[wd];
+    const bool reached = o->enabled && (S.limit_reached || (limit != PT_DAY_NOLIMIT && limit <= SIM_PLAYED_TODAY_MIN));
     o->remaining_valid = true;
-    o->remaining_ns = o->enabled && !reached ? 45ULL * 60 * 1000000000ULL : 0;
+    o->remaining_ns = o->enabled && !reached && limit != PT_DAY_NOLIMIT && !getenv("PLAYGUARD_SIM_IDLE")
+                          ? (u64)(limit - SIM_PLAYED_TODAY_MIN) * 60 * 1000000000ULL : 0;
     o->restricted_valid = true; o->restricted = reached;
     o->alarm_disabled_valid = true; o->alarm_disabled = S.alarm_disabled;
     o->bedtime_valid = true; o->bedtime_enabled = true; o->bedtime_hour = 21; o->bedtime_minute = 0;
@@ -277,7 +306,7 @@ Result time_network_accuracy(bool *accurate)
 void time_clock_snapshot(TimeSnapshot *o)
 {
     memset(o, 0, sizeof(*o));
-    u64 now = (u64)time(NULL);
+    u64 now = base_now();
     o->user_time = now + S.clock_offset;
     o->network_time = now + S.clock_offset;
     o->local_time = now;
@@ -298,7 +327,7 @@ void time_clock_apply(u64 utc, TimeApply *o)
         o->write_attempted = true;
         o->write_rc = SIM_FAIL_RC;
     } else {
-        S.clock_offset = (s64)utc - (s64)time(NULL);
+        S.clock_offset = (s64)utc - (s64)base_now();
         if (!S.clock_offset) S.clock_offset = 1;
         o->write_attempted = o->verify_attempted = o->verified = true;
         o->readback = utc;
@@ -345,7 +374,7 @@ const TimeRule *time_console_rule(void)
 }
 bool time_local_now(u64 *posix, LocalTime *local)
 {
-    const u64 now = (u64)((s64)time(NULL) + S.clock_offset);   // the user clock, as the snapshot says
+    const u64 now = (u64)((s64)base_now() + S.clock_offset);   // the user clock, as the snapshot says
     if (posix) *posix = now;
     return local ? host_to_local(NULL, now, local) : true;
 }
@@ -361,10 +390,33 @@ void time_format_local(u64 posix, char *buf, size_t size)
 }
 
 // ---------------------------------------------------------------- playstats
+// Two made-up accounts: Alice played 2/3 of everything, Léo 1/3.
+static const PlayAccount SIM_ACCOUNTS[] = { { { 1, 1 }, "Alice" }, { { 2, 2 }, "Léo" } };
+
+size_t playstats_accounts(PlayAccount *out, size_t max, Result *rc)
+{
+    if (rc) *rc = 0;
+    size_t n = 0;
+    for (; n < max && n < 2; n++) out[n] = SIM_ACCOUNTS[n];
+    return n;
+}
+
+// The share of `v` that `account` played (NULL: all of it).
+static u64 share(u64 v, const PlayAccount *account)
+{
+    if (!account) return v;
+    return account->uid[0] == 1 ? v * 2 / 3 : v - v * 2 / 3;
+}
+
 void playstats_fetch(PlayStats *out)
 {
+    playstats_fetch_for(out, NULL);
+}
+
+void playstats_fetch_for(PlayStats *out, const PlayAccount *account)
+{
     memset(out, 0, sizeof(*out));
-    out->now = (u64)time(NULL);
+    time_local_now(&out->now, NULL);
     if (getenv("PLAYGUARD_SIM_NO_PDM")) {
         out->stats_rc = out->events_rc = (Result)0x1A0C;
         return;
@@ -396,14 +448,37 @@ void playstats_fetch(PlayStats *out)
         g->today_s = games[i].today_min * 60;
         g->week_s = games[i].week_min * 60;
         // The rest of the week spread over the six days before, unevenly.
-        static const u32 share[6] = { 30, 0, 25, 15, 0, 30 };
+        static const u32 spread[6] = { 30, 0, 25, 15, 0, 30 };
         g->day_s[0] = g->today_s;
         const u32 rest = g->week_s - g->today_s;
         u32 given = 0;
         for (int k = 1; k < 7; k++) {
-            g->day_s[k] = k < 6 ? rest * share[k - 1] / 100 : rest - given;
+            g->day_s[k] = k < 6 ? rest * spread[k - 1] / 100 : rest - given;
             given += g->day_s[k];
         }
+        // One account: its share of every figure; a game it never played goes.
+        g->total_s  = share(g->total_s, account);
+        g->launches = (u32)share(g->launches, account);
+        g->today_s  = (u32)share(g->today_s, account);
+        g->week_s   = (u32)share(g->week_s, account);
+        for (int k = 0; k < 7; k++) g->day_s[k] = (u32)share(g->day_s[k], account);
+        if (account && !g->week_s && !g->total_s) out->count--;
+    }
+}
+
+void playstats_icons(PlayIcon *icons, size_t count)
+{
+    // The made-up games above, in order; the deleted one has no icon.
+    for (size_t i = 0; i < count; i++) {
+        icons[i].jpeg = NULL;
+        icons[i].size = 0;
+        const u64 base = 0x0100A1B2C3D40000ULL;
+        if (icons[i].app_id < base || (icons[i].app_id - base) % 0x1000 || (icons[i].app_id - base) / 0x1000 >= 5) continue;
+        const size_t k = (size_t)((icons[i].app_id - base) / 0x1000);
+        icons[i].jpeg = (unsigned char *)malloc(SIM_ICON_SIZES[k]);
+        if (!icons[i].jpeg) continue;
+        memcpy(icons[i].jpeg, SIM_ICONS[k], SIM_ICON_SIZES[k]);
+        icons[i].size = SIM_ICON_SIZES[k];
     }
 }
 

@@ -108,6 +108,39 @@ static void test_extra()
     assert(p.value == 1440 && p.original == 1430);
 }
 
+static void test_stop()
+{
+    PtState pt = counting();
+    assert(pt_logic::can_stop_today(pt, 3, false));
+    assert(!pt_logic::can_stop_today(pt, 3, true));     // read-only
+    pt.day_min[3] = 0;
+    assert(!pt_logic::can_stop_today(pt, 3, false));    // already no play today
+    pt.day_min[3] = PT_DAY_NOLIMIT;
+    assert(pt_logic::can_stop_today(pt, 3, false));     // no limit today: sets one
+    pt.enabled = false;
+    assert(pt_logic::can_stop_today(pt, 3, false));     // timer off: still possible
+    pt.valid = false;
+    assert(!pt_logic::can_stop_today(pt, 3, false));
+    assert(!pt_logic::can_stop_today(counting(), 7, false));
+
+    pt_logic::ExtraPlan p = pt_logic::plan_stop(120, false, 0);
+    assert(p.value == 0 && p.original == 120);
+    p = pt_logic::plan_stop(150, true, 120);            // extra time added earlier today
+    assert(p.value == 0 && p.original == 120);
+    p = pt_logic::plan_stop(PT_DAY_NOLIMIT, false, 0);  // put "no limit" back tomorrow
+    assert(p.value == 0 && p.original == PT_DAY_NOLIMIT);
+
+    // The record restores like extra time: 0 still there the next day -> offer.
+    pt_logic::ExtraRecord rec;
+    rec.weekday = 3;
+    rec.date = "2026-10-07";
+    rec.base = 120;
+    rec.value = 0;
+    pt = counting();
+    pt.day_min[3] = 0;
+    assert(pt_logic::restore_action(rec, "2026-10-08", pt, false) == pt_logic::Restore::Offer);
+}
+
 static void test_restore()
 {
     pt_logic::ExtraRecord rec;
@@ -136,7 +169,8 @@ int main()
     test_played();
     test_suspend_warning();
     test_extra();
+    test_stop();
     test_restore();
-    std::puts("pt_logic gate, played time, suspend warning and extra-time assertions passed");
+    std::puts("pt_logic gate, played time, suspend warning, extra time and no-more-play assertions passed");
     return 0;
 }

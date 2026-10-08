@@ -69,6 +69,16 @@ jobs:
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-gate gate
       - name: Smoke test (limit reached, unlock refused, clock sync off)
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-errors errors
+      # The screens against tests/visual (reference | now | changes in
+      # smoke*/visual_diff/ when one changed; tests/visual/README.md says how
+      # to update the references after a change that is meant).
+      - name: Visual check
+        run: |
+          status=0
+          python3 tools/visual_check.py smoke tests/visual/smoke || status=1
+          python3 tools/visual_check.py smoke-errors tests/visual/errors || status=1
+          python3 tools/visual_check.py smoke-gate tests/visual/gate || status=1
+          exit $status
       - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -78,6 +88,7 @@ jobs:
             smoke/*.png
             smoke-gate/*.png
             smoke-errors/*.png
+            smoke*/visual_diff/*.png
 
   # The real .nro, built in the official devkitPro image (same as ./run.sh),
   # and compat.json (what the app's update check reads from the latest release).

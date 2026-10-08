@@ -70,6 +70,11 @@ std::string mode_text()
     return brls::getStr(std::string("playguard/pin_lock/modes/") + MODES[rank(config::get().pin_lock)]);
 }
 
+std::string note_text()
+{
+    return brls::getStr(std::string("playguard/pin_lock/notes/") + MODES[rank(config::get().pin_lock)]);
+}
+
 void choose(std::function<void()> done)
 {
     std::vector<std::string> labels;

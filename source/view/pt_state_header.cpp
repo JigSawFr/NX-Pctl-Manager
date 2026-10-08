@@ -1,6 +1,8 @@
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #include "view/pt_state_header.hpp"
 
+#include <vector>
+
 #include "ui/ui.hpp"
 #include "util/profiles.hpp"
 
@@ -9,6 +11,8 @@ using namespace brls::literals;
 PtStateHeader::PtStateHeader()
 {
     this->inflateFromXMLRes("xml/view/pt_state_header.xml");
+    summary->setSingleLine(false);
+    alert->setSingleLine(false);
 }
 
 std::string PtStateHeader::configured_text(const PtState& pt)
@@ -31,29 +35,23 @@ std::string PtStateHeader::configured_text(const PtState& pt)
 
 void PtStateHeader::show(const PtState& pt)
 {
-    const std::string na = "playguard/common/unavailable"_i18n;
-    if (!pt.fw_supported) {
-        for (auto* l : { enabled_value.getView(), restricted_value.getView(), temporary_value.getView(), remaining_value.getView() })
-            l->setText("—");
-        configured_value->setText(configured_text(pt));
-        return;
+    std::vector<std::string> parts;
+    const bool reached = pt.fw_supported && pt.restricted_valid && pt.restricted;
+    if (pt.fw_supported && pt.enabled_valid) {
+        parts.push_back(pt.enabled ? "playguard/play_timer/state/active"_i18n : "playguard/play_timer/state/inactive"_i18n);
+        if (pt.enabled && !reached && pt.remaining_valid && pt.remaining_ns > 0)
+            parts.push_back(brls::getStr("playguard/play_timer/state/remaining_short", ui::fmt_duration_ns(pt.remaining_ns)));
     }
-    enabled_value->setText(ui::bool_text(pt.enabled_valid, pt.enabled, "playguard/common/yes"_i18n, "playguard/common/no"_i18n));
-    enabled_value->setTextColor(pt.enabled_valid && pt.enabled ? ui::color_ok() : ui::color_text());
+    parts.push_back(configured_text(pt));
+    if (pt.fw_supported && pt.temporary_unlocked_valid && pt.temporary_unlocked)
+        parts.push_back("playguard/play_timer/state/unlocked_short"_i18n);
 
-    restricted_value->setText(ui::bool_text(pt.restricted_valid, pt.restricted,
-        "playguard/play_timer/state/restricted_yes"_i18n, "playguard/common/no"_i18n));
-    restricted_value->setTextColor(pt.restricted_valid && pt.restricted ? ui::color_bad() : ui::color_text());
+    std::string text;
+    for (const auto& p : parts) text += (text.empty() ? "" : " · ") + p;
+    summary->setText(text);
 
-    temporary_value->setText(ui::bool_text(pt.temporary_unlocked_valid, pt.temporary_unlocked,
-        "playguard/common/yes"_i18n, "playguard/common/no"_i18n));
-    temporary_value->setTextColor(pt.temporary_unlocked_valid && pt.temporary_unlocked ? ui::color_warn() : ui::color_text());
-
-    if (!pt.enabled_valid || !pt.remaining_valid) remaining_value->setText(na);
-    else if (!pt.enabled) remaining_value->setText("—");
-    else remaining_value->setText(ui::fmt_duration_ns(pt.remaining_ns));
-
-    configured_value->setText(configured_text(pt));
+    alert->setText(reached ? "playguard/play_timer/state/reached_alert"_i18n : "");
+    ui::set_visible(alert, reached);
 }
 
 brls::View* PtStateHeader::create()

@@ -1,6 +1,7 @@
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #include "ui/ui.hpp"
 
+#include "action/history_flow.hpp"
 #include "activity/main_activity.hpp"
 #include "app.hpp"
 #include "core/platform.h"
@@ -9,6 +10,7 @@
 #include "util/duration.hpp"
 #include "util/paths.hpp"
 
+#include <algorithm>
 #include <ctime>
 #include <fmt/format.h>
 #include <memory>
@@ -23,12 +25,24 @@ void register_theme_colors()
     // PlayGuard brand teal / amber, darkened on the light theme so every status
     // value keeps a contrast of at least 4.5:1 on the borealis backgrounds.
     auto& light = brls::Theme::getLightTheme();
+    // The focus highlight, the click pulse and the active sidebar item in the
+    // icon's teal (borealis' defaults are the Switch's cyan / blue), so the
+    // app looks like its icon. Values keep borealis' blue: teal values would
+    // read as the "ok" state.
+    light.addColor("brls/highlight/color1", nvgRGB(0x14, 0xA3, 0x8A));
+    light.addColor("brls/highlight/color2", nvgRGB(0x4A, 0xD6, 0xBA));
+    light.addColor("brls/click_pulse", nvgRGBA(0x14, 0xA3, 0x8A, 38));
+    light.addColor("brls/sidebar/active_item", nvgRGB(0x0F, 0x8A, 0x74));
     light.addColor("brand/ok", nvgRGB(0x0A, 0x6E, 0x5C));
     light.addColor("brand/warn", nvgRGB(0x8A, 0x52, 0x00));
     light.addColor("brand/bad", nvgRGB(0xB7, 0x1C, 0x1C));
     light.addColor("brand/gauge_track", nvgRGBA(0, 0, 0, 34));
     light.addColor("brand/note", nvgRGB(0x5C, 0x5C, 0x5C));
     auto& dark = brls::Theme::getDarkTheme();
+    dark.addColor("brls/highlight/color1", nvgRGB(0x2E, 0xC4, 0xA6));
+    dark.addColor("brls/highlight/color2", nvgRGB(0x9A, 0xF0, 0xDC));
+    dark.addColor("brls/click_pulse", nvgRGBA(0x2E, 0xC4, 0xA6, 38));
+    dark.addColor("brls/sidebar/active_item", nvgRGB(0x2E, 0xC4, 0xA6));
     // A clear green, not the logo teal: the dark theme's default value colour is
     // already teal, so "OK" would not stand out from plain values.
     dark.addColor("brand/ok", nvgRGB(0x7E, 0xD9, 0x57));
@@ -91,6 +105,12 @@ void notify(const std::string& text)
     brls::sync([text]() { brls::Application::notify(text); });
 }
 
+void error(const std::string& text)
+{
+    brls::Logger::info("error: {}", text);
+    brls::sync([text]() { info(text); });
+}
+
 bool save_config()
 {
     if (config::save()) return true;
@@ -101,7 +121,7 @@ bool save_config()
 void notify_result(Result rc, const std::string& ok_text, const std::string& error_prefix)
 {
     if (R_SUCCEEDED(rc)) notify(ok_text);
-    else notify(error_prefix + " — " + rc_text(rc));
+    else error(error_prefix + " — " + rc_text(rc));
 }
 
 void on_cancel(brls::Dialog* dialog, std::function<void()> on_cancel)
@@ -152,10 +172,28 @@ brls::Dialog* dialog(const std::string& text)
     return new brls::Dialog(box);
 }
 
-static void open_confirm(const std::string& body, const std::string& confirm_label,
-                         std::function<void()> on_yes, std::function<void()> on_no, bool danger)
+// The text (slightly smaller, so a chart fits under a long one) and `extra`.
+static brls::Dialog* dialog_with(const std::string& text, brls::View* extra)
 {
-    auto* dialog = ui::dialog(body);
+    auto* label = new brls::Label();
+    label->setText(text);
+    label->setFontSize(20);
+    label->setHorizontalAlign(brls::HorizontalAlign::CENTER);
+    label->setSingleLine(false);
+    auto* box = new brls::Box(brls::Axis::COLUMN);
+    box->setAlignItems(brls::AlignItems::STRETCH);
+    box->setPadding(26, 40, 18, 40);
+    box->addView(label);
+    extra->setMarginTop(18);
+    box->addView(extra);
+    return new brls::Dialog(box);
+}
+
+static void open_confirm(const std::string& body, const std::string& confirm_label,
+                         std::function<void()> on_yes, std::function<void()> on_no, bool danger,
+                         brls::View* extra = nullptr)
+{
+    auto* dialog = extra ? dialog_with(body, extra) : ui::dialog(body);
     dialog->addButton("hints/cancel"_i18n, [on_no]() { if (on_no) on_no(); });
     dialog->addButton(confirm_label, [on_yes]() { if (on_yes) on_yes(); });
     on_cancel(dialog, on_no);
@@ -169,6 +207,12 @@ void confirm(const std::string& body, const std::string& confirm_label,
              std::function<void()> on_yes, std::function<void()> on_no, bool danger)
 {
     open_confirm(body, confirm_label, std::move(on_yes), std::move(on_no), danger);
+}
+
+void confirm_with(const std::string& body, brls::View* extra, const std::string& confirm_label,
+                  std::function<void()> on_yes, std::function<void()> on_no, bool danger)
+{
+    open_confirm(body, confirm_label, std::move(on_yes), std::move(on_no), danger, extra);
 }
 
 void confirm_danger(const std::string& body, const std::string& confirm_label, std::function<void()> on_yes)
@@ -239,6 +283,28 @@ std::string fmt_minutes(uint16_t m)
     if (m < 60) return brls::getStr("playguard/common/minutes", (int)m);
     if (m % 60 == 0) return brls::getStr("playguard/common/hours", (int)(m / 60));
     return brls::getStr("playguard/common/hours_minutes", (int)(m / 60), fmt::format("{:02d}", (int)(m % 60)));
+}
+
+std::string days_summary(const uint16_t days[7])
+{
+    bool uniform = true, any_nolimit = false;
+    int lo = -1, hi = -1;
+    for (int d = 0; d < 7; d++) {
+        uniform &= days[d] == days[0];
+        if (days[d] == PT_DAY_NOLIMIT) {
+            any_nolimit = true;
+            continue;
+        }
+        lo = lo < 0 ? days[d] : std::min<int>(lo, days[d]);
+        hi = hi < 0 ? days[d] : std::max<int>(hi, days[d]);
+    }
+    if (uniform)
+        return days[0] == PT_DAY_NOLIMIT ? "playguard/common/no_limit"_i18n
+                                         : brls::getStr("playguard/play_timer/state/every_day", fmt_minutes(days[0]));
+    if (lo < 0) return "playguard/common/no_limit"_i18n;
+    // Inside the sentence: "1 h to no limit", not "1 h to No limit".
+    const std::string top = any_nolimit ? "playguard/common/no_limit_in_text"_i18n : fmt_minutes((uint16_t)hi);
+    return brls::getStr("playguard/play_timer/profile_range", fmt_minutes((uint16_t)lo), top);
 }
 
 std::string fmt_played(uint16_t m)
@@ -493,6 +559,40 @@ std::string time_text(uint64_t posix)
     return buf;
 }
 
+bool refuse_read_only()
+{
+    if (!app::read_only()) return false;
+    notify(rc_text(NXM_RC_READ_ONLY));
+    return true;
+}
+
+void show_writable(brls::DetailCell* cell, bool writable, NVGcolor title, NVGcolor detail)
+{
+    const NVGcolor grey = nvgTransRGBA(color_text(), 110);
+    cell->title->setTextColor(writable ? title : grey);
+    if (auto* sw = dynamic_cast<brls::BooleanCell*>(cell)) {
+        if (writable) sw->setOn(sw->isOn(), false);   // its own value colours back
+        else sw->detail->setTextColor(grey);
+        return;
+    }
+    cell->detail->setTextColor(writable ? detail : grey);
+}
+
+void show_writable(brls::DetailCell* cell, bool writable)
+{
+    show_writable(cell, writable, color_text(), color_neutral());
+}
+
+void guard_switch(brls::BooleanCell* cell)
+{
+    cell->registerClickAction([cell](brls::View*) {
+        if (refuse_read_only()) return true;
+        cell->setOn(!cell->isOn());
+        cell->getEvent()->fire(cell->isOn());
+        return true;
+    });
+}
+
 void set_visible(brls::View* view, bool visible)
 {
     if (!view) return;
@@ -555,6 +655,7 @@ void init_unlock_banner(brls::DetailCell* cell, std::function<void()> after)
             return true;
         }
         Result rc = pctl_relock();
+        if (R_SUCCEEDED(rc)) history_flow::record_event("relock");
         notify_result(rc, "playguard/toast/relocked"_i18n, "playguard/toast/relock_err"_i18n);
         if (after) after();
         return true;

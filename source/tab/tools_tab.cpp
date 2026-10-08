@@ -9,10 +9,13 @@
 #include "action/update_flow.hpp"
 #include "activity/diagnostic_activity.hpp"
 #include "activity/firmware_gate_activity.hpp"
+#include "activity/history_activity.hpp"
+#include "activity/onboarding_activity.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
 #include "util/config.hpp"
 #include "util/diagnostics.hpp"
+#include "util/history.hpp"
 #include "util/patches.hpp"
 #include "util/paths.hpp"
 
@@ -20,8 +23,6 @@ using namespace brls::literals;
 
 namespace
 {
-const char* LANGUAGES[]  = { "system", "en-US", "fr" };
-const char* THEMES[]     = { "system", "light", "dark" };
 const char* UPDATE_VIA[] = { "auto", "sphaira", "appstore", "manual" };
 
 template <size_t N>
@@ -29,21 +30,6 @@ int index_of(const char* const (&list)[N], const std::string& value)
 {
     for (size_t i = 0; i < N; i++)
         if (value == list[i]) return (int)i;
-    return 0;
-}
-
-// "15, 30, 60 min" / "30 min, 1 h, 1 h 30"
-std::string amounts_text(const int (&set)[3])
-{
-    std::string text;
-    for (int m : set) text += (text.empty() ? "+" : " / +") + ui::fmt_minutes((uint16_t)m);
-    return text;
-}
-
-int extra_set_index(const std::vector<int>& amounts)
-{
-    for (size_t i = 0; i < sizeof(config::EXTRA_SETS) / sizeof(config::EXTRA_SETS[0]); i++)
-        if (amounts == std::vector<int>(std::begin(config::EXTRA_SETS[i]), std::end(config::EXTRA_SETS[i]))) return (int)i;
     return 0;
 }
 
@@ -62,6 +48,15 @@ ToolsTab::ToolsTab()
     serial_note->setSingleLine(false);
     patches_note->setSingleLine(false);
 
+    first_steps->registerClickAction([](brls::View*) {
+        brls::Application::pushActivity(new OnboardingActivity());
+        return true;
+    });
+    history->registerClickAction([](brls::View*) {
+        brls::Application::pushActivity(new HistoryActivity());
+        return true;
+    });
+
     // Ⓐ on the serial number shows / hides the masked digits.
     serial->registerAction("playguard/tools/serial_show"_i18n, brls::BUTTON_A, [this](brls::View*) {
         this->serial_revealed = !this->serial_revealed;
@@ -73,7 +68,7 @@ ToolsTab::ToolsTab()
     export_cell->registerClickAction([](brls::View*) {
         std::string err;
         std::string path = diagnostic::save(diagnostic::current_report(), &err);
-        if (path.empty()) ui::notify("playguard/toast/diag_err"_i18n + ": " + err);
+        if (path.empty()) ui::error("playguard/toast/diag_err"_i18n + ": " + err);
         else ui::notify(brls::getStr("playguard/toast/diag_saved", path));
         return true;
     });
@@ -86,60 +81,11 @@ ToolsTab::ToolsTab()
         return true;
     });
     backup_restore->registerClickAction([this](brls::View*) {
+        if (ui::refuse_read_only()) return true;
         backup_flow::choose_and_restore([this]() { this->refresh(); });
         return true;
     });
 
-    language->registerClickAction([this](brls::View*) {
-        std::vector<std::string> labels;
-        for (const char* l : LANGUAGES) labels.push_back(brls::getStr(std::string("playguard/tools/languages/") + l));
-        ui::pick("playguard/tools/language"_i18n, labels, index_of(LANGUAGES, config::get().language), [this](int i) {
-            const bool changed = config::get().language != LANGUAGES[i];
-            config::get().language = LANGUAGES[i];
-            ui::save_config();
-            this->refresh();
-            if (changed) ui::offer_restart();
-        });
-        return true;
-    });
-
-    theme->registerClickAction([this](brls::View*) {
-        std::vector<std::string> labels;
-        for (const char* t : THEMES) labels.push_back(brls::getStr(std::string("playguard/tools/themes/") + t));
-        ui::pick("playguard/tools/theme"_i18n, labels, index_of(THEMES, config::get().theme), [this](int i) {
-            const bool changed = config::get().theme != THEMES[i];
-            config::get().theme = THEMES[i];
-            ui::save_config();
-            this->refresh();
-            if (changed) ui::offer_restart();
-        });
-        return true;
-    });
-
-    start_tab->registerClickAction([this](brls::View*) {
-        std::vector<std::string> labels;
-        for (const char* t : config::START_TABS) labels.push_back(brls::getStr(std::string("playguard/tabs/") + t));
-        ui::pick("playguard/tools/start_tab"_i18n, labels, index_of(config::START_TABS, config::get().start_tab), [this](int i) {
-            config::get().start_tab = config::START_TABS[i];
-            ui::save_config();
-            this->refresh();
-        });
-        return true;
-    });
-    extra_amounts->registerClickAction([this](brls::View*) {
-        std::vector<std::string> labels;
-        for (const auto& set : config::EXTRA_SETS) labels.push_back(amounts_text(set));
-        ui::pick("playguard/tools/extra_amounts"_i18n, labels, extra_set_index(config::get().extra_amounts), [this](int i) {
-            config::get().extra_amounts.assign(std::begin(config::EXTRA_SETS[i]), std::end(config::EXTRA_SETS[i]));
-            ui::save_config();
-            this->refresh();
-        });
-        return true;
-    });
-    clock_check->init("playguard/tools/clock_check"_i18n, config::get().clock_check_at_start, [](bool on) {
-        config::get().clock_check_at_start = on;
-        ui::save_config();
-    });
     update_daily->init("playguard/tools/update_daily"_i18n, config::get().update_daily, [](bool on) {
         config::get().update_daily = on;
         ui::save_config();
@@ -157,19 +103,6 @@ ToolsTab::ToolsTab()
             this->refresh();
         });
         return true;
-    });
-
-    advanced->init("playguard/tools/advanced"_i18n, config::get().advanced, [](bool on) {
-        config::get().advanced = on;
-        ui::save_config();
-    });
-    auto_relock->init("playguard/tools/auto_relock"_i18n, config::get().auto_relock, [](bool on) {
-        config::get().auto_relock = on;
-        ui::save_config();
-    });
-    extra_auto->init("playguard/tools/extra_auto"_i18n, config::get().extra_auto_restore, [](bool on) {
-        config::get().extra_auto_restore = on;
-        ui::save_config();
     });
 
     update_via->registerClickAction([this](brls::View*) {
@@ -260,19 +193,13 @@ void ToolsTab::count_version_press()
 void ToolsTab::refresh()
 {
     const auto& cfg = config::get();
-    language->setDetailText(brls::getStr("playguard/tools/languages/" + std::string(LANGUAGES[index_of(LANGUAGES, cfg.language)])));
-    theme->setDetailText(brls::getStr("playguard/tools/themes/" + std::string(THEMES[index_of(THEMES, cfg.theme)])));
-    advanced->setOn(cfg.advanced, false);
-    auto_relock->setOn(cfg.auto_relock, false);
-    extra_auto->setOn(cfg.extra_auto_restore, false);
-    clock_check->setOn(cfg.clock_check_at_start, false);
     update_daily->setOn(cfg.update_daily, false);
-    start_tab->setDetailText(brls::getStr(std::string("playguard/tabs/") + config::START_TABS[index_of(config::START_TABS, cfg.start_tab)]));
-    extra_amounts->setDetailText(amounts_text(config::EXTRA_SETS[extra_set_index(cfg.extra_amounts)]));
     backup_keep->setDetailText(keep_text(cfg.backup_keep));
     update_cell->setDetailText(cfg.update_checked.empty() ? "" : brls::getStr("playguard/tools/update_last", cfg.update_checked));
     const size_t backups = backup_flow::count();
     backup_restore->setDetailText(backups ? brls::getStr("playguard/tools/backup_count", (int)backups) : "");
+    const size_t changes = history::load().size();
+    history->setDetailText(changes ? brls::getStr("playguard/history/count", (int)changes) : "");
 
     SysInfo si;
     sysinfo_get(&si);
@@ -317,11 +244,6 @@ void ToolsTab::refresh()
     patches_note->setTextColor(warn ? ui::color_warn() : ui::color_note());
     ui::set_visible_all({ { serial_note.getView(), ui::serial_warning(si) },
                           { patches_note.getView(), !note.empty() },
-                          { backup_restore.getView(), !ro },
-                          { advanced.getView(), !ro },
-                          { auto_relock.getView(), !ro },
-                          { extra_auto.getView(), !ro },
-                          { extra_amounts.getView(), !ro },
                           { dev_header.getView(), dev },
                           { dev_mode.getView(), dev },
                           { dev_read_only.getView(), dev },
@@ -329,6 +251,8 @@ void ToolsTab::refresh()
                           { dev_pt_block.getView(), dev },
                           { dev_gate.getView(), dev && fw_gate::needed() },
                           { dev_forget.getView(), dev } });
+    // Read-only: restoring would write; it stays in sight, greyed.
+    ui::show_writable(backup_restore, !ro);
     mode->setDetailText(si.applet_mode ? "playguard/tools/mode_applet"_i18n : "playguard/tools/mode_app"_i18n);
     data->setDetailText(paths::data_dir());
     license->setDetailText("playguard/tools/license_value"_i18n);

@@ -30,6 +30,7 @@ class PlayTimerTab : public TabBase
     BRLS_BIND(brls::Header,      limit_header,    "pt_limit_header");
     BRLS_BIND(brls::DetailCell,  quick,           "pt_quick");
     BRLS_BIND(brls::DetailCell,  extra,           "pt_extra");
+    BRLS_BIND(brls::DetailCell,  stop,            "pt_stop");
     BRLS_BIND(brls::DetailCell,  per_day,         "pt_per_day");
     BRLS_BIND(brls::DetailCell,  remove,          "pt_remove");
     BRLS_BIND(brls::DetailCell,  profiles_cell,   "pt_profiles");

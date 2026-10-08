@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- First steps: three steps with their state, each one done right here (the
+     system PIN screen, the daily-limit picker, the guided clock measure), a
+     fourth while the phone app is linked (unlink it), and whether the screen
+     opens by itself at start-up.
+     Shown at start-up while no PIN is set; Overview › First steps and
+     Tools › First steps bring it back. Filled by onboarding_activity.cpp. -->
+
+<brls:AppletFrame
+    iconInterpolation="linear">
+
+    <brls:ScrollingFrame
+        title="@i18n/playguard/onboarding/title"
+        icon="@res/img/app_icon.jpg"
+        width="auto"
+        height="auto"
+        axis="column"
+        alignItems="stretch"
+        scrollingBehavior="centered"
+        grow="1.0">
+
+        <brls:Box
+            width="auto"
+            height="auto"
+            axis="column"
+            alignItems="stretch"
+            paddingTop="@style/brls/sidebar/padding_top"
+            paddingRight="@style/brls/sidebar/padding_right"
+            paddingBottom="@style/brls/sidebar/padding_bottom"
+            paddingLeft="@style/brls/sidebar/padding_left">
+
+            <brls:Label id="ob_headline" text="" fontSize="24" marginBottom="16"/>
+            <brls:Header title="@i18n/playguard/onboarding/section_steps" marginBottom="8"/>
+            <brls:DetailCell id="ob_pin" title="@i18n/playguard/onboarding/step_pin"/>
+            <brls:DetailCell id="ob_limit" title="@i18n/playguard/onboarding/step_limit"/>
+            <brls:DetailCell id="ob_clock" title="@i18n/playguard/onboarding/step_clock"/>
+            <brls:DetailCell id="ob_unlink" title="@i18n/playguard/onboarding/step_unlink"/>
+            <brls:Label id="ob_note" text="@i18n/playguard/onboarding/note" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
+            <brls:BooleanCell id="ob_at_start" marginTop="16"/>
+            <brls:DetailCell id="ob_close" title="@i18n/playguard/onboarding/close"/>
+
+        </brls:Box>
+
+    </brls:ScrollingFrame>
+
+</brls:AppletFrame>

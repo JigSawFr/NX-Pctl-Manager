@@ -31,6 +31,8 @@ bool ask();
 
 // "Never" / "Before a change" / "To open PlayGuard".
 std::string mode_text();
+// One sentence on what the chosen mode means (shown under the setting).
+std::string note_text();
 
 // Security's picker. Turning it on needs a PIN on the console; turning it
 // down asks for the PIN first. `done` runs after a change.

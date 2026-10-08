@@ -22,16 +22,21 @@ extern "C" {
 #endif
 
 typedef enum {
-    PlayLogEv_Focus   = 0,   // `app_id` gets the focus
-    PlayLogEv_Unfocus = 1,   // `app_id` loses it, or exits
-    PlayLogEv_Away    = 2,   // whatever game had the focus no longer has it
+    PlayLogEv_Focus        = 0,   // `app_id` gets the focus
+    PlayLogEv_Unfocus      = 1,   // `app_id` loses it, or exits
+    PlayLogEv_Away         = 2,   // whatever game had the focus no longer has it
+    PlayLogEv_AccountOpen  = 3,   // user account `uid` is selected in the game
+    PlayLogEv_AccountClose = 4,   // user account `uid` is closed by the game
+    PlayLogEv_Launch       = 5,   // a game starts: as Away, and the accounts the
+                                  // previous one had open are closed with it
 } PlayLogKind;
 
 typedef struct {
-    uint64_t app_id;      // 0 for PlayLogEv_Away
+    uint64_t app_id;      // 0 for PlayLogEv_Away and the account events
     uint8_t  kind;        // PlayLogKind
     uint64_t ts_user;     // POSIX seconds, user clock (what "today" refers to)
     uint64_t ts_steady;   // seconds, steady clock (0 when unknown)
+    uint64_t uid[2];      // the account events' user account
 } PlayLogEvent;
 
 typedef struct {
@@ -58,6 +63,16 @@ size_t playlog_fold(const PlayLogEvent *events, size_t n, uint64_t now,
 // daylight-saving change, calendar.h) is one day.
 size_t playlog_fold_days(const PlayLogEvent *events, size_t n, uint64_t now,
                          const uint64_t day_starts[7], PlayLogTotal *out, size_t max);
+
+// The log as one user account played it: a game counts for `uid` while it has
+// the focus AND that account is open in it (selected when the game started,
+// until the game closes it, or until another game is launched). The focus
+// events are rewritten at the moments both hold, so playlog_fold_days() on the
+// result gives that account's time. Several accounts open at once (local
+// multiplayer) each get the whole time, as the system's own per-account
+// statistics do. Returns the number of events written to `out` (at most `n`).
+size_t playlog_for_account(const PlayLogEvent *events, size_t n, const uint64_t uid[2],
+                           PlayLogEvent *out, size_t max);
 
 #ifdef __cplusplus
 }

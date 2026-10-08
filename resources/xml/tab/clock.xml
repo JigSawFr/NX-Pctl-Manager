@@ -6,9 +6,13 @@
     width="auto"
     height="auto">
 
+    <!-- Centered: the first focusable row (Region) sits below the status rows,
+         and borealis' natural scrolling would otherwise start with nothing
+         focused. -->
     <brls:ScrollingFrame
         width="auto"
         height="auto"
+        scrollingBehavior="centered"
         grow="1.0">
 
         <brls:Box
@@ -22,19 +26,24 @@
             paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
 
             <brls:Header title="@i18n/playguard/clock/section_now" marginBottom="8"/>
-            <brls:DetailCell id="ck_user" title="@i18n/playguard/clock/user"/>
-            <brls:DetailCell id="ck_network" title="@i18n/playguard/clock/network"/>
-            <brls:DetailCell id="ck_accuracy" title="@i18n/playguard/clock/accuracy"/>
-            <brls:DetailCell id="ck_auto" title="@i18n/playguard/clock/auto"/>
-            <brls:DetailCell id="ck_zone" title="@i18n/playguard/clock/zone"/>
-            <brls:Label id="ck_why" text="@i18n/playguard/clock/why" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
+            <brls:DetailCell id="ck_user" focusable="false" title="@i18n/playguard/clock/user"/>
+            <brls:DetailCell id="ck_network" focusable="false" title="@i18n/playguard/clock/network"/>
+            <brls:DetailCell id="ck_accuracy" focusable="false" title="@i18n/playguard/clock/accuracy"/>
+            <brls:DetailCell id="ck_auto" focusable="false" title="@i18n/playguard/clock/auto"/>
+            <brls:DetailCell id="ck_zone" focusable="false" title="@i18n/playguard/clock/zone"/>
+            <brls:Label id="ck_why" text="@i18n/playguard/clock/why" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
             <brls:Header title="@i18n/playguard/clock/section_server" marginTop="24" marginBottom="8"/>
             <brls:DetailCell id="ck_region" title="@i18n/playguard/clock/region"/>
             <brls:DetailCell id="ck_server" title="@i18n/playguard/clock/server"/>
             <brls:DetailCell id="ck_custom" title="@i18n/playguard/clock/custom"/>
             <brls:Header title="@i18n/playguard/clock/section_sync" marginTop="24" marginBottom="8"/>
             <brls:DetailCell id="ck_measure" title="@i18n/playguard/clock/measure"/>
+            <brls:Box id="ck_progress" axis="row" alignItems="center" marginTop="10" marginBottom="6" marginLeft="16" marginRight="16">
+                <brls:ProgressSpinner width="30" height="30" marginRight="14"/>
+                <brls:Label id="ck_progress_text" text="" fontSize="20" grow="1.0" textColor="@theme/brand/note"/>
+            </brls:Box>
             <brls:Label id="ck_result" text="" marginTop="8" marginBottom="8" marginLeft="16" marginRight="16"/>
+            <brls:Label id="ck_warning" text="" fontSize="20" marginBottom="8" marginLeft="16" marginRight="16" textColor="@theme/brand/warn"/>
             <brls:DetailCell id="ck_apply" title="@i18n/playguard/clock/apply"/>
 
         </brls:Box>

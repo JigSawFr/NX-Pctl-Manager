@@ -27,6 +27,7 @@ std::string profiles_dir() { return data_dir() + "/profiles"; }
 std::string backups_dir()  { return data_dir() + "/backups"; }
 std::string exports_dir()  { return data_dir() + "/exports"; }
 std::string config_file()  { return data_dir() + "/config.json"; }
+std::string history_file() { return data_dir() + "/history.json"; }
 
 std::string sd_root()
 {

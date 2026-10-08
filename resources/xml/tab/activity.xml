@@ -2,7 +2,8 @@
 
 <!-- Activity: play time per game (today, last 7 days, all time), read from the
      console's play data for every account, and its export to the SD card.
-     The game cells are added in code. -->
+     The game cells (icon, name, time) are added in code; A on one opens its
+     screen (activity/game.xml). -->
 
 <brls:Box
     width="auto"
@@ -27,16 +28,21 @@
             paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
 
             <brls:Header title="@i18n/playguard/activity/section_totals" marginBottom="8"/>
+            <brls:DetailCell id="ac_account" title="@i18n/playguard/activity/account"/>
             <PlayDaysView id="ac_days" width="auto" height="auto" marginTop="8" marginBottom="16"/>
-            <brls:DetailCell id="ac_today" title="@i18n/playguard/activity/today"/>
-            <brls:DetailCell id="ac_week" title="@i18n/playguard/activity/week"/>
-            <brls:DetailCell id="ac_total" title="@i18n/playguard/activity/all_time"/>
+            <brls:DetailCell id="ac_today" focusable="false" title="@i18n/playguard/activity/today"/>
+            <brls:DetailCell id="ac_week" focusable="false" title="@i18n/playguard/activity/week"/>
+            <brls:DetailCell id="ac_total" focusable="false" title="@i18n/playguard/activity/all_time"/>
             <brls:Header title="@i18n/playguard/activity/section_games" marginTop="24" marginBottom="8"/>
             <brls:DetailCell id="ac_period" title="@i18n/playguard/activity/period"/>
             <brls:DetailCell id="ac_export" title="@i18n/playguard/activity/export"/>
+            <brls:Box id="ac_progress" axis="row" alignItems="center" marginTop="10" marginBottom="6" marginLeft="16" marginRight="16">
+                <brls:ProgressSpinner width="30" height="30" marginRight="14"/>
+                <brls:Label text="@i18n/playguard/activity/loading" fontSize="20" grow="1.0" textColor="@theme/brand/note"/>
+            </brls:Box>
             <brls:Box id="ac_list" width="auto" height="auto" axis="column" alignItems="stretch"/>
-            <brls:Label id="ac_status" text="" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
-            <brls:Label id="ac_note" text="@i18n/playguard/activity/note" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
+            <brls:Label id="ac_status" text="" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
+            <brls:Label id="ac_note" text="@i18n/playguard/activity/note" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
 
         </brls:Box>
 

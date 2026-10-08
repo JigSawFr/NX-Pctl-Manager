@@ -42,6 +42,10 @@
 
         <brls:Separator/>
 
+        <brls:Tab label="@i18n/playguard/tabs/preferences">
+            <PreferencesTab/>
+        </brls:Tab>
+
         <brls:Tab label="@i18n/playguard/tabs/tools">
             <ToolsTab/>
         </brls:Tab>

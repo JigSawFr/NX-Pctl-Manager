@@ -2,6 +2,7 @@
 #include "tab/security_tab.hpp"
 
 #include "action/backup_flow.hpp"
+#include "action/history_flow.hpp"
 #include "action/pin_lock.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
@@ -68,46 +69,58 @@ SecurityTab::SecurityTab()
     this->enable_auto_refresh(5000);
     pr_note->setSingleLine(false);
     pin_lock_note->setSingleLine(false);
+    // Deleting everything is the one irreversible action here: its line is
+    // drawn in the danger colour, not only its section title (refresh()).
     pin_lock_cell->registerClickAction([this](brls::View*) {
         pin_lock::choose([this]() { this->refresh(); });
         return true;
     });
     pr_unlink->registerClickAction([this](brls::View*) {
+        if (ui::refuse_read_only()) return true;
         ui::confirm_danger("playguard/pairing/unlink_body"_i18n, "playguard/pairing/unlink_confirm"_i18n, [this]() {
             Result rc = pctl_delete_pairing();
+            if (R_SUCCEEDED(rc)) history_flow::record_event("unlink");
             ui::notify_result(rc, "playguard/pairing/unlinked"_i18n, "playguard/pairing/unlink_err"_i18n);
             this->refresh();
         });
         return true;
     });
     set_pin->registerClickAction([this](brls::View*) {
+        if (ui::refuse_read_only()) return true;
         // Blocks while the system PIN applet is shown; the session is released first.
         Result rc = pctl_set_pin();
         brls::Logger::info("pctl_set_pin returned 0x{:08X}", (unsigned)rc);
+        if (R_SUCCEEDED(rc)) history_flow::record_event("pin");
         ui::notify_result(rc, "playguard/security/pin_ok"_i18n, "playguard/security/pin_err"_i18n);
         this->refresh();
         return true;
     });
     show_pin->registerClickAction([](brls::View*) {
+        if (ui::refuse_read_only()) return true;
         ui::confirm("playguard/security/show_pin_body"_i18n, "playguard/security/show_pin_confirm"_i18n,
                     []() { brls::sync([]() { show_pin_dialog(); }); });
         return true;
     });
     unlock->registerClickAction([this](brls::View*) {
+        if (ui::refuse_read_only()) return true;
         ui::confirm("playguard/security/unlock_body"_i18n, "playguard/security/unlock_confirm"_i18n, [this]() {
             Result rc = pctl_unlock_restriction_temporarily();
+            if (R_SUCCEEDED(rc)) history_flow::record_event("unlock");
             ui::notify_result(rc, "playguard/security/unlocked"_i18n, "playguard/security/unlock_err"_i18n);
             this->refresh();
         });
         return true;
     });
     relock->registerClickAction([this](brls::View*) {
+        if (ui::refuse_read_only()) return true;
         Result rc = pctl_relock();
+        if (R_SUCCEEDED(rc)) history_flow::record_event("relock");
         ui::notify_result(rc, "playguard/toast/relocked"_i18n, "playguard/toast/relock_err"_i18n);
         this->refresh();
         return true;
     });
     del->registerClickAction([this](brls::View*) {
+        if (ui::refuse_read_only()) return true;
         ui::confirm_danger("playguard/security/delete_body"_i18n, "playguard/security/delete_confirm"_i18n, [this]() {
             // Second, separate confirmation with a different button: this cannot be undone.
             brls::sync([this]() {
@@ -115,6 +128,7 @@ SecurityTab::SecurityTab()
                     // A backup first, so the settings can come back (Tools › Restore).
                     backup_flow::backup_then([this]() {
                         Result rc = pctl_delete_parental_controls();
+                        if (R_SUCCEEDED(rc)) history_flow::record_event("delete");
                         ui::notify_result(rc, "playguard/security/deleted"_i18n, "playguard/security/delete_err"_i18n);
                         this->refresh();
                     });
@@ -151,18 +165,21 @@ void SecurityTab::refresh()
     pr_note->setTextColor(paired ? ui::color_warn() : ui::color_note());
 
     pin_lock_cell->setDetailText(pin_lock::mode_text());
+    pin_lock_note->setText(pin_lock::note_text());
     const bool writable = !app::read_only();
     const bool has_pin  = s.pin_length_ok && s.pin_length > 0;
     const bool unlocked = s.temp_unlocked_ok && s.temp_unlocked;
-    ui::set_visible_all({ { actions_header.getView(), writable },
-                          { set_pin.getView(), writable },
-                          { show_pin.getView(), writable && has_pin },
-                          { unlock.getView(), writable && has_pin && !unlocked },
-                          { relock.getView(), writable && unlocked },
+    // Read-only: the actions stay in sight, greyed (A says why).
+    ui::set_visible_all({ { show_pin.getView(), has_pin },
+                          { unlock.getView(), has_pin && !unlocked },
+                          { relock.getView(), unlocked },
                           // Nothing to unlink when the read says not linked.
-                          { pr_unlink.getView(), writable && (!s.pairing_active_ok || paired) },
-                          { danger_header.getView(), writable },
-                          { del.getView(), writable } });
+                          { pr_unlink.getView(), !s.pairing_active_ok || paired } });
+    for (brls::DetailCell* c : { (brls::DetailCell*)set_pin.getView(), (brls::DetailCell*)show_pin.getView(),
+                                 (brls::DetailCell*)unlock.getView(), (brls::DetailCell*)relock.getView(),
+                                 (brls::DetailCell*)pr_unlink.getView() })
+        ui::show_writable(c, writable);
+    ui::show_writable(del, writable, ui::color_bad(), ui::color_neutral());
 }
 
 brls::View* SecurityTab::create()

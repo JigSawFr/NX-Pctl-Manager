@@ -1,5 +1,6 @@
-// RestrictionsTab — restriction level, custom settings (age rating, social
-// media posting, communication), VR mode. Same settings as System Settings.
+// RestrictionsTab — restriction level, what the chosen preset imposes (age
+// rating, social media posting, communication; read-only) or the same three
+// settings editable in Custom, VR mode. Same settings as System Settings.
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
@@ -24,6 +25,9 @@ class RestrictionsTab : public TabBase
 
     BRLS_BIND(brls::DetailCell,  level,         "rs_level");
     BRLS_BIND(brls::Header,      custom_header, "rs_custom_header");
+    BRLS_BIND(brls::DetailCell,  preset_age,    "rs_preset_age");
+    BRLS_BIND(brls::DetailCell,  preset_sns,    "rs_preset_sns");
+    BRLS_BIND(brls::DetailCell,  preset_comm,   "rs_preset_comm");
     BRLS_BIND(brls::DetailCell,  age,           "rs_age");
     BRLS_BIND(brls::BooleanCell, sns,           "rs_sns");
     BRLS_BIND(brls::BooleanCell, comm,          "rs_comm");

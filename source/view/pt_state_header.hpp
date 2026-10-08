@@ -1,6 +1,7 @@
-// PtStateHeader — the play-timer state block (enabled, limit reached,
-// temporary unlock, remaining today, configured limit) shown at the top of the
-// Play timer tab and the per-day editor.
+// PtStateHeader — the play-timer state in one line (active or not, time left,
+// configured limit and the profile it matches, temporary unlock) at the top
+// of the Play timer tab and the per-day editor, plus a warning line while the
+// day's limit is reached. The five-row readout it replaces hid the week chart.
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
@@ -19,9 +20,6 @@ class PtStateHeader : public brls::Box
     static std::string configured_text(const PtState& pt);
 
   private:
-    BRLS_BIND(brls::Label, enabled_value,    "pt_enabled_value");
-    BRLS_BIND(brls::Label, restricted_value, "pt_restricted_value");
-    BRLS_BIND(brls::Label, temporary_value,  "pt_temporary_value");
-    BRLS_BIND(brls::Label, remaining_value,  "pt_remaining_value");
-    BRLS_BIND(brls::Label, configured_value, "pt_configured_value");
+    BRLS_BIND(brls::Label, summary, "pt_summary");
+    BRLS_BIND(brls::Label, alert,   "pt_alert");
 };

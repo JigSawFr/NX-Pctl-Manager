@@ -16,9 +16,9 @@
 namespace ui
 {
 
-// Status colours from the PlayGuard palette, one shade per theme (>= 4.5:1).
-// register_theme_colors() must run before the first lookup (borealis aborts
-// on an unknown theme key).
+// Status colours from the PlayGuard palette, one shade per theme (>= 4.5:1),
+// and the focus highlight in the icon's teal. register_theme_colors() must
+// run before the first lookup (borealis aborts on an unknown theme key).
 void     register_theme_colors();
 NVGcolor color_ok();
 NVGcolor color_warn();
@@ -36,8 +36,13 @@ std::string rc_text(Result rc);
 // Deferred to the next frame (toasts fired right after a system applet returns
 // were dropped on fw 22.1.0).
 void notify(const std::string& text);
+// A failure the user asked for something and did not get: a dialog, not a
+// toast (a toast is gone before "error 0x…" is read). Next frame, so it can
+// be called from a dialog button. Logged as "error: " for the smoke test.
+void error(const std::string& text);
 // config::save(), with a toast when the SD card refused the write.
 bool save_config();
+// Success: `ok_text` as a toast. Failure: `error_prefix — reason` as a dialog.
 void notify_result(Result rc, const std::string& ok_text, const std::string& error_prefix);
 
 // Two-button dialog. Cancel (left) has the focus when it opens;
@@ -45,6 +50,9 @@ void notify_result(Result rc, const std::string& ok_text, const std::string& err
 // `danger`: the confirm button is drawn in the "bad" colour (see below).
 void confirm(const std::string& body, const std::string& confirm_label,
              std::function<void()> on_yes, std::function<void()> on_no = nullptr, bool danger = false);
+// Same with `extra` (a chart, …) under the text; ui takes ownership of it.
+void confirm_with(const std::string& body, brls::View* extra, const std::string& confirm_label,
+                  std::function<void()> on_yes, std::function<void()> on_no = nullptr, bool danger = false);
 // Same, for actions that delete something: the confirm button is drawn in the
 // "bad" colour so it never looks like an ordinary OK.
 void confirm_danger(const std::string& body, const std::string& confirm_label, std::function<void()> on_yes);
@@ -69,6 +77,8 @@ void prompt_text(const std::string& header, const std::string& initial, int max_
                  std::function<void(std::string)> on_value);
 
 std::string fmt_minutes(uint16_t minutes);      // a limit: "No limit", "0 min (no play)", "45 min", "2 h 30"
+// Seven limits in a few words: "2 h every day", "1 h to 3 h", "1 h to no limit", "No limit".
+std::string days_summary(const uint16_t days[7]);
 std::string fmt_played(uint16_t minutes);       // time played: "0 min", "45 min", "2 h 30"
 std::string fmt_duration_ns(uint64_t ns);       // remaining time, rounded to minutes
 std::string fmt_play_time(uint64_t seconds);    // "0 min", "< 1 min", "45 min", "152 h 30" (no 24 h cap)
@@ -108,6 +118,20 @@ std::string patches_text(const patches::Report& report, NVGcolor* color = nullpt
 std::string patches_note(const patches::Report& report, const SysInfo& info, bool* warn);
 std::string time_text(uint64_t posix);                     // local time, or "—" for 0
 
+// Read-only mode: a toast says so and this returns true (the caller then
+// does nothing). Else false.
+bool refuse_read_only();
+// An action that writes stays visible in read-only mode, greyed (title and
+// value), so the parent sees what exists; its handler calls
+// refuse_read_only(). `title` / `detail`: the colours when writable. A
+// BooleanCell gets its own colours back from its state.
+void show_writable(brls::DetailCell* cell, bool writable, NVGcolor title, NVGcolor detail);
+void show_writable(brls::DetailCell* cell, bool writable);   // plain text, neutral value
+// A BooleanCell flips before telling its listener: in read-only mode the
+// switch would flip, the write be refused and the switch flip back. This
+// checks first, then flips as BooleanCell does.
+void guard_switch(brls::BooleanCell* cell);
+
 // Hides a view when `visible` is false (Visibility::GONE frees its space).
 // When the hidden view had the focus, the focus moves to the nearest visible
 // focusable sibling (the next one on a tie), so it never lands on the list
@@ -129,12 +153,13 @@ constexpr int activity     = 3;   // play time per game
 constexpr int restrictions = 4;
 constexpr int clock        = 5;
 constexpr int security     = 7;   // PIN, unlock, companion app, delete
-constexpr int tools        = 9;
+constexpr int preferences  = 9;
+constexpr int tools        = 10;
 // The n-th tab (0 = Overview) as a sidebar position (separators count).
 constexpr int of(int n)
 {
-    constexpr int positions[] = { dashboard, play_timer, activity, restrictions, clock, security, tools };
-    return n >= 0 && n < 7 ? positions[n] : dashboard;
+    constexpr int positions[] = { dashboard, play_timer, activity, restrictions, clock, security, preferences, tools };
+    return n >= 0 && n < 8 ? positions[n] : dashboard;
 }
 }   // namespace tab
 

@@ -1,6 +1,7 @@
-// ToolsTab — diagnostic export, settings backup / restore, preferences
-// (language, theme, advanced, update store), About with the update check, and
-// the developer tools (shown after seven presses on Version).
+// ToolsTab — settings backup / restore, the update check and its store,
+// diagnostic export, the console (firmware, storage, serial, game patches),
+// About, and the developer tools (shown after seven presses on Version). The
+// preferences are in PreferencesTab.
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
@@ -22,21 +23,15 @@ class ToolsTab : public TabBase
 
     void count_version_press();
 
+    BRLS_BIND(brls::DetailCell,  first_steps, "tl_first_steps");
+    BRLS_BIND(brls::DetailCell,  history, "tl_history");
     BRLS_BIND(brls::DetailCell,  export_cell, "tl_export");
     BRLS_BIND(brls::Label,       export_note, "tl_export_note");
     BRLS_BIND(brls::DetailCell,  backup_save, "tl_backup_save");
     BRLS_BIND(brls::DetailCell,  backup_restore, "tl_backup_restore");
     BRLS_BIND(brls::Label,       backup_note, "tl_backup_note");
-    BRLS_BIND(brls::DetailCell,  language,    "tl_language");
-    BRLS_BIND(brls::DetailCell,  theme,       "tl_theme");
-    BRLS_BIND(brls::BooleanCell, auto_relock, "tl_auto_relock");
-    BRLS_BIND(brls::BooleanCell, extra_auto,  "tl_extra_auto");
-    BRLS_BIND(brls::DetailCell,  start_tab,   "tl_start_tab");
-    BRLS_BIND(brls::DetailCell,  extra_amounts, "tl_extra_amounts");
-    BRLS_BIND(brls::BooleanCell, clock_check, "tl_clock_check");
     BRLS_BIND(brls::BooleanCell, update_daily, "tl_update_daily");
     BRLS_BIND(brls::DetailCell,  backup_keep, "tl_backup_keep");
-    BRLS_BIND(brls::BooleanCell, advanced,    "tl_advanced");
     BRLS_BIND(brls::DetailCell,  update_via,  "tl_update_via");
     BRLS_BIND(brls::DetailCell,  version,     "tl_version");
     BRLS_BIND(brls::DetailCell,  update_cell, "tl_update");

@@ -10,7 +10,7 @@ namespace config
 
 struct Config
 {
-    std::string language = "system";   // "system", "en-US", "fr"
+    std::string language = "system";   // "system" or one of LANGUAGES
     std::string theme    = "system";   // "system", "light", "dark"
     std::string ntp_server;            // empty: pick from the console region
     std::vector<std::string> custom_servers;
@@ -29,6 +29,9 @@ struct Config
     // Security › Ask for the PIN: "off", "changes" (before the first change,
     // then not for 5 min) or "open" (to open PlayGuard). See pin_lock.hpp.
     std::string pin_lock = "off";
+    // First steps opens by itself at start-up while no PIN is set, unless
+    // its "Show at start-up" switch was turned off.
+    bool onboarding_at_start = true;
 
     // Choice made on the "firmware not supported yet" screen, remembered for
     // one firmware with one app version: "read_only", "probe" or "risk".
@@ -36,8 +39,10 @@ struct Config
     std::string fw_gate_app;
     std::string fw_gate_choice;
 
-    // "Extra time today": the weekday limit raised on extra_date (YYYY-MM-DD)
-    // from extra_base to extra_value minutes. extra_weekday < 0: none pending.
+    // "Extra time today" or "No more play today": the weekday limit changed
+    // on extra_date (YYYY-MM-DD) from extra_base to extra_value minutes, for
+    // that day only (extra_base may be 0xFFFF, no limit). extra_weekday < 0:
+    // none pending.
     int         extra_weekday = -1;
     std::string extra_date;
     int         extra_base  = 0;
@@ -53,9 +58,14 @@ struct Config
 };
 
 constexpr int    SCHEMA             = 1;    // "schema" in config.json
+// The languages PlayGuard is translated into, after "system" (the console's
+// own): each has resources/i18n/<code>/playguard.json and a name under
+// playguard/tools/languages/. tools/check_resources.py checks both; README
+// "Translating PlayGuard" lists the steps to add one.
+constexpr const char* LANGUAGES[] = { "system", "en-US", "fr" };
 // What start_tab may be, in the sidebar's order.
 constexpr const char* START_TABS[] = { "dashboard", "play_timer", "activity", "restrictions",
-                                       "clock", "security", "tools" };
+                                       "clock", "security", "preferences", "tools" };
 // What extra_amounts may be (the Tools picker offers these sets).
 constexpr int EXTRA_SETS[][3] = { { 15, 30, 60 }, { 10, 20, 30 }, { 30, 60, 90 }, { 5, 10, 15 } };
 constexpr int BACKUP_KEEP[]   = { 0, 5, 10, 20 };

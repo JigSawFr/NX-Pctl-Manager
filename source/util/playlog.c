@@ -92,6 +92,7 @@ size_t playlog_fold_days(const PlayLogEvent *events, size_t n, uint64_t now,
                 open = NULL;
                 break;
             case PlayLogEv_Away:
+            case PlayLogEv_Launch:
                 if (open) add(&f, open->app_id, e->ts_user, duration(open, e));
                 open = NULL;
                 break;
@@ -102,4 +103,71 @@ size_t playlog_fold_days(const PlayLogEvent *events, size_t n, uint64_t now,
     // Still in focus (PlayGuard started over that game, for instance).
     if (open && now >= open->ts_user) add(&f, open->app_id, now, now - open->ts_user);
     return f.count;
+}
+
+// An event of `kind` for `app_id` at the time of `at`.
+static void emit(PlayLogEvent *out, size_t *count, size_t max, uint8_t kind, uint64_t app_id, const PlayLogEvent *at)
+{
+    if (*count == max) return;
+    PlayLogEvent *e = &out[(*count)++];
+    e->app_id    = app_id;
+    e->kind      = kind;
+    e->ts_user   = at->ts_user;
+    e->ts_steady = at->ts_steady;
+    e->uid[0] = e->uid[1] = 0;
+}
+
+size_t playlog_for_account(const PlayLogEvent *events, size_t n, const uint64_t uid[2],
+                           PlayLogEvent *out, size_t max)
+{
+    size_t count = 0;
+    uint64_t focused = 0;       // the game with the focus, 0 for none
+    bool     open    = false;   // `uid` is open in a game
+    bool     playing = false;   // a Focus was emitted and not closed yet
+
+    for (size_t i = 0; i < n; i++) {
+        const PlayLogEvent *e = &events[i];
+        const bool mine = e->uid[0] == uid[0] && e->uid[1] == uid[1];
+        switch (e->kind) {
+            case PlayLogEv_Focus:
+                if (focused == e->app_id && playing) break;   // repeated
+                if (playing) emit(out, &count, max, PlayLogEv_Away, 0, e);
+                focused = e->app_id;
+                playing = open && focused;
+                if (playing) emit(out, &count, max, PlayLogEv_Focus, focused, e);
+                break;
+            case PlayLogEv_Unfocus:
+                if (focused != e->app_id) break;   // not the game in focus
+                if (playing) emit(out, &count, max, PlayLogEv_Unfocus, focused, e);
+                focused = 0;
+                playing = false;
+                break;
+            case PlayLogEv_Away:
+            case PlayLogEv_Launch:
+                if (playing) emit(out, &count, max, PlayLogEv_Away, 0, e);
+                focused = 0;
+                playing = false;
+                if (e->kind == PlayLogEv_Launch) open = false;   // the previous game's accounts
+                break;
+            case PlayLogEv_AccountOpen:
+                if (!mine) break;
+                open = true;
+                // Selected while the game already has the focus (the user
+                // picker comes after the launch): it counts from now.
+                if (focused && !playing) {
+                    emit(out, &count, max, PlayLogEv_Focus, focused, e);
+                    playing = true;
+                }
+                break;
+            case PlayLogEv_AccountClose:
+                if (!mine) break;
+                open = false;
+                if (playing) emit(out, &count, max, PlayLogEv_Unfocus, focused, e);
+                playing = false;
+                break;
+            default:
+                break;
+        }
+    }
+    return count;
 }

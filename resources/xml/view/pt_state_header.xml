@@ -1,37 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- PtStateHeader: play-timer state, filled by source/view/pt_state_header.cpp. -->
+<!-- PtStateHeader: the play-timer state in one line ("Active · 45 min left ·
+     2 h today · School week") and, only when the day's limit is reached, a
+     warning line. Filled by source/view/pt_state_header.cpp. -->
 
 <brls:Box
     width="auto"
     height="auto"
     axis="column"
     alignItems="stretch"
-    marginBottom="20">
+    marginBottom="16">
 
-    <brls:Box axis="row" alignItems="center" marginBottom="6">
-        <brls:Label text="@i18n/playguard/play_timer/state/enabled" grow="1.0"/>
-        <brls:Label id="pt_enabled_value" text="—"/>
-    </brls:Box>
-
-    <brls:Box axis="row" alignItems="center" marginBottom="6">
-        <brls:Label text="@i18n/playguard/play_timer/state/restricted" grow="1.0"/>
-        <brls:Label id="pt_restricted_value" text="—"/>
-    </brls:Box>
-
-    <brls:Box axis="row" alignItems="center" marginBottom="6">
-        <brls:Label text="@i18n/playguard/play_timer/state/temporary" grow="1.0"/>
-        <brls:Label id="pt_temporary_value" text="—"/>
-    </brls:Box>
-
-    <brls:Box axis="row" alignItems="center" marginBottom="6">
-        <brls:Label text="@i18n/playguard/play_timer/state/remaining" grow="1.0"/>
-        <brls:Label id="pt_remaining_value" text="—"/>
-    </brls:Box>
-
-    <brls:Box axis="row" alignItems="center" marginBottom="6">
-        <brls:Label text="@i18n/playguard/play_timer/state/configured" grow="1.0"/>
-        <brls:Label id="pt_configured_value" text="—"/>
-    </brls:Box>
+    <brls:Label id="pt_summary" text="—" fontSize="20"/>
+    <brls:Label id="pt_alert" text="" fontSize="20" marginTop="6" textColor="@theme/brand/bad"/>
 
 </brls:Box>
