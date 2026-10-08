@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Security › Ask for the PIN: "To open PlayGuard". The PIN screen opens over
+     this one; "Enter the PIN" shows it again, B quits. -->
+
+<brls:AppletFrame
+    iconInterpolation="linear">
+
+    <brls:Box
+        title="@i18n/playguard/title"
+        icon="@res/img/app_icon.jpg"
+        width="auto"
+        height="auto"
+        axis="column"
+        justifyContent="center"
+        alignItems="center"
+        grow="1.0"
+        paddingLeft="60"
+        paddingRight="60">
+
+        <brls:Label
+            text="@i18n/playguard/pin_lock/locked_title"
+            fontSize="28"
+            horizontalAlign="center"
+            marginBottom="20"/>
+
+        <brls:Label
+            text="@i18n/playguard/pin_lock/locked_body"
+            horizontalAlign="center"
+            marginBottom="32"
+            textColor="@theme/brand/note"/>
+
+        <brls:Button
+            id="lock_enter"
+            style="primary"
+            width="360"
+            text="@i18n/playguard/pin_lock/enter"/>
+
+    </brls:Box>
+
+</brls:AppletFrame>

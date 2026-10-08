@@ -70,6 +70,7 @@ void sanitize(Config& c)
     one_of(c.language, { "system", "en-US", "fr" }, "system");
     one_of(c.theme, { "system", "light", "dark" }, "system");
     one_of(c.update_via, { "auto", "sphaira", "appstore", "manual" }, "auto");
+    one_of(c.pin_lock, { "off", "changes", "open" }, "off");
     one_of(c.fw_gate_choice, { "", "read_only", "probe", "risk" }, "");
     if (c.fw_gate_choice.empty()) c.fw_gate_fw.clear(), c.fw_gate_app.clear();
     if (c.ntp_server.size() > MAX_HOST) c.ntp_server.clear();
@@ -129,6 +130,7 @@ void load()
     read_int(j, "export_format", c.export_format);
     read_int(j, "backup_keep", c.backup_keep);
     read_bool(j, "clock_check_at_start", c.clock_check_at_start);
+    read_string(j, "pin_lock", c.pin_lock);
     auto amounts = j.find("extra_amounts");
     if (amounts != j.end() && amounts->is_array()) {
         std::vector<int> v;
@@ -176,6 +178,7 @@ bool save()
     j["export_format"]   = s_config.export_format;
     j["backup_keep"]     = s_config.backup_keep;
     j["clock_check_at_start"] = s_config.clock_check_at_start;
+    j["pin_lock"]        = s_config.pin_lock;
     j["fw_gate_fw"]      = s_config.fw_gate_fw;
     j["fw_gate_app"]     = s_config.fw_gate_app;
     j["fw_gate_choice"]  = s_config.fw_gate_choice;

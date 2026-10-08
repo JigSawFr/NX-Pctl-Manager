@@ -117,7 +117,13 @@ static void test_preferences()
     config::Config d;
     assert(d.start_tab == "dashboard" && d.extra_amounts == std::vector<int>({ 15, 30, 60 }));
     assert(d.activity_period == 1 && d.export_format == 0 && d.backup_keep == 0);
-    assert(!d.update_daily && d.update_checked.empty() && !d.clock_check_at_start);
+    assert(!d.update_daily && d.update_checked.empty() && !d.clock_check_at_start && d.pin_lock == "off");
+    write_config(R"({"pin_lock": "open"})");
+    config::load();
+    assert(config::get().pin_lock == "open");
+    write_config(R"({"pin_lock": "always"})");
+    config::load();
+    assert(config::get().pin_lock == "off");
 
     // Values from the lists are kept.
     write_config(R"({"start_tab": "activity", "extra_amounts": [30, 60, 90], "activity_period": 2,

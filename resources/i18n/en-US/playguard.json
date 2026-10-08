@@ -83,6 +83,8 @@
         "invalid_argument": "invalid value",
         "autocorrect_off": "turn on \"Synchronise Clock via Internet\" in System Settings first",
         "state_unknown": "the current play-timer state could not be read, so nothing was written",
+        "not_confirmed": "the PIN was not entered, so nothing was changed",
+        "no_pin": "no parental-control PIN is set",
         "session_closed": "the system closed the parental-control session; try again",
         "bad_pin_format": "the system rejected the PIN format",
         "pctl_refused": "refused by the parental-control service"
@@ -450,6 +452,20 @@
         "delete_err": "Could not delete parental controls",
         "pin_ok": "PIN updated.",
         "pin_err": "Could not update the PIN"
+    },
+    "pin_lock": {
+        "title": "Ask for the PIN",
+        "modes": {
+            "off": "Never",
+            "changes": "Before a change",
+            "open": "To open PlayGuard"
+        },
+        "note": "Before a change: anyone can look, only the parent changes something (asked again after 5 minutes). To open PlayGuard: a lock screen until the PIN is entered. Locking again never asks. The setting is kept on the SD card.",
+        "no_pin": "Set a PIN first (Set or change the PIN).",
+        "set": "Ask for the PIN: {}",
+        "locked_title": "PlayGuard is locked",
+        "locked_body": "Enter the parental-control PIN to open it.",
+        "enter": "Enter the PIN"
     },
     "tools": {
         "section_diag": "Diagnostics",

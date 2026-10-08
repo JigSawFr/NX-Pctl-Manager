@@ -28,9 +28,11 @@
             <brls:DetailCell id="sc_temp" title="@i18n/playguard/security/temporary"/>
             <brls:Header id="sc_actions_header" title="@i18n/playguard/security/section_actions" marginTop="24" marginBottom="8"/>
             <brls:DetailCell id="sc_set_pin" title="@i18n/playguard/security/set_pin"/>
+            <brls:DetailCell id="sc_pin_lock" title="@i18n/playguard/pin_lock/title"/>
             <brls:DetailCell id="sc_show_pin" title="@i18n/playguard/security/show_pin"/>
             <brls:DetailCell id="sc_unlock" title="@i18n/playguard/security/unlock"/>
             <brls:DetailCell id="sc_relock" title="@i18n/playguard/security/relock"/>
+            <brls:Label id="sc_pin_lock_note" text="@i18n/playguard/pin_lock/note" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
             <brls:Header title="@i18n/playguard/pairing/section" marginTop="24" marginBottom="8"/>
             <brls:DetailCell id="pr_active" title="@i18n/playguard/pairing/active"/>
             <brls:DetailCell id="pr_updated" title="@i18n/playguard/pairing/updated"/>
