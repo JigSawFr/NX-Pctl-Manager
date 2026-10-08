@@ -24,6 +24,11 @@ static struct {
     char got_pin[32];         /* what UnlockRestrictionTemporarily (1201) received */
     size_t got_pin_size;
     u16 pt_block[34];         /* what GetPlayTimerSettings (145601) returns */
+    bool no_pin;              /* GetPinCodeLength (1206) returns 0 */
+    unsigned auth_applets;    /* pctlauthShowForConfiguration calls */
+    Result auth_result;       /* what it returns */
+    unsigned checks;          /* calls of the change check below */
+    bool check_answer;
 } model;
 
 static void reset_with(u32 hos)
@@ -76,6 +81,13 @@ Result pctlauthRegisterPasscode(void)
     assert(model.refs == 0); /* the OS applet needs the privileged slot free */
     model.applets++;
     return MOCK_ERROR;
+}
+
+Result pctlauthShowForConfiguration(void)
+{
+    assert(model.refs == 0); /* the OS applet needs the privileged slot free */
+    model.auth_applets++;
+    return model.auth_result;
 }
 
 static Result put(void *out, size_t out_size, const void *value, size_t size)
@@ -142,7 +154,7 @@ Result mock_dispatch(Service *srv, u32 command, void *out, size_t out_size,
         case 1958: b = 7;  return put(out, out_size, &b, 1);
         case 1959: b = 0;  return put(out, out_size, &b, 1);
         case 1032: w = model.safety_level; return put(out, out_size, &w, 4);
-        case 1206: w = 6; return put(out, out_size, &w, 4);
+        case 1206: w = model.no_pin ? 0 : 6; return put(out, out_size, &w, 4);
         case 1208:
             assert(params.buffer_attrs[0] == (SfBufferAttr_HipcPointer | SfBufferAttr_Out));
             assert(params.buffers[0].ptr != NULL && params.buffers[0].size > strlen(model.pin));
@@ -603,6 +615,76 @@ static void test_other_writes(void)
     }
 }
 
+static void test_ask_pin(void)
+{
+    /* The PIN screen: shown with the session released, only when a PIN exists. */
+    reset();
+    assert(pctl_ask_pin() == 0 && model.auth_applets == 1 && model.writes == 0);
+    model.auth_result = MOCK_ERROR;   /* cancelled */
+    assert(pctl_ask_pin() == MOCK_ERROR && model.auth_applets == 2);
+    assert(model.refs == 0);
+
+    reset();
+    model.no_pin = true;
+    assert(pctl_ask_pin() == NXM_RC_NO_PIN && model.auth_applets == 0);
+    assert(model.refs == 0);
+
+    /* Read-only mode changes nothing about it: it writes nothing. */
+    reset();
+    core_set_read_only(true);
+    assert(pctl_ask_pin() == 0 && model.auth_applets == 1);
+    core_set_read_only(false);
+    assert(model.refs == 0);
+}
+
+/* The UI's change check: runs before any session is opened (it may show the
+   PIN applet), refuses every change but locking again. */
+static bool change_check(void)
+{
+    assert(model.refs == 0);
+    model.checks++;
+    return model.check_answer;
+}
+
+static void test_change_check(void)
+{
+    reset();
+    core_set_change_check(change_check);
+    model.check_answer = false;
+    u16 days[7] = { 60, 60, 60, 60, 60, 60, 60 };
+    char pin[16];
+    PctlCustomSettings cs = { 12, true, false };
+    assert(pctl_play_timer_set_days(days) == NXM_RC_NOT_CONFIRMED);
+    assert(pctl_unlock_restriction_temporarily() == NXM_RC_NOT_CONFIRMED);
+    assert(pctl_get_pin(pin, sizeof(pin)) == NXM_RC_NOT_CONFIRMED && pin[0] == '\0');
+    assert(pctl_set_safety_level(PctlSafetyLevel_Teen) == NXM_RC_NOT_CONFIRMED);
+    assert(pctl_set_custom_settings(&cs) == NXM_RC_NOT_CONFIRMED);
+    assert(pctl_set_stereo_vision_restricted(true) == NXM_RC_NOT_CONFIRMED);
+    assert(pctl_delete_parental_controls() == NXM_RC_NOT_CONFIRMED);
+    assert(pctl_delete_pairing() == NXM_RC_NOT_CONFIRMED);
+    assert(pctl_play_timer_set_alarm_disabled(true) == NXM_RC_NOT_CONFIRMED);
+    assert(pctl_play_timer_start() == NXM_RC_NOT_CONFIRMED);
+    assert(pctl_play_timer_stop() == NXM_RC_NOT_CONFIRMED);
+    assert(pctl_set_pin() == NXM_RC_NOT_CONFIRMED && model.applets == 0);
+    assert(model.writes == 0 && model.ipc_calls == 0 && model.checks == 12);
+    /* Locking again is never refused for want of a PIN. */
+    assert(pctl_relock() == 0 && model.writes == 1 && model.checks == 12);
+    /* Reads never ask. */
+    PctlStatus st;
+    pctl_status_fetch(&st);
+    assert(model.checks == 12);
+
+    /* Confirmed: the change goes through. */
+    model.check_answer = true;
+    assert(pctl_set_safety_level(PctlSafetyLevel_Teen) == 0 && model.checks == 13);
+    /* Read-only still wins, without asking. */
+    core_set_read_only(true);
+    assert(pctl_set_safety_level(PctlSafetyLevel_Teen) == NXM_RC_READ_ONLY && model.checks == 13);
+    core_set_read_only(false);
+    core_set_change_check(NULL);
+    assert(model.refs == 0);
+}
+
 int main(void)
 {
     test_ownership();
@@ -614,6 +696,8 @@ int main(void)
     test_get_pin();
     test_other_writes();
     test_read_only();
+    test_ask_pin();
+    test_change_check();
     puts("pctl_ops lifecycle, gating, write and read-only assertions passed");
     (void)assert_released;
     return 0;

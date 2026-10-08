@@ -334,6 +334,21 @@ Result timeGetCurrentTime(TimeType type, u64 *timestamp)
     return 0;
 }
 
+static bool refuse(void) { return false; }
+
+static void test_change_check(void)
+{
+    /* Setting the network clock is a change: the PIN check can refuse it. */
+    reset();
+    model.automatic = true;
+    core_set_change_check(refuse);
+    TimeApply apply;
+    time_clock_apply(2000, &apply);
+    assert(apply.open_rc == NXM_RC_NOT_CONFIRMED && !apply.write_attempted && model.writes == 0);
+    core_set_change_check(NULL);
+    assert_released();
+}
+
 static void test_local_time(void)
 {
     reset();
@@ -412,6 +427,7 @@ int main(void)
     test_dump_and_repetition();
     test_formatting();
     test_local_time();
+    test_change_check();
     puts("time_ops lifecycle and read-only tests passed");
     return 0;
 }

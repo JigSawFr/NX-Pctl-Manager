@@ -26,6 +26,9 @@ struct Config
     int  export_format   = 0;          // last export format (table_export::Format)
     int  backup_keep     = 0;          // backups kept after a new one (0: all of them)
     bool clock_check_at_start = false; // measure the network clock at start-up, say when it is off
+    // Security › Ask for the PIN: "off", "changes" (before the first change,
+    // then not for 5 min) or "open" (to open PlayGuard). See pin_lock.hpp.
+    std::string pin_lock = "off";
 
     // Choice made on the "firmware not supported yet" screen, remembered for
     // one firmware with one app version: "read_only", "probe" or "risk".

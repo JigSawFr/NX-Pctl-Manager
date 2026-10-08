@@ -114,11 +114,13 @@ static void secure_zero(void *p, size_t n)
     while (n--) *b++ = 0;
 }
 
-// Runs one no-argument command in its own session.
-static Result run_simple(u32 cmd)
+// Runs one no-argument command in its own session. `relock`: locking again,
+// which only read-only mode refuses (never the PIN check, write_guard.h).
+static Result run_simple(u32 cmd, bool relock)
 {
-    if (core_read_only()) return NXM_RC_READ_ONLY;
-    Result rc = pctl_ops_init();
+    Result rc = relock ? (core_read_only() ? NXM_RC_READ_ONLY : 0) : core_change_allowed();
+    if (R_FAILED(rc)) return rc;
+    rc = pctl_ops_init();
     if (R_FAILED(rc)) return rc;
     rc = serviceDispatch(pctlGetServiceSession_Service(), cmd);
     pctl_ops_exit();
@@ -187,16 +189,30 @@ Result pctl_set_pin(void)
 {
     // The pctlauth applet opens its own privileged session: ours must be closed.
     pctl_ops_exit();
-    if (core_read_only()) return NXM_RC_READ_ONLY;
+    Result rc = core_change_allowed();
+    if (R_FAILED(rc)) return rc;
     return pctlauthRegisterPasscode();
+}
+
+Result pctl_ask_pin(void)
+{
+    // GetPinCodeLength first: the applet must not be shown without a PIN.
+    Result rc = pctl_ops_reinit();
+    if (R_FAILED(rc)) return rc;
+    u32 len = 0;
+    rc = rd_u32(pctlGetServiceSession_Service(), 1206, &len);
+    // The pctlauth applet opens its own privileged session: ours must be closed.
+    pctl_ops_exit();
+    if (R_FAILED(rc)) return rc;
+    if (len == 0) return NXM_RC_NO_PIN;
+    return pctlauthShowForConfiguration();
 }
 
 Result pctl_unlock_restriction_temporarily(void)
 {
-    if (core_read_only()) {
-        pctl_ops_exit();
-        return NXM_RC_READ_ONLY;
-    }
+    pctl_ops_exit();   // nothing held while the PIN check may show its applet
+    Result gate = core_change_allowed();
+    if (R_FAILED(gate)) return gate;
     // Two things had to be right (both learned the hard way on fw 22.1.0):
     //  - the buffers are HIPC *pointer* buffers (SfBufferAttr_HipcPointer), not
     //    map-alias — map-alias makes the sysmodule drop the session (0xF601);
@@ -241,10 +257,9 @@ Result pctl_unlock_restriction_temporarily(void)
 Result pctl_get_pin(char *out, size_t out_size)
 {
     if (out && out_size) secure_zero(out, out_size);
-    if (core_read_only()) {
-        pctl_ops_exit();
-        return NXM_RC_READ_ONLY;
-    }
+    pctl_ops_exit();   // nothing held while the PIN check may show its applet
+    Result gate = core_change_allowed();   // showing the PIN counts as a change
+    if (R_FAILED(gate)) return gate;
     if (!out || out_size == 0) return NXM_RC_INVALID_ARGUMENT;
     // Same session handling as the unlock above, where 1208 was validated.
     Result rc = pctl_ops_reinit();
@@ -273,17 +288,18 @@ Result pctl_get_pin(char *out, size_t out_size)
     return rc;
 }
 
-Result pctl_relock(void)                     { return run_simple(1007); }
-Result pctl_delete_parental_controls(void)   { return run_simple(1043); }
-Result pctl_delete_pairing(void)             { return run_simple(1941); }
-Result pctl_play_timer_start(void)           { return run_simple(1451); }
-Result pctl_play_timer_stop(void)            { return run_simple(1452); }
+Result pctl_relock(void)                     { return run_simple(1007, true); }
+Result pctl_delete_parental_controls(void)   { return run_simple(1043, false); }
+Result pctl_delete_pairing(void)             { return run_simple(1941, false); }
+Result pctl_play_timer_start(void)           { return run_simple(1451, false); }
+Result pctl_play_timer_stop(void)            { return run_simple(1452, false); }
 
 // ---------------------------------------------------------------- restrictions
 
 Result pctl_set_safety_level(u32 level)
 {
-    if (core_read_only()) return NXM_RC_READ_ONLY;
+    Result gate = core_change_allowed();
+    if (R_FAILED(gate)) return gate;
     if (level > PctlSafetyLevel_Teen) return NXM_RC_INVALID_ARGUMENT;
     Result rc = pctl_ops_init();
     if (R_FAILED(rc)) return rc;
@@ -294,7 +310,8 @@ Result pctl_set_safety_level(u32 level)
 
 Result pctl_set_custom_settings(const PctlCustomSettings *s)
 {
-    if (core_read_only()) return NXM_RC_READ_ONLY;
+    Result gate = core_change_allowed();
+    if (R_FAILED(gate)) return gate;
     if (!s || s->rating_age > 21) return NXM_RC_INVALID_ARGUMENT;
     Result rc = pctl_ops_init();
     if (R_FAILED(rc)) return rc;
@@ -313,7 +330,8 @@ Result pctl_set_custom_settings(const PctlCustomSettings *s)
 
 Result pctl_set_stereo_vision_restricted(bool restricted)
 {
-    if (core_read_only()) return NXM_RC_READ_ONLY;
+    Result gate = core_change_allowed();
+    if (R_FAILED(gate)) return gate;
     if (!hosversionAtLeast(4, 0, 0)) return NXM_RC_FW_UNSUPPORTED;
     Result rc = pctl_ops_init();
     if (R_FAILED(rc)) return rc;
@@ -420,10 +438,9 @@ void pctl_overview_fetch(PctlStatus *status, PtState *pt)
 
 Result pctl_play_timer_set_days(const u16 days_min[7])
 {
-    if (core_read_only()) {
-        pctl_ops_exit();
-        return NXM_RC_READ_ONLY;
-    }
+    pctl_ops_exit();   // nothing held while the PIN check may show its applet
+    Result gate = core_change_allowed();
+    if (R_FAILED(gate)) return gate;
     if (!pt_fw_supported()) return NXM_RC_FW_UNSUPPORTED;
     for (int n = 0; n < 7; n++)
         if (days_min[n] != PT_DAY_NOLIMIT && days_min[n] > 1440) return NXM_RC_INVALID_ARGUMENT;
@@ -472,7 +489,8 @@ Result pctl_play_timer_clear(void)
 
 Result pctl_play_timer_set_alarm_disabled(bool disabled)
 {
-    if (core_read_only()) return NXM_RC_READ_ONLY;
+    Result gate = core_change_allowed();
+    if (R_FAILED(gate)) return gate;
     Result rc = pctl_ops_init();
     if (R_FAILED(rc)) return rc;
     u8 v = disabled ? 1 : 0;

@@ -2,6 +2,7 @@
 #include "tab/security_tab.hpp"
 
 #include "action/backup_flow.hpp"
+#include "action/pin_lock.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
 
@@ -66,6 +67,11 @@ SecurityTab::SecurityTab()
 {
     this->enable_auto_refresh(5000);
     pr_note->setSingleLine(false);
+    pin_lock_note->setSingleLine(false);
+    pin_lock_cell->registerClickAction([this](brls::View*) {
+        pin_lock::choose([this]() { this->refresh(); });
+        return true;
+    });
     pr_unlink->registerClickAction([this](brls::View*) {
         ui::confirm_danger("playguard/pairing/unlink_body"_i18n, "playguard/pairing/unlink_confirm"_i18n, [this]() {
             Result rc = pctl_delete_pairing();
@@ -144,6 +150,7 @@ void SecurityTab::refresh()
     pr_updated->setDetailText(s.last_updated_ok ? ui::time_text(s.last_updated) : "playguard/common/unavailable"_i18n);
     pr_note->setTextColor(paired ? ui::color_warn() : ui::color_note());
 
+    pin_lock_cell->setDetailText(pin_lock::mode_text());
     const bool writable = !app::read_only();
     const bool has_pin  = s.pin_length_ok && s.pin_length > 0;
     const bool unlocked = s.temp_unlocked_ok && s.temp_unlocked;

@@ -20,6 +20,8 @@ class SecurityTab : public TabBase
     BRLS_BIND(brls::DetailCell, temp,           "sc_temp");
     BRLS_BIND(brls::Header,     actions_header, "sc_actions_header");
     BRLS_BIND(brls::DetailCell, set_pin,        "sc_set_pin");
+    BRLS_BIND(brls::DetailCell, pin_lock_cell,  "sc_pin_lock");
+    BRLS_BIND(brls::Label,      pin_lock_note,  "sc_pin_lock_note");
     BRLS_BIND(brls::DetailCell, show_pin,       "sc_show_pin");
     BRLS_BIND(brls::DetailCell, unlock,         "sc_unlock");
     BRLS_BIND(brls::DetailCell, relock,         "sc_relock");

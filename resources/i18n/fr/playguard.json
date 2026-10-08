@@ -83,6 +83,8 @@
         "invalid_argument": "valeur invalide",
         "autocorrect_off": "activez d'abord « Synchroniser l'horloge via Internet » dans les paramètres de la console",
         "state_unknown": "l'état actuel du temps de jeu n'a pas pu être lu, rien n'a été écrit",
+        "not_confirmed": "le code PIN n'a pas été saisi, rien n'a été modifié",
+        "no_pin": "aucun code PIN de contrôle parental n'est défini",
         "session_closed": "le système a fermé la session du contrôle parental ; réessayez",
         "bad_pin_format": "le système a refusé le format du code PIN",
         "pctl_refused": "refusé par le service du contrôle parental"
@@ -450,6 +452,20 @@
         "delete_err": "Impossible de supprimer le contrôle parental",
         "pin_ok": "Code PIN mis à jour.",
         "pin_err": "Impossible de mettre à jour le code PIN"
+    },
+    "pin_lock": {
+        "title": "Demander le code PIN",
+        "modes": {
+            "off": "Jamais",
+            "changes": "Avant une modification",
+            "open": "Pour ouvrir PlayGuard"
+        },
+        "note": "Avant une modification : tout le monde peut consulter, seul le parent modifie (redemandé après 5 minutes). Pour ouvrir PlayGuard : un écran verrouillé jusqu'à la saisie du code. Reverrouiller ne le demande jamais. Le réglage est enregistré sur la carte SD.",
+        "no_pin": "Définissez d'abord un code PIN (Définir ou changer le code PIN).",
+        "set": "Demander le code PIN : {}",
+        "locked_title": "PlayGuard est verrouillé",
+        "locked_body": "Saisissez le code PIN du contrôle parental pour l'ouvrir.",
+        "enter": "Saisir le code PIN"
     },
     "tools": {
         "section_diag": "Diagnostic",

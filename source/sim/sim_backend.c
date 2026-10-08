@@ -19,7 +19,8 @@
 //   PLAYGUARD_SIM_FAIL=a,b,...  make these fail: unlock (1201), unverified
 //                               (1201 fine, 1006 still false), write (every
 //                               setting write), relock (1007), timer (145601
-//                               read), clock (network clock write), pin (1208)
+//                               read), clock (network clock write), pin (1208),
+//                               pin_entry (the PIN screen is cancelled)
 // The play-timer limits are kept as the real 0x44 block (core/pure.c encodes
 // and decodes it, as on the console); the read-only switch is core/write_guard.c.
 // Game patches are read from ./playguard_data/sd/ (the simulated SD card root).
@@ -142,7 +143,8 @@ void pctl_status_fetch(PctlStatus *o)
     o->last_updated_ok = true;        o->last_updated = (u64)time(NULL) - 3600 * 26;
 }
 
-#define RO_GUARD() do { if (core_read_only()) return NXM_RC_READ_ONLY; } while (0)
+// Read-only, then the change check (write_guard.h), as pctl_ops.c does.
+#define RO_GUARD() do { Result g_ = core_change_allowed(); if (R_FAILED(g_)) return g_; } while (0)
 // Refuses like the console when PLAYGUARD_SIM_FAIL lists `what`.
 #define FAIL_IF(what) do { if (fails(what)) return SIM_FAIL_RC; } while (0)
 
@@ -166,7 +168,10 @@ Result pctl_get_pin(char *out, size_t out_size)
     snprintf(out, out_size, "1234");
     return 0;
 }
-Result pctl_relock(void)                          { RO_GUARD(); FAIL_IF("relock"); S.temp_unlocked = false; return 0; }
+// Locking again never asks for the PIN (write_guard.h): read-only only.
+Result pctl_relock(void)                          { if (core_read_only()) return NXM_RC_READ_ONLY; FAIL_IF("relock"); S.temp_unlocked = false; return 0; }
+// PLAYGUARD_SIM_FAIL=pin_entry: the PIN screen is cancelled.
+Result pctl_ask_pin(void)                         { sim_init(); if (!S.pin_length) return NXM_RC_NO_PIN; FAIL_IF("pin_entry"); return 0; }
 Result pctl_delete_parental_controls(void)
 {
     RO_GUARD();
@@ -272,8 +277,9 @@ void time_clock_apply(u64 utc, TimeApply *o)
 {
     memset(o, 0, sizeof(*o));
     time_clock_snapshot(&o->before);
-    if (core_read_only()) {
-        o->open_rc = NXM_RC_READ_ONLY;
+    const Result gate = core_change_allowed();
+    if (R_FAILED(gate)) {
+        o->open_rc = gate;
     } else if (!o->before.automatic) {
         o->refused_automatic = true;   // as time_ops.c: the user clock would not follow
     } else if (fails("clock")) {

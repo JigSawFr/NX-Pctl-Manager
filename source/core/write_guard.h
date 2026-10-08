@@ -1,12 +1,24 @@
-// write_guard — the read-only switch of the service layer.
+// write_guard — what the service layer checks before changing the console.
 //
-// While it is on, every function that would change the console (pctl_ops.c,
-// time_ops.c, and their simulated twins in source/sim/) returns
-// NXM_RC_READ_ONLY before opening any session. The UI hides its write
+// The read-only switch: while it is on, every function that would change the
+// console (pctl_ops.c, time_ops.c, and their simulated twins in source/sim/)
+// returns NXM_RC_READ_ONLY before opening any session. The UI hides its write
 // controls too, but this is the check that cannot be skipped.
+//
+// The change check: a function the UI installs (Security › Ask for the PIN)
+// that runs before every change and may ask for the parental-control PIN; it
+// refuses with NXM_RC_NOT_CONFIRMED. It runs before any session is opened,
+// so it may show the system's PIN applet. Locking again (1007) never asks:
+// it is never refused for want of a PIN.
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).
 #pragma once
 #include "nx_types.h"
 
 void core_set_read_only(bool on);
 bool core_read_only(void);
+
+// NULL (the default): every change is allowed.
+void core_set_change_check(bool (*check)(void));
+
+// What every change calls first: NXM_RC_READ_ONLY, NXM_RC_NOT_CONFIRMED, or 0.
+Result core_change_allowed(void);

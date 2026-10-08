@@ -57,6 +57,8 @@ static std::string hint_for(Result rc)
             case 6: return "playguard/error/invalid_argument"_i18n;
             case 7: return "playguard/error/autocorrect_off"_i18n;
             case 8: return "playguard/error/state_unknown"_i18n;
+            case 9: return "playguard/error/not_confirmed"_i18n;
+            case 10: return "playguard/error/no_pin"_i18n;
             default: return "";
         }
     }

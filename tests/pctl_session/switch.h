@@ -25,6 +25,7 @@ Result pctlInitialize(void);
 void pctlExit(void);
 Service *pctlGetServiceSession_Service(void);
 Result pctlauthRegisterPasscode(void);
+Result pctlauthShowForConfiguration(void);
 
 /* Buffer descriptors (the "..." arguments) keep only their attributes, address
  * and size, so the mock can fill GetPinCode's buffer and check what 1201

@@ -82,8 +82,9 @@ void time_clock_apply(u64 utc_seconds, TimeApply *out)
 {
     memset(out, 0, sizeof(*out));
     time_clock_snapshot(&out->before);
-    if (core_read_only()) {
-        out->open_rc = NXM_RC_READ_ONLY;
+    const Result gate = core_change_allowed();   // read-only, or the PIN asked first
+    if (R_FAILED(gate)) {
+        out->open_rc = gate;
         time_clock_snapshot(&out->after);
         return;
     }

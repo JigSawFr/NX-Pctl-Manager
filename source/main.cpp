@@ -8,7 +8,9 @@
 #include <cstdlib>
 
 #include "action/fw_gate.hpp"
+#include "action/pin_lock.hpp"
 #include "activity/init_error_activity.hpp"
+#include "activity/lock_activity.hpp"
 #include "activity/main_activity.hpp"
 #include "app.hpp"
 #include "tab/activity_tab.hpp"
@@ -73,7 +75,11 @@ int main(int argc, char* argv[])
     if (app::init()) {
         // Untested firmware: read-only (or the remembered choice) before any tab is built.
         fw_gate::prepare();
-        brls::Application::pushActivity(new MainActivity());
+        // Security › Ask for the PIN: checked before every change from now on;
+        // "To open PlayGuard" starts on the lock screen.
+        pin_lock::install();
+        if (pin_lock::at_start()) brls::Application::pushActivity(new LockActivity());
+        else brls::Application::pushActivity(new MainActivity());
     } else {
         brls::Logger::error("pctl probe failed (0x{:08X}) — showing InitErrorActivity", app::pctl_init_result());
         brls::Application::pushActivity(new InitErrorActivity());

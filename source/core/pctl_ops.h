@@ -59,6 +59,11 @@ const char *pctl_rating_org_name(u32 org);           // "PEGI", "ESRB", … or "
 
 // ---- PIN / unlock ----
 Result pctl_set_pin(void);                   // opens the system PIN applet (registers / changes it)
+// The system's PIN screen (pctlauth, as System Settings shows it), to confirm
+// it is the parent: 0 when the right PIN was entered, NXM_RC_NO_PIN (nothing
+// shown) when none is set, anything else when it was cancelled. Changes
+// nothing, so read-only mode and the change check do not apply.
+Result pctl_ask_pin(void);
 
 // UnlockRestrictionTemporarily (1201) using the stored PIN read via GetPinCode
 // (1208), then verifies IsRestrictionTemporaryUnlocked (1006). Returns
