@@ -77,28 +77,50 @@ void RescueActivity::willAppear(bool resetState)
 
 void RescueActivity::refresh()
 {
-    // What the sysmodule did.
-    const char* key = report.result == RescueResult_Ok     ? (report.mode == RescueMode_Delete
-                                                                   ? "playguard/rescue/outcome/deleted"
-                                                                   : "playguard/rescue/outcome/unlocked")
-                    : report.result == RescueResult_NoPin ? "playguard/rescue/outcome/no_pin"
-                                                          : "playguard/rescue/outcome/failed";
-    outcome->setText(brls::getStr(key));
+    const bool ok      = report.result == RescueResult_Ok;
+    const bool deleted = ok && report.mode == RescueMode_Delete;
 
-    std::string n = "playguard/rescue/note"_i18n;
+    // What the sysmodule did, in the status colour that matches it.
+    const char* key = deleted                               ? "playguard/rescue/outcome/deleted"
+                    : ok                                    ? "playguard/rescue/outcome/unlocked"
+                    : report.result == RescueResult_NoPin   ? "playguard/rescue/outcome/no_pin"
+                                                            : "playguard/rescue/outcome/failed";
+    outcome->setText(brls::getStr(key));
+    outcome->setTextColor(ok ? ui::color_ok()
+                             : report.result == RescueResult_NoPin ? ui::color_warn() : ui::color_bad());
+
+    std::string n = deleted                               ? "playguard/rescue/note_deleted"_i18n
+                  : ok                                    ? "playguard/rescue/note"_i18n
+                  : report.result == RescueResult_NoPin   ? "playguard/rescue/note_no_pin"_i18n
+                                                          : "playguard/rescue/note_failed"_i18n;
     if (report.result == RescueResult_Failed)
         n += "\n" + brls::getStr("playguard/rescue/failed_code", ui::rc_text(report.rc));
     if (app::read_only()) n += "\n" + "playguard/common/read_only_note"_i18n;
     note->setText(n);
 
-    // After a delete there is nothing left to show or reset.
+    // After a delete there is nothing left to show, reset or delete: only
+    // "Open PlayGuard" remains, so the actions section is hidden entirely.
     PctlStatus s;
     pctl_status_fetch(&s);
     const bool has_pin  = s.pin_length_ok && s.pin_length > 0;
     const bool writable = !app::read_only();
-    ui::set_visible_all({ { show_pin.getView(), has_pin },
-                          { reset_pin.getView(), true },
-                          { del.getView(), has_pin } });
+
+    // Short hints on the right, so a parent knows what each one does at a glance.
+    show_pin->setDetailText("playguard/rescue/hint/show_pin"_i18n);
+    reset_pin->setDetailText("playguard/rescue/hint/reset_pin"_i18n);
+    del->setDetailText("playguard/rescue/hint/delete"_i18n);
+    for (brls::DetailCell* c : { (brls::DetailCell*)show_pin.getView(),
+                                 (brls::DetailCell*)reset_pin.getView(), (brls::DetailCell*)del.getView() })
+        c->setDetailTextColor(ui::color_note());
+
+    // After the sysmodule deleted everything, only "Open PlayGuard" is left.
+    // Otherwise: show the PIN and delete need one to exist; "Set a new PIN"
+    // is always offered (it sets one when there is none).
+    const bool actions = !deleted;
+    ui::set_visible_all({ { actions_header.getView(), actions },
+                          { show_pin.getView(), actions && has_pin },
+                          { reset_pin.getView(), actions },
+                          { del.getView(), actions && has_pin } });
     for (brls::DetailCell* c : { (brls::DetailCell*)show_pin.getView(),
                                  (brls::DetailCell*)reset_pin.getView() })
         ui::show_writable(c, writable);

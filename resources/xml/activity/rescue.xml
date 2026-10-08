@@ -29,13 +29,15 @@
             paddingBottom="@style/brls/sidebar/padding_bottom"
             paddingLeft="@style/brls/sidebar/padding_left">
 
-            <brls:Label id="rc_outcome" text="" fontSize="24" marginBottom="8"/>
-            <brls:Label id="rc_note" text="" fontSize="20" marginBottom="16" textColor="@theme/brand/note"/>
+            <brls:Label id="rc_outcome" text="" fontSize="26" marginBottom="6"/>
+            <brls:Label id="rc_note" text="" fontSize="20" marginBottom="20" textColor="@theme/brand/note"/>
 
-            <brls:Header title="@i18n/playguard/rescue/section_actions" marginBottom="8"/>
+            <brls:Header id="rc_actions_header" title="@i18n/playguard/rescue/section_actions" marginBottom="8"/>
             <brls:DetailCell id="rc_show_pin" title="@i18n/playguard/security/show_pin"/>
             <brls:DetailCell id="rc_reset_pin" title="@i18n/playguard/rescue/reset_pin"/>
             <brls:DetailCell id="rc_delete" title="@i18n/playguard/security/delete"/>
+
+            <brls:Header title="@i18n/playguard/rescue/section_done" marginTop="24" marginBottom="8"/>
             <brls:DetailCell id="rc_continue" title="@i18n/playguard/rescue/continue"/>
 
         </brls:Box>
