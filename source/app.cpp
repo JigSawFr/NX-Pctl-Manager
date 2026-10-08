@@ -1,12 +1,9 @@
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #include "app.hpp"
 
+#include "core/platform.h"
 #include "util/config.hpp"
 #include "util/pctl_ops_c.hpp"
-
-#ifdef __SWITCH__
-#include <switch.h>
-#endif
 
 #ifndef APP_VERSION
 #define APP_VERSION "0.0.0-dev"
@@ -41,11 +38,7 @@ const char* repo_url()         { return "https://github.com/JigSawFr/PlayGuard";
 
 bool in_focus()
 {
-#ifdef __SWITCH__
-    return appletGetFocusState() == AppletFocusState_InFocus;
-#else
-    return true;
-#endif
+    return platform_in_focus();
 }
 
 bool read_only()            { return core_read_only(); }

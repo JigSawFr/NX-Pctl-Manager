@@ -11,12 +11,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 
-#ifdef __SWITCH__
-#include <switch.h>
-#else
-#include <exception>
-#include <random>
-#endif
+#include "core/platform.h"
 
 namespace ntp {
 namespace {
@@ -39,19 +34,10 @@ std::string socket_error(const char* operation)
 
 bool make_cookie(std::uint8_t cookie[NTP_COOKIE_SIZE], std::string& error)
 {
-#ifdef __SWITCH__
-    (void)error;
-    randomGet(cookie, NTP_COOKIE_SIZE);
-#else
-    try {
-        std::random_device random;
-        for (unsigned i = 0; i < NTP_COOKIE_SIZE; ++i)
-            cookie[i] = static_cast<std::uint8_t>(random());
-    } catch (const std::exception& exception) {
-        error = std::string("Could not generate NTP request cookie: ") + exception.what();
+    if (!platform_random(cookie, NTP_COOKIE_SIZE)) {
+        error = "Could not generate NTP request cookie";
         return false;
     }
-#endif
     bool nonzero = false;
     for (unsigned i = 0; i < NTP_COOKIE_SIZE; ++i) nonzero |= cookie[i] != 0;
     if (!nonzero) cookie[0] = 1;

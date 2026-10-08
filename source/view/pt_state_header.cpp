@@ -56,13 +56,6 @@ void PtStateHeader::show(const PtState& pt)
     configured_value->setText(configured_text(pt));
 }
 
-void PtStateHeader::refresh()
-{
-    PtState pt;
-    pctl_play_timer_query(&pt);
-    this->show(pt);
-}
-
 brls::View* PtStateHeader::create()
 {
     return new PtStateHeader();

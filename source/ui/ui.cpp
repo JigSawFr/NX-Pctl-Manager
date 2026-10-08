@@ -3,6 +3,7 @@
 
 #include "activity/main_activity.hpp"
 #include "app.hpp"
+#include "core/platform.h"
 #include "tab/tab_base.hpp"
 #include "util/config.hpp"
 #include "util/duration.hpp"
@@ -211,27 +212,16 @@ void prompt_minutes(const std::string& header, uint16_t current, std::function<v
         }
         on_value(minutes);
     };
-#ifdef __SWITCH__
-    // The system number pad with a ":" key, so "1:30" can be typed. borealis'
-    // openForNumber reads the result with stoll and would stop at the colon.
-    SwkbdConfig kbd;
-    if (R_FAILED(swkbdCreate(&kbd, 0))) return;
-    swkbdConfigMakePresetDefault(&kbd);
-    swkbdConfigSetType(&kbd, SwkbdType_NumPad);
-    swkbdConfigSetLeftOptionalSymbolKey(&kbd, ":");
-    swkbdConfigSetHeaderText(&kbd, header.c_str());
-    swkbdConfigSetSubText(&kbd, guide.c_str());
-    swkbdConfigSetStringLenMax(&kbd, 5);
-    swkbdConfigSetInitialText(&kbd, initial.c_str());
-    swkbdConfigSetBlurBackground(&kbd, true);
+    // The system number pad, with a ":" key (core/platform.h); borealis' own
+    // text input where there is none.
     char out[16] = {};
-    const Result rc = swkbdShow(&kbd, out, sizeof(out));
-    swkbdClose(&kbd);
-    if (R_SUCCEEDED(rc) && out[0]) handle(out);
-#else
+    switch (platform_numpad(header.c_str(), guide.c_str(), initial.c_str(), 5, out, sizeof(out))) {
+        case PLATFORM_INPUT_OK:        handle(out); return;
+        case PLATFORM_INPUT_CANCELLED: return;
+        case PLATFORM_INPUT_NONE:      break;
+    }
     brls::Application::getImeManager()->openForText([handle](std::string text) { handle(text); },
                                                    header, guide, 5, initial);
-#endif
 }
 
 void prompt_text(const std::string& header, const std::string& initial, int max_len,
