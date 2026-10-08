@@ -40,15 +40,17 @@ struct Snapshot
     bool alarm_ok       = false;
     bool alarm_disabled = false;
 
-    // For the record, not restored: the default rating body (1037) and the
-    // 0x44 PlayTimerSettings block as read (136 hex digits), to tell later
-    // what the fields PlayGuard does not decode held.
+    // The default rating body (1037 / 1038), which the age limit is read with.
     bool        rating_org_ok = false;
     uint32_t    rating_org    = 0;
+
+    // For the record, not restored: the 0x44 PlayTimerSettings block as read
+    // (136 hex digits), to tell later what the fields PlayGuard does not
+    // decode held.
     std::string raw_block;
 
     // Nothing a restore would write.
-    bool empty() const { return !level_ok && !custom_ok && !vr_ok && !days_ok; }
+    bool empty() const { return !level_ok && !custom_ok && !vr_ok && !days_ok && !rating_org_ok; }
 };
 
 std::string to_json(const Snapshot& s);

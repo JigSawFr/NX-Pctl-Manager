@@ -47,8 +47,14 @@ RestrictionsTab::RestrictionsTab()
         for (uint32_t i = 0; i <= 4; i++) names.push_back(ui::level_name(i));
         ui::pick("playguard/restrictions/level"_i18n, names, this->st.safety_level_ok ? (int)this->st.safety_level : 0,
                  [this](int index) {
-                     ui::confirm(brls::getStr("playguard/restrictions/confirm_level", ui::level_name((uint32_t)index)),
-                                 "playguard/play_timer/confirm_set"_i18n, [this, index]() {
+                     // A preset: say what it restricts (1034) before choosing it.
+                     std::string body = brls::getStr("playguard/restrictions/confirm_level", ui::level_name((uint32_t)index));
+                     PctlCustomSettings preset;
+                     if (index >= PctlSafetyLevel_YoungChild && R_SUCCEEDED(pctl_get_level_settings((uint32_t)index, &preset)))
+                         body += "\n\n" + this->settings_text(preset);
+                     else if (index == PctlSafetyLevel_Custom)
+                         body += "\n\n" + "playguard/restrictions/custom_hint"_i18n;
+                     ui::confirm(body, "playguard/play_timer/confirm_set"_i18n, [this, index]() {
                                      Result rc = pctl_set_safety_level((uint32_t)index);
                                      ui::notify_result(rc, "playguard/restrictions/saved"_i18n, "playguard/restrictions/save_err"_i18n);
                                      this->refresh();
@@ -87,6 +93,26 @@ RestrictionsTab::RestrictionsTab()
         s.free_communication_restriction = on;
         this->write_custom(s);
     });
+    org->registerClickAction([this](brls::View*) {
+        if (app::read_only()) {
+            ui::notify(ui::rc_text(NXM_RC_READ_ONLY));
+            return true;
+        }
+        std::vector<std::string> names;
+        for (uint32_t i = 0; i < 13; i++) names.push_back(pctl_rating_org_name(i));
+        ui::pick("playguard/restrictions/org"_i18n, names, this->st.rating_org_ok && this->st.rating_org < 13 ? (int)this->st.rating_org : 0,
+                 [this](int index) {
+                     if (this->st.rating_org_ok && (int)this->st.rating_org == index) return;
+                     ui::confirm(brls::getStr("playguard/restrictions/confirm_org", pctl_rating_org_name((uint32_t)index)),
+                                 "playguard/play_timer/confirm_set"_i18n, [this, index]() {
+                                     Result rc = pctl_set_rating_org((uint32_t)index);
+                                     ui::notify_result(rc, "playguard/restrictions/saved"_i18n, "playguard/restrictions/save_err"_i18n);
+                                     this->refresh();
+                                 });
+                 });
+        return true;
+    });
+
     vr->init("playguard/restrictions/vr"_i18n, false, [this](bool on) {
         Result rc = pctl_set_stereo_vision_restricted(on);
         ui::notify_result(rc, "playguard/restrictions/saved"_i18n, "playguard/restrictions/save_err"_i18n);
@@ -95,6 +121,15 @@ RestrictionsTab::RestrictionsTab()
     guard_switch(sns);
     guard_switch(comm);
     guard_switch(vr);
+}
+
+std::string RestrictionsTab::settings_text(const PctlCustomSettings& s) const
+{
+    const std::string org = this->st.rating_org_ok ? std::string(" (") + pctl_rating_org_name(this->st.rating_org) + ")" : "";
+    auto yes_no = [](bool v) { return v ? "playguard/common/yes"_i18n : "playguard/common/no"_i18n; };
+    return brls::getStr("playguard/common/line", "playguard/restrictions/age"_i18n, age_text(s.rating_age) + org) + "\n" +
+           brls::getStr("playguard/common/line", "playguard/restrictions/sns"_i18n, yes_no(s.sns_post_restriction)) + "\n" +
+           brls::getStr("playguard/common/line", "playguard/restrictions/comm"_i18n, yes_no(s.free_communication_restriction));
 }
 
 void RestrictionsTab::write_custom(const PctlCustomSettings& s)

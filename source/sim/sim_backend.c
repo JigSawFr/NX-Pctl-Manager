@@ -45,6 +45,7 @@ static struct {
     u32  pin_length;
     bool restriction_enabled, temp_unlocked, pairing_active, stereo_restricted, alarm_disabled, paused;
     bool limit_reached, autosync_off;
+    u32  rating_org;
     PctlCustomSettings custom;
     u16  block[PT_U16_COUNT];   // PlayTimerSettings, as 145601 returns it
     s64  clock_offset;
@@ -83,6 +84,7 @@ static void sim_init(void)
     S.pairing_active = !blank && getenv("PLAYGUARD_SIM_UNPAIRED") == NULL;
     S.temp_unlocked = getenv("PLAYGUARD_SIM_UNLOCKED") != NULL;
     S.custom.rating_age = 12;
+    S.rating_org = 6;   // PEGI
     S.custom.sns_post_restriction = true;
     S.limit_reached = getenv("PLAYGUARD_SIM_RESTRICTED") != NULL;
     S.autosync_off = getenv("PLAYGUARD_SIM_AUTOSYNC_OFF") != NULL;
@@ -137,7 +139,7 @@ void pctl_status_fetch(PctlStatus *o)
     o->temp_unlocked_ok = true;       o->temp_unlocked = S.temp_unlocked;
     o->pairing_active_ok = true;      o->pairing_active = S.pairing_active;
     o->settings_ok = true;            o->settings = S.custom;
-    o->rating_org_ok = true;          o->rating_org = 6;
+    o->rating_org_ok = true;          o->rating_org = S.rating_org;
     o->stereo_vision_ok = true;       o->stereo_vision_restricted = S.stereo_restricted;
     o->free_comm_count_ok = true;     o->free_comm_count = 3;
     o->last_updated_ok = true;        o->last_updated = (u64)time(NULL) - 3600 * 26;
@@ -191,6 +193,16 @@ Result pctl_set_custom_settings(const PctlCustomSettings *c)
     return 0;
 }
 Result pctl_set_stereo_vision_restricted(bool r)  { RO_GUARD(); FAIL_IF("write"); S.stereo_restricted = r; return 0; }
+Result pctl_set_rating_org(u32 org)               { RO_GUARD(); FAIL_IF("write"); if (org >= 13) return NXM_RC_INVALID_ARGUMENT; S.rating_org = org; return 0; }
+Result pctl_get_level_settings(u32 level, PctlCustomSettings *out)
+{
+    // Made-up presets in the spirit of the console's.
+    static const PctlCustomSettings presets[5] = { { 0, false, false }, { 0, false, false },
+                                                   { 6, true, true }, { 12, true, true }, { 16, false, false } };
+    if (!out || level > 4) return NXM_RC_INVALID_ARGUMENT;
+    *out = level == PctlSafetyLevel_Custom ? S.custom : presets[level];
+    return 0;
+}
 Result pctl_play_timer_set_alarm_disabled(bool d) { RO_GUARD(); FAIL_IF("write"); S.alarm_disabled = d; return 0; }
 Result pctl_play_timer_start(void)                { RO_GUARD(); FAIL_IF("write"); S.paused = false; return 0; }
 Result pctl_play_timer_stop(void)                 { RO_GUARD(); FAIL_IF("write"); S.paused = true; return 0; }

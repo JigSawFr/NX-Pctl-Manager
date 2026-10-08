@@ -62,6 +62,7 @@ std::string summary(const backup::Snapshot& s)
         out += "\n" + line("playguard/restrictions/comm"_i18n, yes_no(s.comm_restricted));
     }
     if (s.vr_ok) out += "\n" + line("playguard/restrictions/vr"_i18n, yes_no(s.vr_restricted));
+    if (s.rating_org_ok) out += "\n" + line("playguard/restrictions/org"_i18n, pctl_rating_org_name(s.rating_org));
     if (s.days_ok) out += "\n" + line("playguard/play_timer/section_limit"_i18n, days_text(s.days));
     // A debug-class command: written only with the advanced actions shown.
     if (s.alarm_ok)
@@ -95,6 +96,7 @@ void write_all(const backup::Snapshot& s, bool did_unlock, std::function<void()>
         }
     }
     if (s.vr_ok) check(pctl_set_stereo_vision_restricted(s.vr_restricted), "playguard/restrictions/vr"_i18n);
+    if (s.rating_org_ok) check(pctl_set_rating_org(s.rating_org), "playguard/restrictions/org"_i18n);
     if (s.days_ok) check(pctl_play_timer_set_days(s.days.data()), "playguard/play_timer/section_limit"_i18n);
     if (s.alarm_ok && config::get().advanced)
         check(pctl_play_timer_set_alarm_disabled(s.alarm_disabled), "playguard/play_timer/alarm"_i18n);

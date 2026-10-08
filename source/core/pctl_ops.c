@@ -21,8 +21,11 @@
  *   1032 GetSafetyLevel                   -> u32       1033 SetSafetyLevel <- u32
  *   1035 GetCurrentSettings               -> RestrictionSettings (3 bytes)
  *   1036 SetCustomSafetyLevelSettings     <- RestrictionSettings (3 bytes)
- *   1037 GetDefaultRatingOrganization     -> u32
+ *   1034 GetSafetyLevelSettings          <- u32 level -> RestrictionSettings (3 bytes)
+ *   1037 GetDefaultRatingOrganization     -> u32       1038 SetDefaultRatingOrganization <- u32
  *   1039 GetFreeCommunicationApplicationListCount -> u32
+ *   1044 GetFreeCommunicationApplicationList <- u32 offset -> u32 count + Out|MapAlias buffer
+ *        (FreeCommunicationApplicationInfo, layout not documented: only dumped raw)
  *   1043 DeleteSettings                   (no args) privileged -- IRREVERSIBLE
  *   1062 GetStereoVisionRestriction       -> bool [4.0.0+]   1063 Set… <- bool
  *   1201 UnlockRestrictionTemporarily     <- PIN, In|HipcPointer buffer, NUL-terminated
@@ -295,6 +298,36 @@ Result pctl_play_timer_start(void)           { return run_simple(1451, false); }
 Result pctl_play_timer_stop(void)            { return run_simple(1452, false); }
 
 // ---------------------------------------------------------------- restrictions
+
+Result pctl_get_level_settings(u32 level, PctlCustomSettings *out)
+{
+    if (!out || level > PctlSafetyLevel_Teen) return NXM_RC_INVALID_ARGUMENT;
+    Result rc = pctl_ops_init();
+    if (R_FAILED(rc)) return rc;
+    u8 raw[3] = {0};
+    rc = serviceDispatchInOut(pctlGetServiceSession_Service(), 1034, level, raw);
+    pctl_ops_exit();
+    if (R_SUCCEEDED(rc)) {
+        out->rating_age                     = raw[0];
+        out->sns_post_restriction           = raw[1] != 0;
+        out->free_communication_restriction = raw[2] != 0;
+    }
+    return rc;
+}
+
+#define RATING_ORG_COUNT 13   // nn::ns::RatingOrganization, as pctl_rating_org_name names them
+
+Result pctl_set_rating_org(u32 org)
+{
+    Result gate = core_change_allowed();
+    if (R_FAILED(gate)) return gate;
+    if (org >= RATING_ORG_COUNT) return NXM_RC_INVALID_ARGUMENT;
+    Result rc = pctl_ops_init();
+    if (R_FAILED(rc)) return rc;
+    rc = serviceDispatchIn(pctlGetServiceSession_Service(), 1038, org);
+    pctl_ops_exit();
+    return rc;
+}
 
 Result pctl_set_safety_level(u32 level)
 {
@@ -584,6 +617,31 @@ void pctl_dump(char *buf, size_t bufsz)
       if (R_SUCCEEDED(r)) rep(&p, e, "rating_age=%u sns=%u comm=%u\n", raw[0], raw[1], raw[2]);
       else rep(&p, e, "-\n"); }
     if (hosversionAtLeast(4, 0, 0)) rep_bool(&p, e, srv, 1062, "GetStereoVisionRestriction");
+    for (u32 level = PctlSafetyLevel_YoungChild; level <= PctlSafetyLevel_Teen; level++) {
+        u8 raw[3] = {0};
+        Result r = serviceDispatchInOut(srv, 1034, level, raw);
+        rep(&p, e, "%6u GetSafetyLevelSettings(%u)%-15s rc=0x%08X  ", 1034u, (unsigned)level, "", (unsigned)r);
+        if (R_SUCCEEDED(r)) rep(&p, e, "rating_age=%u sns=%u comm=%u\n", raw[0], raw[1], raw[2]);
+        else rep(&p, e, "-\n");
+    }
+
+    // Software allowed to communicate: the entry layout is not documented,
+    // so the bytes as returned (an application ID per entry is expected).
+    if (!(srv = dump_session(&p, e, "1044"))) goto done;
+    { u8 list[0x200]; memset(list, 0, sizeof(list));
+      u32 offset = 0, count = 0;
+      Result r = serviceDispatchInOut(srv, 1044, offset, count,
+          .buffer_attrs = { SfBufferAttr_HipcMapAlias | SfBufferAttr_Out },
+          .buffers      = { { list, sizeof(list) } });
+      rep(&p, e, "%6u %-38s rc=0x%08X  ", 1044u, "GetFreeCommunicationApplicationList(0)", (unsigned)r);
+      if (R_SUCCEEDED(r)) {
+          rep(&p, e, "count=%u\n", (unsigned)count);
+          size_t n = (size_t)count * 0x20;
+          if (n > sizeof(list)) n = sizeof(list);
+          if (n) rep_hex(&p, e, list, n);
+      } else {
+          rep(&p, e, "-\n");
+      } }
 
     // GetPinCode is probed for compatibility only: the output buffer and the
     // returned length are wiped and never recorded.

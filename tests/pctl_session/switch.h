@@ -33,6 +33,7 @@ Result pctlauthShowForConfiguration(void);
 enum {
     SfBufferAttr_In          = 1u << 0,
     SfBufferAttr_Out         = 1u << 1,
+    SfBufferAttr_HipcMapAlias = 1u << 2,
     SfBufferAttr_HipcPointer = 1u << 3,
 };
 typedef struct { const void *ptr; size_t size; } SfBuffer;

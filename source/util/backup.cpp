@@ -103,7 +103,7 @@ bool from_json(const std::string& text, Snapshot& out)
             }
             if (r.contains("rating_organization")) {
                 int org = 0;
-                if (!int_in(r.at("rating_organization"), 0, 63, org)) return false;
+                if (!int_in(r.at("rating_organization"), 0, 12, org)) return false;
                 s.rating_org = (uint32_t)org;
                 s.rating_org_ok = true;
             }

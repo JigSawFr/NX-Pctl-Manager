@@ -82,7 +82,11 @@ Result pctl_delete_parental_controls(void);  // 1043: wipes the PIN and every re
 Result pctl_delete_pairing(void);            // 1941: unlinks the companion phone app
 
 // ---- restrictions ----
+// GetSafetyLevelSettings (1034): what a level restricts (for the presets:
+// Young Child / Child / Teen), to show before choosing it. Read only.
+Result pctl_get_level_settings(u32 level, PctlCustomSettings *out);
 Result pctl_set_safety_level(u32 level);                       // 1033
+Result pctl_set_rating_org(u32 org);                           // 1038 SetDefaultRatingOrganization, org < 13
 Result pctl_set_custom_settings(const PctlCustomSettings *s);  // 1036 (only when level == Custom)
 Result pctl_set_stereo_vision_restricted(bool restricted);     // 1063 [4.0.0+]
 

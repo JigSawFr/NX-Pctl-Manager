@@ -29,6 +29,7 @@ static struct {
     Result auth_result;       /* what it returns */
     unsigned checks;          /* calls of the change check below */
     bool check_answer;
+    u32 rating_org;           /* what SetDefaultRatingOrganization (1038) received */
 } model;
 
 static void reset_with(u32 hos)
@@ -105,7 +106,8 @@ Result mock_dispatch(Service *srv, u32 command, void *out, size_t out_size,
     assert(command != 1456 && command != 1951); /* close the session on 21.0.0+ */
     model.ipc_calls++;
 
-    const bool is_write = (in != NULL && command != 1460) ||
+    /* Inputs that only select what to read: the level (1034), the offset (1044). */
+    const bool is_write = (in != NULL && command != 1460 && command != 1034 && command != 1044) ||
         command == 1007 || command == 1043 || command == 1941 || command == 1201 ||
         command == 1451 || command == 1452;
     if (is_write) {
@@ -125,6 +127,7 @@ Result mock_dispatch(Service *srv, u32 command, void *out, size_t out_size,
             case 1033:   assert(in_size == 4); model.safety_level = *(const u32 *)in; break;
             case 1036:   assert(in_size == 3); break;
             case 1063: case 1953: assert(in_size == 1); break;
+            case 1038:   assert(in_size == 4); model.rating_org = *(const u32 *)in; break;
             default: assert(!"unexpected input command");
         }
         return 0;
@@ -168,6 +171,17 @@ Result mock_dispatch(Service *srv, u32 command, void *out, size_t out_size,
         case 1952: model.saw_1952 = true; q = 60; return put(out, out_size, &q, 8);
         case 1960: q = 0; return put(out, out_size, &q, 8);
         case 1035: { u8 raw[3] = {12, 1, 0}; return put(out, out_size, raw, 3); }
+        case 1034: {   /* the presets: 7 / 13 / 16 years, posting restricted below Teen */
+            assert(in_size == 4);
+            const u32 level = *(const u32 *)in;
+            u8 raw[3] = { (u8)(level == 2 ? 7 : level == 3 ? 13 : level == 4 ? 16 : 0), (u8)(level >= 2 && level < 4), (u8)(level >= 2) };
+            return put(out, out_size, raw, 3);
+        }
+        case 1044:
+            assert(in_size == 4 && params.buffer_attrs[0] == (SfBufferAttr_HipcMapAlias | SfBufferAttr_Out));
+            assert(params.buffers[0].ptr != NULL && params.buffers[0].size >= 0x20);
+            memset((void *)params.buffers[0].ptr, 0xAB, 0x20);
+            w = 1; return put(out, out_size, &w, 4);
         case 1459: model.saw_1459 = true; assert(out_size == 0x20); return 0;
         case 1460: model.saw_1460 = true; assert(out_size == 0x18 && in_size == 1); return 0;
         case 145601: return put(out, out_size, model.pt_block, sizeof(model.pt_block));
@@ -615,6 +629,33 @@ static void test_other_writes(void)
     }
 }
 
+static void test_level_settings_and_rating_org(void)
+{
+    /* 1034: read only, what a preset restricts. */
+    reset();
+    PctlCustomSettings s;
+    memset(&s, 0xFF, sizeof(s));
+    assert(pctl_get_level_settings(PctlSafetyLevel_Child, &s) == 0);
+    assert(s.rating_age == 13 && s.sns_post_restriction && s.free_communication_restriction);
+    assert(pctl_get_level_settings(PctlSafetyLevel_Teen, &s) == 0 && s.rating_age == 16 && !s.sns_post_restriction);
+    assert(pctl_get_level_settings(5, &s) == NXM_RC_INVALID_ARGUMENT);
+    assert(pctl_get_level_settings(PctlSafetyLevel_Child, NULL) == NXM_RC_INVALID_ARGUMENT);
+    assert(model.writes == 0 && model.refs == 0);
+    /* Read-only mode does not stop a read. */
+    core_set_read_only(true);
+    assert(pctl_get_level_settings(PctlSafetyLevel_Teen, &s) == 0);
+    core_set_read_only(false);
+
+    /* 1038: a change, the value checked first. */
+    reset();
+    assert(pctl_set_rating_org(6) == 0 && model.writes == 1 && model.last_write_cmd == 1038 && model.rating_org == 6);
+    assert(pctl_set_rating_org(13) == NXM_RC_INVALID_ARGUMENT && model.writes == 1);
+    core_set_read_only(true);
+    assert(pctl_set_rating_org(3) == NXM_RC_READ_ONLY && model.writes == 1);
+    core_set_read_only(false);
+    assert(model.refs == 0);
+}
+
 static void test_ask_pin(void)
 {
     /* The PIN screen: shown with the session released, only when a PIN exists. */
@@ -696,6 +737,7 @@ int main(void)
     test_get_pin();
     test_other_writes();
     test_read_only();
+    test_level_settings_and_rating_org();
     test_ask_pin();
     test_change_check();
     puts("pctl_ops lifecycle, gating, write and read-only assertions passed");

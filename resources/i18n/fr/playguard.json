@@ -340,6 +340,7 @@
             "4": "Adolescent"
         },
         "confirm_level": "Passer le niveau de restriction à « {} » ?",
+        "custom_hint": "Choisissez ensuite chaque restriction ci-dessous.",
         "section_custom": "Réglages personnalisés",
         "age": "Restreindre les logiciels selon l'âge",
         "age_none": "Aucune restriction",
@@ -350,6 +351,7 @@
         "section_other": "Autres",
         "vr": "Restreindre le mode VR",
         "org": "Organisme de classification",
+        "confirm_org": "Utiliser les classifications {} ? La limite d'âge du niveau de restriction se lit avec les classifications de cet organisme.",
         "free_comm": "Logiciels autorisés à communiquer",
         "free_comm_value": "{} logiciel(s)",
         "note": "Ce sont les mêmes réglages que Paramètres de la console › Contrôle parental.",
