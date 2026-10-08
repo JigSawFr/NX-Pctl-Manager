@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Static checks on the app resources (run in CI and by `make check`).
 
-- every i18n JSON file parses and en-US / fr define exactly the same keys;
+- every i18n JSON file parses, and every language (resources/i18n/<code>/
+  playguard.json) defines exactly the keys of en-US, with as many "{}";
+- config::LANGUAGES (source/util/config.hpp) lists exactly those languages,
+  and each has a name under playguard/tools/languages/;
 - every "playguard/..." key referenced from C++ or XML exists in en-US
   (keys built at runtime are checked as prefixes: "playguard/days/{}" etc.);
 - every en-US key is referenced (exactly, or under such a prefix): no dead
@@ -30,31 +33,54 @@ def flatten(d, prefix=""):
     return out
 
 
+BASE = "en-US"
 catalogs = {}
-for lang in ("en-US", "fr"):
-    path = f"{ROOT}/resources/i18n/{lang}/playguard.json"
+for path in sorted(glob.glob(f"{ROOT}/resources/i18n/*/playguard.json")):
+    lang = path.split("/")[-2]
     try:
         catalogs[lang] = flatten(json.load(open(path, encoding="utf-8")))
     except Exception as e:  # noqa: BLE001
         errors.append(f"{path}: {e}")
 for path in glob.glob(f"{ROOT}/resources/i18n/*/*.json"):
-    try:
-        json.load(open(path, encoding="utf-8"))
-    except Exception as e:  # noqa: BLE001
-        errors.append(f"{path}: {e}")
+    if not path.endswith("/playguard.json"):
+        try:
+            json.load(open(path, encoding="utf-8"))
+        except Exception as e:  # noqa: BLE001
+            errors.append(f"{path}: {e}")
+if BASE not in catalogs:
+    errors.append(f"resources/i18n/{BASE}/playguard.json is missing")
 
-if len(catalogs) == 2:
-    en, fr = set(catalogs["en-US"]), set(catalogs["fr"])
-    for k in sorted(en - fr):
-        errors.append(f"fr is missing {k}")
-    for k in sorted(fr - en):
-        errors.append(f"fr has extra key {k}")
-    # The same number of "{}" placeholders in both languages.
-    for k in sorted(en & fr):
-        if catalogs["en-US"][k].count("{}") != catalogs["fr"][k].count("{}"):
-            errors.append(f"placeholder count differs for {k}")
+base = catalogs.get(BASE, {})
+for lang, cat in sorted(catalogs.items()):
+    if lang == BASE:
+        continue
+    for k in sorted(set(base) - set(cat)):
+        errors.append(f"{lang} is missing {k}")
+    for k in sorted(set(cat) - set(base)):
+        errors.append(f"{lang} has extra key {k}")
+    # The same number of "{}" placeholders as en-US.
+    for k in sorted(set(base) & set(cat)):
+        if str(base[k]).count("{}") != str(cat[k]).count("{}"):
+            errors.append(f"{lang}: placeholder count differs for {k}")
 
-en_keys = set(catalogs.get("en-US", {}))
+# The language picker's list (config::LANGUAGES) and the catalogs agree.
+config_hpp = open(f"{ROOT}/source/util/config.hpp", encoding="utf-8").read()
+m = re.search(r"LANGUAGES\[\]\s*=\s*\{([^}]*)\}", config_hpp)
+if not m:
+    errors.append("source/util/config.hpp: config::LANGUAGES not found")
+else:
+    listed = re.findall(r'"([^"]+)"', m.group(1))
+    if not listed or listed[0] != "system":
+        errors.append('config::LANGUAGES must start with "system"')
+    for lang in sorted(set(listed) - {"system"} - set(catalogs)):
+        errors.append(f"config::LANGUAGES lists {lang}, which has no resources/i18n/{lang}/playguard.json")
+    for lang in sorted(set(catalogs) - set(listed)):
+        errors.append(f"resources/i18n/{lang} is not in config::LANGUAGES (the language picker)")
+    for lang in listed:
+        if f"tools/languages/{lang}" not in base:
+            errors.append(f"no language name playguard/tools/languages/{lang}")
+
+en_keys = set(base)
 prefixes = {k.rsplit("/", 1)[0] + "/" for k in en_keys}
 
 

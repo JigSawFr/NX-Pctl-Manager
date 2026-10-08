@@ -1,6 +1,6 @@
 // ProfilesActivity — saved play-time profiles (e.g. "School week"). A on one:
 // apply it (through the play-timer write flow), edit its limits or rename it
-// (nothing is written to the console), delete it; Y deletes it at once. Below
+// (nothing is written to the console), delete it (asked first). Below
 // the list: save the current limits as a profile, or make a new one from
 // scratch. The list is rebuilt after every change.
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).

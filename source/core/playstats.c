@@ -35,7 +35,19 @@ static bool convert(const PdmPlayEvent *p, PlayLogEvent *e)
     e->app_id    = 0;
     e->ts_user   = p->timestamp_user;
     e->ts_steady = p->timestamp_steady;
+    e->uid[0] = e->uid[1] = 0;
 
+    if (p->play_event_type == PdmPlayEventType_Account) {
+        // 0: the account is opened (picked in the game), 1: closed. The u32
+        // halves are stored swapped in each u64, as for the ProgramId below.
+        const u8 type = p->event_data.account.type;
+        if (type > 1) return false;
+        const u32 *w = p->event_data.account.uid;
+        e->uid[0] = ((u64)w[0] << 32) | w[1];
+        e->uid[1] = ((u64)w[2] << 32) | w[3];
+        e->kind   = type == 0 ? PlayLogEv_AccountOpen : PlayLogEv_AccountClose;
+        return true;
+    }
     if (p->play_event_type == PdmPlayEventType_PowerStateChange) {   // sleep, wake, shutdown
         e->kind = PlayLogEv_Away;
         return true;
@@ -67,9 +79,9 @@ static bool convert(const PdmPlayEvent *p, PlayLogEvent *e)
         case PdmAppletEventType_Exit6:
             e->kind = PlayLogEv_Unfocus;
             return true;
-        case PdmAppletEventType_Launch:   // a new start: whatever was in focus is over
-            e->app_id = 0;
-            e->kind   = PlayLogEv_Away;
+        case PdmAppletEventType_Launch:   // a new start: whatever was in focus is over,
+            e->app_id = 0;                // and the accounts the previous game had open
+            e->kind   = PlayLogEv_Launch;
             return true;
         default:
             return false;
@@ -167,7 +179,32 @@ static void read_name(GameStat *g, NsApplicationControlData *cd)
     }
 }
 
+// All-time statistics of one game, for every account or one.
+static Result query_totals(u64 app_id, const PlayAccount *account, PdmPlayStatistics *st)
+{
+    memset(st, 0, sizeof(*st));
+    if (!account) return pdmqryQueryPlayStatisticsByApplicationId(app_id, false, st);
+    AccountUid uid;
+    uid.uid[0] = account->uid[0];
+    uid.uid[1] = account->uid[1];
+    return pdmqryQueryPlayStatisticsByApplicationIdAndUserAccountId(app_id, uid, false, st);
+}
+
+static void set_totals(GameStat *g, const PdmPlayStatistics *st)
+{
+    g->totals_ok    = true;
+    g->total_s      = st->playtime / 1000000000ULL;
+    g->launches     = st->total_launches;
+    g->first_played = st->first_timestamp_user;
+    g->last_played  = st->last_timestamp_user;
+}
+
 void playstats_fetch(PlayStats *out)
+{
+    playstats_fetch_for(out, NULL);
+}
+
+void playstats_fetch_for(PlayStats *out, const PlayAccount *account)
 {
     memset(out, 0, sizeof(*out));
     time_local_now(&out->now, NULL);   // live, unlike time() (calendar.h)
@@ -212,16 +249,11 @@ void playstats_fetch(PlayStats *out)
         // All-time totals of every installed game that was ever played.
         for (size_t i = 0; i < id_count; i++) {
             PdmPlayStatistics st;
-            memset(&st, 0, sizeof(st));
-            if (R_FAILED(pdmqryQueryPlayStatisticsByApplicationId(ids[i], false, &st))) continue;
+            if (R_FAILED(query_totals(ids[i], account, &st))) continue;
             if (st.playtime == 0 && st.total_launches == 0) continue;
             GameStat *g = find_or_add(out, ids[i]);
             if (!g) break;
-            g->totals_ok    = true;
-            g->total_s      = st.playtime / 1000000000ULL;
-            g->launches     = st.total_launches;
-            g->first_played = st.first_timestamp_user;
-            g->last_played  = st.last_timestamp_user;
+            set_totals(g, &st);
         }
 
         // Today and the last 7 days. A session can start up to a day before
@@ -237,6 +269,17 @@ void playstats_fetch(PlayStats *out)
         PlayLogEvent *events = NULL;
         size_t event_count = 0;
         out->events_rc = read_events(day_starts[6] >= DAY_S ? day_starts[6] - DAY_S : 0, &events, &event_count);
+        if (R_SUCCEEDED(out->events_rc) && account && event_count) {
+            // One account: only the time it was open in the game.
+            PlayLogEvent *mine = (PlayLogEvent *)malloc(event_count * sizeof(PlayLogEvent));
+            if (mine) {
+                event_count = playlog_for_account(events, event_count, account->uid, mine, event_count);
+                free(events);
+                events = mine;
+            } else {
+                out->events_rc = MAKERESULT(Module_Libnx, LibnxError_OutOfMemory);
+            }
+        }
         if (R_SUCCEEDED(out->events_rc)) {
             static PlayLogTotal totals[PLAYSTATS_MAX];
             const size_t n = playlog_fold_days(events, event_count, out->now, day_starts, totals, PLAYSTATS_MAX);
@@ -250,15 +293,8 @@ void playstats_fetch(PlayStats *out)
                 // still has its all-time totals.
                 if (!g->totals_ok) {
                     PdmPlayStatistics st;
-                    memset(&st, 0, sizeof(st));
-                    if (R_SUCCEEDED(pdmqryQueryPlayStatisticsByApplicationId(g->app_id, false, &st)) &&
-                        (st.playtime || st.total_launches)) {
-                        g->totals_ok    = true;
-                        g->total_s      = st.playtime / 1000000000ULL;
-                        g->launches     = st.total_launches;
-                        g->first_played = st.first_timestamp_user;
-                        g->last_played  = st.last_timestamp_user;
-                    }
+                    if (R_SUCCEEDED(query_totals(g->app_id, account, &st)) && (st.playtime || st.total_launches))
+                        set_totals(g, &st);
                 }
             }
             out->windows_ok = true;
@@ -300,6 +336,33 @@ void playstats_icons(PlayIcon *icons, size_t count)
         free(cd);
     }
     nsExit();
+}
+
+size_t playstats_accounts(PlayAccount *out, size_t max, Result *rc_out)
+{
+    size_t n = 0;
+    Result rc = accountInitialize(AccountServiceType_Application);
+    if (R_SUCCEEDED(rc)) {
+        AccountUid uids[PLAYSTATS_MAX_ACCOUNTS];
+        s32 count = 0;
+        rc = accountListAllUsers(uids, PLAYSTATS_MAX_ACCOUNTS, &count);
+        for (s32 i = 0; R_SUCCEEDED(rc) && i < count && n < max; i++) {
+            PlayAccount *a = &out[n++];
+            memset(a, 0, sizeof(*a));
+            a->uid[0] = uids[i].uid[0];
+            a->uid[1] = uids[i].uid[1];
+            AccountProfile profile;
+            AccountProfileBase base;
+            if (R_SUCCEEDED(accountGetProfile(&profile, uids[i]))) {
+                if (R_SUCCEEDED(accountProfileGet(&profile, NULL, &base)))
+                    copy_utf8(a->nickname, sizeof(a->nickname), base.nickname);
+                accountProfileClose(&profile);
+            }
+        }
+        accountExit();
+    }
+    if (rc_out) *rc_out = rc;
+    return n;
 }
 
 size_t playstats_by_account(u64 app_id, AccountPlay *out, size_t max, Result *rc_out)

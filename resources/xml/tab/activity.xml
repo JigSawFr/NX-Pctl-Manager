@@ -28,6 +28,7 @@
             paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
 
             <brls:Header title="@i18n/playguard/activity/section_totals" marginBottom="8"/>
+            <brls:DetailCell id="ac_account" title="@i18n/playguard/activity/account"/>
             <PlayDaysView id="ac_days" width="auto" height="auto" marginTop="8" marginBottom="16"/>
             <brls:DetailCell id="ac_today" focusable="false" title="@i18n/playguard/activity/today"/>
             <brls:DetailCell id="ac_week" focusable="false" title="@i18n/playguard/activity/week"/>

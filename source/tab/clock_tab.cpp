@@ -53,7 +53,10 @@ ClockTab::ClockTab()
     server_cell->registerClickAction([this](brls::View*) { this->choose_server(); return true; });
     custom->registerClickAction([this](brls::View*) { this->enter_custom(); return true; });
     measure_cell->registerClickAction([this](brls::View*) { this->measure(); return true; });
-    apply_cell->registerClickAction([this](brls::View*) { this->apply(); return true; });
+    apply_cell->registerClickAction([this](brls::View*) {
+        if (!ui::refuse_read_only()) this->apply();
+        return true;
+    });
     ui::set_visible(progress.getView(), false);
     ui::set_visible(warning.getView(), false);
     // Clocks tick and a measurement expires: keep the screen current.
@@ -107,7 +110,9 @@ void ClockTab::refresh()
             apply_cell->setDetailText(brls::getStr("playguard/clock/valid_for", span));
         }
     }
-    ui::set_visible(apply_cell.getView(), !app::read_only() && this->last.ok);
+    // Measuring only reads: also in read-only mode, where setting is greyed.
+    ui::set_visible(apply_cell.getView(), this->last.ok);
+    ui::show_writable(apply_cell, !app::read_only());
 }
 
 void ClockTab::set_server(const std::string& host, const std::string& reg)

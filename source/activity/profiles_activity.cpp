@@ -1,27 +1,11 @@
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).
 #include "activity/profiles_activity.hpp"
 
-#include <fmt/format.h>
-
 #include "action/pt_flow.hpp"
 #include "activity/play_timer_perday_activity.hpp"
 #include "ui/ui.hpp"
 
 using namespace brls::literals;
-
-namespace
-{
-std::string days_summary(const uint16_t days[7])
-{
-    std::string out;
-    for (int i = 1; i <= 7; i++) {   // Monday first, Sunday last
-        int d = i % 7;
-        out += fmt::format("{}: {}", ui::day_name(d), ui::fmt_minutes(days[d]));
-        if (i < 7) out += "\n";
-    }
-    return out;
-}
-}   // namespace
 
 void ProfilesActivity::onContentAvailable()
 {
@@ -63,11 +47,6 @@ void ProfilesActivity::rebuild(const std::string& focus_file)
             this->actions(p);
             return true;
         });
-        // Y, not X: X refreshes everywhere else.
-        cell->registerAction("playguard/common/delete"_i18n, brls::BUTTON_Y, [this, p](brls::View*) {
-            this->remove(p);
-            return true;
-        });
         list->addView(cell);
         if (!focus || p.file == focus_file) focus = cell;
     }
@@ -96,9 +75,10 @@ void ProfilesActivity::apply(const profiles::Profile& p)
 {
     const std::string file = p.file;
     auto days = p.days;
-    pt_flow::confirm_write(brls::getStr("playguard/play_timer/profile_apply", p.name, days_summary(days.data())),
-                           "playguard/play_timer/confirm_set"_i18n, [this, file, days](bool did_unlock) {
-                               Result rc = pctl_play_timer_set_days(days.data());
+    // The week as the profile sets it is drawn under the question.
+    pt_flow::confirm_write(brls::getStr("playguard/play_timer/profile_apply", p.name),
+                           "playguard/play_timer/confirm_set"_i18n, [this, file, days, name = p.name](bool did_unlock) {
+                               Result rc = pt_flow::write_days(days.data(), "profile", name);
                                pt_flow::finish_write(rc, did_unlock, "playguard/play_timer/written_days"_i18n,
                                                      "playguard/play_timer/write_err"_i18n, [this, file]() {
                                                          pctl_play_timer_query(&this->live);

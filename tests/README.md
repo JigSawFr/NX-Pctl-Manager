@@ -20,10 +20,13 @@ make test
 | `update/` | `source/util/update.cpp`: version comparison (numeric parts, `v` prefix, `-dev` builds before releases), firmware strings, `compat.json` parsing (missing, mistyped or malformed fields refuse the file) and the decision of the firmware screen (update supports the firmware, does not yet, already the latest). Needs the borealis submodule (nlohmann/json). |
 | `config/` | `source/util/config.cpp` and the `.tmp` recovery of `paths.cpp`: each field read on its own, unknown or out-of-range values back to their defaults, the firmware choice and the extra-time record dropped as a whole when one of their fields is wrong, the round trip, a save that stopped between its remove and its rename. Needs the borealis submodule (nlohmann/json). |
 | `duration/` | `source/util/duration.cpp`: duration input (`90`, `1:30`, `2h`, `1h30m`), the 24 h bound and malformed entries (`:30`, `1:60`, `2:001`, `1.5`). |
-| `playlog/` | `source/util/playlog.c`: play time per game from the play-event log: focus / out-of-focus pairs, sessions cut short (HOME menu after a crash, sleep, another game), repeated or stray events, today and 7-day windows across midnight and the week start, steady clock versus a changed user clock, sessions over 24 h dropped, a game still in focus counted until now, the output limit. |
+| `playlog/` | `source/util/playlog.c`: play time per game from the play-event log: focus / out-of-focus pairs, sessions cut short (HOME menu after a crash, sleep, another game), repeated or stray events, today and 7-day windows across midnight and the week start, steady clock versus a changed user clock, sessions over 24 h dropped, a game still in focus counted until now, the output limit; one user account's time (the game has the focus and that account open; a game launch closes the previous one's accounts; local multiplayer). |
+| `history/` | `source/util/history.cpp`: the change-history round trip, newest first, trimming to the newest 200, damaged files and entries skipped, which entries can be undone. Needs the borealis submodule (nlohmann/json). |
 | `ntp_packet/` | `source/util/ntp_packet.c`: every malformed / unsynchronised NTP reply is rejected; NTP era handling. |
 
 The `pctl_session`, `time_ops` and `ntp_packet` suites started from anbingxi's
 fork (`diag/fw22-5-readonly`). Passing them does not prove how a real console
 behaves; `tools/desktop_smoke.py` exercises the UI, and hardware testing is
-still required for firmware-specific behaviour.
+still required for firmware-specific behaviour. `visual/` holds the reference
+screenshots CI compares the smoke test's screens with (`tools/visual_check.py`,
+see `visual/README.md`).

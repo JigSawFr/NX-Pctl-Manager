@@ -50,6 +50,9 @@ void notify_result(Result rc, const std::string& ok_text, const std::string& err
 // `danger`: the confirm button is drawn in the "bad" colour (see below).
 void confirm(const std::string& body, const std::string& confirm_label,
              std::function<void()> on_yes, std::function<void()> on_no = nullptr, bool danger = false);
+// Same with `extra` (a chart, …) under the text; ui takes ownership of it.
+void confirm_with(const std::string& body, brls::View* extra, const std::string& confirm_label,
+                  std::function<void()> on_yes, std::function<void()> on_no = nullptr, bool danger = false);
 // Same, for actions that delete something: the confirm button is drawn in the
 // "bad" colour so it never looks like an ordinary OK.
 void confirm_danger(const std::string& body, const std::string& confirm_label, std::function<void()> on_yes);
@@ -114,6 +117,20 @@ std::string patches_text(const patches::Report& report, NVGcolor* color = nullpt
 // *warn tells whether it is a warning (amber) or a plain note.
 std::string patches_note(const patches::Report& report, const SysInfo& info, bool* warn);
 std::string time_text(uint64_t posix);                     // local time, or "—" for 0
+
+// Read-only mode: a toast says so and this returns true (the caller then
+// does nothing). Else false.
+bool refuse_read_only();
+// An action that writes stays visible in read-only mode, greyed (title and
+// value), so the parent sees what exists; its handler calls
+// refuse_read_only(). `title` / `detail`: the colours when writable. A
+// BooleanCell gets its own colours back from its state.
+void show_writable(brls::DetailCell* cell, bool writable, NVGcolor title, NVGcolor detail);
+void show_writable(brls::DetailCell* cell, bool writable);   // plain text, neutral value
+// A BooleanCell flips before telling its listener: in read-only mode the
+// switch would flip, the write be refused and the switch flip back. This
+// checks first, then flips as BooleanCell does.
+void guard_switch(brls::BooleanCell* cell);
 
 // Hides a view when `visible` is false (Visibility::GONE frees its space).
 // When the hidden view had the focus, the focus moves to the nearest visible

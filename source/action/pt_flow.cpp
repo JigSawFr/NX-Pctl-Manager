@@ -4,10 +4,12 @@
 #include <array>
 #include <borealis.hpp>
 
+#include "action/history_flow.hpp"
 #include "action/pt_logic.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
 #include "util/config.hpp"
+#include "view/pt_week.hpp"
 
 using namespace brls::literals;
 
@@ -73,8 +75,17 @@ void confirm_write(const std::string& body_in, const std::string& confirm_label,
         body = body.empty() ? warning : body + "\n\n" + warning;
     }
 
+    // The week as it will be: the days that change in amber.
+    auto preview = [&pt, new_days]() -> brls::View* {
+        if (!new_days || !pt.valid) return nullptr;
+        auto* week = new PtWeekView();
+        week->show(new_days, pt.day_min);
+        return week;
+    };
+
     if (!pt_logic::needs_unlock(pt)) {
         if (body.empty()) write(false);
+        else if (brls::View* week = preview()) ui::confirm_with(body, week, confirm_label, [write]() { write(false); }, nullptr, danger);
         else ui::confirm(body, confirm_label, [write]() { write(false); }, nullptr, danger);
         return;
     }
@@ -83,7 +94,7 @@ void confirm_write(const std::string& body_in, const std::string& confirm_label,
     text += "playguard/play_timer/gate/body"_i18n + " " +
             (config::get().auto_relock ? "playguard/play_timer/gate/relock_auto"_i18n
                                        : "playguard/play_timer/gate/relock_manual"_i18n);
-    ui::confirm(text, "playguard/play_timer/gate/confirm"_i18n, [write]() {
+    auto unlock_and_write = [write]() {
         // Should the app stop before finish_write, the next start locks again.
         set_relock_pending(true);
         Result rc = pctl_unlock_restriction_temporarily();
@@ -93,7 +104,33 @@ void confirm_write(const std::string& body_in, const std::string& confirm_label,
             return;
         }
         write(true);
-    }, nullptr, danger);
+    };
+    if (brls::View* week = preview()) ui::confirm_with(text, week, "playguard/play_timer/gate/confirm"_i18n, unlock_and_write, nullptr, danger);
+    else ui::confirm(text, "playguard/play_timer/gate/confirm"_i18n, unlock_and_write, nullptr, danger);
+}
+
+Result write_days(const uint16_t days[7], const std::string& source, const std::string& detail)
+{
+    PtState before;
+    pctl_play_timer_query(&before);
+    const Result rc = pctl_play_timer_set_days(days);
+    if (R_SUCCEEDED(rc) && before.valid)
+        history_flow::record_values("limits", history_flow::days_values(before.day_min), history_flow::days_values(days),
+                                    source, detail);
+    return rc;
+}
+
+Result clear_days(const std::string& source)
+{
+    PtState before;
+    pctl_play_timer_query(&before);
+    const Result rc = pctl_play_timer_clear();
+    if (R_SUCCEEDED(rc) && before.valid) {
+        uint16_t none[7];
+        for (auto& d : none) d = PT_DAY_NOLIMIT;
+        history_flow::record_values("limits", history_flow::days_values(before.day_min), history_flow::days_values(none), source);
+    }
+    return rc;
 }
 
 static void offer_relock(std::function<void()> after)
@@ -149,7 +186,7 @@ static void apply_uniform(uint16_t minutes, std::function<void()> refresh)
     confirm_write(body, "playguard/play_timer/confirm_set"_i18n, [minutes, refresh](bool did_unlock) {
         uint16_t days[7];
         for (auto& d : days) d = minutes;
-        Result rc = pctl_play_timer_set_days(days);
+        Result rc = write_days(days, "uniform");
         finish_write(rc, did_unlock, brls::getStr("playguard/play_timer/written_uniform", ui::fmt_minutes(minutes)),
                      "playguard/play_timer/write_err"_i18n, refresh);
     }, new_days);
@@ -235,7 +272,7 @@ void change_day_limit(int day, uint16_t current, std::function<void()> refresh)
         days[day] = minutes;
         const std::string body = brls::getStr("playguard/play_timer/confirm_day", ui::day_name_in_text(day), ui::fmt_minutes(minutes));
         confirm_write(body, "playguard/play_timer/confirm_set"_i18n, [days, refresh](bool did_unlock) {
-            Result rc = pctl_play_timer_set_days(days.data());
+            Result rc = write_days(days.data(), "day");
             finish_write(rc, did_unlock, "playguard/play_timer/written_days"_i18n,
                          "playguard/play_timer/write_err"_i18n, refresh);
         }, days.data());
@@ -248,11 +285,6 @@ static void clear_extra_record()
     cfg.extra_weekday = -1;
     cfg.extra_date.clear();
     ui::save_config();
-}
-
-bool can_add_extra_time(const PtState& pt)
-{
-    return pt_logic::can_add_extra_time(pt, ui::today_weekday(), app::read_only());
 }
 
 static pt_logic::ExtraRecord extra_record()
@@ -296,7 +328,7 @@ void add_extra_time(const PtState& pt, std::function<void()> refresh)
             uint16_t days[7];
             for (int i = 0; i < 7; i++) days[i] = now.day_min[i];
             days[wd] = value;
-            Result rc = pctl_play_timer_set_days(days);
+            Result rc = write_days(days, "extra");
             if (R_SUCCEEDED(rc)) {
                 auto& c = config::get();
                 c.extra_weekday = wd;
@@ -309,6 +341,44 @@ void add_extra_time(const PtState& pt, std::function<void()> refresh)
                          "playguard/play_timer/write_err"_i18n, refresh);
         });
     });
+}
+
+void stop_today(const PtState& pt, std::function<void()> refresh)
+{
+    const int wd = ui::today_weekday();
+    if (!pt.valid) return;
+    const uint16_t base = pt.day_min[wd];
+    const pt_logic::ExtraRecord rec = extra_record();
+    const bool again = rec.weekday == wd && rec.date == ui::today_date();
+    const pt_logic::ExtraPlan plan = pt_logic::plan_stop(base, again, rec.base);
+    const uint16_t original = plan.original;
+    uint16_t new_days[7];
+    for (int i = 0; i < 7; i++) new_days[i] = pt.day_min[i];
+    new_days[wd] = 0;
+    const std::string body = brls::getStr(config::get().extra_auto_restore ? "playguard/dashboard/stop_body_auto"
+                                                                           : "playguard/dashboard/stop_body",
+                                          ui::day_name_in_text(wd), ui::fmt_minutes(original));
+    confirm_write(body, "playguard/dashboard/stop_confirm"_i18n, [refresh, wd, base, original](bool did_unlock) {
+        PtState now;
+        pctl_play_timer_query(&now);
+        if (!now.valid || now.day_min[wd] != base) {   // changed meanwhile: write nothing
+            finish_write(NXM_RC_STATE_UNKNOWN, did_unlock, "", "playguard/play_timer/write_err"_i18n, refresh);
+            return;
+        }
+        uint16_t days[7];
+        for (int i = 0; i < 7; i++) days[i] = now.day_min[i];
+        days[wd] = 0;
+        Result rc = write_days(days, "stop");
+        if (R_SUCCEEDED(rc)) {
+            auto& c = config::get();
+            c.extra_weekday = wd;
+            c.extra_date    = ui::today_date();
+            c.extra_base    = original;
+            c.extra_value   = 0;
+            ui::save_config();
+        }
+        finish_write(rc, did_unlock, "playguard/dashboard/stop_done"_i18n, "playguard/play_timer/write_err"_i18n, refresh);
+    }, new_days, true);
 }
 
 // Puts `base` back on weekday `wd`, if it still holds the extra time (`value`).
@@ -325,7 +395,7 @@ static void restore_extra(int wd, uint16_t base, uint16_t value, std::function<v
         uint16_t days[7];
         for (int i = 0; i < 7; i++) days[i] = now.day_min[i];
         days[wd] = base;
-        Result rc = pctl_play_timer_set_days(days);
+        Result rc = write_days(days, "restore_extra");
         if (R_SUCCEEDED(rc)) clear_extra_record();
         finish_write(rc, did_unlock,
                      brls::getStr("playguard/dashboard/extra_restored", ui::day_name_in_text(wd), ui::fmt_minutes(base)),
@@ -374,8 +444,10 @@ void offer_extra_time_restore(std::function<void()> refresh)
         restore_extra(wd, base, value, refresh);
         return;
     }
-    auto* dialog = ui::dialog(brls::getStr("playguard/dashboard/extra_restore_body", rec.date,
-                                           ui::day_name_in_text(wd), ui::fmt_minutes(value),
+    // Raised (extra time) or lowered (no more play) for that day only.
+    auto* dialog = ui::dialog(brls::getStr(value > base ? "playguard/dashboard/extra_restore_body"
+                                                        : "playguard/dashboard/stop_restore_body",
+                                           rec.date, ui::day_name_in_text(wd), ui::fmt_minutes(value),
                                            ui::fmt_minutes(base)));
     dialog->addButton(brls::getStr("playguard/dashboard/extra_keep", ui::fmt_minutes(value)), [refresh]() {
         clear_extra_record();

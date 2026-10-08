@@ -32,6 +32,7 @@
             </brls:Box>
             <brls:DetailCell id="dash_today_limit"/>
             <brls:DetailCell id="dash_extra" title="@i18n/playguard/dashboard/extra"/>
+            <brls:DetailCell id="dash_stop" title="@i18n/playguard/dashboard/stop"/>
             <brls:DetailCell id="dash_extra_pending"/>
             <brls:DetailCell id="dash_remaining" title="@i18n/playguard/dashboard/remaining"/>
             <brls:DetailCell id="dash_bedtime" title="@i18n/playguard/dashboard/bedtime"/>

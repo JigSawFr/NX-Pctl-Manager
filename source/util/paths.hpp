@@ -15,6 +15,7 @@ std::string profiles_dir();
 std::string backups_dir();
 std::string exports_dir();
 std::string config_file();
+std::string history_file();   // the change history (util/history.hpp)
 
 // Root of the SD card: "/" on the console; ./playguard_data/sd on desktop,
 // so the simulated build can be given fake Atmosphère / sys-patch files.

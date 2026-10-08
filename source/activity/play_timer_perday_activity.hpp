@@ -1,7 +1,7 @@
 // PlayTimerPerDayActivity — per-day limits editor. The week chart is the
 // editor: A on a day stages an edit into `pending[]` (a quick value, "Enter
 // minutes…" or "No limit"), drawn in the warning colour until saved; presets
-// fill several days at once; "Save" (also Y) writes the seven values through
+// fill several days at once; "Save" (also +) writes the seven values through
 // the play-timer gate. X re-reads the state, B leaves (asking first when there
 // are unsaved edits). The same screen edits a saved profile: it then starts from
 // the profile's days and "Save" hands them back instead of writing anything.

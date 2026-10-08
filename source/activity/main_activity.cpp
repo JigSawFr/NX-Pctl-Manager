@@ -12,9 +12,27 @@
 
 using namespace brls::literals;
 
+// Eight tabs and three separators do not fit the 720p sidebar at borealis'
+// sizes (70 px items, 30 px separators): "Tools & about" fell below the
+// edge. Tighter items there only; detail cells keep the shared 70 px.
+static void compact_sidebar(brls::View* tab_frame)
+{
+    auto* sidebar = tab_frame ? dynamic_cast<brls::Sidebar*>(tab_frame->getView("brls/tab_frame/sidebar")) : nullptr;
+    brls::SidebarItem* first = sidebar ? sidebar->getItem(0) : nullptr;
+    brls::Box* list = first ? first->getParent() : nullptr;
+    if (!list) return;
+    list->setPaddingTop(14);
+    list->setPaddingBottom(14);
+    for (brls::View* v : list->getChildren()) {
+        if (dynamic_cast<brls::SidebarItem*>(v)) v->setHeight(58);
+        else v->setHeight(16);   // a separator: its line is drawn at mid-height
+    }
+}
+
 void MainActivity::onContentAvailable()
 {
     this->update_title();
+    compact_sidebar(this->getView("main_tabs"));
 
     // B on the sidebar quits (the tabs themselves send B back to the sidebar),
     // but only when pressed twice within 2 s: one stray B never closes the app.

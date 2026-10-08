@@ -39,7 +39,8 @@ int main(int argc, char* argv[])
     // Preferences first: the locale must be chosen before borealis loads i18n.
     config::load();
     const auto& cfg = config::get();
-    if (cfg.language == "en-US" || cfg.language == "fr")
+    // config::sanitize() keeps the language to config::LANGUAGES.
+    if (cfg.language != "system")
         brls::Platform::APP_LOCALE_DEFAULT = cfg.language;
     else
         brls::Platform::APP_LOCALE_DEFAULT = brls::LOCALE_AUTO;

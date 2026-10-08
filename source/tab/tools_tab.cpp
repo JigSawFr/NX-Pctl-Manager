@@ -9,11 +9,13 @@
 #include "action/update_flow.hpp"
 #include "activity/diagnostic_activity.hpp"
 #include "activity/firmware_gate_activity.hpp"
+#include "activity/history_activity.hpp"
 #include "activity/onboarding_activity.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
 #include "util/config.hpp"
 #include "util/diagnostics.hpp"
+#include "util/history.hpp"
 #include "util/patches.hpp"
 #include "util/paths.hpp"
 
@@ -50,6 +52,10 @@ ToolsTab::ToolsTab()
         brls::Application::pushActivity(new OnboardingActivity());
         return true;
     });
+    history->registerClickAction([](brls::View*) {
+        brls::Application::pushActivity(new HistoryActivity());
+        return true;
+    });
 
     // Ⓐ on the serial number shows / hides the masked digits.
     serial->registerAction("playguard/tools/serial_show"_i18n, brls::BUTTON_A, [this](brls::View*) {
@@ -75,6 +81,7 @@ ToolsTab::ToolsTab()
         return true;
     });
     backup_restore->registerClickAction([this](brls::View*) {
+        if (ui::refuse_read_only()) return true;
         backup_flow::choose_and_restore([this]() { this->refresh(); });
         return true;
     });
@@ -191,6 +198,8 @@ void ToolsTab::refresh()
     update_cell->setDetailText(cfg.update_checked.empty() ? "" : brls::getStr("playguard/tools/update_last", cfg.update_checked));
     const size_t backups = backup_flow::count();
     backup_restore->setDetailText(backups ? brls::getStr("playguard/tools/backup_count", (int)backups) : "");
+    const size_t changes = history::load().size();
+    history->setDetailText(changes ? brls::getStr("playguard/history/count", (int)changes) : "");
 
     SysInfo si;
     sysinfo_get(&si);
@@ -235,7 +244,6 @@ void ToolsTab::refresh()
     patches_note->setTextColor(warn ? ui::color_warn() : ui::color_note());
     ui::set_visible_all({ { serial_note.getView(), ui::serial_warning(si) },
                           { patches_note.getView(), !note.empty() },
-                          { backup_restore.getView(), !ro },
                           { dev_header.getView(), dev },
                           { dev_mode.getView(), dev },
                           { dev_read_only.getView(), dev },
@@ -243,6 +251,8 @@ void ToolsTab::refresh()
                           { dev_pt_block.getView(), dev },
                           { dev_gate.getView(), dev && fw_gate::needed() },
                           { dev_forget.getView(), dev } });
+    // Read-only: restoring would write; it stays in sight, greyed.
+    ui::show_writable(backup_restore, !ro);
     mode->setDetailText(si.applet_mode ? "playguard/tools/mode_applet"_i18n : "playguard/tools/mode_app"_i18n);
     data->setDetailText(paths::data_dir());
     license->setDetailText("playguard/tools/license_value"_i18n);

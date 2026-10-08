@@ -10,6 +10,7 @@
 #include <map>
 #include <set>
 
+#include "action/play_data.hpp"
 #include "activity/game_activity.hpp"
 #include "ui/ui.hpp"
 #include "util/config.hpp"
@@ -28,15 +29,12 @@ constexpr auto MAX_AGE = std::chrono::seconds(60);
 // hundred KB, and the list can hold hundreds of games.
 constexpr size_t ICON_ROWS = 16;
 
-// Shared by every ActivityTab: borealis rebuilds the tab each time the sidebar
-// reaches it, the data (a walk through the whole play log) is not re-read.
-// UI thread only.
+// Shared by every ActivityTab (borealis rebuilds the tab each time the
+// sidebar reaches it); the play data itself is play_data's. UI thread only.
 struct
 {
-    std::shared_ptr<PlayStats> stats;   // last read; null before the first
-    std::chrono::steady_clock::time_point read_at;
-    bool busy = false;                  // a read is queued or running
     ActivityTab* shown = nullptr;       // the tab on screen, if any
+    int account = -1;                   // index in play_data::accounts(), -1 every account
     // Icons read so far (the bytes as the control data holds them), and the
     // games known to have none; kept for the run (icons do not change).
     std::map<u64, std::vector<unsigned char>> icons;
@@ -44,6 +42,24 @@ struct
     bool icons_busy = false;
     bool icons_wanted = true;           // false in applet mode (little memory)
 } s_cache;
+
+// The account the tab shows, or nullptr for every account.
+const PlayAccount* chosen_account()
+{
+    const auto& list = play_data::accounts();
+    return s_cache.account >= 0 && s_cache.account < (int)list.size() ? &list[s_cache.account] : nullptr;
+}
+
+std::string account_label(const PlayAccount* a)
+{
+    if (!a) return "playguard/activity/account_all"_i18n;
+    return a->nickname[0] ? std::string(a->nickname) : "?";
+}
+
+std::shared_ptr<const PlayStats> shown_stats()
+{
+    return play_data::latest(play_data::key_of(chosen_account()));
+}
 
 uint64_t value_of(const GameStat& g, int period)
 {
@@ -72,6 +88,17 @@ ActivityTab::ActivityTab()
         this->fetch();
         return true;
     });
+    account->registerClickAction([this](brls::View*) {
+        const auto& list = play_data::accounts();
+        std::vector<std::string> labels = { account_label(nullptr) };
+        for (const auto& a : list) labels.push_back(account_label(&a));
+        ui::pick("playguard/activity/account"_i18n, labels, s_cache.account + 1, [this](int index) {
+            s_cache.account = index - 1;
+            this->rebuild();
+            if (!play_data::fresh(play_data::key_of(chosen_account()), MAX_AGE)) this->fetch();
+        });
+        return true;
+    });
     sort->registerClickAction([this](brls::View*) {
         std::vector<std::string> labels;
         for (int p = 0; p < 3; p++) labels.push_back(brls::getStr(fmt::format("playguard/activity/periods/{}", p)));
@@ -89,6 +116,9 @@ ActivityTab::ActivityTab()
     });
     this->period = config::get().activity_period;
     s_cache.shown = this;
+    this->listener = play_data::listen([this]() { this->rebuild(); });
+    // No account to choose between on a console with one (or none listed).
+    ui::set_visible(account.getView(), play_data::accounts().size() > 1);
     // Applet mode (opened from the album): a few MB for icons is too much.
     SysInfo si;
     sysinfo_get(&si);
@@ -99,12 +129,13 @@ ActivityTab::ActivityTab()
 
 ActivityTab::~ActivityTab()
 {
+    play_data::unlisten(this->listener);
     if (s_cache.shown == this) s_cache.shown = nullptr;
 }
 
 void ActivityTab::refresh()
 {
-    if (s_cache.stats && std::chrono::steady_clock::now() - s_cache.read_at < MAX_AGE) return;
+    if (play_data::fresh(play_data::key_of(chosen_account()), MAX_AGE)) return;
     this->fetch();
 }
 
@@ -114,27 +145,24 @@ void ActivityTab::fetch()
     // spinner, since a long log takes a few seconds.
     ui::set_visible(progress.getView(), true);
     ui::set_visible(status, false);
-    // Only one read at a time: its result goes to whichever Activity tab is on
-    // screen when it ends.
-    if (s_cache.busy) return;
-    s_cache.busy = true;
-    brls::async([]() {
-        auto data = std::make_shared<PlayStats>();
-        playstats_fetch(data.get());
-        brls::sync([data]() {
-            s_cache.busy    = false;
-            s_cache.stats   = data;
-            s_cache.read_at = std::chrono::steady_clock::now();
-            if (s_cache.shown) s_cache.shown->rebuild();
-        });
-    });
+    play_data::fetch(chosen_account());   // one read per account at a time
 }
 
 void ActivityTab::rebuild()
 {
+    const PlayAccount* who = chosen_account();
     sort->setDetailText(brls::getStr(fmt::format("playguard/activity/periods/{}", this->period)));
-    if (!s_cache.stats) return;
-    const PlayStats& s = *s_cache.stats;
+    account->setDetailText(account_label(who));
+    const bool reading = play_data::busy(play_data::key_of(who));
+    const std::shared_ptr<const PlayStats> data = shown_stats();
+    if (!data) {
+        // Nothing read for this account yet: an empty list, not the previous one.
+        list->clearViews();
+        this->cells.clear();
+        ui::set_visible(progress.getView(), reading);
+        return;
+    }
+    const PlayStats& s = *data;
     const std::string na = "playguard/common/unavailable"_i18n;
 
     uint64_t today_total = 0, week_total = 0, all_total = 0;
@@ -143,7 +171,16 @@ void ActivityTab::rebuild()
         week_total  += s.games[i].week_s;
         if (s.games[i].totals_ok) all_total += s.games[i].total_s;
     }
-    if (s.windows_ok) days->show(s);
+    if (s.windows_ok) {
+        // Every account: each day's current limit as a line (the limit is the
+        // console's, not an account's). A day above it is drawn in amber.
+        PtState pt;
+        pctl_play_timer_query(&pt);
+        uint16_t limits[7];
+        const bool with_limits = !who && pt.fw_supported && pt.valid;
+        for (int k = 0; k < 7; k++) limits[k] = with_limits ? pt.day_min[s.day_wday[k] % 7] : PT_DAY_NOLIMIT;
+        days->show(s, with_limits ? limits : nullptr);
+    }
     ui::set_visible(days.getView(), s.windows_ok);
     today->setDetailText(s.windows_ok ? ui::fmt_play_time(today_total) : na);
     week->setDetailText(s.windows_ok ? ui::fmt_play_time(week_total) : na);
@@ -166,18 +203,18 @@ void ActivityTab::rebuild()
     if (focus_in_list) brls::Application::giveFocus(sort);
     list->clearViews();
     this->cells.clear();
-    ui::set_visible(progress.getView(), s_cache.busy);
+    ui::set_visible(progress.getView(), reading);
     for (const GameStat* g : rows) {
         auto* cell = new GameCell(s_cache.icons_wanted && this->cells.size() < ICON_ROWS);
         cell->setText(game_name(*g));
         cell->setDetailText(ui::fmt_play_time(value_of(*g, p)));
         const GameStat copy = *g;
-        cell->registerClickAction([copy](brls::View*) {
+        cell->registerClickAction([copy, data](brls::View*) {
             // Its own screen: the seven days as bars, the figures, each account.
             std::vector<unsigned char> icon;
             const auto it = s_cache.icons.find(copy.app_id);
             if (it != s_cache.icons.end()) icon = it->second;
-            brls::Application::pushActivity(new GameActivity(copy, s_cache.stats, std::move(icon)));
+            brls::Application::pushActivity(new GameActivity(copy, data, std::move(icon)));
             return true;
         });
         list->addView(cell);
@@ -246,21 +283,22 @@ void ActivityTab::load_icons()
 // numbers, so a spreadsheet can add them up.
 void ActivityTab::export_to_sd() const
 {
-    if (!s_cache.stats) {
+    const std::shared_ptr<const PlayStats> data = shown_stats();
+    if (!data) {
         ui::notify("playguard/activity/export_not_ready"_i18n);
         return;
     }
     std::vector<std::string> labels;
     for (int f = 0; f < 4; f++) labels.push_back(brls::getStr(fmt::format("playguard/activity/formats/{}", f)));
-    const std::shared_ptr<PlayStats> data = s_cache.stats;
     const int p = this->period;
-    ui::pick("playguard/activity/export_title"_i18n, labels, config::get().export_format, [data, p](int index) {
+    const std::string who = account_label(chosen_account());
+    ui::pick("playguard/activity/export_title"_i18n, labels, config::get().export_format, [data, p, who](int index) {
         config::get().export_format = index;
         ui::save_config();
         const PlayStats& s = *data;
         table_export::Table t;
         t.title    = "PlayGuard — " + "playguard/tabs/activity"_i18n;
-        t.subtitle = brls::getStr("playguard/activity/export_subtitle", ui::time_text(s.now));
+        t.subtitle = brls::getStr("playguard/activity/export_subtitle", ui::time_text(s.now), who);
         t.sheet    = "playguard/tabs/activity"_i18n;
         t.columns  = {
             { "game", "playguard/activity/columns/game"_i18n, false },

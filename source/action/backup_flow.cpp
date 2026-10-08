@@ -7,6 +7,7 @@
 #include <memory>
 #include <vector>
 
+#include "action/history_flow.hpp"
 #include "action/pt_flow.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
@@ -21,11 +22,6 @@ namespace backup_flow
 
 namespace
 {
-std::string line(const std::string& label, const std::string& value)
-{
-    return brls::getStr("playguard/common/line", label, value);
-}
-
 std::string yes_no(bool value)
 {
     return value ? "playguard/common/yes"_i18n : "playguard/common/no"_i18n;
@@ -53,27 +49,58 @@ std::string days_text(const std::array<uint16_t, 7>& days)
     return out;
 }
 
-// What a restore will write, one line per value.
+// What a restore will change: one "now → backup" line per value that differs
+// from the console's (a value the console does not report counts as
+// different), and how many are already the same. The limits are not listed:
+// the confirmation draws the week instead (pt_flow::confirm_write).
 std::string summary(const backup::Snapshot& s)
 {
-    std::string out = brls::getStr("playguard/backup/restore_body", s.created.empty() ? "?" : s.created) + "\n";
-    if (s.level_ok) out += "\n" + line("playguard/restrictions/section_level"_i18n, ui::level_name(s.level));
-    if (s.level_ok && s.level == PctlSafetyLevel_Custom && s.custom_ok) {
-        out += "\n" + line("playguard/restrictions/age"_i18n, age_text(s.rating_age));
-        out += "\n" + line("playguard/restrictions/sns"_i18n, yes_no(s.sns_restricted));
-        out += "\n" + line("playguard/restrictions/comm"_i18n, yes_no(s.comm_restricted));
-    }
-    if (s.vr_ok) out += "\n" + line("playguard/restrictions/vr"_i18n, yes_no(s.vr_restricted));
-    if (s.rating_org_ok) out += "\n" + line("playguard/restrictions/org"_i18n, pctl_rating_org_name(s.rating_org));
-    if (s.days_ok) out += "\n" + line("playguard/play_timer/section_limit"_i18n, days_text(s.days));
-    // A debug-class command: written only with the advanced actions shown.
-    if (s.alarm_ok)
-        out += "\n" + line("playguard/play_timer/alarm"_i18n,
-                           (s.alarm_disabled ? "playguard/common/off"_i18n : "playguard/common/on"_i18n) +
-                               (config::get().advanced ? "" : "playguard/backup/not_restored_advanced"_i18n));
-    // The PIN is not in the backup (after "Delete all", there is none).
     PctlStatus st;
     pctl_status_fetch(&st);
+    PtState pt;
+    pctl_play_timer_query(&pt);
+    const std::string unknown = "?";
+    std::string changes;
+    int same = 0;
+    auto compare = [&](const std::string& label, bool known, const std::string& now, const std::string& then) {
+        if (known && now == then) {
+            same++;
+            return;
+        }
+        changes += "\n" + brls::getStr("playguard/backup/change_line", label, known ? now : unknown, then);
+    };
+
+    if (s.level_ok)
+        compare("playguard/restrictions/section_level"_i18n, st.safety_level_ok,
+                ui::level_name(st.safety_level), ui::level_name(s.level));
+    if (s.level_ok && s.level == PctlSafetyLevel_Custom && s.custom_ok) {
+        compare("playguard/restrictions/age"_i18n, st.settings_ok, age_text(st.settings.rating_age), age_text(s.rating_age));
+        compare("playguard/restrictions/sns"_i18n, st.settings_ok, yes_no(st.settings.sns_post_restriction), yes_no(s.sns_restricted));
+        compare("playguard/restrictions/comm"_i18n, st.settings_ok, yes_no(st.settings.free_communication_restriction),
+                yes_no(s.comm_restricted));
+    }
+    if (s.vr_ok) compare("playguard/restrictions/vr"_i18n, st.stereo_vision_ok, yes_no(st.stereo_vision_restricted), yes_no(s.vr_restricted));
+    if (s.rating_org_ok)
+        compare("playguard/restrictions/org"_i18n, st.rating_org_ok, pctl_rating_org_name(st.rating_org),
+                pctl_rating_org_name(s.rating_org));
+    if (s.days_ok) {
+        std::array<uint16_t, 7> now{};
+        for (int d = 0; d < 7; d++) now[d] = pt.day_min[d];
+        compare("playguard/play_timer/section_limit"_i18n, pt.valid, days_text(now), days_text(s.days));
+    }
+    // A debug-class command: written only with the advanced actions shown.
+    if (s.alarm_ok) {
+        auto on_off = [](bool disabled) { return disabled ? "playguard/common/off"_i18n : "playguard/common/on"_i18n; };
+        if (pt.alarm_disabled_valid && pt.alarm_disabled == s.alarm_disabled) same++;
+        else
+            compare("playguard/play_timer/alarm"_i18n, pt.alarm_disabled_valid, on_off(pt.alarm_disabled),
+                    on_off(s.alarm_disabled) + (config::get().advanced ? "" : "playguard/backup/not_restored_advanced"_i18n));
+    }
+
+    std::string out = brls::getStr("playguard/backup/restore_body", s.created.empty() ? "?" : s.created) + "\n";
+    out += changes.empty() ? "\n" + "playguard/backup/nothing_differs"_i18n : changes;
+    if (same > 0 && !changes.empty()) out += "\n\n" + brls::getStr("playguard/backup/same_count", same);
+    // The PIN is not in the backup (after "Delete all", there is none).
     if (st.pin_length_ok && st.pin_length == 0) out += "\n\n" + "playguard/backup/no_pin_note"_i18n;
     return out;
 }
@@ -83,6 +110,10 @@ std::string summary(const backup::Snapshot& s)
 // the console refuses does not leave the others unrestored.
 void write_all(const backup::Snapshot& s, bool did_unlock, std::function<void()> refresh)
 {
+    PctlStatus was;   // for the history: what each value was before
+    pctl_status_fetch(&was);
+    PtState pt_was;
+    pctl_play_timer_query(&pt_was);
     Result first = 0;
     std::vector<std::string> failed;
     auto check = [&](Result rc, const std::string& what) {
@@ -91,17 +122,38 @@ void write_all(const backup::Snapshot& s, bool did_unlock, std::function<void()>
         failed.push_back(what);
     };
     if (s.level_ok) {
-        check(pctl_set_safety_level(s.level), "playguard/restrictions/section_level"_i18n);
+        const Result rc = pctl_set_safety_level(s.level);
+        check(rc, "playguard/restrictions/section_level"_i18n);
+        if (R_SUCCEEDED(rc) && was.safety_level_ok)
+            history_flow::record_values("level", { (int)was.safety_level }, { (int)s.level }, "backup");
         if (s.level == PctlSafetyLevel_Custom && s.custom_ok) {
             PctlCustomSettings cs = { s.rating_age, s.sns_restricted, s.comm_restricted };
-            check(pctl_set_custom_settings(&cs), "playguard/restrictions/section_custom"_i18n);
+            const Result crc = pctl_set_custom_settings(&cs);
+            check(crc, "playguard/restrictions/section_custom"_i18n);
+            if (R_SUCCEEDED(crc) && was.settings_ok)
+                history_flow::record_values("custom", history_flow::custom_values(was.settings), history_flow::custom_values(cs), "backup");
         }
     }
-    if (s.vr_ok) check(pctl_set_stereo_vision_restricted(s.vr_restricted), "playguard/restrictions/vr"_i18n);
-    if (s.rating_org_ok) check(pctl_set_rating_org(s.rating_org), "playguard/restrictions/org"_i18n);
-    if (s.days_ok) check(pctl_play_timer_set_days(s.days.data()), "playguard/play_timer/section_limit"_i18n);
-    if (s.alarm_ok && config::get().advanced)
-        check(pctl_play_timer_set_alarm_disabled(s.alarm_disabled), "playguard/play_timer/alarm"_i18n);
+    if (s.vr_ok) {
+        const Result rc = pctl_set_stereo_vision_restricted(s.vr_restricted);
+        check(rc, "playguard/restrictions/vr"_i18n);
+        if (R_SUCCEEDED(rc) && was.stereo_vision_ok)
+            history_flow::record_values("vr", { was.stereo_vision_restricted ? 1 : 0 }, { s.vr_restricted ? 1 : 0 }, "backup");
+    }
+    if (s.rating_org_ok) {
+        const Result rc = pctl_set_rating_org(s.rating_org);
+        check(rc, "playguard/restrictions/org"_i18n);
+        if (R_SUCCEEDED(rc) && was.rating_org_ok)
+            history_flow::record_values("org", { (int)was.rating_org }, { (int)s.rating_org }, "backup");
+    }
+    if (s.days_ok) check(pt_flow::write_days(s.days.data(), "backup"), "playguard/play_timer/section_limit"_i18n);
+    if (s.alarm_ok && config::get().advanced) {
+        const Result rc = pctl_play_timer_set_alarm_disabled(s.alarm_disabled);
+        check(rc, "playguard/play_timer/alarm"_i18n);
+        if (R_SUCCEEDED(rc) && pt_was.alarm_disabled_valid)
+            history_flow::record_values("alarm", { pt_was.alarm_disabled ? 1 : 0 }, { s.alarm_disabled ? 1 : 0 }, "backup");
+    }
+    history_flow::record_event("restore", "", s.created);
 
     std::string what;
     for (const auto& f : failed) what += (what.empty() ? "" : ", ") + f;

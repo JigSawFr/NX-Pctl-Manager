@@ -5,7 +5,9 @@
 #include <fmt/format.h>
 #include <vector>
 
+#include "action/history_flow.hpp"
 #include "action/pt_flow.hpp"
+#include "action/pt_logic.hpp"
 #include "activity/play_timer_perday_activity.hpp"
 #include "activity/profiles_activity.hpp"
 #include "app.hpp"
@@ -42,29 +44,42 @@ PlayTimerTab::PlayTimerTab()
     });
 
     quick->registerClickAction([this](brls::View*) {
+        if (ui::refuse_read_only()) return true;
         pt_flow::choose_uniform_limit(this->pt, [this]() { this->refresh(); });
         return true;
     });
     extra->registerClickAction([this](brls::View*) {
+        if (ui::refuse_read_only()) return true;
         pt_flow::add_extra_time(this->pt, [this]() { this->refresh(); });
+        return true;
+    });
+    stop->registerClickAction([this](brls::View*) {
+        if (ui::refuse_read_only()) return true;
+        pt_flow::stop_today(this->pt, [this]() { this->refresh(); });
         return true;
     });
     per_day->registerClickAction([](brls::View*) {
         brls::Application::pushActivity(new PlayTimerPerDayActivity());
         return true;
     });
-    remove->registerClickAction([this](brls::View*) { this->remove_limit(); return true; });
+    remove->registerClickAction([this](brls::View*) {
+        if (!ui::refuse_read_only()) this->remove_limit();
+        return true;
+    });
     profiles_cell->registerClickAction([](brls::View*) {
         brls::Application::pushActivity(new ProfilesActivity());
         return true;
     });
 
+    ui::guard_switch(alarm);
     alarm->init("playguard/play_timer/alarm"_i18n, true, [this](bool on) {
         Result rc = pctl_play_timer_set_alarm_disabled(!on);
         if (R_FAILED(rc)) this->alarm->setOn(!on, false);
+        else history_flow::record_values("alarm", { on ? 1 : 0 }, { on ? 0 : 1 });
         ui::notify_result(rc, "playguard/common/applied"_i18n, "playguard/play_timer/write_err"_i18n);
     });
     pause->registerClickAction([this](brls::View*) {
+        if (ui::refuse_read_only()) return true;
         ui::confirm_danger("playguard/play_timer/pause_body"_i18n, "playguard/play_timer/pause_confirm"_i18n, [this]() {
             ui::notify_result(pctl_play_timer_stop(), "playguard/common/applied"_i18n, "playguard/play_timer/write_err"_i18n);
             this->refresh();
@@ -72,6 +87,7 @@ PlayTimerTab::PlayTimerTab()
         return true;
     });
     resume->registerClickAction([this](brls::View*) {
+        if (ui::refuse_read_only()) return true;
         ui::confirm("playguard/play_timer/resume_body"_i18n, "playguard/play_timer/resume_confirm"_i18n, [this]() {
             ui::notify_result(pctl_play_timer_start(), "playguard/common/applied"_i18n, "playguard/play_timer/write_err"_i18n);
             this->refresh();
@@ -92,17 +108,25 @@ void PlayTimerTab::refresh()
 
     const bool fw_ok    = this->pt.fw_supported;
     const bool writable = fw_ok && !app::read_only();
-    const bool advanced = writable && config::get().advanced;
+    const bool advanced = fw_ok && config::get().advanced;
     const bool dev      = fw_ok && app::dev_mode();
 
     ui::note_unlocked(this->pt.temporary_unlocked_valid, this->pt.temporary_unlocked);
     ui::show_unlock_banner(unlocked_banner, this->pt.temporary_unlocked_valid && this->pt.temporary_unlocked);
     ui::set_visible(fw_note.getView(), !fw_ok);
+    // Read-only: the actions that write stay in sight, greyed (A says why);
+    // the per-day editor and the profiles can still be looked at.
     for (brls::View* v : { (brls::View*)limit_header.getView(), (brls::View*)quick.getView(),
                            (brls::View*)per_day.getView(), (brls::View*)remove.getView(),
                            (brls::View*)profiles_cell.getView() })
-        ui::set_visible(v, writable);
-    ui::set_visible(extra.getView(), pt_flow::can_add_extra_time(this->pt));
+        ui::set_visible(v, fw_ok);
+    const int wd = ui::today_weekday();
+    ui::set_visible(extra.getView(), pt_logic::can_add_extra_time(this->pt, wd, false));
+    ui::set_visible(stop.getView(), pt_logic::can_stop_today(this->pt, wd, false));
+    for (brls::DetailCell* c : { (brls::DetailCell*)quick.getView(), (brls::DetailCell*)extra.getView(),
+                                 (brls::DetailCell*)stop.getView(), (brls::DetailCell*)remove.getView(),
+                                 (brls::DetailCell*)pause.getView(), (brls::DetailCell*)resume.getView() })
+        ui::show_writable(c, writable);
     extra->setDetailText(pt_flow::extra_today_text(this->pt));
     for (brls::View* v : { (brls::View*)bedtime_header.getView(), (brls::View*)bedtime.getView(),
                            (brls::View*)bedtime_reset.getView(), (brls::View*)bedtime_note.getView() })
@@ -145,13 +169,14 @@ void PlayTimerTab::refresh()
         ? fmt::format("{:02d}:{:02d}", this->pt.bedtime_reset_hour, this->pt.bedtime_reset_minute) : na);
 
     if (this->pt.alarm_disabled_valid) alarm->setOn(!this->pt.alarm_disabled, false);
+    ui::show_writable(alarm, writable);
 }
 
 void PlayTimerTab::remove_limit()
 {
     pt_flow::confirm_write("playguard/play_timer/remove_body"_i18n, "playguard/play_timer/remove_confirm"_i18n,
                            [this](bool did_unlock) {
-                               Result rc = pctl_play_timer_clear();
+                               Result rc = pt_flow::clear_days("remove");
                                pt_flow::finish_write(rc, did_unlock, "playguard/play_timer/removed"_i18n,
                                                      "playguard/play_timer/remove_err"_i18n,
                                                      [this]() { this->refresh(); });

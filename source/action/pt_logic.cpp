@@ -48,6 +48,17 @@ ExtraPlan plan_extra(uint16_t base, uint16_t extra, bool again, uint16_t recorde
     return { (uint16_t)std::min<int>(1440, base + extra), again ? recorded_base : base };
 }
 
+bool can_stop_today(const PtState& pt, int weekday, bool read_only)
+{
+    if (read_only || weekday < 0 || weekday > 6) return false;
+    return pt.fw_supported && pt.valid && pt.day_min[weekday] != 0;
+}
+
+ExtraPlan plan_stop(uint16_t base, bool again, uint16_t recorded_base)
+{
+    return { 0, again ? recorded_base : base };
+}
+
 Restore restore_action(const ExtraRecord& rec, const std::string& today, const PtState& pt, bool read_only)
 {
     if (rec.weekday < 0 || rec.weekday > 6) return Restore::None;

@@ -25,6 +25,8 @@
 
             <brls:Header title="@i18n/playguard/tools/section_start" marginBottom="8"/>
             <brls:DetailCell id="tl_first_steps" title="@i18n/playguard/onboarding/open"/>
+            <brls:Header title="@i18n/playguard/tools/section_history" marginTop="24" marginBottom="8"/>
+            <brls:DetailCell id="tl_history" title="@i18n/playguard/history/open"/>
             <brls:Header title="@i18n/playguard/tools/section_backup" marginTop="24" marginBottom="8"/>
             <brls:DetailCell id="tl_backup_save" title="@i18n/playguard/tools/backup_save"/>
             <brls:DetailCell id="tl_backup_restore" title="@i18n/playguard/tools/backup_restore"/>

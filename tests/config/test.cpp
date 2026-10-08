@@ -75,6 +75,16 @@ static void test_fields()
         assert(c.extra_weekday == -1 && c.extra_date.empty() && c.extra_base == 0 && c.extra_value == 0);
     }
 
+    // No more play today on a day without a limit: "no limit" (0xFFFF) is
+    // put back the next day, so that one base outside 0..1440 is kept.
+    write_config(R"({"extra_weekday": 3, "extra_date": "2026-10-06", "extra_base": 65535, "extra_value": 0})");
+    config::load();
+    c = config::get();
+    assert(c.extra_weekday == 3 && c.extra_base == 65535 && c.extra_value == 0);
+    write_config(R"({"extra_weekday": 3, "extra_date": "2026-10-06", "extra_base": 65534, "extra_value": 0})");
+    config::load();
+    assert(config::get().extra_weekday == -1);
+
     // Custom servers: no empty name, nothing longer than a DNS name, at most 10.
     std::string servers = "[\"\", \"" + std::string(300, 'x') + "\"";
     for (int i = 0; i < 12; i++) servers += ", \"s" + std::to_string(i) + ".example\"";
@@ -118,6 +128,10 @@ static void test_preferences()
     assert(d.start_tab == "dashboard" && d.extra_amounts == std::vector<int>({ 15, 30, 60 }));
     assert(d.activity_period == 1 && d.export_format == 0 && d.backup_keep == 0);
     assert(!d.update_daily && d.update_checked.empty() && !d.clock_check_at_start && d.pin_lock == "off");
+    assert(d.onboarding_at_start);
+    write_config(R"({"onboarding_at_start": false})");
+    config::load();
+    assert(!config::get().onboarding_at_start);
     write_config(R"({"pin_lock": "open"})");
     config::load();
     assert(config::get().pin_lock == "open");

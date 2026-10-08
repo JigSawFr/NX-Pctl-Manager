@@ -1,10 +1,13 @@
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #include "tab/dashboard_tab.hpp"
 
+#include <algorithm>
 #include <fmt/format.h>
 
 #include "action/clock_flow.hpp"
+#include "action/play_data.hpp"
 #include "action/pt_flow.hpp"
+#include "action/pt_logic.hpp"
 #include "activity/onboarding_activity.hpp"
 #include "activity/play_timer_perday_activity.hpp"
 #include "app.hpp"
@@ -44,13 +47,20 @@ DashboardTab::DashboardTab()
     });
     ui::init_unlock_banner(unlocked_banner, [this]() { this->refresh(); });
     this->enable_auto_refresh(5000);
+    this->listener = play_data::listen([this]() { this->refresh(); });
 
     today_limit->registerClickAction([this](brls::View*) {
         this->open_today_limit();
         return true;
     });
     extra->registerClickAction([this](brls::View*) {
+        if (ui::refuse_read_only()) return true;
         pt_flow::add_extra_time(this->pt, [this]() { this->refresh(); });
+        return true;
+    });
+    stop->registerClickAction([this](brls::View*) {
+        if (ui::refuse_read_only()) return true;
+        pt_flow::stop_today(this->pt, [this]() { this->refresh(); });
         return true;
     });
     extra_pending->registerClickAction([this](brls::View*) {
@@ -73,6 +83,11 @@ DashboardTab::DashboardTab()
     link(compat, ui::tab::tools);
     link(serial, ui::tab::tools);
     link(game_patches, ui::tab::tools);
+}
+
+DashboardTab::~DashboardTab()
+{
+    play_data::unlisten(this->listener);
 }
 
 void DashboardTab::open_today_limit()
@@ -107,6 +122,15 @@ void DashboardTab::refresh()
     const bool has_pin  = s.pin_length_ok && s.pin_length > 0;
     ui::note_unlocked(s.temp_unlocked_ok, s.temp_unlocked);
 
+    // Today's play time from the activity log, for when the timer does not
+    // say (no game counted yet today, no limit today). Read again in the
+    // background when older than a few minutes.
+    const auto log = play_data::latest("");
+    const bool log_ok = log && log->windows_ok;
+    const uint64_t log_played_s = log_ok ? play_data::today_total_s(*log) : 0;
+    if (!play_data::fresh("", std::chrono::minutes(5)) && !play_data::busy("")) play_data::fetch(nullptr);
+    const uint16_t log_played_min = (uint16_t)std::min<uint64_t>(1440, (log_played_s + 30) / 60);
+
     // Today's play time.
     const int today = ui::today_weekday();
     today_limit->setText(brls::getStr("playguard/dashboard/today_limit", ui::day_name_in_text(today)));
@@ -127,7 +151,8 @@ void DashboardTab::refresh()
             gauge_text->setText("playguard/dashboard/gauge_unlocked"_i18n);
         } else if (limit == PT_DAY_NOLIMIT || !pt.enabled) {
             show_gauge = false;   // nothing to measure against: the text says it
-            gauge_text->setText("playguard/dashboard/gauge_none"_i18n);
+            gauge_text->setText(log_ok ? brls::getStr("playguard/dashboard/gauge_none_played", ui::fmt_play_time(log_played_s))
+                                       : "playguard/dashboard/gauge_none"_i18n);
         } else if (pt.restricted_valid && pt.restricted) {
             gauge->setFraction(1);
             gauge_text->setText("playguard/dashboard/gauge_reached"_i18n);
@@ -137,6 +162,12 @@ void DashboardTab::refresh()
             gauge->setFraction((float)used / (float)limit);
             gauge_text->setText(brls::getStr("playguard/dashboard/gauge_known",
                                              ui::fmt_played(used), ui::fmt_minutes(limit)));
+        } else if (log_ok) {
+            // No game counted yet by the timer: the log's figure, marked as an
+            // estimate (it counts PlayGuard opened over a game, for instance).
+            gauge->setFraction(limit ? std::min(1.0f, (float)log_played_min / (float)limit) : 1.0f);
+            gauge_text->setText(brls::getStr("playguard/dashboard/gauge_log", ui::fmt_play_time(log_played_s),
+                                             ui::fmt_minutes(limit)));
         } else {
             gauge->setFraction(-1);
             gauge_text->setText("playguard/dashboard/gauge_idle"_i18n);
@@ -152,6 +183,9 @@ void DashboardTab::refresh()
         linked(remaining, "playguard/common/no_limit"_i18n);
     else if (pt.remaining_valid && pt.remaining_ns > 0)
         linked(remaining, ui::fmt_duration_ns(pt.remaining_ns));
+    else if (log_ok)
+        linked(remaining, brls::getStr("playguard/dashboard/remaining_log",
+                                       ui::fmt_played((uint16_t)(pt.day_min[today] > log_played_min ? pt.day_min[today] - log_played_min : 0))));
     else
         linked(remaining, "playguard/dashboard/remaining_idle"_i18n);
 
@@ -229,7 +263,10 @@ void DashboardTab::refresh()
     extra->setDetailText(pt_flow::extra_today_text(pt));
     const bool pending = pt_flow::restore_pending(pt);
     if (pending) extra_pending->setText(pt_flow::restore_label());
-    ui::set_visible_all({ { extra.getView(), pt_flow::can_add_extra_time(pt) },
+    ui::show_writable(extra, !app::read_only());
+    ui::show_writable(stop, !app::read_only());
+    ui::set_visible_all({ { extra.getView(), pt_logic::can_add_extra_time(pt, today, false) },
+                          { stop.getView(), pt_logic::can_stop_today(pt, today, false) },
                           { extra_pending.getView(), pending },
                           { first_steps.getView(), not_set_up }, { applet.getView(), si.applet_mode },
                           { fw.getView(), compat_issue }, { compat.getView(), compat_issue },

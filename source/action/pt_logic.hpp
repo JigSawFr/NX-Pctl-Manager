@@ -42,6 +42,14 @@ struct ExtraPlan
 };
 ExtraPlan plan_extra(uint16_t base, uint16_t extra, bool again, uint16_t recorded_base);
 
+// "No more play today" can be offered: writable, the play timer can be read
+// and today's limit is not already 0 (with no limit today it sets one).
+bool can_stop_today(const PtState& pt, int weekday, bool read_only);
+
+// No more play today: 0 for today, and what to put back the next day (the
+// limit from before any extra time added earlier today, as for extra time).
+ExtraPlan plan_stop(uint16_t base, bool again, uint16_t recorded_base);
+
 // What config remembers about extra time (config extra_*).
 struct ExtraRecord
 {

@@ -1,9 +1,9 @@
 // ActivityTab — play time per game (today, last 7 days, all time) from the
-// console's play data, for every account, and its export to the SD card (CSV,
-// JSON, XLSX or PDF). Read-only, so also in read-only mode. The data is read
-// off the main thread (it walks the whole activity log) and kept for a minute
-// for the whole app, so coming back from a dialog or passing the tab in the
-// sidebar does not re-read it (the tab itself is rebuilt each time); Ⓧ does.
+// console's play data, for every account or one, and its export to the SD
+// card (CSV, JSON, XLSX or PDF). Read-only, so also in read-only mode. The
+// data comes from play_data (read off the main thread, shared with the
+// Overview): coming back within a minute reuses it; Ⓧ reads it again. The
+// chart marks each day's current limit (every account only).
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).
 #pragma once
 
@@ -40,11 +40,13 @@ class ActivityTab : public TabBase
     void export_to_sd() const;
 
     std::vector<std::pair<u64, GameCell*>> cells;   // the list on screen, top first
+    int listener = 0;                                 // play_data::listen id
 
     BRLS_BIND(PlayDaysView,     days,        "ac_days");
     BRLS_BIND(brls::DetailCell, today,       "ac_today");
     BRLS_BIND(brls::DetailCell, week,        "ac_week");
     BRLS_BIND(brls::DetailCell, total,       "ac_total");
+    BRLS_BIND(brls::DetailCell, account,     "ac_account");
     BRLS_BIND(brls::DetailCell, sort,        "ac_period");
     BRLS_BIND(brls::DetailCell, export_cell, "ac_export");
     BRLS_BIND(brls::Box,        progress,    "ac_progress");

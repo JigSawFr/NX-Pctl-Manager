@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- First steps: three steps with their state, each one done right here (the
-     system PIN screen, the daily-limit picker, the guided clock measure).
+     system PIN screen, the daily-limit picker, the guided clock measure), a
+     fourth while the phone app is linked (unlink it), and whether the screen
+     opens by itself at start-up.
      Shown at start-up while no PIN is set; Overview › First steps and
      Tools › First steps bring it back. Filled by onboarding_activity.cpp. -->
 
@@ -33,9 +35,10 @@
             <brls:DetailCell id="ob_pin" title="@i18n/playguard/onboarding/step_pin"/>
             <brls:DetailCell id="ob_limit" title="@i18n/playguard/onboarding/step_limit"/>
             <brls:DetailCell id="ob_clock" title="@i18n/playguard/onboarding/step_clock"/>
-            <brls:Label id="ob_paired" text="@i18n/playguard/onboarding/paired_note" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/warn"/>
+            <brls:DetailCell id="ob_unlink" title="@i18n/playguard/onboarding/step_unlink"/>
             <brls:Label id="ob_note" text="@i18n/playguard/onboarding/note" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
-            <brls:DetailCell id="ob_close" title="@i18n/playguard/onboarding/close" marginTop="16"/>
+            <brls:BooleanCell id="ob_at_start" marginTop="16"/>
+            <brls:DetailCell id="ob_close" title="@i18n/playguard/onboarding/close"/>
 
         </brls:Box>
 

@@ -20,7 +20,8 @@ a limit change must end in the "could not unlock" dialog, with the app alive,
 and the clock tab must say why the network clock cannot be set.
 
 Usage: tools/desktop_smoke.py <out-dir> [gate|errors]   (needs DISPLAY, xdotool, ImageMagick)
-Environment knobs of the simulated backend (PLAYGUARD_SIM_*) are passed through.
+Environment knobs of the simulated backend (PLAYGUARD_SIM_*) are passed through;
+the console time is fixed (PLAYGUARD_SIM_NOW, TZ) unless set.
 """
 import json
 import os
@@ -45,6 +46,11 @@ if GATE and os.path.exists(block_ref):
     os.remove(block_ref)     # the developer tool must write a new one
 
 env = dict(os.environ, LIBGL_ALWAYS_SOFTWARE="1")
+# One console time and time zone for every run, so the screenshots can be
+# compared with the reference ones (tools/visual_check.py): Thursday
+# 8 October 2026, 16:00 UTC. Only the footer clock follows the host.
+env.setdefault("PLAYGUARD_SIM_NOW", "1791475200")
+env.setdefault("TZ", "UTC")
 if GATE:
     env.setdefault("PLAYGUARD_SIM_FW", "24.0.0")
     env.setdefault("PLAYGUARD_SIM_LATEST", "1.1.0:24.0.0")
@@ -245,7 +251,7 @@ key("Down")                # Extra time today…
 key("Return")
 shot("20_extra_time")
 key("Escape")
-key("Down")                # A different limit for each day…
+key("Down", 2)             # past No more play today: A different limit for each day…
 key("Return")
 shot("21_per_day")
 key("Return")              # today's limit (the chart has the focus)
@@ -253,7 +259,7 @@ shot("22_dropdown")
 key("Down", 15)            # to the end of the list (No limit) …
 key("Up")                  # … then Enter minutes…: the number pad types "1:30"
 key("Return")
-shot("22_numpad")          # today: 1 h 30, drawn as unsaved; "Y Save (1)" in the footer
+shot("22_numpad")          # today: 1 h 30, drawn as unsaved; "+ Save (1)" in the footer
 if not any("numpad: " in l and l.rstrip().endswith("-> 1:30") for l in open(os.path.join(OUT, "app.log"), errors="replace")):
     fail("the number pad was not asked for the minutes")
 key("Escape")              # unsaved: asks before leaving
@@ -266,7 +272,7 @@ shot("23_back")
 key("Left")                # back to the sidebar
 key("Down", len(tabs) - 2) # Tools & about
 key("Right")               # First steps…
-key("Down")                # Back up the settings
+key("Down", 2)             # past the change history: Back up the settings
 backups = os.path.join(run_dir, "playguard_data", "backups")
 before = len(os.listdir(backups)) if os.path.isdir(backups) else 0
 key("Return")              # Back up the settings
@@ -288,8 +294,8 @@ def pdfs():
 pdfs_before = pdfs()   # the run folder is kept between local runs
 key("Left")                # back to the sidebar
 key("Up", len(tabs) - 3)   # Activity
-key("Right")               # Period (the totals above it are not focusable)
-key("Down", 2)             # past Export: the first game
+key("Right")               # Account (the simulated console has two; the totals are not focusable)
+key("Down", 3)             # past Period and Export: the first game
 key("Return")
 shot("28_activity_game")   # its own screen: icon, seven days, figures, accounts
 key("Escape")

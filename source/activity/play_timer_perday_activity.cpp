@@ -71,8 +71,9 @@ void PlayTimerPerDayActivity::onContentAvailable()
         this->save();
         return true;
     });
-    // Y saves from anywhere on the screen (the cell stays for the eye).
-    this->getContentView()->registerAction("hints/save"_i18n, brls::BUTTON_Y, [this](brls::View*) {
+    // + saves from anywhere on the screen (the cell stays for the eye). Not Y:
+    // Y deleted a profile elsewhere, and a button must not mean both.
+    this->getContentView()->registerAction("hints/save"_i18n, brls::BUTTON_START, [this](brls::View*) {
         this->save();
         return true;
     });
@@ -132,8 +133,8 @@ void PlayTimerPerDayActivity::rerender()
     for (int d = 0; d < 7 && this->live.valid; d++) unsaved += this->pending[d] != this->live.day_min[d];
     pt_save->setDetailText(unsaved ? brls::getStr("playguard/play_timer/perday/unsaved_count", unsaved) : "");
     pt_save->setDetailTextColor(unsaved ? ui::color_warn() : ui::color_neutral());
-    // The footer's Y hint carries the count too: it is visible from any row.
-    this->getContentView()->updateActionHint(brls::BUTTON_Y, unsaved ? brls::getStr("playguard/play_timer/perday/save_hint", unsaved)
+    // The footer's + hint carries the count too: it is visible from any row.
+    this->getContentView()->updateActionHint(brls::BUTTON_START, unsaved ? brls::getStr("playguard/play_timer/perday/save_hint", unsaved)
                                                                      : "hints/save"_i18n);
     brls::Application::getGlobalHintsUpdateEvent()->fire();
 }
@@ -188,7 +189,7 @@ void PlayTimerPerDayActivity::save()
     // "Save" is the explicit action: no extra question unless the timer is
     // counting down (then the one dialog explains the temporary unlock).
     pt_flow::confirm_write("", "playguard/play_timer/confirm_set"_i18n, [this, snapshot](bool did_unlock) {
-        Result rc = pctl_play_timer_set_days(snapshot.data());
+        Result rc = pt_flow::write_days(snapshot.data(), "per_day");
         pt_flow::finish_write(rc, did_unlock, "playguard/play_timer/written_days"_i18n,
                               "playguard/play_timer/write_err"_i18n, [this]() {
                                   this->reload_from_service();

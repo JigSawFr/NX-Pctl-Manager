@@ -24,6 +24,7 @@ class ToolsTab : public TabBase
     void count_version_press();
 
     BRLS_BIND(brls::DetailCell,  first_steps, "tl_first_steps");
+    BRLS_BIND(brls::DetailCell,  history, "tl_history");
     BRLS_BIND(brls::DetailCell,  export_cell, "tl_export");
     BRLS_BIND(brls::Label,       export_note, "tl_export_note");
     BRLS_BIND(brls::DetailCell,  backup_save, "tl_backup_save");

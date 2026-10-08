@@ -38,7 +38,21 @@ typedef struct {
     GameStat games[PLAYSTATS_MAX];
 } PlayStats;
 
-void playstats_fetch(PlayStats *out);
+// A user account of the console, as the Activity filter lists them.
+typedef struct {
+    u64  uid[2];           // AccountUid
+    char nickname[0x21];   // UTF-8, as the HOME menu shows it
+} PlayAccount;
+
+// The console's user accounts (acc:u0), at most `max`. *rc says why none.
+size_t playstats_accounts(PlayAccount *out, size_t max, Result *rc);
+
+// Every account (`account` NULL), or one: today / 7 days / each day folded
+// from the log with only the time that account was open in the game
+// (util/playlog.h), all-time totals from its own statistics. Games it never
+// played are left out.
+void playstats_fetch_for(PlayStats *out, const PlayAccount *account);
+void playstats_fetch(PlayStats *out);   // playstats_fetch_for(out, NULL)
 
 // One game's all-time play time per user account on the console (pdm:qry by
 // account, acc:u0 for the nicknames). Accounts that never played it are left

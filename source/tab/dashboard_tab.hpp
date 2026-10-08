@@ -1,5 +1,8 @@
 // DashboardTab — overview: today's play time, parental-control state, system
 // warnings. Refreshed every 5 s while shown; A on a line opens the matching tab.
+// When the timer reports no time left (no game running yet, or no limit
+// today), today's play time comes from the activity log (play_data, read in
+// the background at most every few minutes).
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
@@ -12,6 +15,7 @@ class DashboardTab : public TabBase
 {
   public:
     DashboardTab();
+    ~DashboardTab() override;
     static brls::View* create();
 
   protected:
@@ -20,6 +24,7 @@ class DashboardTab : public TabBase
   private:
     PtState pt = {};
     bool clock_inaccurate = false;   // last read: A on the clock line offers to fix it
+    int  listener = 0;               // play_data::listen id
 
     void open_today_limit();
 
@@ -31,6 +36,7 @@ class DashboardTab : public TabBase
     BRLS_BIND(brls::Label,      gauge_text,  "dash_gauge_text");
     BRLS_BIND(brls::DetailCell, today_limit, "dash_today_limit");
     BRLS_BIND(brls::DetailCell, extra,       "dash_extra");
+    BRLS_BIND(brls::DetailCell, stop,        "dash_stop");
     BRLS_BIND(brls::DetailCell, extra_pending, "dash_extra_pending");
     BRLS_BIND(brls::DetailCell, remaining,   "dash_remaining");
     BRLS_BIND(brls::DetailCell, bedtime,     "dash_bedtime");

@@ -11,7 +11,6 @@ using namespace brls::literals;
 
 namespace
 {
-const char* LANGUAGES[] = { "system", "en-US", "fr" };
 const char* THEMES[]    = { "system", "light", "dark" };
 
 template <size_t N>
@@ -45,10 +44,10 @@ PreferencesTab::PreferencesTab()
 
     language->registerClickAction([this](brls::View*) {
         std::vector<std::string> labels;
-        for (const char* l : LANGUAGES) labels.push_back(brls::getStr(std::string("playguard/tools/languages/") + l));
-        ui::pick("playguard/tools/language"_i18n, labels, index_of(LANGUAGES, config::get().language), [this](int i) {
-            const bool changed = config::get().language != LANGUAGES[i];
-            config::get().language = LANGUAGES[i];
+        for (const char* l : config::LANGUAGES) labels.push_back(brls::getStr(std::string("playguard/tools/languages/") + l));
+        ui::pick("playguard/tools/language"_i18n, labels, index_of(config::LANGUAGES, config::get().language), [this](int i) {
+            const bool changed = config::get().language != config::LANGUAGES[i];
+            config::get().language = config::LANGUAGES[i];
             ui::save_config();
             this->refresh();
             if (changed) ui::offer_restart();
@@ -80,11 +79,15 @@ PreferencesTab::PreferencesTab()
         return true;
     });
 
+    ui::guard_switch(auto_relock);
+    ui::guard_switch(extra_auto);
+    ui::guard_switch(advanced);
     auto_relock->init("playguard/tools/auto_relock"_i18n, config::get().auto_relock, [](bool on) {
         config::get().auto_relock = on;
         ui::save_config();
     });
     extra_amounts->registerClickAction([this](brls::View*) {
+        if (ui::refuse_read_only()) return true;
         std::vector<std::string> labels;
         for (const auto& set : config::EXTRA_SETS) labels.push_back(amounts_text(set));
         ui::pick("playguard/tools/extra_amounts"_i18n, labels, extra_set_index(config::get().extra_amounts), [this](int i) {
@@ -111,7 +114,7 @@ PreferencesTab::PreferencesTab()
 void PreferencesTab::refresh()
 {
     const auto& cfg = config::get();
-    language->setDetailText(brls::getStr("playguard/tools/languages/" + std::string(LANGUAGES[index_of(LANGUAGES, cfg.language)])));
+    language->setDetailText(brls::getStr("playguard/tools/languages/" + std::string(config::LANGUAGES[index_of(config::LANGUAGES, cfg.language)])));
     theme->setDetailText(brls::getStr("playguard/tools/themes/" + std::string(THEMES[index_of(THEMES, cfg.theme)])));
     start_tab->setDetailText(brls::getStr(std::string("playguard/tabs/") + config::START_TABS[index_of(config::START_TABS, cfg.start_tab)]));
     auto_relock->setOn(cfg.auto_relock, false);
@@ -119,12 +122,12 @@ void PreferencesTab::refresh()
     extra_auto->setOn(cfg.extra_auto_restore, false);
     advanced->setOn(cfg.advanced, false);
     clock_check->setOn(cfg.clock_check_at_start, false);
-    // Read-only: the play-timer preferences would change nothing.
-    const bool ro = app::read_only();
-    ui::set_visible_all({ { auto_relock.getView(), !ro },
-                          { extra_amounts.getView(), !ro },
-                          { extra_auto.getView(), !ro },
-                          { advanced.getView(), !ro } });
+    // Read-only: the play-timer preferences would change nothing; they stay
+    // in sight, greyed (A says why).
+    const bool writable = !app::read_only();
+    for (brls::DetailCell* c : { (brls::DetailCell*)auto_relock.getView(), (brls::DetailCell*)extra_amounts.getView(),
+                                 (brls::DetailCell*)extra_auto.getView(), (brls::DetailCell*)advanced.getView() })
+        ui::show_writable(c, writable);
 }
 
 brls::View* PreferencesTab::create()

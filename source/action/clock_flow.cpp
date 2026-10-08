@@ -7,6 +7,7 @@
 #include <thread>
 #include <vector>
 
+#include "action/history_flow.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
 #include "util/config.hpp"
@@ -61,6 +62,7 @@ void write_clock(const Measurement& m, const std::string& before, std::function<
     else if (!a.verified) message = "playguard/clock/applied_err"_i18n + " — " + ui::rc_text(a.verify_rc);
     else if (R_FAILED(a.after.accuracy_rc) || !a.after.accuracy) message = "playguard/clock/applied_pending"_i18n;
     else message = "playguard/clock/applied_ok"_i18n;
+    if (a.write_attempted && R_SUCCEEDED(a.write_rc)) history_flow::record_event("clock", "", ui::time_text(target));
 
     diagnostic::save(fmt::format(
         "=== Network clock change ===\nserver={}\ntarget_utc={}\nopen_rc=0x{:08X} write_attempted={} write_rc=0x{:08X}\n"

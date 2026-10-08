@@ -2,7 +2,7 @@
 
 <!-- Per-day play-time limits: the week chart is the editor (←/→ pick a day,
      A changes it); edits are staged in `pending[]` and written together by
-     "Save" (also Y). B leaves (asking first when something is unsaved). -->
+     "Save" (also +). B leaves (asking first when something is unsaved). -->
 
 <brls:AppletFrame
     iconInterpolation="linear">

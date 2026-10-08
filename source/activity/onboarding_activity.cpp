@@ -2,17 +2,19 @@
 #include "activity/onboarding_activity.hpp"
 
 #include "action/clock_flow.hpp"
+#include "action/history_flow.hpp"
 #include "action/fw_gate.hpp"
 #include "action/pt_flow.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
+#include "util/config.hpp"
 #include "util/pctl_ops_c.hpp"
 
 using namespace brls::literals;
 
 bool OnboardingActivity::wanted_at_start()
 {
-    if (app::read_only() || fw_gate::needed()) return false;
+    if (!config::get().onboarding_at_start || app::read_only() || fw_gate::needed()) return false;
     PctlStatus s;
     pctl_status_fetch(&s);
     return s.pin_length_ok && s.pin_length == 0;
@@ -21,13 +23,26 @@ bool OnboardingActivity::wanted_at_start()
 void OnboardingActivity::onContentAvailable()
 {
     headline->setSingleLine(false);
-    paired->setSingleLine(false);
     note->setSingleLine(false);
+    at_start->init("playguard/onboarding/at_start"_i18n, config::get().onboarding_at_start, [](bool on) {
+        config::get().onboarding_at_start = on;
+        ui::save_config();
+    });
+    unlink->registerClickAction([this](brls::View*) {
+        ui::confirm_danger("playguard/pairing/unlink_body"_i18n, "playguard/pairing/unlink_confirm"_i18n, [this]() {
+            Result rc = pctl_delete_pairing();
+            if (R_SUCCEEDED(rc)) history_flow::record_event("unlink", "first_steps");
+            ui::notify_result(rc, "playguard/pairing/unlinked"_i18n, "playguard/pairing/unlink_err"_i18n);
+            this->refresh();
+        });
+        return true;
+    });
 
     pin->registerClickAction([this](brls::View*) {
         // Blocks while the system PIN screen is shown.
         Result rc = pctl_set_pin();
         brls::Logger::info("pctl_set_pin returned 0x{:08X}", (unsigned)rc);
+        if (R_SUCCEEDED(rc)) history_flow::record_event("pin", "first_steps");
         ui::notify_result(rc, "playguard/security/pin_ok"_i18n, "playguard/security/pin_err"_i18n);
         this->refresh();
         return true;
@@ -93,7 +108,12 @@ void OnboardingActivity::refresh()
                          : accurate ? "playguard/dashboard/clock_ok"_i18n : "playguard/dashboard/clock_bad"_i18n);
     clock->setDetailTextColor(R_FAILED(accuracy_rc) ? ui::color_neutral() : accurate ? ui::color_ok() : ui::color_warn());
 
-    const bool done = has_pin && (!pt.fw_supported || any_limit) && (R_FAILED(accuracy_rc) || accurate);
+    // Step 4 only while the phone app is linked: its next sync would undo the rest.
+    const bool paired = s.pairing_active_ok && s.pairing_active;
+    unlink->setDetailText("playguard/dashboard/pairing_on"_i18n);
+    unlink->setDetailTextColor(ui::color_warn());
+    ui::set_visible(unlink.getView(), paired);
+
+    const bool done = has_pin && (!pt.fw_supported || any_limit) && (R_FAILED(accuracy_rc) || accurate) && !paired;
     headline->setText(done ? "playguard/onboarding/all_done"_i18n : "playguard/onboarding/headline"_i18n);
-    ui::set_visible(paired.getView(), s.pairing_active_ok && s.pairing_active);
 }

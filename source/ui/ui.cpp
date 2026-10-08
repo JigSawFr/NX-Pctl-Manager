@@ -1,6 +1,7 @@
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #include "ui/ui.hpp"
 
+#include "action/history_flow.hpp"
 #include "activity/main_activity.hpp"
 #include "app.hpp"
 #include "core/platform.h"
@@ -171,10 +172,28 @@ brls::Dialog* dialog(const std::string& text)
     return new brls::Dialog(box);
 }
 
-static void open_confirm(const std::string& body, const std::string& confirm_label,
-                         std::function<void()> on_yes, std::function<void()> on_no, bool danger)
+// The text (slightly smaller, so a chart fits under a long one) and `extra`.
+static brls::Dialog* dialog_with(const std::string& text, brls::View* extra)
 {
-    auto* dialog = ui::dialog(body);
+    auto* label = new brls::Label();
+    label->setText(text);
+    label->setFontSize(20);
+    label->setHorizontalAlign(brls::HorizontalAlign::CENTER);
+    label->setSingleLine(false);
+    auto* box = new brls::Box(brls::Axis::COLUMN);
+    box->setAlignItems(brls::AlignItems::STRETCH);
+    box->setPadding(26, 40, 18, 40);
+    box->addView(label);
+    extra->setMarginTop(18);
+    box->addView(extra);
+    return new brls::Dialog(box);
+}
+
+static void open_confirm(const std::string& body, const std::string& confirm_label,
+                         std::function<void()> on_yes, std::function<void()> on_no, bool danger,
+                         brls::View* extra = nullptr)
+{
+    auto* dialog = extra ? dialog_with(body, extra) : ui::dialog(body);
     dialog->addButton("hints/cancel"_i18n, [on_no]() { if (on_no) on_no(); });
     dialog->addButton(confirm_label, [on_yes]() { if (on_yes) on_yes(); });
     on_cancel(dialog, on_no);
@@ -188,6 +207,12 @@ void confirm(const std::string& body, const std::string& confirm_label,
              std::function<void()> on_yes, std::function<void()> on_no, bool danger)
 {
     open_confirm(body, confirm_label, std::move(on_yes), std::move(on_no), danger);
+}
+
+void confirm_with(const std::string& body, brls::View* extra, const std::string& confirm_label,
+                  std::function<void()> on_yes, std::function<void()> on_no, bool danger)
+{
+    open_confirm(body, confirm_label, std::move(on_yes), std::move(on_no), danger, extra);
 }
 
 void confirm_danger(const std::string& body, const std::string& confirm_label, std::function<void()> on_yes)
@@ -534,6 +559,40 @@ std::string time_text(uint64_t posix)
     return buf;
 }
 
+bool refuse_read_only()
+{
+    if (!app::read_only()) return false;
+    notify(rc_text(NXM_RC_READ_ONLY));
+    return true;
+}
+
+void show_writable(brls::DetailCell* cell, bool writable, NVGcolor title, NVGcolor detail)
+{
+    const NVGcolor grey = nvgTransRGBA(color_text(), 110);
+    cell->title->setTextColor(writable ? title : grey);
+    if (auto* sw = dynamic_cast<brls::BooleanCell*>(cell)) {
+        if (writable) sw->setOn(sw->isOn(), false);   // its own value colours back
+        else sw->detail->setTextColor(grey);
+        return;
+    }
+    cell->detail->setTextColor(writable ? detail : grey);
+}
+
+void show_writable(brls::DetailCell* cell, bool writable)
+{
+    show_writable(cell, writable, color_text(), color_neutral());
+}
+
+void guard_switch(brls::BooleanCell* cell)
+{
+    cell->registerClickAction([cell](brls::View*) {
+        if (refuse_read_only()) return true;
+        cell->setOn(!cell->isOn());
+        cell->getEvent()->fire(cell->isOn());
+        return true;
+    });
+}
+
 void set_visible(brls::View* view, bool visible)
 {
     if (!view) return;
@@ -596,6 +655,7 @@ void init_unlock_banner(brls::DetailCell* cell, std::function<void()> after)
             return true;
         }
         Result rc = pctl_relock();
+        if (R_SUCCEEDED(rc)) history_flow::record_event("relock");
         notify_result(rc, "playguard/toast/relocked"_i18n, "playguard/toast/relock_err"_i18n);
         if (after) after();
         return true;
