@@ -72,6 +72,17 @@ Files the app writes: `sd:/switch/playguard/config.json` (preferences), `history
 
 Controls: ↑/↓ move, Ⓐ confirm, Ⓑ back or cancel (on the sidebar: press Ⓑ twice to exit), Ⓧ refresh, **+** saves the per-day limits. Only status lines are skipped by the focus; what failed is said in a dialog, what worked in a toast. The title says when the app is read-only and while parental controls are temporarily unlocked; in read-only mode the actions stay in place, greyed, and say why when pressed.
 
+## Locked out? (second-hand console, forgotten PIN)
+
+PlayGuard needs Atmosphère, and it only sees the parental controls of the system it runs on: **emuMMC and sysMMC each have their own** (a PIN removed on one is still there on the other). Run it on each one that needs fixing.
+
+| Situation | What to do |
+|---|---|
+| **Second-hand console: you know the PIN, but the previous owner's phone app is still linked** (unlinking fails, or a factory reset asks for their account) | *Security & app* › *Unlink the companion app*, then, if you want no parental controls at all, *Delete all parental controls*. Both work offline, on emuMMC as on sysMMC. |
+| **PIN forgotten** | *Security & app* › *Show the PIN*. Or *Delete all parental controls* to start again (a backup of the settings is saved first; it never contains the PIN). |
+| **PIN forgotten, and *Ask for the PIN* is set to *To open PlayGuard* or *Before a change*** | That setting is in `sd:/switch/playguard/config.json`, on purpose: put the SD card in a computer and set `"pin_lock"` to `"off"`. |
+| **Console not modded** | PlayGuard cannot help: it needs Atmosphère. Nintendo support's master-key procedure is the official way. |
+
 ## Bug reports
 
 *Tools & about* › *Export a diagnostic report* saves a text file in `sd:/switch/playguard/logs/` with the firmware, Atmosphère version, clocks and the raw result of every parental-control query. It also gives the storage, the serial-blanking state and the game-patch status. **It never contains the PIN or the serial number.** Attach it to the issue.
