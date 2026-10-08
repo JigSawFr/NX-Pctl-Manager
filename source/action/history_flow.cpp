@@ -39,6 +39,7 @@ std::string value_text(const std::string& kind, const std::vector<int>& v)
         if (kind == "org") return pctl_rating_org_name((uint32_t)v[0]);
         if (kind == "vr") return yes_no(v[0]);
         if (kind == "alarm") return v[0] ? "playguard/common/off"_i18n : "playguard/common/on"_i18n;
+        if (kind == "console_lock") return v[0] ? "playguard/common/on"_i18n : "playguard/common/off"_i18n;
     }
     if (kind == "custom" && v.size() == 3)
         return brls::getStr("playguard/history/custom_value", age_text(v[0]), yes_no(v[1]), yes_no(v[2]));
@@ -48,7 +49,7 @@ std::string value_text(const std::string& kind, const std::vector<int>& v)
 std::string kind_label(const std::string& kind)
 {
     static const char* known[] = { "limits", "level", "custom", "org", "vr", "alarm", "pin",
-                                   "unlock", "relock", "unlink", "delete", "clock", "restore" };
+                                   "unlock", "relock", "unlink", "delete", "clock", "restore", "console_lock" };
     for (const char* k : known)
         if (kind == k) return brls::getStr(std::string("playguard/history/kinds/") + k);
     return kind;

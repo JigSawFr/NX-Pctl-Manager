@@ -33,6 +33,14 @@ struct Config
     // its "Show at start-up" switch was turned off.
     bool onboarding_at_start = true;
 
+    // Console lock (Security › Console lock): every day's limit set to 0, so a
+    // PIN is needed to play. console_lock is whether it is on; console_lock_prev
+    // keeps the seven limits it replaced (Sun..Sat minutes, 65535 no limit), to
+    // put back when it is turned off. Empty: nothing to put back (the timer was
+    // off), so turning it off clears the limit.
+    bool             console_lock = false;
+    std::vector<int> console_lock_prev;
+
     // Choice made on the "firmware not supported yet" screen, remembered for
     // one firmware with one app version: "read_only", "probe" or "risk".
     std::string fw_gate_fw;

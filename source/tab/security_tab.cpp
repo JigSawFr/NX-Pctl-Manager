@@ -2,10 +2,12 @@
 #include "tab/security_tab.hpp"
 
 #include "action/backup_flow.hpp"
+#include "action/console_lock.hpp"
 #include "action/history_flow.hpp"
 #include "action/pin_lock.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
+#include "util/config.hpp"
 
 using namespace brls::literals;
 
@@ -69,6 +71,24 @@ SecurityTab::SecurityTab()
     this->enable_auto_refresh(5000);
     pr_note->setSingleLine(false);
     pin_lock_note->setSingleLine(false);
+    console_lock_note->setSingleLine(false);
+    console_lock_cell->registerClickAction([this](brls::View*) {
+        if (ui::refuse_read_only()) return true;
+        PtState pt;
+        pctl_play_timer_query(&pt);
+        if (!pt.fw_supported) {
+            ui::error(ui::rc_text(NXM_RC_FW_UNSUPPORTED));
+            return true;
+        }
+        PctlStatus s;
+        pctl_status_fetch(&s);
+        if (!(s.pin_length_ok && s.pin_length > 0)) {   // nothing gates play without a PIN
+            ui::info("playguard/console_lock/needs_pin"_i18n);
+            return true;
+        }
+        console_lock::set(!console_lock::active(), pt, [this]() { this->refresh(); });
+        return true;
+    });
     // Deleting everything is the one irreversible action here: its line is
     // drawn in the danger colour, not only its section title (refresh()).
     pin_lock_cell->registerClickAction([this](brls::View*) {
@@ -166,6 +186,12 @@ void SecurityTab::refresh()
 
     pin_lock_cell->setDetailText(pin_lock::mode_text());
     pin_lock_note->setText(pin_lock::note_text());
+
+    const bool locked = console_lock::active();
+    console_lock_cell->setDetailText(locked ? "playguard/common/on"_i18n : "playguard/common/off"_i18n);
+    console_lock_cell->setDetailTextColor(locked ? ui::color_warn() : ui::color_neutral());
+    console_lock_note->setText(locked ? "playguard/console_lock/note_on"_i18n : "playguard/console_lock/note_off"_i18n);
+
     const bool writable = !app::read_only();
     const bool has_pin  = s.pin_length_ok && s.pin_length > 0;
     const bool unlocked = s.temp_unlocked_ok && s.temp_unlocked;
@@ -177,7 +203,7 @@ void SecurityTab::refresh()
                           { pr_unlink.getView(), !s.pairing_active_ok || paired } });
     for (brls::DetailCell* c : { (brls::DetailCell*)set_pin.getView(), (brls::DetailCell*)show_pin.getView(),
                                  (brls::DetailCell*)unlock.getView(), (brls::DetailCell*)relock.getView(),
-                                 (brls::DetailCell*)pr_unlink.getView() })
+                                 (brls::DetailCell*)console_lock_cell.getView(), (brls::DetailCell*)pr_unlink.getView() })
         ui::show_writable(c, writable);
     ui::show_writable(del, writable, ui::color_bad(), ui::color_neutral());
 }
