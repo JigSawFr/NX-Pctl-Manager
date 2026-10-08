@@ -509,6 +509,19 @@
         "locked_body": "Inserisci il PIN del filtro famiglia per aprirlo.",
         "enter": "Inserisci il PIN"
     },
+    "console_lock": {
+        "section": "Blocco della console",
+        "title": "Blocco della console",
+        "note_off": "Imposta a 0 il limite di ogni giorno, così serve il PIN per avviare un gioco: un blocco leggero, senza attivare le limitazioni per età o di comunicazione. Blocca l'avvio dei giochi, non il menu HOME né le impostazioni di sistema. Richiede un PIN sulla console.",
+        "note_on": "Il limite di ogni giorno è 0: serve il PIN per giocare. Disattivandolo vengono ripristinati i limiti precedenti.",
+        "needs_pin": "Prima imposta un PIN del filtro famiglia: senza, nulla impedisce di avviare un gioco.",
+        "on_body": "Vuoi bloccare la console? Il limite di tempo di gioco di ogni giorno passa a 0, quindi servirà il PIN per avviare un gioco. I limiti attuali vengono salvati e ripristinati quando lo disattivi.",
+        "on_confirm": "Blocca la console",
+        "on_done": "Console bloccata.",
+        "off_body": "Vuoi sbloccare la console? Vengono ripristinati i limiti di tempo di gioco precedenti.",
+        "off_confirm": "Sblocca la console",
+        "off_done": "Console sbloccata."
+    },
     "rescue": {
         "title": "Recupero",
         "section_actions": "Cosa vuoi fare?",
@@ -726,7 +739,8 @@
             "delete": "Filtro famiglia eliminato",
             "clock": "Orologio di rete impostato",
             "restore": "Backup ripristinato",
-            "rescue": "Recupero usato"
+            "rescue": "Recupero usato",
+            "console_lock": "Blocco della console"
         },
         "sources": {
             "uniform": "Stesso limite ogni giorno",

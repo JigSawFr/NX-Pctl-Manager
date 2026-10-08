@@ -509,6 +509,19 @@
         "locked_body": "Introduza o PIN de controlo parental para o abrir.",
         "enter": "Introduzir o PIN"
     },
+    "console_lock": {
+        "section": "Bloqueio da consola",
+        "title": "Bloqueio da consola",
+        "note_off": "Põe a 0 o limite de cada dia, por isso é preciso o PIN para iniciar um jogo: um bloqueio simples, sem ativar as restrições por idade nem de comunicação. Bloqueia o início de jogos, não o menu HOME nem as definições da consola. Requer um PIN na consola.",
+        "note_on": "O limite de cada dia é 0: é preciso o PIN para jogar. Ao desativar, os limites anteriores são repostos.",
+        "needs_pin": "Defina primeiro um PIN do controlo parental: sem ele, nada impede de iniciar um jogo.",
+        "on_body": "Bloquear a consola? O limite de tempo de jogo de cada dia passa a 0, por isso será preciso o PIN para iniciar um jogo. Os limites atuais são guardados e repostos quando o desativar.",
+        "on_confirm": "Bloquear a consola",
+        "on_done": "Consola bloqueada.",
+        "off_body": "Desbloquear a consola? Os limites de tempo de jogo anteriores são repostos.",
+        "off_confirm": "Desbloquear a consola",
+        "off_done": "Consola desbloqueada."
+    },
     "rescue": {
         "title": "Recuperação",
         "section_actions": "O que pretende fazer?",
@@ -726,7 +739,8 @@
             "delete": "Todo o controlo parental eliminado",
             "clock": "Relógio de rede acertado",
             "restore": "Cópia de segurança restaurada",
-            "rescue": "Recuperação usada"
+            "rescue": "Recuperação usada",
+            "console_lock": "Bloqueio da consola"
         },
         "sources": {
             "uniform": "Mesmo limite todos os dias",

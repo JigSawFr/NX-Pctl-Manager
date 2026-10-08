@@ -509,6 +509,19 @@
         "locked_body": "Voer de pincode voor ouderlijk toezicht in om te openen.",
         "enter": "Pincode invoeren"
     },
+    "console_lock": {
+        "section": "Consolevergrendeling",
+        "title": "Consolevergrendeling",
+        "note_off": "Zet de limiet van elke dag op 0, zodat de pincode nodig is om een game te starten: een lichte vergrendeling, zonder leeftijds- of communicatiebeperkingen in te schakelen. Hiermee wordt het starten van games geblokkeerd, niet het HOME-menu of de systeeminstellingen. Vereist een pincode op de console.",
+        "note_on": "De limiet van elke dag is 0: de pincode is nodig om te spelen. Uitschakelen zet de vorige limieten terug.",
+        "needs_pin": "Stel eerst een pincode voor ouderlijk toezicht in: zonder pincode houdt niets het starten van een game tegen.",
+        "on_body": "Console vergrendelen? De speeltijdlimiet van elke dag wordt 0, zodat de pincode nodig is om een game te starten. De huidige limieten worden bewaard en komen terug als u dit uitschakelt.",
+        "on_confirm": "Console vergrendelen",
+        "on_done": "Console vergrendeld.",
+        "off_body": "Console ontgrendelen? De vorige speeltijdlimieten worden teruggezet.",
+        "off_confirm": "Console ontgrendelen",
+        "off_done": "Console ontgrendeld."
+    },
     "rescue": {
         "title": "Herstel",
         "section_actions": "Wat wilt u doen?",
@@ -726,7 +739,8 @@
             "delete": "Ouderlijk toezicht volledig verwijderd",
             "clock": "Netwerkklok ingesteld",
             "restore": "Back-up teruggezet",
-            "rescue": "Herstel gebruikt"
+            "rescue": "Herstel gebruikt",
+            "console_lock": "Consolevergrendeling"
         },
         "sources": {
             "uniform": "Elke dag dezelfde limiet",

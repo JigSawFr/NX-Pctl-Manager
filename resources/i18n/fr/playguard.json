@@ -509,6 +509,19 @@
         "locked_body": "Saisissez le code PIN du contrôle parental pour l'ouvrir.",
         "enter": "Saisir le code PIN"
     },
+    "console_lock": {
+        "section": "Verrou de console",
+        "title": "Verrou de console",
+        "note_off": "Met la limite de chaque jour à 0, donc un code PIN est nécessaire pour lancer un jeu — un verrou léger, sans activer les classifications par âge ni les limites de communication. Il bloque le lancement des jeux, pas le menu HOME ni les paramètres. Nécessite un code PIN sur la console.",
+        "note_on": "La limite de chaque jour est à 0 : un code PIN est nécessaire pour jouer. Désactiver remet les limites précédentes.",
+        "needs_pin": "Définissez d'abord un code PIN de contrôle parental : sans lui, rien n'empêche de lancer un jeu.",
+        "on_body": "Verrouiller la console ? La limite de temps de jeu de chaque jour passe à 0, donc le code PIN est nécessaire pour lancer un jeu. Les limites actuelles sont enregistrées et reviennent quand vous désactivez le verrou.",
+        "on_confirm": "Verrouiller la console",
+        "on_done": "Console verrouillée.",
+        "off_body": "Déverrouiller la console ? Les limites de temps de jeu précédentes sont remises.",
+        "off_confirm": "Déverrouiller la console",
+        "off_done": "Console déverrouillée."
+    },
     "rescue": {
         "title": "Récupération",
         "section_actions": "Que voulez-vous faire ?",
@@ -726,7 +739,8 @@
             "delete": "Tout le contrôle parental supprimé",
             "clock": "Horloge réseau réglée",
             "restore": "Sauvegarde restaurée",
-            "rescue": "Récupération utilisée"
+            "rescue": "Récupération utilisée",
+            "console_lock": "Verrou de console"
         },
         "sources": {
             "uniform": "Même limite tous les jours",

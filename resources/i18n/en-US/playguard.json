@@ -509,6 +509,19 @@
         "locked_body": "Enter the parental-control PIN to open it.",
         "enter": "Enter the PIN"
     },
+    "console_lock": {
+        "section": "Console lock",
+        "title": "Console lock",
+        "note_off": "Sets every day's limit to 0, so a PIN is needed to start a game — a light lock without turning on age ratings or communication limits. It blocks starting games, not the HOME menu or System Settings. Needs a PIN on the console.",
+        "note_on": "Every day's limit is 0: a PIN is needed to play. Turning this off puts the previous limits back.",
+        "needs_pin": "Set a parental-control PIN first: without one, nothing stops a game from starting.",
+        "on_body": "Lock the console? Every day's play-time limit becomes 0, so the PIN is needed to start a game. The current limits are saved and come back when you turn this off.",
+        "on_confirm": "Lock the console",
+        "on_done": "Console locked.",
+        "off_body": "Unlock the console? The previous play-time limits are put back.",
+        "off_confirm": "Unlock the console",
+        "off_done": "Console unlocked."
+    },
     "rescue": {
         "title": "Recovery",
         "section_actions": "What would you like to do?",
@@ -726,7 +739,8 @@
             "delete": "All parental controls deleted",
             "clock": "Network clock set",
             "restore": "Backup restored",
-            "rescue": "Recovery used"
+            "rescue": "Recovery used",
+            "console_lock": "Console lock"
         },
         "sources": {
             "uniform": "Same limit every day",

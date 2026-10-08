@@ -509,6 +509,19 @@
         "locked_body": "Geben Sie die Geheimzahl für die Altersbeschränkungen ein, um die App zu öffnen.",
         "enter": "Geheimzahl eingeben"
     },
+    "console_lock": {
+        "section": "Konsolensperre",
+        "title": "Konsolensperre",
+        "note_off": "Setzt das Limit jedes Tages auf 0, sodass zum Starten eines Spiels die Geheimzahl nötig ist – eine einfache Sperre, ohne Altersfreigaben oder Kommunikationsbeschränkungen einzuschalten. Sie verhindert das Starten von Spielen, nicht das HOME-Menü oder die Systemeinstellungen. Erfordert eine Geheimzahl auf der Konsole.",
+        "note_on": "Das Limit jedes Tages ist 0: Zum Spielen wird die Geheimzahl benötigt. Beim Ausschalten werden die vorherigen Limits wiederhergestellt.",
+        "needs_pin": "Legen Sie zuerst eine Geheimzahl für die Altersbeschränkungen fest: Ohne sie verhindert nichts das Starten eines Spiels.",
+        "on_body": "Konsole sperren? Das Spielzeitlimit jedes Tages wird auf 0 gesetzt, sodass zum Starten eines Spiels die Geheimzahl nötig ist. Die aktuellen Limits werden gespeichert und beim Ausschalten wiederhergestellt.",
+        "on_confirm": "Konsole sperren",
+        "on_done": "Konsole gesperrt.",
+        "off_body": "Konsole entsperren? Die vorherigen Spielzeitlimits werden wiederhergestellt.",
+        "off_confirm": "Konsole entsperren",
+        "off_done": "Konsole entsperrt."
+    },
     "rescue": {
         "title": "Wiederherstellung",
         "section_actions": "Was möchten Sie tun?",
@@ -726,7 +739,8 @@
             "delete": "Alle Altersbeschränkungen gelöscht",
             "clock": "Netzwerkuhr gestellt",
             "restore": "Sicherung wiederhergestellt",
-            "rescue": "Wiederherstellung verwendet"
+            "rescue": "Wiederherstellung verwendet",
+            "console_lock": "Konsolensperre"
         },
         "sources": {
             "uniform": "Jeden Tag gleiches Limit",
