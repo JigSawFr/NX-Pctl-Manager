@@ -509,6 +509,20 @@
         "locked_body": "Saisissez le code PIN du contrôle parental pour l'ouvrir.",
         "enter": "Saisir le code PIN"
     },
+    "rescue": {
+        "title": "Récupération",
+        "section_actions": "Que voulez-vous faire ?",
+        "reset_pin": "Définir un nouveau code PIN",
+        "continue": "Ouvrir PlayGuard",
+        "note": "Vous êtes arrivé à cet écran grâce au fichier RESCUE : aucun code PIN n'est demandé ici. Définissez un nouveau code PIN ou supprimez le contrôle parental, puis ouvrez PlayGuard.",
+        "failed_code": "La console a renvoyé {}.",
+        "outcome": {
+            "unlocked": "Le contrôle parental a été déverrouillé, PlayGuard a donc pu s'ouvrir.",
+            "deleted": "Tout le contrôle parental a été supprimé.",
+            "no_pin": "Aucun code PIN à récupérer : aucun code PIN de contrôle parental n'est défini.",
+            "failed": "La récupération n'a pas pu aboutir."
+        }
+    },
     "tools": {
         "section_diag": "Diagnostic",
         "export": "Exporter un rapport de diagnostic",
@@ -689,7 +703,8 @@
             "unlink": "Application mobile dissociée",
             "delete": "Tout le contrôle parental supprimé",
             "clock": "Horloge de la console réglée",
-            "restore": "Sauvegarde restaurée"
+            "restore": "Sauvegarde restaurée",
+            "rescue": "Récupération utilisée"
         },
         "sources": {
             "uniform": "Même limite tous les jours",

@@ -9,9 +9,11 @@
 
 #include "action/fw_gate.hpp"
 #include "action/pin_lock.hpp"
+#include "action/rescue.hpp"
 #include "activity/init_error_activity.hpp"
 #include "activity/lock_activity.hpp"
 #include "activity/main_activity.hpp"
+#include "activity/rescue_activity.hpp"
 #include "app.hpp"
 #include "tab/activity_tab.hpp"
 #include "tab/clock_tab.hpp"
@@ -83,8 +85,15 @@ int main(int argc, char* argv[])
         // Security › Ask for the PIN: checked before every change from now on;
         // "To open PlayGuard" starts on the lock screen.
         pin_lock::install();
-        if (pin_lock::at_start()) brls::Application::pushActivity(new LockActivity());
-        else brls::Application::pushActivity(new MainActivity());
+        // The playguard-rescue sysmodule acted on a RESCUE file: show what it
+        // did and let the parent finish, before (and instead of) the lock
+        // screen — they are here because they forgot the PIN.
+        if (auto report = rescue::take())
+            brls::Application::pushActivity(new RescueActivity(*report));
+        else if (pin_lock::at_start())
+            brls::Application::pushActivity(new LockActivity());
+        else
+            brls::Application::pushActivity(new MainActivity());
     } else {
         brls::Logger::error("pctl probe failed (0x{:08X}) — showing InitErrorActivity", app::pctl_init_result());
         brls::Application::pushActivity(new InitErrorActivity());

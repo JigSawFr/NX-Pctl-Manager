@@ -69,6 +69,8 @@ jobs:
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-gate gate
       - name: Smoke test (limit reached, unlock refused, clock sync off)
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-errors errors
+      - name: Smoke test (recovery screen from a rescue report)
+        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-rescue rescue
       # The screens against tests/visual (reference | now | changes in
       # smoke*/visual_diff/ when one changed; tests/visual/README.md says how
       # to update the references after a change that is meant).
@@ -88,6 +90,7 @@ jobs:
             smoke/*.png
             smoke-gate/*.png
             smoke-errors/*.png
+            smoke-rescue/*.png
             smoke*/visual_diff/*.png
 
   # The real .nro, built in the official devkitPro image (same as ./run.sh),
@@ -120,6 +123,8 @@ jobs:
         run: |
           export CCACHE_DIR="$GITHUB_WORKSPACE/.ccache" CCACHE_BASEDIR="$GITHUB_WORKSPACE"
           make dist
+          # The optional recovery sysmodule, as its own asset (sysmodule/).
+          make dist-rescue
           ccache --show-stats
           dkp-pacman -Q libnx switch-tools switch-curl switch-glfw switch-mesa > toolchain.txt 2>/dev/null || true
       - name: compat.json
@@ -136,15 +141,17 @@ jobs:
             git submodule status
             cat toolchain.txt
           } > build-info.txt
-          sha256sum playguard.nro playguard.zip compat.json > SHA256SUMS.txt
+          sha256sum playguard.nro playguard.zip playguard-rescue.zip compat.json > SHA256SUMS.txt
           cat build-info.txt
           unzip -l playguard.zip
+          unzip -l playguard-rescue.zip
       - uses: actions/upload-artifact@v4
         with:
           name: playguard_release
           path: |
             playguard.nro
             playguard.zip
+            playguard-rescue.zip
             compat.json
             build-info.txt
             SHA256SUMS.txt
@@ -188,6 +195,7 @@ jobs:
           files: |
             dist/playguard.nro
             dist/playguard.zip
+            dist/playguard-rescue.zip
             dist/compat.json
             dist/build-info.txt
             dist/SHA256SUMS.txt

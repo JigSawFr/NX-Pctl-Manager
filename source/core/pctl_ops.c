@@ -176,6 +176,17 @@ void pctl_status_fetch(PctlStatus *out)
     pctl_ops_exit();
 }
 
+Result pctl_lock_state(u32 *pin_length, bool *unlocked)
+{
+    Result rc = pctl_ops_init();
+    if (R_FAILED(rc)) return rc;
+    Service *srv = pctlGetServiceSession_Service();
+    if (pin_length) rc = rd_u32(srv, 1206, pin_length);
+    if (R_SUCCEEDED(rc) && unlocked) rc = rd_bool(srv, 1006, unlocked);
+    pctl_ops_exit();
+    return rc;
+}
+
 // ---------------------------------------------------------------- PIN / unlock
 
 #define PIN_BUF 32

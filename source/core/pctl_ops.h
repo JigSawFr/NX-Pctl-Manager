@@ -54,6 +54,11 @@ typedef struct {
 
 void pctl_status_fetch(PctlStatus *out);
 
+// The two reads the rescue sysmodule repeats (core/rescue.h), in one short
+// session: the PIN length (1206, 0 == no PIN) and whether parental controls
+// are temporarily unlocked (1006). A pointer may be NULL to skip its read.
+Result pctl_lock_state(u32 *pin_length, bool *unlocked);
+
 const char *pctl_safety_level_name(u32 level);       // English fallback names (UI uses i18n)
 const char *pctl_rating_org_name(u32 org);           // "PEGI", "ESRB", … or "?"
 
