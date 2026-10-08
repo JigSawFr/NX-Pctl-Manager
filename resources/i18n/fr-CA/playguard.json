@@ -142,6 +142,7 @@
         "gauge_idle": "Le temps restant s'affiche pendant qu'un jeu tourne.",
         "gauge_unlocked": "Le temps de jeu n'est pas décompté tant que le contrôle parental est déverrouillé.",
         "bedtime": "Alarme du coucher",
+        "alarm_off": "Désactivée : rien ne prévient quand le temps est écoulé",
         "clock": "Horloge réseau",
         "clock_ok": "Précise",
         "clock_bad": "Imprécise",
@@ -185,6 +186,7 @@
         "step_clock": "3. Vérifier l'horloge réseau",
         "todo": "À faire",
         "step_unlink": "4. Dissocier l'application mobile (sa prochaine synchro annulerait tout)",
+        "step_alarm": "{}. Réactiver l'alarme « temps écoulé » (rien ne prévient quand le temps est écoulé)",
         "at_start": "Afficher au lancement tant qu'aucun NIP n'est défini",
         "note": "Le NIP est celui de la console; la limite est vérifiée avec l'horloge réseau, qui doit donc être précise.",
         "close": "Fermer"
@@ -252,6 +254,9 @@
         "bedtime_note": "L'alarme du coucher ne peut être modifiée que depuis l'application mobile pour l'instant.",
         "section_advanced": "Avancé",
         "alarm": "Alarme « temps écoulé »",
+        "alarm_on_body": "Réactiver l'alarme « temps écoulé » ?\n\nQuand la limite de temps de jeu sera atteinte, la console affichera de nouveau l'alarme, comme elle le fait par défaut.",
+        "alarm_on_confirm": "Réactiver",
+        "alarm_on_done": "Alarme « temps écoulé » réactivée.",
         "pause": "Mettre le décompte en pause",
         "resume": "Reprendre le décompte",
         "pause_body": "Mettre le décompte du jour en pause?\n\nCette action utilise une commande de test du système. Ne l'utilisez que si vous savez pourquoi.",
@@ -715,6 +720,7 @@
             "backup": "Sauvegarde restaurée",
             "undo": "Remis depuis l'historique",
             "first_steps": "Premiers pas",
+            "overview": "Vue d'ensemble",
             "profile": "Profil « {} »"
         },
         "when": "Quand",

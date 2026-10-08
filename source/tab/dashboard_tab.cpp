@@ -67,6 +67,13 @@ DashboardTab::DashboardTab()
         pt_flow::offer_extra_time_restore([this]() { this->refresh(); });
         return true;
     });
+    // Shown only while the alarm is off: A turns it back on.
+    alarm->setDetailText("playguard/dashboard/alarm_off"_i18n);
+    alarm->setDetailTextColor(ui::color_warn());
+    alarm->registerClickAction([this](brls::View*) {
+        pt_flow::turn_alarm_on("overview", [this]() { this->refresh(); });
+        return true;
+    });
     link(remaining, ui::tab::play_timer);
     link(bedtime, ui::tab::play_timer);
     link(pc, ui::tab::security);
@@ -268,6 +275,7 @@ void DashboardTab::refresh()
     ui::set_visible_all({ { extra.getView(), pt_logic::can_add_extra_time(pt, today, false) },
                           { stop.getView(), pt_logic::can_stop_today(pt, today, false) },
                           { extra_pending.getView(), pending },
+                          { alarm.getView(), pt_flow::alarm_off(pt) },
                           { first_steps.getView(), not_set_up }, { applet.getView(), si.applet_mode },
                           { fw.getView(), compat_issue }, { compat.getView(), compat_issue },
                           { serial.getView(), serial_issue }, { game_patches.getView(), patches_issue },

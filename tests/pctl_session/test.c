@@ -241,9 +241,9 @@ static void test_overview(void)
     assert(st.fw_supported && st.session_valid && st.valid && st.enabled_valid && st.restricted_valid);
     assert(st.temporary_unlocked_valid && st.temporary_unlocked && st.remaining_valid);
     assert(st.day_min[0] == 0 && st.day_min[6] == 180 && st.bedtime_valid && st.bedtime_hour == 21);
-    assert(!st.alarm_disabled_valid && !st.bedtime_reset_valid);
-    /* status 5 + play timer 3 + 145601 + bedtime 3, against 10 + 1 + 13 in two sessions */
-    assert(model.ipc_calls == 12);
+    assert(st.alarm_disabled_valid && st.alarm_disabled && !st.bedtime_reset_valid);
+    /* status 5 + play timer 3 + 145601 + bedtime 3 + alarm, against 10 + 1 + 13 in two sessions */
+    assert(model.ipc_calls == 13);
 
     /* The same values as the two full reads. */
     PctlStatus full_s;
@@ -253,6 +253,7 @@ static void test_overview(void)
     assert(full_s.safety_level == s.safety_level && full_s.pin_length == s.pin_length);
     assert(full_pt.remaining_ns == st.remaining_ns && memcmp(full_pt.day_min, st.day_min, sizeof(st.day_min)) == 0);
     assert(full_pt.temporary_unlocked == st.temporary_unlocked && model.refs == 0);
+    assert(full_pt.alarm_disabled == st.alarm_disabled);
 
     /* Below 21.0.0: the status only, no play-timer IPC. */
     reset_with(MAKEHOSVERSION(20, 5, 0));
@@ -271,6 +272,12 @@ static void test_overview(void)
     model.fail_command = 1006;
     pctl_overview_fetch(&s, &st);
     assert(!s.temp_unlocked_ok && !st.temporary_unlocked_valid && st.valid && model.refs == 0);
+
+    /* 1458 failing: the alarm is not claimed off, the rest is read. */
+    reset();
+    model.fail_command = 1458;
+    pctl_overview_fetch(&s, &st);
+    assert(!st.alarm_disabled_valid && st.valid && st.enabled_valid && model.refs == 0);
 }
 
 static void test_reads(void)

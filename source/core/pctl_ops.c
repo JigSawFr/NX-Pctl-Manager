@@ -471,6 +471,8 @@ void pctl_overview_fetch(PctlStatus *status, PtState *pt)
         pt->temporary_unlocked = status->temp_unlocked;
         pt->temporary_unlocked_rc = status->temp_unlocked_ok ? 0 : NXM_RC_STATE_UNKNOWN;
         pt_read_core(srv, pt);
+        // The Overview warns while the "time's up" alarm is off.
+        pt->alarm_disabled_valid = R_SUCCEEDED(rd_bool(srv, 1458, &pt->alarm_disabled));
     }
     pctl_ops_exit();
 }

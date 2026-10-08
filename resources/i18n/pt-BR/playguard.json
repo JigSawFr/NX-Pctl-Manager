@@ -142,6 +142,7 @@
         "gauge_idle": "O tempo restante é exibido enquanto um jogo está em execução.",
         "gauge_unlocked": "O tempo de jogo não é contabilizado enquanto o controle dos pais está desbloqueado.",
         "bedtime": "Alarme de hora de dormir",
+        "alarm_off": "Desativado: nada avisa quando o tempo acaba",
         "clock": "Relógio de rede",
         "clock_ok": "Preciso",
         "clock_bad": "Impreciso",
@@ -185,6 +186,7 @@
         "step_clock": "3. Verificar o relógio de rede",
         "todo": "Pendente",
         "step_unlink": "4. Desvincular o app do celular (a próxima sincronização desfaria isto)",
+        "step_alarm": "{}. Reativar o alarme \"Tempo esgotado\" (nada avisa quando o tempo acaba)",
         "at_start": "Mostrar ao iniciar enquanto não houver PIN",
         "note": "O PIN é o do próprio console; o limite é conferido pelo relógio de rede, que precisa estar preciso.",
         "close": "Fechar"
@@ -252,6 +254,9 @@
         "bedtime_note": "Por enquanto, o alarme de hora de dormir só pode ser alterado pelo app do celular.",
         "section_advanced": "Avançado",
         "alarm": "Alarme \"Tempo esgotado\"",
+        "alarm_on_body": "Reativar o alarme \"Tempo esgotado\"?\n\nQuando o limite de tempo de jogo for atingido, o console voltará a mostrar o alarme, como faz por padrão.",
+        "alarm_on_confirm": "Ativar",
+        "alarm_on_done": "Alarme \"Tempo esgotado\" ativado.",
         "pause": "Pausar a contagem",
         "resume": "Retomar a contagem",
         "pause_body": "Pausar a contagem de hoje?\n\nIsso usa um comando de teste do sistema. Use apenas se você souber por que precisa dele.",
@@ -715,6 +720,7 @@
             "backup": "Backup restaurado",
             "undo": "Restaurado pelo histórico",
             "first_steps": "Primeiros passos",
+            "overview": "Visão geral",
             "profile": "Perfil \"{}\""
         },
         "when": "Quando",

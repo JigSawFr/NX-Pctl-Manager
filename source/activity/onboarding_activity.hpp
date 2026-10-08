@@ -31,6 +31,7 @@ class OnboardingActivity : public brls::Activity
     BRLS_BIND(brls::DetailCell, limit,    "ob_limit");
     BRLS_BIND(brls::DetailCell, clock,    "ob_clock");
     BRLS_BIND(brls::DetailCell, unlink,   "ob_unlink");
+    BRLS_BIND(brls::DetailCell, alarm,    "ob_alarm");
     BRLS_BIND(brls::Label,      note,     "ob_note");
     BRLS_BIND(brls::BooleanCell, at_start, "ob_at_start");
     BRLS_BIND(brls::DetailCell, close,    "ob_close");

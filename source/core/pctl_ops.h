@@ -115,8 +115,8 @@ void pctl_play_timer_query(PtState *out);
 
 // The Overview's periodic read, in one session: of PctlStatus only safety
 // level, PIN length, restriction enabled, temporarily unlocked and pairing;
-// of PtState everything but the alarm flag (1458) and the bedtime reset time
-// (1958/1959). 1006 is read once for both. What is not read stays *_ok false.
+// of PtState everything but the bedtime reset time (1958/1959). 1006 is read
+// once for both. What is not read stays *_ok false.
 void pctl_overview_fetch(PctlStatus *status, PtState *pt);
 
 // days_min[0]=Sunday .. [6]=Saturday. If every day is PT_DAY_NOLIMIT the timer is

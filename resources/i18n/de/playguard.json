@@ -142,6 +142,7 @@
         "gauge_idle": "Die verbleibende Zeit wird angezeigt, während ein Spiel läuft.",
         "gauge_unlocked": "Die Spielzeit wird nicht gezählt, solange die Altersbeschränkungen aufgehoben sind.",
         "bedtime": "Gute-Nacht-Alarm",
+        "alarm_off": "Aus: keine Warnung, wenn die Zeit um ist",
         "clock": "Netzwerkuhr",
         "clock_ok": "Genau",
         "clock_bad": "Ungenau",
@@ -185,6 +186,7 @@
         "step_clock": "3. Netzwerkuhr prüfen",
         "todo": "Offen",
         "step_unlink": "4. Smart-Geräte-App trennen (ihre nächste Synchronisierung würde dies rückgängig machen)",
+        "step_alarm": "{}. Alarm „Zeit ist um“ wieder einschalten (nichts warnt, wenn die Zeit um ist)",
         "at_start": "Beim Start anzeigen, solange keine Geheimzahl festgelegt ist",
         "note": "Die Geheimzahl ist die der Konsole; das Limit richtet sich nach der Netzwerkuhr, daher muss sie genau sein.",
         "close": "Schließen"
@@ -252,6 +254,9 @@
         "bedtime_note": "Der Gute-Nacht-Alarm kann derzeit nur über die Smart-Geräte-App geändert werden.",
         "section_advanced": "Erweitert",
         "alarm": "Alarm „Zeit ist um“",
+        "alarm_on_body": "Alarm „Zeit ist um“ wieder einschalten?\n\nWenn die Spielzeitbegrenzung erreicht ist, zeigt die Konsole den Alarm wieder an, wie standardmäßig vorgesehen.",
+        "alarm_on_confirm": "Einschalten",
+        "alarm_on_done": "Alarm „Zeit ist um“ eingeschaltet.",
         "pause": "Countdown pausieren",
         "resume": "Countdown fortsetzen",
         "pause_body": "Heutigen Countdown pausieren?\n\nDies nutzt einen Testbefehl des Systems. Verwenden Sie ihn nur, wenn Sie wissen, wozu Sie ihn brauchen.",
@@ -715,6 +720,7 @@
             "backup": "Sicherung wiederhergestellt",
             "undo": "Aus dem Verlauf wiederhergestellt",
             "first_steps": "Erste Schritte",
+            "overview": "Übersicht",
             "profile": "Profil „{}“"
         },
         "when": "Wann",

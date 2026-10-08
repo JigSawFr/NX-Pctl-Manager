@@ -142,6 +142,7 @@
         "gauge_idle": "Il tempo rimanente viene indicato mentre un gioco è in esecuzione.",
         "gauge_unlocked": "Il tempo di gioco non viene conteggiato mentre il filtro famiglia è sbloccato.",
         "bedtime": "Sogni d'oro",
+        "alarm_off": "Disattivato: nessun avviso allo scadere del tempo",
         "clock": "Orologio di rete",
         "clock_ok": "Preciso",
         "clock_bad": "Non preciso",
@@ -185,6 +186,7 @@
         "step_clock": "3. Controlla l'orologio di rete",
         "todo": "Da fare",
         "step_unlink": "4. Scollega l'app Filtro famiglia (la sua prossima sincronizzazione annullerebbe tutto)",
+        "step_alarm": "{}. Riattiva l'avviso \"Tempo scaduto\" (nulla avvisa allo scadere del tempo)",
         "at_start": "Mostra all'avvio finché non è impostato un PIN",
         "note": "Il PIN è quello della console; il limite viene verificato con l'orologio di rete, che deve quindi essere preciso.",
         "close": "Chiudi"
@@ -252,6 +254,9 @@
         "bedtime_note": "Per ora Sogni d'oro può essere modificato solo dall'app Filtro famiglia.",
         "section_advanced": "Avanzate",
         "alarm": "Avviso \"Tempo scaduto\"",
+        "alarm_on_body": "Riattivare l'avviso \"Tempo scaduto\"?\n\nQuando verrà raggiunto il limite di tempo di gioco, la console mostrerà di nuovo l'avviso, come fa in modo predefinito.",
+        "alarm_on_confirm": "Attiva",
+        "alarm_on_done": "Avviso \"Tempo scaduto\" attivato.",
         "pause": "Metti in pausa il conteggio",
         "resume": "Riprendi il conteggio",
         "pause_body": "Vuoi mettere in pausa il conteggio di oggi?\n\nQuesta funzione usa un comando di test del sistema. Usala solo se sai perché ti serve.",
@@ -715,6 +720,7 @@
             "backup": "Backup ripristinato",
             "undo": "Ripristinato dalla cronologia",
             "first_steps": "Primi passi",
+            "overview": "Panoramica",
             "profile": "Profilo \"{}\""
         },
         "when": "Quando",

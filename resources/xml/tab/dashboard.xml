@@ -36,6 +36,7 @@
             <brls:DetailCell id="dash_extra_pending"/>
             <brls:DetailCell id="dash_remaining" title="@i18n/playguard/dashboard/remaining"/>
             <brls:DetailCell id="dash_bedtime" title="@i18n/playguard/dashboard/bedtime"/>
+            <brls:DetailCell id="dash_alarm" title="@i18n/playguard/play_timer/alarm"/>
             <brls:Header title="@i18n/playguard/dashboard/section_status" marginTop="24" marginBottom="8"/>
             <brls:DetailCell id="dash_pc" title="@i18n/playguard/dashboard/pc"/>
             <brls:DetailCell id="dash_pin" title="@i18n/playguard/dashboard/pin"/>

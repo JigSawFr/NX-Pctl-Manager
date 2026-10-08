@@ -57,7 +57,7 @@ std::string kind_label(const std::string& kind)
 std::string source_label(const history::Entry& e)
 {
     static const char* known[] = { "uniform", "day", "per_day", "extra", "stop", "restore_extra",
-                                   "remove", "backup", "undo", "first_steps" };
+                                   "remove", "backup", "undo", "first_steps", "overview" };
     if (e.source == "profile") return brls::getStr("playguard/history/sources/profile", e.detail);
     for (const char* s : known)
         if (e.source == s) return brls::getStr(std::string("playguard/history/sources/") + s);
