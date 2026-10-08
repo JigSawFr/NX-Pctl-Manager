@@ -76,6 +76,25 @@ static bool convert(const PdmPlayEvent *p, PlayLogEvent *e)
     }
 }
 
+// The index to read the log from for entries since `since` (user clock):
+// back from the newest entry a chunk at a time, until a whole chunk is older
+// (a whole chunk, not the first old entry: a clock set back makes the user
+// times go back and forth). Only the last week matters; the log holds years.
+static s32 first_recent_index(s32 start, s32 total, u64 since, PdmPlayEvent *chunk)
+{
+    s32 hi = start + total;   // one past the newest entry
+    while (hi > start) {
+        const s32 lo = hi - EVENT_CHUNK > start ? hi - EVENT_CHUNK : start;
+        s32 got = 0;
+        if (R_FAILED(pdmqryQueryPlayEvent(lo, chunk, hi - lo, &got)) || got <= 0) return start;   // all of it, then
+        bool recent = false;
+        for (s32 i = 0; i < got && !recent; i++) recent = chunk[i].timestamp_user >= since;
+        if (!recent) return hi;
+        hi = lo;
+    }
+    return start;
+}
+
 // The log entries since `since` (user clock), oldest first. *events is
 // malloc'ed (NULL when empty); the caller frees it.
 static Result read_events(u64 since, PlayLogEvent **events, size_t *count)
@@ -84,12 +103,13 @@ static Result read_events(u64 since, PlayLogEvent **events, size_t *count)
     *count  = 0;
     s32 total = 0, start = 0, end = 0;
     Result rc = pdmqryGetAvailablePlayEventRange(&total, &start, &end);
-    if (R_FAILED(rc)) return rc;
+    if (R_FAILED(rc) || total <= 0) return rc;
 
     PdmPlayEvent *chunk = (PdmPlayEvent *)malloc(sizeof(PdmPlayEvent) * EVENT_CHUNK);
     if (!chunk) return MAKERESULT(Module_Libnx, LibnxError_OutOfMemory);
     size_t cap = 0;
-    s32 index = start, remaining = total;
+    s32 index = first_recent_index(start, total, since, chunk);
+    s32 remaining = start + total - index;
     while (remaining > 0 && R_SUCCEEDED(rc)) {
         s32 got = 0;
         rc = pdmqryQueryPlayEvent(index, chunk, remaining < EVENT_CHUNK ? remaining : EVENT_CHUNK, &got);
@@ -208,20 +228,38 @@ void playstats_fetch(PlayStats *out)
         // the window and still end inside it.
         // Midnights through the console's rule: a day with a daylight-saving
         // change is 23 or 25 h long, and the week counts it as one day.
-        const u64 day_start  = local_midnight(time_console_rule(), out->now, 0);
-        const u64 week_start = local_midnight(time_console_rule(), out->now, 6);
+        const TimeRule *rule = time_console_rule();
+        u64 day_starts[7];
+        for (int k = 0; k < 7; k++) day_starts[k] = local_midnight(rule, out->now, k);
+        LocalTime today;   // the weekday of the same instant, not a second read
+        const int wday = rule->to_local(rule->ctx, out->now, &today) ? today.wday : 0;
+        for (int k = 0; k < 7; k++) out->day_wday[k] = (u8)((wday - k + 7) % 7);
         PlayLogEvent *events = NULL;
         size_t event_count = 0;
-        out->events_rc = read_events(week_start >= DAY_S ? week_start - DAY_S : 0, &events, &event_count);
+        out->events_rc = read_events(day_starts[6] >= DAY_S ? day_starts[6] - DAY_S : 0, &events, &event_count);
         if (R_SUCCEEDED(out->events_rc)) {
             static PlayLogTotal totals[PLAYSTATS_MAX];
-            const size_t n = playlog_fold(events, event_count, out->now, day_start, week_start,
-                                          totals, PLAYSTATS_MAX);
+            const size_t n = playlog_fold_days(events, event_count, out->now, day_starts, totals, PLAYSTATS_MAX);
             for (size_t i = 0; i < n; i++) {
                 GameStat *g = find_or_add(out, totals[i].app_id);   // also games deleted since
                 if (!g) break;
                 g->today_s = totals[i].today_s;
                 g->week_s  = totals[i].week_s;
+                memcpy(g->day_s, totals[i].day_s, sizeof(g->day_s));
+                // Deleted since: not in the installed list above, but pdm
+                // still has its all-time totals.
+                if (!g->totals_ok) {
+                    PdmPlayStatistics st;
+                    memset(&st, 0, sizeof(st));
+                    if (R_SUCCEEDED(pdmqryQueryPlayStatisticsByApplicationId(g->app_id, false, &st)) &&
+                        (st.playtime || st.total_launches)) {
+                        g->totals_ok    = true;
+                        g->total_s      = st.playtime / 1000000000ULL;
+                        g->launches     = st.total_launches;
+                        g->first_played = st.first_timestamp_user;
+                        g->last_played  = st.last_timestamp_user;
+                    }
+                }
             }
             out->windows_ok = true;
         }
@@ -236,4 +274,41 @@ void playstats_fetch(PlayStats *out)
         free(cd);
     }
     nsExit();
+}
+
+size_t playstats_by_account(u64 app_id, AccountPlay *out, size_t max, Result *rc_out)
+{
+    size_t n = 0;
+    Result rc = accountInitialize(AccountServiceType_Application);
+    if (R_SUCCEEDED(rc)) {
+        AccountUid uids[PLAYSTATS_MAX_ACCOUNTS];
+        s32 count = 0;
+        rc = accountListAllUsers(uids, PLAYSTATS_MAX_ACCOUNTS, &count);
+        if (R_SUCCEEDED(rc)) rc = pdmqryInitialize();
+        if (R_SUCCEEDED(rc)) {
+            for (s32 i = 0; i < count && n < max; i++) {
+                PdmPlayStatistics st;
+                memset(&st, 0, sizeof(st));
+                if (R_FAILED(pdmqryQueryPlayStatisticsByApplicationIdAndUserAccountId(app_id, uids[i], false, &st)) ||
+                    (st.playtime == 0 && st.total_launches == 0))
+                    continue;
+                AccountPlay *a = &out[n];
+                memset(a, 0, sizeof(*a));
+                a->total_s  = st.playtime / 1000000000ULL;
+                a->launches = st.total_launches;
+                AccountProfile profile;
+                AccountProfileBase base;
+                if (R_SUCCEEDED(accountGetProfile(&profile, uids[i]))) {
+                    if (R_SUCCEEDED(accountProfileGet(&profile, NULL, &base)))
+                        copy_utf8(a->nickname, sizeof(a->nickname), base.nickname);
+                    accountProfileClose(&profile);
+                }
+                n++;
+            }
+            pdmqryExit();
+        }
+        accountExit();
+    }
+    if (rc_out) *rc_out = rc;
+    return n;
 }

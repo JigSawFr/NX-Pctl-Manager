@@ -24,6 +24,7 @@ typedef struct {
     u64  first_played, last_played;  // POSIX (user clock), 0 when unknown
 
     u32  today_s, week_s;            // valid when PlayStats.windows_ok
+    u32  day_s[7];                   // same, per day: [0] today … [6] six days ago
 } GameStat;
 
 typedef struct {
@@ -32,8 +33,21 @@ typedef struct {
     Result events_rc;   // pdm:qry: the event log (today / 7 days)
     bool   windows_ok;  // today_s / week_s are meaningful
     u64    now;         // when the data was read (user clock)
+    u8     day_wday[7]; // weekday (0 = Sunday) of day_s[k], when windows_ok
     u32    count;       // games with any play time, in no particular order
     GameStat games[PLAYSTATS_MAX];
 } PlayStats;
 
 void playstats_fetch(PlayStats *out);
+
+// One game's all-time play time per user account on the console (pdm:qry by
+// account, acc:u0 for the nicknames). Accounts that never played it are left
+// out. Returns how many were written to `out`; *rc says why none when 0.
+#define PLAYSTATS_MAX_ACCOUNTS 8
+typedef struct {
+    char nickname[0x21];   // UTF-8, as the HOME menu shows it
+    u64  total_s;
+    u32  launches;
+} AccountPlay;
+
+size_t playstats_by_account(u64 app_id, AccountPlay *out, size_t max, Result *rc);

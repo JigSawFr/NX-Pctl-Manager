@@ -127,6 +127,8 @@ void ActivityTab::rebuild()
         week_total  += s.games[i].week_s;
         if (s.games[i].totals_ok) all_total += s.games[i].total_s;
     }
+    if (s.windows_ok) days->show(s);
+    ui::set_visible(days.getView(), s.windows_ok);
     today->setDetailText(s.windows_ok ? ui::fmt_play_time(today_total) : na);
     week->setDetailText(s.windows_ok ? ui::fmt_play_time(week_total) : na);
     total->setDetailText(R_SUCCEEDED(s.stats_rc) ? ui::fmt_play_time(all_total) : na);
@@ -182,12 +184,29 @@ void ActivityTab::show_details(const GameStat& g) const
     if (s_cache.stats && s_cache.stats->windows_ok) {
         text += line("playguard/activity/today"_i18n, ui::fmt_play_time(g.today_s));
         text += line("playguard/activity/week"_i18n, ui::fmt_play_time(g.week_s));
+        // The days it was played on, most recent first ("Sat 1 h 20 · Thu 30 min").
+        std::string days_text;
+        for (int k = 1; k < 7; k++) {
+            if (!g.day_s[k]) continue;
+            if (!days_text.empty()) days_text += " · ";
+            days_text += brls::getStr(fmt::format("playguard/days_short/{}", (int)s_cache.stats->day_wday[k])) + " " +
+                         ui::fmt_play_time(g.day_s[k]);
+        }
+        if (!days_text.empty()) text += line("playguard/activity/before_today"_i18n, days_text);
     }
     if (g.totals_ok) {
         text += line("playguard/activity/all_time"_i18n, ui::fmt_play_time(g.total_s));
         text += line("playguard/activity/launches"_i18n, std::to_string(g.launches));
         if (g.first_played) text += line("playguard/activity/first"_i18n, ui::time_text(g.first_played));
         if (g.last_played) text += line("playguard/activity/last"_i18n, ui::time_text(g.last_played));
+        // All time per user account (read now: a few requests for this game only).
+        AccountPlay accounts[PLAYSTATS_MAX_ACCOUNTS];
+        Result rc = 0;
+        const size_t n = playstats_by_account(g.app_id, accounts, PLAYSTATS_MAX_ACCOUNTS, &rc);
+        for (size_t i = 0; i < n; i++)
+            text += line(accounts[i].nickname[0] ? std::string(accounts[i].nickname) : "?",
+                         brls::getStr("playguard/activity/account_value", ui::fmt_play_time(accounts[i].total_s),
+                                      (int)accounts[i].launches));
     }
     ui::info(text);
 }
@@ -216,12 +235,20 @@ void ActivityTab::export_to_sd() const
             { "game", "playguard/activity/columns/game"_i18n, false },
             { "title_id", "playguard/activity/columns/id"_i18n, false },
             { "today_min", "playguard/activity/columns/today"_i18n, true },
+        };
+        // The six days before today, most recent first ("Sat (min)").
+        for (int k = 1; k < 7; k++)
+            t.columns.push_back({ fmt::format("day_{}_min", k),
+                                  brls::getStr("playguard/activity/columns/day",
+                                               brls::getStr(fmt::format("playguard/days_short/{}", (int)s.day_wday[k]))),
+                                  true });
+        t.columns.insert(t.columns.end(), {
             { "week_min", "playguard/activity/columns/week"_i18n, true },
             { "total_min", "playguard/activity/columns/total"_i18n, true },
             { "launches", "playguard/activity/launches"_i18n, true },
             { "first_played", "playguard/activity/first"_i18n, false },
             { "last_played", "playguard/activity/last"_i18n, false },
-        };
+        });
         std::vector<const GameStat*> games;
         for (uint32_t i = 0; i < s.count; i++) games.push_back(&s.games[i]);
         std::sort(games.begin(), games.end(), [p](const GameStat* a, const GameStat* b) {
@@ -235,6 +262,9 @@ void ActivityTab::export_to_sd() const
                 game_name(*g),
                 fmt::format("{:016X}", (unsigned long long)g->app_id),
                 s.windows_ok ? minutes(g->today_s) : "",
+            });
+            for (int k = 1; k < 7; k++) t.rows.back().push_back(s.windows_ok ? minutes(g->day_s[k]) : "");
+            t.rows.back().insert(t.rows.back().end(), {
                 s.windows_ok ? minutes(g->week_s) : "",
                 g->totals_ok ? minutes(g->total_s) : "",
                 g->totals_ok ? std::to_string(g->launches) : "",

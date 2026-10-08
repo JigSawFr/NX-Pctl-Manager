@@ -12,6 +12,7 @@
 
 #include "tab/tab_base.hpp"
 #include "util/pctl_ops_c.hpp"
+#include "view/play_days.hpp"
 
 class ActivityTab : public TabBase
 {
@@ -32,6 +33,7 @@ class ActivityTab : public TabBase
     void show_details(const GameStat& g) const;
     void export_to_sd() const;
 
+    BRLS_BIND(PlayDaysView,     days,        "ac_days");
     BRLS_BIND(brls::DetailCell, today,       "ac_today");
     BRLS_BIND(brls::DetailCell, week,        "ac_week");
     BRLS_BIND(brls::DetailCell, total,       "ac_total");
