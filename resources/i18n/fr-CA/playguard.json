@@ -509,6 +509,29 @@
         "locked_body": "Saisissez le NIP du contrôle parental pour l'ouvrir.",
         "enter": "Saisir le NIP"
     },
+    "rescue": {
+        "title": "Récupération",
+        "section_actions": "Que voulez-vous faire?",
+        "section_done": "Terminer",
+        "reset_pin": "Définir un nouveau NIP",
+        "continue": "Ouvrir PlayGuard",
+        "note": "Vous êtes arrivé à cet écran grâce au fichier RESCUE : aucun NIP n'est demandé ici. Définissez un nouveau NIP ou supprimez le contrôle parental, puis ouvrez PlayGuard.",
+        "note_failed": "La récupération n'a pas abouti d'elle-même. Vous pouvez réessayer ici, ou retirer la carte SD et modifier les réglages sur un ordinateur.",
+        "note_deleted": "Tout le contrôle parental a été supprimé, NIP compris. Ouvrez PlayGuard : vous pourrez le reconfigurer à tout moment depuis l'application.",
+        "note_no_pin": "Aucun NIP de contrôle parental n'était défini, il n'y avait donc rien à déverrouiller. Vous pouvez en définir un ici, puis ouvrir PlayGuard.",
+        "failed_code": "Réponse de la console : {}.",
+        "outcome": {
+            "unlocked": "Le contrôle parental a été déverrouillé, PlayGuard a donc pu s'ouvrir.",
+            "deleted": "Tout le contrôle parental a été supprimé.",
+            "no_pin": "Aucun NIP à récupérer : aucun NIP de contrôle parental n'est défini.",
+            "failed": "La récupération n'a pas pu aboutir."
+        },
+        "hint": {
+            "show_pin": "en cas d'oubli",
+            "reset_pin": "en choisir un nouveau",
+            "delete": "tout supprimer"
+        }
+    },
     "tools": {
         "section_diag": "Diagnostic",
         "export": "Exporter un rapport de diagnostic",
@@ -702,7 +725,8 @@
             "unlink": "Application mobile dissociée",
             "delete": "Tout le contrôle parental supprimé",
             "clock": "Horloge réseau réglée",
-            "restore": "Sauvegarde restaurée"
+            "restore": "Sauvegarde restaurée",
+            "rescue": "Récupération utilisée"
         },
         "sources": {
             "uniform": "Même limite tous les jours",

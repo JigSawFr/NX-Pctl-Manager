@@ -509,6 +509,29 @@
         "locked_body": "Enter the parental-control PIN to open it.",
         "enter": "Enter the PIN"
     },
+    "rescue": {
+        "title": "Recovery",
+        "section_actions": "What would you like to do?",
+        "section_done": "Finished",
+        "reset_pin": "Set a new PIN",
+        "continue": "Open PlayGuard",
+        "note": "You reached this screen with the RESCUE file, so no PIN is asked here. Set a new PIN or remove the parental controls, then open PlayGuard.",
+        "note_failed": "Recovery did not finish on its own. You can still try from here, or remove the SD card and edit the settings on a computer.",
+        "note_deleted": "Every parental control was removed, including the PIN. Open PlayGuard — you can set it up again from there whenever you like.",
+        "note_no_pin": "No parental-control PIN was set, so there was nothing to unlock. You can set one here, then open PlayGuard.",
+        "failed_code": "The console reported {}.",
+        "outcome": {
+            "unlocked": "Parental controls were unlocked, so PlayGuard could open.",
+            "deleted": "Every parental control was deleted.",
+            "no_pin": "There was no PIN to recover: no parental-control PIN is set.",
+            "failed": "Recovery could not finish."
+        },
+        "hint": {
+            "show_pin": "if you forgot it",
+            "reset_pin": "choose a new one",
+            "delete": "remove everything"
+        }
+    },
     "tools": {
         "section_diag": "Diagnostics",
         "export": "Export a diagnostic report",
@@ -702,7 +725,8 @@
             "unlink": "Companion app unlinked",
             "delete": "All parental controls deleted",
             "clock": "Network clock set",
-            "restore": "Backup restored"
+            "restore": "Backup restored",
+            "rescue": "Recovery used"
         },
         "sources": {
             "uniform": "Same limit every day",

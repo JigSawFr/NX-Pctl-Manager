@@ -509,6 +509,29 @@
         "locked_body": "Introduzca el PIN de control parental para abrirlo.",
         "enter": "Introducir el PIN"
     },
+    "rescue": {
+        "title": "Recuperación",
+        "section_actions": "¿Qué quiere hacer?",
+        "section_done": "Terminar",
+        "reset_pin": "Definir un PIN nuevo",
+        "continue": "Abrir PlayGuard",
+        "note": "Ha llegado a esta pantalla con el archivo RESCUE, así que aquí no se pide el PIN. Defina un PIN nuevo o elimine el control parental y, después, abra PlayGuard.",
+        "note_failed": "La recuperación no ha terminado por sí sola. Puede volver a intentarlo desde aquí, o sacar la tarjeta SD y cambiar los ajustes en un ordenador.",
+        "note_deleted": "Se ha eliminado todo el control parental, PIN incluido. Abra PlayGuard: desde ahí puede volver a configurarlo cuando quiera.",
+        "note_no_pin": "No había ningún PIN de control parental, así que no había nada que desbloquear. Puede definir uno aquí y, después, abrir PlayGuard.",
+        "failed_code": "Respuesta de la consola: {}.",
+        "outcome": {
+            "unlocked": "Se ha desbloqueado el control parental para que PlayGuard pudiera abrirse.",
+            "deleted": "Se ha eliminado todo el control parental.",
+            "no_pin": "No había ningún PIN que recuperar: no hay un PIN de control parental definido.",
+            "failed": "La recuperación no ha podido terminar."
+        },
+        "hint": {
+            "show_pin": "si lo ha olvidado",
+            "reset_pin": "elegir uno nuevo",
+            "delete": "borrarlo todo"
+        }
+    },
     "tools": {
         "section_diag": "Diagnóstico",
         "export": "Exportar un informe de diagnóstico",
@@ -702,7 +725,8 @@
             "unlink": "App para móvil desvinculada",
             "delete": "Todo el control parental eliminado",
             "clock": "Reloj de red ajustado",
-            "restore": "Copia restaurada"
+            "restore": "Copia restaurada",
+            "rescue": "Recuperación usada"
         },
         "sources": {
             "uniform": "Mismo límite todos los días",

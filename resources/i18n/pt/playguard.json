@@ -509,6 +509,29 @@
         "locked_body": "Introduza o PIN de controlo parental para o abrir.",
         "enter": "Introduzir o PIN"
     },
+    "rescue": {
+        "title": "Recuperação",
+        "section_actions": "O que pretende fazer?",
+        "section_done": "Terminar",
+        "reset_pin": "Definir um PIN novo",
+        "continue": "Abrir o PlayGuard",
+        "note": "Chegou a este ecrã com o ficheiro RESCUE, por isso aqui não é pedido o PIN. Defina um PIN novo ou elimine o controlo parental e, depois, abra o PlayGuard.",
+        "note_failed": "A recuperação não terminou por si só. Pode tentar novamente a partir daqui, ou retirar o cartão SD e alterar as definições num computador.",
+        "note_deleted": "Todo o controlo parental foi eliminado, incluindo o PIN. Abra o PlayGuard: pode voltar a configurá-lo a partir daí sempre que quiser.",
+        "note_no_pin": "Não estava definido nenhum PIN do controlo parental, por isso não havia nada para desbloquear. Pode definir um aqui e, depois, abrir o PlayGuard.",
+        "failed_code": "Resposta da consola: {}.",
+        "outcome": {
+            "unlocked": "O controlo parental foi desbloqueado para que o PlayGuard pudesse abrir.",
+            "deleted": "Todo o controlo parental foi eliminado.",
+            "no_pin": "Não havia nenhum PIN para recuperar: não está definido nenhum PIN do controlo parental.",
+            "failed": "Não foi possível concluir a recuperação."
+        },
+        "hint": {
+            "show_pin": "se o esqueceu",
+            "reset_pin": "escolher um novo",
+            "delete": "eliminar tudo"
+        }
+    },
     "tools": {
         "section_diag": "Diagnóstico",
         "export": "Exportar relatório de diagnóstico",
@@ -702,7 +725,8 @@
             "unlink": "Aplicação móvel desvinculada",
             "delete": "Todo o controlo parental eliminado",
             "clock": "Relógio de rede acertado",
-            "restore": "Cópia de segurança restaurada"
+            "restore": "Cópia de segurança restaurada",
+            "rescue": "Recuperação usada"
         },
         "sources": {
             "uniform": "Mesmo limite todos os dias",

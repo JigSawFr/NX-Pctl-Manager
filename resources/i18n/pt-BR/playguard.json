@@ -509,6 +509,29 @@
         "locked_body": "Digite o PIN do controle dos pais para abri-lo.",
         "enter": "Digitar o PIN"
     },
+    "rescue": {
+        "title": "Recuperação",
+        "section_actions": "O que você quer fazer?",
+        "section_done": "Concluir",
+        "reset_pin": "Definir um PIN novo",
+        "continue": "Abrir o PlayGuard",
+        "note": "Você chegou a esta tela com o arquivo RESCUE, então aqui o PIN não é pedido. Defina um PIN novo ou exclua o controle dos pais e, depois, abra o PlayGuard.",
+        "note_failed": "A recuperação não terminou sozinha. Você pode tentar de novo por aqui, ou remover o cartão SD e alterar as configurações em um computador.",
+        "note_deleted": "Todo o controle dos pais foi excluído, inclusive o PIN. Abra o PlayGuard: você pode configurá-lo de novo por lá quando quiser.",
+        "note_no_pin": "Nenhum PIN do controle dos pais estava definido, então não havia nada para desbloquear. Você pode definir um aqui e, depois, abrir o PlayGuard.",
+        "failed_code": "Resposta do console: {}.",
+        "outcome": {
+            "unlocked": "O controle dos pais foi desbloqueado para que o PlayGuard pudesse abrir.",
+            "deleted": "Todo o controle dos pais foi excluído.",
+            "no_pin": "Não havia PIN para recuperar: nenhum PIN do controle dos pais está definido.",
+            "failed": "Não foi possível concluir a recuperação."
+        },
+        "hint": {
+            "show_pin": "se você esqueceu",
+            "reset_pin": "escolher um novo",
+            "delete": "excluir tudo"
+        }
+    },
     "tools": {
         "section_diag": "Diagnóstico",
         "export": "Exportar relatório de diagnóstico",
@@ -702,7 +725,8 @@
             "unlink": "App do celular desvinculado",
             "delete": "Todo o controle dos pais excluído",
             "clock": "Relógio de rede ajustado",
-            "restore": "Backup restaurado"
+            "restore": "Backup restaurado",
+            "rescue": "Recuperação usada"
         },
         "sources": {
             "uniform": "Mesmo limite todos os dias",

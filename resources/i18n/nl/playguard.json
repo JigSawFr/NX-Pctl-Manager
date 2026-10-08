@@ -509,6 +509,29 @@
         "locked_body": "Voer de pincode voor ouderlijk toezicht in om te openen.",
         "enter": "Pincode invoeren"
     },
+    "rescue": {
+        "title": "Herstel",
+        "section_actions": "Wat wilt u doen?",
+        "section_done": "Klaar",
+        "reset_pin": "Nieuwe pincode instellen",
+        "continue": "PlayGuard openen",
+        "note": "U bent hier gekomen via het RESCUE-bestand, dus hier wordt geen pincode gevraagd. Stel een nieuwe pincode in of verwijder het ouderlijk toezicht en open daarna PlayGuard.",
+        "note_failed": "Het herstel is niet vanzelf voltooid. U kunt het hier opnieuw proberen, of de SD-kaart verwijderen en de instellingen op een computer aanpassen.",
+        "note_deleted": "Het ouderlijk toezicht is volledig verwijderd, inclusief de pincode. Open PlayGuard: daar kunt u het op elk moment opnieuw instellen.",
+        "note_no_pin": "Er was geen pincode voor ouderlijk toezicht ingesteld, dus er was niets te ontgrendelen. U kunt er hier een instellen en daarna PlayGuard openen.",
+        "failed_code": "Melding van de console: {}.",
+        "outcome": {
+            "unlocked": "Het ouderlijk toezicht is ontgrendeld, zodat PlayGuard kon openen.",
+            "deleted": "Het ouderlijk toezicht is volledig verwijderd.",
+            "no_pin": "Er was geen pincode om te herstellen: er is geen pincode voor ouderlijk toezicht ingesteld.",
+            "failed": "Het herstel kon niet worden voltooid."
+        },
+        "hint": {
+            "show_pin": "als u hem vergeten bent",
+            "reset_pin": "een nieuwe kiezen",
+            "delete": "alles verwijderen"
+        }
+    },
     "tools": {
         "section_diag": "Diagnose",
         "export": "Een diagnoserapport exporteren",
@@ -702,7 +725,8 @@
             "unlink": "Smartphone-app ontkoppeld",
             "delete": "Ouderlijk toezicht volledig verwijderd",
             "clock": "Netwerkklok ingesteld",
-            "restore": "Back-up teruggezet"
+            "restore": "Back-up teruggezet",
+            "rescue": "Herstel gebruikt"
         },
         "sources": {
             "uniform": "Elke dag dezelfde limiet",

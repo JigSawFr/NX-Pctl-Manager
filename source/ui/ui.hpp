@@ -58,6 +58,11 @@ void confirm_with(const std::string& body, brls::View* extra, const std::string&
 void confirm_danger(const std::string& body, const std::string& confirm_label, std::function<void()> on_yes);
 void info(const std::string& body);
 
+// Reads the stored PIN (pctl_get_pin) and shows it in large digits, or a
+// dialog with the error. The app's copies are wiped as soon as the label
+// holds the text. Used by Security › Show the PIN and the recovery screen.
+void show_pin_dialog();
+
 // A dialog showing `text`. borealis' own text dialog does not scroll: a text
 // taller than the screen collapses into one cut line. A long one is laid out
 // with a smaller font and narrower margins instead, so it fits.

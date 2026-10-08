@@ -509,6 +509,29 @@
         "locked_body": "열려면 자녀 보호 기능 PIN을 입력하세요.",
         "enter": "PIN 입력"
     },
+    "rescue": {
+        "title": "복구",
+        "section_actions": "무엇을 하시겠습니까?",
+        "section_done": "완료",
+        "reset_pin": "새 PIN 설정",
+        "continue": "PlayGuard 열기",
+        "note": "RESCUE 파일로 이 화면에 왔으므로 여기서는 PIN을 묻지 않습니다. 새 PIN을 설정하거나 자녀 보호 기능을 삭제한 후 PlayGuard를 여세요.",
+        "note_failed": "복구가 자동으로 끝나지 않았습니다. 여기서 다시 시도하거나 SD 카드를 꺼내 컴퓨터에서 설정을 바꿀 수 있습니다.",
+        "note_deleted": "PIN을 포함해 자녀 보호 기능이 모두 삭제되었습니다. PlayGuard를 열면 언제든 다시 설정할 수 있습니다.",
+        "note_no_pin": "자녀 보호 기능 PIN이 설정되어 있지 않아 해제할 것이 없었습니다. 여기서 PIN을 설정한 후 PlayGuard를 열 수 있습니다.",
+        "failed_code": "본체 응답: {}",
+        "outcome": {
+            "unlocked": "자녀 보호 기능을 해제해 PlayGuard를 열 수 있었습니다.",
+            "deleted": "자녀 보호 기능이 모두 삭제되었습니다.",
+            "no_pin": "복구할 PIN이 없습니다: 자녀 보호 기능 PIN이 설정되어 있지 않습니다.",
+            "failed": "복구를 완료하지 못했습니다."
+        },
+        "hint": {
+            "show_pin": "잊었을 때",
+            "reset_pin": "새로 정하기",
+            "delete": "모두 지우기"
+        }
+    },
     "tools": {
         "section_diag": "진단",
         "export": "진단 보고서 내보내기",
@@ -702,7 +725,8 @@
             "unlink": "스마트폰 앱 연동 해제",
             "delete": "자녀 보호 기능 모두 삭제",
             "clock": "네트워크 시계 설정",
-            "restore": "백업 복원"
+            "restore": "백업 복원",
+            "rescue": "복구 사용"
         },
         "sources": {
             "uniform": "매일 같은 제한",

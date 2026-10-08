@@ -509,6 +509,29 @@
         "locked_body": "请输入家长控制PIN以打开。",
         "enter": "输入PIN"
     },
+    "rescue": {
+        "title": "恢复",
+        "section_actions": "要做什么？",
+        "section_done": "完成",
+        "reset_pin": "设置新PIN",
+        "continue": "打开PlayGuard",
+        "note": "您是通过RESCUE文件进入此画面的，因此这里不会要求输入PIN。请设置新PIN或删除家长控制，然后打开PlayGuard。",
+        "note_failed": "恢复未能自动完成。您可以在这里重试，或取出SD卡在电脑上修改设置。",
+        "note_deleted": "所有家长控制（包括PIN）都已删除。打开PlayGuard，随时可以重新设置。",
+        "note_no_pin": "未设置家长控制PIN，因此没有需要解除的内容。您可以在这里设置PIN，然后打开PlayGuard。",
+        "failed_code": "主机返回：{}",
+        "outcome": {
+            "unlocked": "已解除家长控制，因此PlayGuard得以打开。",
+            "deleted": "已删除所有家长控制。",
+            "no_pin": "没有可恢复的PIN：未设置家长控制PIN。",
+            "failed": "未能完成恢复。"
+        },
+        "hint": {
+            "show_pin": "忘记时",
+            "reset_pin": "重新设置",
+            "delete": "全部删除"
+        }
+    },
     "tools": {
         "section_diag": "诊断",
         "export": "导出诊断报告",
@@ -702,7 +725,8 @@
             "unlink": "已解除手机应用的关联",
             "delete": "已删除所有家长控制",
             "clock": "已设置网络时钟",
-            "restore": "已恢复备份"
+            "restore": "已恢复备份",
+            "rescue": "已使用恢复"
         },
         "sources": {
             "uniform": "每天相同的限制",

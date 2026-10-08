@@ -509,6 +509,29 @@
         "locked_body": "Ingrese el PIN de control parental para abrirlo.",
         "enter": "Ingresar el PIN"
     },
+    "rescue": {
+        "title": "Recuperación",
+        "section_actions": "¿Qué desea hacer?",
+        "section_done": "Terminar",
+        "reset_pin": "Definir un PIN nuevo",
+        "continue": "Abrir PlayGuard",
+        "note": "Llegó a esta pantalla con el archivo RESCUE, así que aquí no se pide el PIN. Defina un PIN nuevo o elimine el control parental y luego abra PlayGuard.",
+        "note_failed": "La recuperación no terminó por sí sola. Puede volver a intentarlo desde aquí, o sacar la tarjeta SD y cambiar la configuración en una computadora.",
+        "note_deleted": "Se eliminó todo el control parental, incluido el PIN. Abra PlayGuard: desde ahí puede volver a configurarlo cuando quiera.",
+        "note_no_pin": "No había ningún PIN de control parental, así que no había nada que desbloquear. Puede definir uno aquí y luego abrir PlayGuard.",
+        "failed_code": "Respuesta de la consola: {}.",
+        "outcome": {
+            "unlocked": "Se desbloqueó el control parental para que PlayGuard pudiera abrirse.",
+            "deleted": "Se eliminó todo el control parental.",
+            "no_pin": "No había ningún PIN que recuperar: no hay un PIN de control parental definido.",
+            "failed": "La recuperación no pudo terminar."
+        },
+        "hint": {
+            "show_pin": "si lo olvidó",
+            "reset_pin": "elegir uno nuevo",
+            "delete": "borrar todo"
+        }
+    },
     "tools": {
         "section_diag": "Diagnóstico",
         "export": "Exportar un informe de diagnóstico",
@@ -702,7 +725,8 @@
             "unlink": "App para celular desvinculada",
             "delete": "Todo el control parental eliminado",
             "clock": "Reloj de red ajustado",
-            "restore": "Respaldo restaurado"
+            "restore": "Respaldo restaurado",
+            "rescue": "Recuperación usada"
         },
         "sources": {
             "uniform": "Mismo límite todos los días",
