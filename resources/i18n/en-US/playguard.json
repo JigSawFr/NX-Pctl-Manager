@@ -528,12 +528,20 @@
         "languages": {
             "system": "System language",
             "en-US": "English",
-            "fr": "Français",
+            "fr": "Français (France)",
+            "fr-CA": "Français (Canada)",
             "de": "Deutsch",
-            "es": "Español",
+            "es": "Español (España)",
+            "es-419": "Español (Latinoamérica)",
             "it": "Italiano",
             "nl": "Nederlands",
-            "pt": "Português"
+            "pt": "Português (Portugal)",
+            "pt-BR": "Português (Brasil)",
+            "ru": "Русский",
+            "ja": "日本語",
+            "ko": "한국어",
+            "zh-Hans": "简体中文",
+            "zh-Hant": "繁體中文"
         },
         "theme": "Theme",
         "start_tab": "Start on",
