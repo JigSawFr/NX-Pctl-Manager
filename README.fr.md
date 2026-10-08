@@ -61,6 +61,18 @@ Au choix :
 
 Commandes : ↑/↓ déplacer, Ⓐ valider, Ⓑ retour ou annuler (sur la barre latérale : Ⓑ deux fois pour quitter), Ⓧ actualiser, **+** enregistre les limites par jour. Le focus saute les lignes d'état ; ce qui a échoué est dit dans une boîte de dialogue, ce qui a réussi dans une notification. Le titre indique quand l'application est en lecture seule et tant que le contrôle parental est déverrouillé temporairement ; en lecture seule, les actions restent à leur place, grisées, et disent pourquoi quand on les choisit.
 
+## Console bloquée ? (console d'occasion, code PIN oublié)
+
+PlayGuard nécessite Atmosphère, et il ne voit que le contrôle parental du système sur lequel il tourne : **l'emuMMC et la sysMMC ont chacune le leur** (un code PIN supprimé sur l'une est toujours là sur l'autre). Lancez-le sur chacune de celles à corriger.
+
+| Situation | Que faire |
+|---|---|
+| **Console d'occasion : vous connaissez le code PIN, mais l'application mobile de l'ancien propriétaire est toujours associée** (la dissociation échoue, ou la réinitialisation demande son compte) | *Sécurité et appli* › *Dissocier l'application mobile*, puis, si vous ne voulez plus du tout de contrôle parental, *Supprimer tout le contrôle parental*. Les deux fonctionnent hors ligne, en emuMMC comme en sysMMC. |
+| **Code PIN oublié** | *Sécurité et appli* › *Afficher le code PIN*. Ou *Supprimer tout le contrôle parental* pour repartir de zéro (une sauvegarde des réglages est d'abord enregistrée ; elle ne contient jamais le code PIN). |
+| **Code PIN oublié, et *Demander le code PIN* réglé sur *Pour ouvrir PlayGuard* ou *Avant une modification*** | Ce réglage est dans `sd:/switch/playguard/config.json`, exprès : mettez la carte SD dans un ordinateur et passez `"pin_lock"` à `"off"`. |
+| **Le minuteur bloque tout (limite à 0 min) et le code PIN est oublié** | PlayGuard lui-même ne peut pas démarrer. Installez à l'avance le module système de récupération optionnel (`playguard-rescue.zip`), puis déposez un fichier vide `switch/playguard/RESCUE` sur la carte SD et démarrez : il déverrouille la console pour que PlayGuard puisse s'ouvrir. Voir [`sysmodule/README.md`](sysmodule/README.md). |
+| **Console non modifiée** | PlayGuard ne peut rien faire : il nécessite Atmosphère. La procédure officielle passe par la clé maîtresse du service client de Nintendo. |
+
 ## Signaler un bug
 
 *Outils et à propos* › *Exporter un rapport de diagnostic* enregistre un fichier texte dans `sd:/switch/playguard/logs/` (firmware, version d'Atmosphère, horloges, résultat brut de chaque requête). Il indique aussi le stockage, le masquage du numéro de série et l'état des patchs de jeux. **Il ne contient jamais le code PIN ni le numéro de série.** Joignez-le au ticket.
