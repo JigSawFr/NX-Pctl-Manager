@@ -38,6 +38,7 @@ typedef struct {
     uint64_t app_id;
     uint32_t today_s;     // seconds played in [day_start, now)
     uint32_t week_s;      // seconds played in [week_start, now)
+    uint32_t day_s[7];    // per day: [0] today, [1] yesterday … [6] six days ago
 } PlayLogTotal;
 
 // A session longer than this is a broken log (missing events), not play time.
@@ -50,6 +51,13 @@ typedef struct {
 size_t playlog_fold(const PlayLogEvent *events, size_t n, uint64_t now,
                     uint64_t day_start, uint64_t week_start,
                     PlayLogTotal *out, size_t max);
+
+// The same with every day of the window: `day_starts[k]` is when the day k
+// days back began (strictly decreasing: [0] today's midnight, [6] the
+// window's start). Days are taken as given, so a 23 or 25 h day (a
+// daylight-saving change, calendar.h) is one day.
+size_t playlog_fold_days(const PlayLogEvent *events, size_t n, uint64_t now,
+                         const uint64_t day_starts[7], PlayLogTotal *out, size_t max);
 
 #ifdef __cplusplus
 }

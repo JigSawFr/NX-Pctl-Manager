@@ -229,6 +229,10 @@ key("Escape")
 shot("27_back")
 
 # Activity: one game's details, then a PDF export to the (simulated) SD card.
+exports = os.path.join(run_dir, "playguard_data", "exports")
+def pdfs():
+    return {f for f in (os.listdir(exports) if os.path.isdir(exports) else []) if f.endswith(".pdf")}
+pdfs_before = pdfs()   # the run folder is kept between local runs
 key("Left")                # back to the sidebar
 key("Up", len(tabs) - 3)   # Activity
 key("Right")
@@ -241,8 +245,7 @@ key("Return")
 key("Down", 3)             # PDF
 key("Return")
 shot("29_activity_export")
-exports = os.path.join(run_dir, "playguard_data", "exports")
-if not any(f.endswith(".pdf") for f in (os.listdir(exports) if os.path.isdir(exports) else [])):
-    fail("no PDF export in " + exports)
+if not pdfs() - pdfs_before:
+    fail("no new PDF export in " + exports)
 
 finish()

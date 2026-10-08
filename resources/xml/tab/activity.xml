@@ -8,9 +8,12 @@
     width="auto"
     height="auto">
 
+    <!-- Centered, like the other long lists: every press moves the focus
+         (natural scrolling spends a press scrolling to a half-visible game). -->
     <brls:ScrollingFrame
         width="auto"
         height="auto"
+        scrollingBehavior="centered"
         grow="1.0">
 
         <brls:Box
@@ -24,6 +27,7 @@
             paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
 
             <brls:Header title="@i18n/playguard/activity/section_totals" marginBottom="8"/>
+            <PlayDaysView id="ac_days" width="auto" height="auto" marginTop="8" marginBottom="16"/>
             <brls:DetailCell id="ac_today" title="@i18n/playguard/activity/today"/>
             <brls:DetailCell id="ac_week" title="@i18n/playguard/activity/week"/>
             <brls:DetailCell id="ac_total" title="@i18n/playguard/activity/all_time"/>

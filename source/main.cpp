@@ -23,6 +23,7 @@
 #include "ui/ui.hpp"
 #include "util/config.hpp"
 #include "util/http.hpp"
+#include "view/play_days.hpp"
 #include "view/pt_gauge.hpp"
 #include "view/pt_state_header.hpp"
 #include "view/pt_week.hpp"
@@ -64,6 +65,7 @@ int main(int argc, char* argv[])
     brls::Application::registerXMLView("PtStateHeader",   PtStateHeader::create);
     brls::Application::registerXMLView("PtGauge",         PtGauge::create);
     brls::Application::registerXMLView("PtWeekView",      PtWeekView::create);
+    brls::Application::registerXMLView("PlayDaysView",    PlayDaysView::create);
     brls::Application::registerXMLView("DashboardTab",    DashboardTab::create);
     brls::Application::registerXMLView("PlayTimerTab",    PlayTimerTab::create);
     brls::Application::registerXMLView("ActivityTab",     ActivityTab::create);

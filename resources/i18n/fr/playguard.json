@@ -287,6 +287,7 @@
         "today": "Aujourd'hui",
         "week": "7 derniers jours",
         "all_time": "Depuis toujours",
+        "before_today": "Jours précédents",
         "section_games": "Jeux",
         "period": "Période",
         "export": "Exporter sur la carte SD…",
@@ -306,6 +307,7 @@
             "id": "ID du titre",
             "today": "Aujourd'hui (min)",
             "week": "7 derniers jours (min)",
+            "day": "{} (min)",
             "total": "Depuis toujours (min)"
         },
         "periods": {
@@ -324,6 +326,7 @@
         "err_log": "Impossible de lire le journal d'activité",
         "deleted_game": "Jeu supprimé ({})",
         "launches": "Lancements",
+        "account_value": "{} ({} lancements)",
         "first": "Première partie",
         "last": "Dernière partie",
         "less_than_minute": "< 1 min",

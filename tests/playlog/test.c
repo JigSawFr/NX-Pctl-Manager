@@ -147,6 +147,36 @@ static void test_limits(void)
     assert(playlog_fold(NULL, 0, NOW, DAY_START, WEEK_START, t, 2) == 0);
 }
 
+static void test_days(void)
+{
+    PlayLogTotal t[8];
+    // Through playlog_fold: whole days back from today's midnight.
+    const PlayLogEvent log[] = {
+        ev(A, PlayLogEv_Focus, 9 * DAY + 23 * H),   ev(A, PlayLogEv_Unfocus, DAY_START + H),        // across midnight
+        ev(A, PlayLogEv_Focus, 6 * DAY + 10 * H),   ev(A, PlayLogEv_Unfocus, 6 * DAY + 12 * H),     // 4 days back
+        ev(B, PlayLogEv_Focus, WEEK_START + 2 * H), ev(B, PlayLogEv_Unfocus, WEEK_START + 3 * H),   // 6 days back
+    };
+    size_t n = fold(log, 6, t);
+    const PlayLogTotal *a = find(t, n, A), *b = find(t, n, B);
+    assert(a->day_s[0] == H && a->day_s[1] == H && a->day_s[4] == 2 * H);
+    assert(a->day_s[2] == 0 && a->day_s[3] == 0 && a->day_s[5] == 0 && a->day_s[6] == 0);
+    assert(a->today_s == a->day_s[0] && a->week_s == 4 * H);
+    assert(b->day_s[6] == H && b->week_s == H && b->today_s == 0);
+
+    // Days as the calendar gives them: yesterday was 23 h long (the clocks
+    // went forward), so the day before started 23 h before yesterday's start.
+    uint64_t starts[7] = { DAY_START, DAY_START - 23 * H };
+    for (int k = 2; k < 7; k++) starts[k] = starts[k - 1] - DAY;
+    const PlayLogEvent around[] = {
+        ev(C, PlayLogEv_Focus, starts[1] - H), ev(C, PlayLogEv_Unfocus, starts[1] + H),
+    };
+    n = playlog_fold_days(around, 2, NOW, starts, t, 8);
+    assert(n == 1 && t[0].day_s[2] == H && t[0].day_s[1] == H && t[0].week_s == 2 * H);
+    uint32_t sum = 0;
+    for (int k = 0; k < 7; k++) sum += t[0].day_s[k];
+    assert(sum == t[0].week_s);
+}
+
 int main(void)
 {
     test_sessions();
@@ -154,6 +184,7 @@ int main(void)
     test_cut_short();
     test_clock_changes();
     test_limits();
+    test_days();
     puts("playlog session and window assertions passed");
     return 0;
 }

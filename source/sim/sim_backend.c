@@ -381,6 +381,9 @@ void playstats_fetch(PlayStats *out)
         { 0x0100A1B2C3D45000ULL, "",                          0,   0, 15,  15, 0 },
     };
     out->windows_ok = true;
+    LocalTime today;
+    const int wday = host_to_local(NULL, out->now, &today) ? today.wday : 0;
+    for (int k = 0; k < 7; k++) out->day_wday[k] = (u8)((wday - k + 7) % 7);
     for (size_t i = 0; i < sizeof(games) / sizeof(games[0]); i++) {
         GameStat *g = &out->games[out->count++];
         g->app_id = games[i].id;
@@ -392,5 +395,35 @@ void playstats_fetch(PlayStats *out)
         g->first_played = g->totals_ok ? out->now - 400ULL * 86400 : 0;
         g->today_s = games[i].today_min * 60;
         g->week_s = games[i].week_min * 60;
+        // The rest of the week spread over the six days before, unevenly.
+        static const u32 share[6] = { 30, 0, 25, 15, 0, 30 };
+        g->day_s[0] = g->today_s;
+        const u32 rest = g->week_s - g->today_s;
+        u32 given = 0;
+        for (int k = 1; k < 7; k++) {
+            g->day_s[k] = k < 6 ? rest * share[k - 1] / 100 : rest - given;
+            given += g->day_s[k];
+        }
     }
+}
+
+size_t playstats_by_account(u64 app_id, AccountPlay *out, size_t max, Result *rc)
+{
+    if (rc) *rc = getenv("PLAYGUARD_SIM_NO_PDM") ? (Result)0x1A0C : 0;
+    if (getenv("PLAYGUARD_SIM_NO_PDM") || max < 2) return 0;
+    // Two made-up accounts sharing the play time 2:1 (none for a deleted game).
+    PlayStats all;
+    playstats_fetch(&all);
+    for (u32 i = 0; i < all.count; i++) {
+        if (all.games[i].app_id != app_id || !all.games[i].totals_ok) continue;
+        const u64 t = all.games[i].total_s;
+        snprintf(out[0].nickname, sizeof(out[0].nickname), "Alice");
+        out[0].total_s = t * 2 / 3;
+        out[0].launches = all.games[i].launches * 2 / 3;
+        snprintf(out[1].nickname, sizeof(out[1].nickname), "Léo");
+        out[1].total_s = t - out[0].total_s;
+        out[1].launches = all.games[i].launches - out[0].launches;
+        return 2;
+    }
+    return 0;
 }
