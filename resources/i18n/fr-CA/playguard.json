@@ -576,7 +576,7 @@
         "patches_note_unpatched": "sys-patch n'a pas patché : {}. Mettez sys-patch à jour pour ce firmware.",
         "auto_relock": "Reverrouiller automatiquement après une modification",
         "extra_amounts": "Montants du temps en plus",
-        "extra_auto": "Remettre la limite habituelle le lendemain, sans demander",
+        "extra_auto": "Remettre d'office la limite habituelle le lendemain",
         "clock_check": "Vérifier l'horloge réseau au lancement",
         "section_about": "À propos",
         "version": "Version",
@@ -682,7 +682,7 @@
     },
     "history": {
         "title": "Historique des modifications",
-        "open": "Modifications faites avec PlayGuard…",
+        "open": "Historique des modifications…",
         "count": "{} enregistrée(s)",
         "none": "Rien d'enregistré pour l'instant. Chaque modification faite par PlayGuard sur la console (limites, niveau de restriction, NIP, déverrouillages…) apparaît ici.",
         "note": "Les {} dernières modifications, gardées sur la carte SD dans {}. A sur une modification l'affiche et, si possible, remet la valeur précédente.",
