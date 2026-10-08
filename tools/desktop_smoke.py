@@ -10,7 +10,8 @@ missing. Screenshots of each screen are written to the output folder.
 The "gate" scenario starts on a firmware newer than the checked one, with a
 simulated release that supports it: the firmware screen, read-only mode,
 seven presses on Version for the developer mode, its report, a play-timer
-block reference and the firmware screen again.
+block reference, the firmware screen again and the hand-over of the update
+to sphaira (simulated hbloader).
 
 The "errors" scenario starts with today's limit reached, the temporary unlock
 failing and "Synchronise clock via Internet" off (PLAYGUARD_SIM_FAIL & co.):
@@ -46,6 +47,14 @@ env = dict(os.environ, LIBGL_ALWAYS_SOFTWARE="1")
 if GATE:
     env.setdefault("PLAYGUARD_SIM_FW", "24.0.0")
     env.setdefault("PLAYGUARD_SIM_LATEST", "1.1.0:24.0.0")
+    # Started through hbloader, with sphaira on the SD card: the update can be
+    # handed over to it.
+    env.setdefault("PLAYGUARD_SIM_HBLOADER", "1")
+    sphaira = os.path.join(run_dir, "playguard_data", "sd", "switch", "sphaira", "sphaira.nro")
+    os.makedirs(os.path.dirname(sphaira), exist_ok=True)
+    open(sphaira, "w").write("NRO0")
+if not GATE and not ERRORS:
+    env.setdefault("PLAYGUARD_SIM_NUMPAD", "1:30")   # what the system number pad returns
 if ERRORS:
     env.setdefault("PLAYGUARD_SIM_FAIL", "unlock")
     env.setdefault("PLAYGUARD_SIM_RESTRICTED", "1")
@@ -160,8 +169,19 @@ if GATE:
     key("Down")                # Show the firmware screen again
     key("Return")
     shot("07_gate_again")
-    key("Escape")              # B: continue read-only
-    shot("08_back")
+    key("Return")              # How to update (it has the focus): open sphaira?
+    shot("08_open_store")
+    key("Right")               # Open sphaira: PlayGuard hands over to hbloader and quits
+    key("Return")
+    for _ in range(20):
+        if not alive():
+            break
+        time.sleep(0.5)
+    else:
+        fail("still running after handing over to sphaira")
+    log.flush()
+    if "next load: sdmc:/switch/sphaira/sphaira.nro" not in open(os.path.join(OUT, "app.log"), errors="replace").read():
+        fail("sphaira was not set as the next homebrew")
     try:
         cfg = json.load(open(config_file))
     except (OSError, ValueError) as e:
@@ -216,8 +236,16 @@ key("Return")
 shot("21_per_day")
 key("Return")
 shot("22_dropdown")
-key("Escape")
-key("Escape")
+key("Down", 15)            # to the end of the list (No limit) …
+key("Up")                  # … then Enter minutes…: the number pad types "1:30"
+key("Return")
+shot("22_numpad")          # the first day: 1 h 30 (not saved)
+if not any("numpad: " in l and l.rstrip().endswith("-> 1:30") for l in open(os.path.join(OUT, "app.log"), errors="replace")):
+    fail("the number pad was not asked for the minutes")
+key("Escape")              # unsaved: asks before leaving
+shot("23_discard")
+key("Right")               # Discard
+key("Return")
 shot("23_back")
 
 # Settings backup: save one, open the list and the restore summary (cancelled).

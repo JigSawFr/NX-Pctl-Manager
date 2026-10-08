@@ -65,6 +65,7 @@ test:
 	$(CXX) -std=c++17 $(CWARN) -Isource -Iextern/borealis/library/include source/util/paths.cpp source/util/config.cpp tests/config/test.cpp -o $(TESTOUT)/config && $(TESTOUT)/config
 	$(CXX) -std=c++17 $(CWARN) -Isource -Iextern/borealis/library/include source/util/paths.cpp source/util/profiles.cpp tests/profiles/test.cpp -o $(TESTOUT)/profiles && $(TESTOUT)/profiles
 	$(CXX) -std=c++17 $(CWARN) -Isource -Iextern/borealis/library/include source/util/paths.cpp source/util/pt_block.cpp tests/pt_block/test.cpp -o $(TESTOUT)/pt_block && $(TESTOUT)/pt_block
+	$(CXX) -std=c++17 $(CWARN) -Isource source/util/paths.cpp source/util/launcher.cpp tests/launcher/test.cpp -o $(TESTOUT)/launcher && $(TESTOUT)/launcher
 
 check: test
 	python3 tools/check_resources.py .

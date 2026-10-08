@@ -1,9 +1,7 @@
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #include "util/ntp_servers.hpp"
 
-#ifdef __SWITCH__
-#include <switch.h>
-#endif
+#include "core/platform.h"
 
 namespace ntp
 {
@@ -30,10 +28,9 @@ const std::vector<Region>& regions()
 
 std::string default_server_for_console()
 {
-#ifdef __SWITCH__
-    SetRegion region;
-    if (R_SUCCEEDED(setGetRegionCode(&region))) {
-        switch ((int)region) {
+    int region = -1;
+    if (platform_region(&region)) {
+        switch (region) {
             case 0: return "jp.pool.ntp.org";             // Japan
             case 1: return "north-america.pool.ntp.org";  // Americas
             case 2: return "europe.pool.ntp.org";         // Europe
@@ -43,7 +40,6 @@ std::string default_server_for_console()
             default: break;
         }
     }
-#endif
     return "pool.ntp.org";
 }
 

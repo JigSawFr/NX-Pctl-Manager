@@ -13,8 +13,7 @@ class PtStateHeader : public brls::Box
   public:
     PtStateHeader();
 
-    void refresh();                    // queries the service
-    void show(const PtState& pt);      // renders an existing snapshot
+    void show(const PtState& pt);      // renders a state its screen read
 
     static brls::View* create();
     static std::string configured_text(const PtState& pt);

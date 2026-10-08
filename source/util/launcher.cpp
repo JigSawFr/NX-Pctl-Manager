@@ -3,11 +3,8 @@
 
 #include <sys/stat.h>
 
+#include "core/platform.h"
 #include "util/paths.hpp"
-
-#ifdef __SWITCH__
-#include <switch.h>
-#endif
 
 namespace launcher
 {
@@ -47,25 +44,13 @@ Target find(const std::string& preference)
 
 bool can_launch()
 {
-#ifdef __SWITCH__
-    return envHasNextLoad();
-#else
-    return false;
-#endif
+    return platform_can_launch();
 }
 
 bool launch(const Target& target)
 {
-#ifdef __SWITCH__
-    if (target.store == Store::None || !envHasNextLoad()) return false;
-    // hbloader passes the argument string as is; like its default
-    // ("sdmc:/hbmenu.nro"), argv[0] is the full path of the homebrew.
-    const std::string path = "sdmc:" + target.path;
-    return R_SUCCEEDED(envSetNextLoad(path.c_str(), path.c_str()));
-#else
-    (void)target;
-    return false;
-#endif
+    if (target.store == Store::None || target.path.empty() || target.path[0] != '/') return false;
+    return platform_set_next_load(("sdmc:" + target.path).c_str());
 }
 
 }   // namespace launcher
