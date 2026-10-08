@@ -6,6 +6,8 @@
 
 #include "ui/ui.hpp"
 
+using namespace brls::literals;
+
 namespace
 {
 constexpr float BAR_MAX   = 56.0f;
@@ -33,8 +35,17 @@ PtWeekView::PtWeekView()
         col->setAlignItems(brls::AlignItems::CENTER);
         col->setJustifyContent(brls::JustifyContent::FLEX_END);
         col->setGrow(1.0f);
+        // Room for the focus highlight around the whole column.
+        col->setPadding(8, 6, 6, 6);
+        col->setCornerRadius(10);
+        col->setFocusable(false);
+        col->registerClickAction([this, d](brls::View*) {
+            if (this->on_pick) this->on_pick(d);
+            return true;
+        });
 
         Column& c = this->cols[d];
+        c.box = col;
         c.value = new brls::Label();
         c.value->setFontSize(16);
         c.value->setHorizontalAlign(brls::HorizontalAlign::CENTER);
@@ -62,29 +73,54 @@ PtWeekView::PtWeekView()
     }
 }
 
+void PtWeekView::set_on_pick(std::function<void(int)> on_pick)
+{
+    this->on_pick = std::move(on_pick);
+}
+
+void PtWeekView::set_editable(bool editable)
+{
+    this->editable = editable && (bool)this->on_pick;
+    for (int d = 0; d < 7; d++) this->cols[d].box->setFocusable(this->editable);
+    // Today is where the eye is: the first press lands on it.
+    const int today = ui::today_weekday();
+    this->setDefaultFocusedIndex((today + 6) % 7);
+}
+
 void PtWeekView::show(const PtState& pt)
+{
+    this->render(pt.day_min, nullptr);
+}
+
+void PtWeekView::show(const uint16_t days[7], const uint16_t live[7])
+{
+    this->render(days, live);
+}
+
+void PtWeekView::render(const uint16_t days[7], const uint16_t* live)
 {
     int top = 60;   // the tallest configured day sets the scale (at least 1 h)
     for (int d = 0; d < 7; d++)
-        if (pt.day_min[d] != PT_DAY_NOLIMIT) top = std::max<int>(top, pt.day_min[d]);
+        if (days[d] != PT_DAY_NOLIMIT) top = std::max<int>(top, days[d]);
 
     const int today = ui::today_weekday();
     for (int d = 0; d < 7; d++) {
         Column& c = this->cols[d];
-        const uint16_t m = pt.day_min[d];
+        const uint16_t m = days[d];
         const bool is_today = d == today;
-        NVGcolor colour = ui::color_neutral();
+        const bool unsaved  = live && live[d] != m;
+        NVGcolor colour = unsaved ? ui::color_warn() : ui::color_neutral();
         if (m == PT_DAY_NOLIMIT) {
             // An empty slot: a full bar read as "the most" rather than "none".
             c.bar->setHeight(BAR_MIN);
             colour = nvgTransRGBA(colour, 0);
         } else {
             c.bar->setHeight(BAR_MIN + (BAR_MAX - BAR_MIN) * (float)m / (float)top);
-            if (!is_today) colour = nvgTransRGBA(colour, 120);
+            if (!is_today && !unsaved) colour = nvgTransRGBA(colour, 120);
         }
         c.bar->setColor(colour);
         c.value->setText(short_minutes(m));
-        c.value->setTextColor(is_today ? ui::color_text() : ui::color_note());
+        c.value->setTextColor(unsaved ? ui::color_warn() : is_today ? ui::color_text() : ui::color_note());
         c.day->setTextColor(is_today ? ui::color_neutral() : ui::color_note());
         c.mark->setColor(is_today ? ui::color_neutral() : nvgTransRGBA(ui::color_neutral(), 0));
     }

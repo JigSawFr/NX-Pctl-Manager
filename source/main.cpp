@@ -17,6 +17,7 @@
 #include "tab/clock_tab.hpp"
 #include "tab/dashboard_tab.hpp"
 #include "tab/play_timer_tab.hpp"
+#include "tab/preferences_tab.hpp"
 #include "tab/restrictions_tab.hpp"
 #include "tab/security_tab.hpp"
 #include "tab/tools_tab.hpp"
@@ -72,6 +73,7 @@ int main(int argc, char* argv[])
     brls::Application::registerXMLView("RestrictionsTab", RestrictionsTab::create);
     brls::Application::registerXMLView("ClockTab",        ClockTab::create);
     brls::Application::registerXMLView("SecurityTab",     SecurityTab::create);
+    brls::Application::registerXMLView("PreferencesTab",  PreferencesTab::create);
     brls::Application::registerXMLView("ToolsTab",        ToolsTab::create);
 
     if (app::init()) {

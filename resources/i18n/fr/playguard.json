@@ -11,6 +11,7 @@
         "restrictions": "Restrictions",
         "clock": "Horloge réseau",
         "security": "Sécurité et appli",
+        "preferences": "Préférences",
         "tools": "Outils et à propos"
     },
     "hints": {
@@ -149,7 +150,6 @@
         "patches": "Patchs de jeux",
         "firmware": "Firmware",
         "compat": "Compatibilité",
-        "hint": "A sur une ligne ouvre son onglet ; sur Limite d'aujourd'hui et Temps en plus aujourd'hui, A la modifie directement. Les valeurs s'actualisent seules (X : tout de suite).",
         "updated": "Mis à jour à {}",
         "extra": "Temps en plus aujourd'hui…",
         "extra_title": "Temps en plus aujourd'hui",
@@ -162,8 +162,22 @@
         "extra_restore": "Remettre",
         "extra_restored": "Limite du {} remise à {}.",
         "extra_pending": "Remettre la limite du {} à {}",
-        "setup": "Pour commencer : définissez un code PIN dans Sécurité et appli, puis une limite quotidienne dans Temps de jeu. La limite s'appuie sur l'horloge réseau : vérifiez-la dans Horloge réseau.",
         "applet": "PlayGuard tourne en mode applet (ouvert depuis l'album), avec peu de mémoire : un export ou une longue liste d'activité peut échouer. Pour l'application complète, ouvrez-la en maintenant R au lancement d'un jeu."
+    },
+    "onboarding": {
+        "title": "Premiers pas",
+        "open": "Premiers pas…",
+        "pin_missing": "Pas encore de code PIN",
+        "headline": "Trois étapes et la console est protégée. A sur une étape la réalise.",
+        "all_done": "Tout est en place : la console est protégée. Vous pouvez revenir ici depuis Outils et à propos.",
+        "section_steps": "Étapes",
+        "step_pin": "1. Définir un code PIN de contrôle parental",
+        "step_limit": "2. Choisir une limite de temps de jeu quotidienne",
+        "step_clock": "3. Vérifier l'horloge réseau",
+        "todo": "À faire",
+        "paired_note": "L'application mobile Contrôle parental Nintendo Switch est associée : à sa prochaine synchronisation, elle écrase les limites réglées ici. Sécurité et appli › Dissocier l'application mobile.",
+        "note": "Le code PIN est celui de la console ; la limite est vérifiée avec l'horloge réseau, qui doit donc être précise.",
+        "close": "Fermer"
     },
     "compat": {
         "ok": "Vérifié",
@@ -175,19 +189,19 @@
         "fw_too_old": "Le temps de jeu demande le firmware 21.0.0 ou plus récent. Les autres onglets fonctionnent.",
         "fw_too_old_short": "Demande le firmware 21.0.0+",
         "state": {
-            "enabled": "Minuteur actif",
-            "restricted": "Limite atteinte aujourd'hui",
-            "restricted_yes": "Oui (jeu suspendu)",
-            "temporary": "Déverrouillé temporairement",
-            "remaining": "Temps restant aujourd'hui",
-            "configured": "Limite configurée",
-            "not_set": "Aucune (limite de temps de jeu désactivée)",
+            "active": "Minuteur actif",
+            "inactive": "Minuteur désactivé",
+            "remaining_short": "{} restantes aujourd'hui",
+            "unlocked_short": "déverrouillé temporairement, non décompté",
+            "reached_alert": "La limite du jour est atteinte : le jeu est suspendu.",
+            "not_set": "Pas de limite",
             "every_day": "{} tous les jours",
             "today_per_day": "{} aujourd'hui (varie selon le jour)",
             "profile": "{} · {}"
         },
         "section_limit": "Limite quotidienne",
         "week_title": "Limites de la semaine",
+        "week_title_edit": "Limites de la semaine (A sur un jour la modifie)",
         "quick": "Même limite tous les jours",
         "quick_title": "Limite quotidienne pour tous les jours",
         "quick_title_varies": "Limite quotidienne pour tous les jours (actuellement variable)",
@@ -236,6 +250,7 @@
         "resume_confirm": "Reprendre",
         "diag": "Exporter un diagnostic complet",
         "confirm_uniform": "Fixer la limite à {} pour tous les jours ?",
+        "confirm_day": "Fixer la limite du {} à {} ?",
         "confirm_uniform_zero": "Fixer 0 minute pour tous les jours ?\n\nCela signifie aucun jeu. Pour désactiver la limite, utilisez plutôt « Supprimer la limite de temps de jeu ».",
         "confirm_set": "Appliquer",
         "remove_body": "Supprimer la limite de temps de jeu pour tous les jours ?",
@@ -254,7 +269,7 @@
         },
         "perday": {
             "title": "Limites par jour",
-            "section_days": "Jours",
+            "section_days": "Jours (A sur un jour le modifie)",
             "section_presets": "Remplissage rapide",
             "weekdays": "Régler du lundi au vendredi…",
             "weekend": "Régler le samedi et le dimanche…",
@@ -267,8 +282,8 @@
             "pick_title": "{} : limite",
             "pick_minutes": "Saisir une durée…",
             "pick_no_limit": "Pas de limite",
-            "unsaved": "  (non enregistré)",
             "unsaved_count": "{} modification(s) non enregistrée(s)",
+            "save_hint": "Enregistrer ({})",
             "unavailable": "La configuration du temps de jeu n'a pas pu être lue.",
             "no_changes": "Rien à enregistrer.",
             "nothing_to_discard": "Aucune modification à annuler.",
@@ -287,7 +302,9 @@
         "today": "Aujourd'hui",
         "week": "7 derniers jours",
         "all_time": "Depuis toujours",
-        "before_today": "Jours précédents",
+        "section_game_time": "Temps de jeu",
+        "section_accounts": "Par compte utilisateur",
+        "accounts_none": "Aucun compte n'a de chiffre pour ce jeu (un jeu supprimé ne garde que ses totaux).",
         "section_games": "Jeux",
         "period": "Période",
         "export": "Exporter sur la carte SD…",
@@ -345,12 +362,13 @@
         "confirm_level": "Passer le niveau de restriction à « {} » ?",
         "custom_hint": "Choisissez ensuite chaque restriction ci-dessous.",
         "section_custom": "Réglages personnalisés",
+        "section_level_settings": "Ce que ce niveau impose",
         "age": "Restreindre les logiciels selon l'âge",
         "age_none": "Aucune restriction",
         "age_value": "Jusqu'à {} ans",
         "sns": "Restreindre les publications sur les réseaux sociaux",
         "comm": "Restreindre la communication avec d'autres joueurs",
-        "custom_only": "Ces réglages se modifient lorsque le niveau est « Personnalisé ».",
+        "custom_only": "Pour modifier ces réglages, choisissez le niveau « Personnalisé ».",
         "section_other": "Autres",
         "vr": "Restreindre le mode VR",
         "org": "Organisme de classification",
@@ -368,7 +386,7 @@
         "accuracy": "Horloge réseau précise",
         "auto": "Synchroniser l'horloge via Internet",
         "zone": "Fuseau horaire",
-        "why": "La limite de temps de jeu s'appuie sur l'horloge réseau. Une console qui n'atteint jamais les serveurs de Nintendo garde une horloge réseau imprécise ; la régler depuis un serveur de temps public peut corriger cela.",
+        "why": "La limite de temps de jeu s'appuie sur l'horloge réseau. Quand elle est imprécise (console qui n'atteint jamais les serveurs de Nintendo), réglez-la ici depuis un serveur de temps public.",
         "section_server": "Serveur de temps",
         "region": "Région",
         "server": "Serveur",
@@ -414,7 +432,10 @@
             "timeout": "pas de réponse",
             "bad_reply": "réponse invalide"
         },
-        "start_off": "L'horloge réseau a {} d'écart (vérifiée avec {}). La limite de temps de jeu s'appuie dessus : voir l'onglet Horloge réseau."
+        "start_off": "L'horloge réseau a {} d'écart (vérifiée avec {}). La limite de temps de jeu s'appuie dessus : voir l'onglet Horloge réseau.",
+        "guided_body": "L'horloge réseau est imprécise, et la limite de temps de jeu s'appuie dessus.\n\nMesurer l'heure avec {} maintenant ? (La console doit être connectée.) Le réglage de l'horloge vous sera ensuite proposé.",
+        "guided_measure": "Mesurer maintenant",
+        "guided_fine": "L'horloge réseau est précise : rien à faire."
     },
     "pairing": {
         "section": "Application Contrôle parental Nintendo Switch",
@@ -465,7 +486,11 @@
             "changes": "Avant une modification",
             "open": "Pour ouvrir PlayGuard"
         },
-        "note": "Avant une modification : tout le monde peut consulter, seul le parent modifie (redemandé après 5 minutes). Pour ouvrir PlayGuard : un écran verrouillé jusqu'à la saisie du code. Reverrouiller ne le demande jamais. Le réglage est enregistré sur la carte SD.",
+        "notes": {
+            "off": "Toute personne qui tient la console peut modifier les réglages ici.",
+            "changes": "Tout le monde peut consulter ; seul le parent modifie (redemandé après 5 minutes). Reverrouiller ne le demande jamais.",
+            "open": "Un écran verrouillé jusqu'à la saisie du code. Reverrouiller ne le demande jamais."
+        },
         "no_pin": "Définissez d'abord un code PIN (Définir ou changer le code PIN).",
         "set": "Demander le code PIN : {}",
         "locked_title": "PlayGuard est verrouillé",
@@ -476,6 +501,7 @@
         "section_diag": "Diagnostic",
         "export": "Exporter un rapport de diagnostic",
         "export_note": "Enregistré dans {}. Joignez-le à un signalement de bug. Il ne contient jamais le code PIN ni le numéro de série.",
+        "section_start": "Pour commencer",
         "section_backup": "Sauvegarde des réglages",
         "section_update": "Mises à jour",
         "backup_save": "Sauvegarder les réglages",
@@ -485,7 +511,6 @@
         "backup_keep_n": "Les {} plus récentes",
         "backup_count": "{} sur la carte SD",
         "backup_note": "Enregistre le niveau de restriction, les réglages personnalisés, le mode VR et les limites de temps de jeu dans {}. Le code PIN n'est pas sauvegardé.",
-        "section_prefs": "Préférences",
         "language": "Langue",
         "languages": {
             "system": "Langue de la console",
@@ -554,6 +579,12 @@
         "update_last": "Dernière recherche le {}",
         "flag_read_only": "lecture seule",
         "flag_dev": "développeur"
+    },
+    "prefs": {
+        "section_app": "Application",
+        "section_play_timer": "Temps de jeu",
+        "section_startup": "Au lancement",
+        "note": "Les sauvegardes, les mises à jour, le rapport de diagnostic et la console sont dans Outils et à propos."
     },
     "backup": {
         "saved": "Réglages sauvegardés : {}",

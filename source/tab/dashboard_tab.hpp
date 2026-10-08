@@ -19,6 +19,7 @@ class DashboardTab : public TabBase
 
   private:
     PtState pt = {};
+    bool clock_inaccurate = false;   // last read: A on the clock line offers to fix it
 
     void open_today_limit();
 
@@ -39,8 +40,7 @@ class DashboardTab : public TabBase
     BRLS_BIND(brls::DetailCell, game_patches, "dash_patches");
     BRLS_BIND(brls::DetailCell, fw,          "dash_fw");
     BRLS_BIND(brls::DetailCell, compat,      "dash_compat");
-    BRLS_BIND(brls::Label,      hint,        "dash_hint");
-    BRLS_BIND(brls::Label,      setup,       "dash_setup");
+    BRLS_BIND(brls::DetailCell, first_steps, "dash_first_steps");
     BRLS_BIND(brls::Label,      applet,      "dash_applet");
     BRLS_BIND(brls::Label,      updated,     "dash_updated");
 };

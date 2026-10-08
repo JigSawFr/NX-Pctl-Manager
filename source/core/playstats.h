@@ -51,3 +51,16 @@ typedef struct {
 } AccountPlay;
 
 size_t playstats_by_account(u64 app_id, AccountPlay *out, size_t max, Result *rc);
+
+// The games' icons, from the same control data as their names (one ns
+// session for the whole list). For each entry, `jpeg` is malloc'ed (the
+// caller frees it) and `size` set; both stay 0 for a game with no control
+// data (deleted) or no icon. A JPEG is at most PLAYSTATS_ICON_MAX bytes.
+#define PLAYSTATS_ICON_MAX 0x20000
+typedef struct {
+    u64            app_id;   // in
+    unsigned char *jpeg;     // out
+    size_t         size;     // out
+} PlayIcon;
+
+void playstats_icons(PlayIcon *icons, size_t count);

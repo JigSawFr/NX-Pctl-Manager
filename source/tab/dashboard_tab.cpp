@@ -3,7 +3,9 @@
 
 #include <fmt/format.h>
 
+#include "action/clock_flow.hpp"
 #include "action/pt_flow.hpp"
+#include "activity/onboarding_activity.hpp"
 #include "activity/play_timer_perday_activity.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
@@ -14,7 +16,8 @@ using namespace brls::literals;
 namespace
 {
 // A on a line that leads to another tab: the footer says "Open", not "OK"
-// (Today's limit and Extra time change the value right here instead).
+// (Today's limit and Extra time change the value right here instead), and
+// its value ends with a chevron so the two kinds of line look different.
 void link(brls::DetailCell* cell, int tab)
 {
     cell->registerAction("playguard/hints/open"_i18n, brls::BUTTON_A, [cell, tab](brls::View*) {
@@ -22,14 +25,23 @@ void link(brls::DetailCell* cell, int tab)
         return true;
     }, false, false, brls::SOUND_CLICK);
 }
+
+void linked(brls::DetailCell* cell, const std::string& value)
+{
+    cell->setDetailText(value + "  ›");
+}
 }   // namespace
 
 DashboardTab::DashboardTab()
     : TabBase("xml/tab/dashboard.xml")
 {
-    hint->setSingleLine(false);
-    setup->setSingleLine(false);
     applet->setSingleLine(false);
+    first_steps->setDetailText("playguard/onboarding/pin_missing"_i18n);
+    first_steps->setDetailTextColor(ui::color_warn());
+    first_steps->registerClickAction([](brls::View*) {
+        brls::Application::pushActivity(new OnboardingActivity());
+        return true;
+    });
     ui::init_unlock_banner(unlocked_banner, [this]() { this->refresh(); });
     this->enable_auto_refresh(5000);
 
@@ -50,7 +62,12 @@ DashboardTab::DashboardTab()
     link(pc, ui::tab::security);
     link(pin, ui::tab::security);
     link(level, ui::tab::restrictions);
-    link(clock, ui::tab::clock);
+    // Inaccurate and writable: the guided measure-and-set path; else the tab.
+    clock->registerAction("playguard/hints/open"_i18n, brls::BUTTON_A, [this](brls::View*) {
+        if (this->clock_inaccurate && !app::read_only()) clock_flow::guided([this]() { this->refresh(); });
+        else ui::go_to_tab(clock, ui::tab::clock);
+        return true;
+    }, false, false, brls::SOUND_CLICK);
     link(pairing, ui::tab::security);
     link(fw, ui::tab::tools);
     link(compat, ui::tab::tools);
@@ -128,58 +145,59 @@ void DashboardTab::refresh()
     ui::set_visible(gauge.getView(), show_gauge);
 
     if (!pt.fw_supported || !pt.valid || !pt.enabled_valid)
-        remaining->setDetailText("—");
+        linked(remaining, "—");
     else if (unlocked && pt.day_min[today] != PT_DAY_NOLIMIT)
-        remaining->setDetailText("playguard/dashboard/remaining_unlocked"_i18n);
+        linked(remaining, "playguard/dashboard/remaining_unlocked"_i18n);
     else if (!pt.enabled || pt.day_min[today] == PT_DAY_NOLIMIT)
-        remaining->setDetailText("playguard/common/no_limit"_i18n);
+        linked(remaining, "playguard/common/no_limit"_i18n);
     else if (pt.remaining_valid && pt.remaining_ns > 0)
-        remaining->setDetailText(ui::fmt_duration_ns(pt.remaining_ns));
+        linked(remaining, ui::fmt_duration_ns(pt.remaining_ns));
     else
-        remaining->setDetailText("playguard/dashboard/remaining_idle"_i18n);
+        linked(remaining, "playguard/dashboard/remaining_idle"_i18n);
 
     if (pt.bedtime_valid) {
         std::string hm = fmt::format("{:02d}:{:02d}", pt.bedtime_hour, pt.bedtime_minute);
-        bedtime->setDetailText(brls::getStr(pt.bedtime_enabled ? "playguard/play_timer/bedtime_value_on"
-                                                               : "playguard/play_timer/bedtime_value_off", hm));
+        linked(bedtime, brls::getStr(pt.bedtime_enabled ? "playguard/play_timer/bedtime_value_on"
+                                                        : "playguard/play_timer/bedtime_value_off", hm));
     } else {
-        bedtime->setDetailText(pt.fw_supported ? na : "—");
+        linked(bedtime, pt.fw_supported ? na : "—");
     }
 
     // Parental controls overall state.
     if (!s.restriction_enabled_ok) {
-        pc->setDetailText(na);
+        linked(pc, na);
         pc->setDetailTextColor(ui::color_neutral());
     } else if (unlocked) {
-        pc->setDetailText("playguard/dashboard/pc_unlocked"_i18n);
+        linked(pc, "playguard/dashboard/pc_unlocked"_i18n);
         pc->setDetailTextColor(ui::color_warn());
     } else if (s.restriction_enabled) {
-        pc->setDetailText("playguard/dashboard/pc_active"_i18n);
+        linked(pc, "playguard/dashboard/pc_active"_i18n);
         pc->setDetailTextColor(ui::color_ok());
     } else if (has_pin) {
-        pc->setDetailText("playguard/dashboard/pc_pin_only"_i18n);
+        linked(pc, "playguard/dashboard/pc_pin_only"_i18n);
         pc->setDetailTextColor(ui::color_neutral());
     } else {
-        pc->setDetailText("playguard/dashboard/pc_off"_i18n);
+        linked(pc, "playguard/dashboard/pc_off"_i18n);
         pc->setDetailTextColor(ui::color_neutral());
     }
 
-    if (!s.pin_length_ok) pin->setDetailText(na);
-    else if (s.pin_length == 0) pin->setDetailText("playguard/common/not_set"_i18n);
-    else pin->setDetailText(brls::getStr("playguard/dashboard/pin_set", (int)s.pin_length));
+    if (!s.pin_length_ok) linked(pin, na);
+    else if (s.pin_length == 0) linked(pin, "playguard/common/not_set"_i18n);
+    else linked(pin, brls::getStr("playguard/dashboard/pin_set", (int)s.pin_length));
 
-    level->setDetailText(s.safety_level_ok ? ui::level_name(s.safety_level) : na);
+    linked(level, s.safety_level_ok ? ui::level_name(s.safety_level) : na);
 
     // System: only what needs attention stands out.
+    this->clock_inaccurate = R_SUCCEEDED(accuracy_rc) && !accurate;
     if (R_FAILED(accuracy_rc)) {
-        clock->setDetailText(na);
+        linked(clock, na);
         clock->setDetailTextColor(ui::color_neutral());
     } else {
-        clock->setDetailText(accurate ? "playguard/dashboard/clock_ok"_i18n : "playguard/dashboard/clock_bad"_i18n);
+        linked(clock, accurate ? "playguard/dashboard/clock_ok"_i18n : "playguard/dashboard/clock_bad"_i18n);
         clock->setDetailTextColor(accurate ? ui::color_ok() : ui::color_warn());
     }
     const bool paired = s.pairing_active_ok && s.pairing_active;
-    pairing->setDetailText(ui::bool_text(s.pairing_active_ok, s.pairing_active,
+    linked(pairing, ui::bool_text(s.pairing_active_ok, s.pairing_active,
         "playguard/dashboard/pairing_on"_i18n, "playguard/dashboard/pairing_off"_i18n));
     // A linked phone overwrites everything set here at its next sync.
     pairing->setDetailTextColor(paired ? ui::color_warn() : ui::color_neutral());
@@ -187,19 +205,19 @@ void DashboardTab::refresh()
     // Firmware and compatibility appear here only when there is something to
     // check; Tools › About always shows them.
     const bool compat_issue = sysinfo_compat(&si) != SysCompat_Ok;
-    fw->setDetailText(ui::fw_text(si));
+    linked(fw, ui::fw_text(si));
     NVGcolor c = ui::color_neutral();
-    compat->setDetailText(ui::compat_text(si, &c));
+    linked(compat, ui::compat_text(si, &c));
     compat->setDetailTextColor(c);
 
     // Serial number visible on emuMMC, sigpatch files only or sys-patch incomplete.
     const bool serial_issue  = ui::serial_warning(si);
     const patches::Report& patch_report = ui::patch_report();
     const bool patches_issue = ui::patches_warning(patch_report);
-    serial->setDetailText("playguard/dashboard/serial_visible"_i18n);
+    linked(serial, "playguard/dashboard/serial_visible"_i18n);
     serial->setDetailTextColor(ui::color_warn());
     c = ui::color_neutral();
-    game_patches->setDetailText(ui::patches_text(patch_report, &c));
+    linked(game_patches, ui::patches_text(patch_report, &c));
     game_patches->setDetailTextColor(c);
 
     // When the values were last read (X refreshes now, the timer every 5 s).
@@ -213,7 +231,7 @@ void DashboardTab::refresh()
     if (pending) extra_pending->setText(pt_flow::restore_label());
     ui::set_visible_all({ { extra.getView(), pt_flow::can_add_extra_time(pt) },
                           { extra_pending.getView(), pending },
-                          { setup.getView(), not_set_up }, { applet.getView(), si.applet_mode },
+                          { first_steps.getView(), not_set_up }, { applet.getView(), si.applet_mode },
                           { fw.getView(), compat_issue }, { compat.getView(), compat_issue },
                           { serial.getView(), serial_issue }, { game_patches.getView(), patches_issue },
                           { unlocked_banner.getView(), unlocked } });

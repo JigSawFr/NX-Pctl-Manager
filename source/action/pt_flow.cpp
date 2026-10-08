@@ -1,6 +1,7 @@
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #include "action/pt_flow.hpp"
 
+#include <array>
 #include <borealis.hpp>
 
 #include "action/pt_logic.hpp"
@@ -88,7 +89,7 @@ void confirm_write(const std::string& body_in, const std::string& confirm_label,
         Result rc = pctl_unlock_restriction_temporarily();
         if (R_FAILED(rc)) {
             set_relock_pending(false);   // not unlocked (or locked again by the service layer)
-            ui::notify("playguard/play_timer/gate/failed"_i18n + " — " + ui::rc_text(rc));
+            ui::error("playguard/play_timer/gate/failed"_i18n + " — " + ui::rc_text(rc));
             return;
         }
         write(true);
@@ -121,10 +122,16 @@ void finish_write(Result rc, bool did_unlock, const std::string& ok_text,
     set_relock_pending(false);
     if (config::get().auto_relock) {
         Result relock = pctl_relock();
-        if (R_FAILED(rc)) ui::notify_result(rc, ok_text, error_prefix);
-        else if (R_SUCCEEDED(relock)) ui::notify(ok_text + " " + "playguard/toast/relocked"_i18n);
-        else ui::notify(ok_text);
-        if (R_FAILED(relock)) ui::notify_result(relock, "", "playguard/toast/relock_err"_i18n);
+        if (R_SUCCEEDED(rc) && R_SUCCEEDED(relock)) {
+            ui::notify(ok_text + " " + "playguard/toast/relocked"_i18n);
+        } else {
+            // One dialog says it all: what failed, and what went through.
+            std::string text;
+            if (R_FAILED(rc)) text = error_prefix + " — " + ui::rc_text(rc);
+            else if (!ok_text.empty()) text = ok_text;
+            if (R_FAILED(relock)) text += (text.empty() ? "" : "\n\n") + "playguard/toast/relock_err"_i18n + " — " + ui::rc_text(relock);
+            ui::error(text);
+        }
         if (refresh) refresh();
         return;
     }
@@ -176,6 +183,62 @@ void choose_uniform_limit(const PtState& pt, std::function<void()> refresh)
         }
         ui::prompt_minutes("playguard/play_timer/quick_title"_i18n, seed,
                            [refresh](uint16_t v) { apply_uniform(v, refresh); });
+    });
+}
+
+void pick_limit(const std::string& title, uint16_t current, std::function<void(uint16_t)> on_value)
+{
+    // Quick values first (as in "Same limit every day"), then any value, then
+    // no limit; the current value is pre-selected.
+    const auto& values = quick_values();
+    std::vector<std::string> options;
+    int selected = -1;
+    for (size_t i = 0; i < values.size(); i++) {
+        options.push_back(ui::fmt_minutes(values[i]));
+        if (values[i] == current) selected = (int)i;
+    }
+    const int custom_index  = (int)options.size();
+    const int nolimit_index = custom_index + 1;
+    options.push_back("playguard/play_timer/perday/pick_minutes"_i18n);
+    options.push_back("playguard/play_timer/perday/pick_no_limit"_i18n);
+    if (current == PT_DAY_NOLIMIT) selected = nolimit_index;
+    else if (selected < 0) selected = custom_index;
+
+    ui::pick(title, options, selected, [title, current, on_value, custom_index, nolimit_index](int index) {
+        if (index == nolimit_index) {
+            on_value(PT_DAY_NOLIMIT);
+        } else if (index == custom_index) {
+            const uint16_t seed = current == PT_DAY_NOLIMIT ? 60 : current;
+            ui::prompt_minutes(title, seed, [on_value](uint16_t v) { on_value(v); });
+        } else {
+            on_value(quick_values()[index]);
+        }
+    });
+}
+
+void change_day_limit(int day, uint16_t current, std::function<void()> refresh)
+{
+    if (day < 0 || day > 6) return;
+    pick_limit(brls::getStr("playguard/play_timer/perday/pick_title", ui::day_name(day)), current,
+               [day, current, refresh](uint16_t minutes) {
+        if (minutes == current) return;
+        // The other days as the console has them now (the tab's copy may be
+        // a few seconds old), only this one changed.
+        PtState now;
+        pctl_play_timer_query(&now);
+        if (!now.valid) {
+            ui::error(ui::rc_text(NXM_RC_STATE_UNKNOWN));
+            return;
+        }
+        std::array<uint16_t, 7> days;
+        for (int i = 0; i < 7; i++) days[i] = now.day_min[i];
+        days[day] = minutes;
+        const std::string body = brls::getStr("playguard/play_timer/confirm_day", ui::day_name_in_text(day), ui::fmt_minutes(minutes));
+        confirm_write(body, "playguard/play_timer/confirm_set"_i18n, [days, refresh](bool did_unlock) {
+            Result rc = pctl_play_timer_set_days(days.data());
+            finish_write(rc, did_unlock, "playguard/play_timer/written_days"_i18n,
+                         "playguard/play_timer/write_err"_i18n, refresh);
+        }, days.data());
     });
 }
 

@@ -36,7 +36,7 @@
             <brls:DetailCell id="fg_probe" title="@i18n/playguard/fw_gate/probe"/>
             <brls:DetailCell id="fg_risk" title="@i18n/playguard/fw_gate/risk"/>
             <brls:BooleanCell id="fg_remember"/>
-            <brls:Label id="fg_note" text="@i18n/playguard/fw_gate/note" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
+            <brls:Label id="fg_note" text="@i18n/playguard/fw_gate/note" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
             <brls:DetailCell id="fg_quit" title="@i18n/playguard/common/quit" marginTop="16"/>
 
         </brls:Box>

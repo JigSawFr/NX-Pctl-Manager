@@ -1,6 +1,7 @@
 // ClockTab — shows the system clocks and sets the network clock from a public
-// NTP server (the play timer relies on the network clock).
-// NTP sampling and the time:s write are adapted from anbingxi's fork.
+// NTP server (the play timer relies on the network clock). The measurement
+// and the write are clock_flow's; this screen adds the server choice, the
+// result text, the 2-minute countdown and a spinner while measuring.
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
@@ -8,6 +9,7 @@
 #include <memory>
 #include <string>
 
+#include "action/clock_flow.hpp"
 #include "tab/tab_base.hpp"
 #include "util/pctl_ops_c.hpp"
 
@@ -21,15 +23,6 @@ class ClockTab : public TabBase
     void refresh() override;
 
   private:
-    struct Measurement
-    {
-        bool ok = false;
-        uint64_t unix_seconds = 0;   // median server time at `at`
-        std::chrono::steady_clock::time_point at;
-        int64_t spread = 0;          // max - min between servers, seconds
-        std::string server;
-    };
-
     std::shared_ptr<bool> alive = std::make_shared<bool>(true);
     bool busy = false;
     bool autosync_off = false;   // "Synchronise Clock via Internet" read as off
@@ -40,7 +33,7 @@ class ClockTab : public TabBase
     bool snap_ok = false;
     std::string region_id;
     std::string server;
-    Measurement last;
+    clock_flow::Measurement last;
 
     void choose_region();
     void choose_server();
@@ -48,7 +41,6 @@ class ClockTab : public TabBase
     void set_server(const std::string& host, const std::string& region);
     void measure();
     void apply();
-    void write_clock(const std::string& before);   // after the confirmation, with the "before" report
 
     BRLS_BIND(brls::DetailCell, user,     "ck_user");
     BRLS_BIND(brls::DetailCell, network,  "ck_network");
@@ -60,6 +52,9 @@ class ClockTab : public TabBase
     BRLS_BIND(brls::DetailCell, server_cell, "ck_server");
     BRLS_BIND(brls::DetailCell, custom,   "ck_custom");
     BRLS_BIND(brls::DetailCell, measure_cell, "ck_measure");
+    BRLS_BIND(brls::Box,        progress, "ck_progress");
+    BRLS_BIND(brls::Label,      progress_text, "ck_progress_text");
     BRLS_BIND(brls::Label,      result,   "ck_result");
+    BRLS_BIND(brls::Label,      warning,  "ck_warning");
     BRLS_BIND(brls::DetailCell, apply_cell, "ck_apply");
 };

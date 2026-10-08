@@ -1,7 +1,6 @@
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).
 #include "activity/profiles_activity.hpp"
 
-#include <algorithm>
 #include <fmt/format.h>
 
 #include "action/pt_flow.hpp"
@@ -21,26 +20,6 @@ std::string days_summary(const uint16_t days[7])
         if (i < 7) out += "\n";
     }
     return out;
-}
-
-// One line per profile: "2 h every day", "1 h to 3 h", "No limit".
-std::string short_summary(const uint16_t days[7])
-{
-    bool uniform = true;
-    int lo = -1, hi = -1;
-    bool any_nolimit = false;
-    for (int d = 0; d < 7; d++) {
-        uniform &= days[d] == days[0];
-        if (days[d] == PT_DAY_NOLIMIT) { any_nolimit = true; continue; }
-        lo = lo < 0 ? days[d] : std::min<int>(lo, days[d]);
-        hi = hi < 0 ? days[d] : std::max<int>(hi, days[d]);
-    }
-    if (uniform) return days[0] == PT_DAY_NOLIMIT ? "playguard/common/no_limit"_i18n
-                                                  : brls::getStr("playguard/play_timer/state/every_day", ui::fmt_minutes(days[0]));
-    if (lo < 0) return "playguard/common/no_limit"_i18n;
-    // Inside the sentence: "1 h to no limit", not "1 h to No limit".
-    const std::string top = any_nolimit ? "playguard/common/no_limit_in_text"_i18n : ui::fmt_minutes((uint16_t)hi);
-    return brls::getStr("playguard/play_timer/profile_range", ui::fmt_minutes((uint16_t)lo), top);
 }
 }   // namespace
 
@@ -73,7 +52,7 @@ void ProfilesActivity::rebuild(const std::string& focus_file)
     for (const auto& p : all) {
         auto* cell = new brls::DetailCell();
         cell->setText(p.name);
-        const std::string summary = short_summary(p.days.data());
+        const std::string summary = ui::days_summary(p.days.data());
         if (p.name == current) {
             cell->setDetailText(brls::getStr("playguard/play_timer/profile_current", summary));
             cell->setDetailTextColor(ui::color_ok());
@@ -132,7 +111,7 @@ bool ProfilesActivity::store(const profiles::Profile& p, const std::string& ok_t
 {
     std::string err;
     if (!profiles::save(p, &err)) {
-        ui::notify("playguard/play_timer/profile_save_err"_i18n + ": " + err);
+        ui::error("playguard/play_timer/profile_save_err"_i18n + ": " + err);
         return false;
     }
     ui::notify(ok_text);
@@ -176,7 +155,7 @@ void ProfilesActivity::remove(const profiles::Profile& p)
                            if (profiles::remove(file))
                                ui::notify(brls::getStr("playguard/play_timer/profile_deleted", name));
                            else
-                               ui::notify(brls::getStr("playguard/play_timer/profile_delete_err", name));
+                               ui::error(brls::getStr("playguard/play_timer/profile_delete_err", name));
                            brls::sync([this]() { this->rebuild(); });
                        });
 }

@@ -34,7 +34,7 @@
         <brls:Label
             id="error_fw"
             text=""
-            fontSize="18"
+            fontSize="20"
             horizontalAlign="center"
             marginBottom="32"
             textColor="@theme/brand/note"/>

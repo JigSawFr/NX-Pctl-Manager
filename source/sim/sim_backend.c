@@ -37,6 +37,7 @@
 #include "../core/pure.h"
 #include "../core/time_ops.h"
 #include "../core/write_guard.h"
+#include "sim_icons.h"
 
 static struct {
     bool init;
@@ -404,6 +405,22 @@ void playstats_fetch(PlayStats *out)
             g->day_s[k] = k < 6 ? rest * share[k - 1] / 100 : rest - given;
             given += g->day_s[k];
         }
+    }
+}
+
+void playstats_icons(PlayIcon *icons, size_t count)
+{
+    // The made-up games above, in order; the deleted one has no icon.
+    for (size_t i = 0; i < count; i++) {
+        icons[i].jpeg = NULL;
+        icons[i].size = 0;
+        const u64 base = 0x0100A1B2C3D40000ULL;
+        if (icons[i].app_id < base || (icons[i].app_id - base) % 0x1000 || (icons[i].app_id - base) / 0x1000 >= 5) continue;
+        const size_t k = (size_t)((icons[i].app_id - base) / 0x1000);
+        icons[i].jpeg = (unsigned char *)malloc(SIM_ICON_SIZES[k]);
+        if (!icons[i].jpeg) continue;
+        memcpy(icons[i].jpeg, SIM_ICONS[k], SIM_ICON_SIZES[k]);
+        icons[i].size = SIM_ICON_SIZES[k];
     }
 }
 

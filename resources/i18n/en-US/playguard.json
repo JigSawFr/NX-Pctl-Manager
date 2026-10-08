@@ -11,6 +11,7 @@
         "restrictions": "Restrictions",
         "clock": "Network clock",
         "security": "Security & app",
+        "preferences": "Preferences",
         "tools": "Tools & about"
     },
     "hints": {
@@ -149,7 +150,6 @@
         "patches": "Game patches",
         "firmware": "Firmware",
         "compat": "Compatibility",
-        "hint": "A on a line opens its tab; on Today's limit and Extra time today, A changes it right here. Values refresh on their own (X: now).",
         "updated": "Updated at {}",
         "extra": "Extra time today…",
         "extra_title": "Extra time today",
@@ -162,8 +162,22 @@
         "extra_restore": "Put back",
         "extra_restored": "{} limit put back to {}.",
         "extra_pending": "Put the {} limit back to {}",
-        "setup": "To get started: set a PIN in Security & app, then a daily limit in Play timer. The limit relies on the network clock: check it in Network clock.",
         "applet": "PlayGuard is running as an applet (opened from the album), with little memory: an export or a long Activity list may fail. For the full app, open it while holding R as you start a game."
+    },
+    "onboarding": {
+        "title": "First steps",
+        "open": "First steps…",
+        "pin_missing": "No PIN yet",
+        "headline": "Three steps and the console is protected. A on a step does it.",
+        "all_done": "All set: the console is protected. Come back here any time from Tools & about.",
+        "section_steps": "Steps",
+        "step_pin": "1. Set a parental-control PIN",
+        "step_limit": "2. Choose a daily play-time limit",
+        "step_clock": "3. Check the network clock",
+        "todo": "To do",
+        "paired_note": "The Nintendo Switch Parental Controls phone app is linked: at its next synchronisation it overwrites the limits set here. Security & app › Unlink the companion app.",
+        "note": "The PIN is the console's own; the limit is checked against the network clock, so it must be accurate.",
+        "close": "Close"
     },
     "compat": {
         "ok": "Checked",
@@ -175,19 +189,19 @@
         "fw_too_old": "The play timer needs firmware 21.0.0 or newer. The other tabs still work.",
         "fw_too_old_short": "Needs firmware 21.0.0+",
         "state": {
-            "enabled": "Play timer active",
-            "restricted": "Limit reached today",
-            "restricted_yes": "Yes (game suspended)",
-            "temporary": "Temporarily unlocked",
-            "remaining": "Time left today",
-            "configured": "Configured limit",
-            "not_set": "None (timer off)",
+            "active": "Timer active",
+            "inactive": "Timer off",
+            "remaining_short": "{} left today",
+            "unlocked_short": "temporarily unlocked, not counting",
+            "reached_alert": "Today's limit is reached: the game is suspended.",
+            "not_set": "No limit",
             "every_day": "{} every day",
             "today_per_day": "{} today (varies by day)",
             "profile": "{} · {}"
         },
         "section_limit": "Daily limit",
         "week_title": "This week's limits",
+        "week_title_edit": "This week's limits (A on a day changes it)",
         "quick": "Same limit every day",
         "quick_title": "Daily limit for every day",
         "quick_title_varies": "Daily limit for every day (days differ now)",
@@ -236,6 +250,7 @@
         "resume_confirm": "Resume",
         "diag": "Export a full diagnostic",
         "confirm_uniform": "Set the limit to {} for every day?",
+        "confirm_day": "Set the {} limit to {}?",
         "confirm_uniform_zero": "Set 0 minutes for every day?\n\nThat means no play at all. To turn the timer off instead, use \"Remove the play-time limit\".",
         "confirm_set": "Apply",
         "remove_body": "Remove the play-time limit for every day?",
@@ -254,7 +269,7 @@
         },
         "perday": {
             "title": "Per-day limits",
-            "section_days": "Days",
+            "section_days": "Days (A on a day changes it)",
             "section_presets": "Quick fill",
             "weekdays": "Set Monday to Friday…",
             "weekend": "Set Saturday and Sunday…",
@@ -267,8 +282,8 @@
             "pick_title": "{}: limit",
             "pick_minutes": "Enter a duration…",
             "pick_no_limit": "No limit",
-            "unsaved": "  (not saved)",
             "unsaved_count": "{} unsaved change(s)",
+            "save_hint": "Save ({})",
             "unavailable": "The play-timer configuration could not be read.",
             "no_changes": "Nothing to save.",
             "nothing_to_discard": "No changes to discard.",
@@ -287,7 +302,9 @@
         "today": "Today",
         "week": "Last 7 days",
         "all_time": "All time",
-        "before_today": "Days before",
+        "section_game_time": "Play time",
+        "section_accounts": "By user account",
+        "accounts_none": "No account has a figure for this game (deleted games keep only their totals).",
         "section_games": "Games",
         "period": "Period",
         "export": "Export to the SD card…",
@@ -345,12 +362,13 @@
         "confirm_level": "Change the restriction level to \"{}\"?",
         "custom_hint": "Then choose each restriction below.",
         "section_custom": "Custom settings",
+        "section_level_settings": "What this level restricts",
         "age": "Restrict software by age rating",
         "age_none": "No restriction",
         "age_value": "Up to {} years",
         "sns": "Restrict posting to social media",
         "comm": "Restrict communicating with others",
-        "custom_only": "These settings can be changed when the level is \"Custom\".",
+        "custom_only": "To change these settings, choose the \"Custom\" level.",
         "section_other": "Other",
         "vr": "Restrict VR mode",
         "org": "Rating organisation",
@@ -368,7 +386,7 @@
         "accuracy": "Network clock accurate",
         "auto": "Synchronise clock via Internet",
         "zone": "Time zone",
-        "why": "The play timer relies on the network clock. A console that never reaches Nintendo's servers keeps an inaccurate network clock; setting it from a public time server can fix that.",
+        "why": "The play timer relies on the network clock. When it is inaccurate (a console that never reaches Nintendo's servers), set it here from a public time server.",
         "section_server": "Time server",
         "region": "Region",
         "server": "Server",
@@ -414,7 +432,10 @@
             "timeout": "no answer",
             "bad_reply": "invalid answer"
         },
-        "start_off": "The network clock is {} off (checked against {}). The play timer counts on it: see the Network clock tab."
+        "start_off": "The network clock is {} off (checked against {}). The play timer counts on it: see the Network clock tab.",
+        "guided_body": "The network clock is inaccurate, and the play timer counts on it.\n\nMeasure the time against {} now? (The console must be online.) You will then be asked before the clock is set.",
+        "guided_measure": "Measure now",
+        "guided_fine": "The network clock is accurate: nothing to do."
     },
     "pairing": {
         "section": "Nintendo Switch Parental Controls app",
@@ -465,7 +486,11 @@
             "changes": "Before a change",
             "open": "To open PlayGuard"
         },
-        "note": "Before a change: anyone can look, only the parent changes something (asked again after 5 minutes). To open PlayGuard: a lock screen until the PIN is entered. Locking again never asks. The setting is kept on the SD card.",
+        "notes": {
+            "off": "Anyone who holds the console can change the settings here.",
+            "changes": "Anyone can look; only the parent changes something (asked again after 5 minutes). Locking again never asks.",
+            "open": "A lock screen until the PIN is entered. Locking again never asks."
+        },
         "no_pin": "Set a PIN first (Set or change the PIN).",
         "set": "Ask for the PIN: {}",
         "locked_title": "PlayGuard is locked",
@@ -476,6 +501,7 @@
         "section_diag": "Diagnostics",
         "export": "Export a diagnostic report",
         "export_note": "Saved in {}. Attach it to a bug report. It never contains the PIN or the serial number.",
+        "section_start": "Getting started",
         "section_backup": "Settings backup",
         "section_update": "Updates",
         "backup_save": "Back up the settings",
@@ -485,7 +511,6 @@
         "backup_keep_n": "The {} newest",
         "backup_count": "{} on the SD card",
         "backup_note": "Saves the restriction level, the custom settings, VR mode and the daily play-time limits in {}. The PIN is not saved.",
-        "section_prefs": "Preferences",
         "language": "Language",
         "languages": {
             "system": "System language",
@@ -554,6 +579,12 @@
         "update_last": "Last checked {}",
         "flag_read_only": "read-only",
         "flag_dev": "developer"
+    },
+    "prefs": {
+        "section_app": "App",
+        "section_play_timer": "Play timer",
+        "section_startup": "At start-up",
+        "note": "Backups, updates, the diagnostic report and the console are in Tools & about."
     },
     "backup": {
         "saved": "Settings backed up: {}",

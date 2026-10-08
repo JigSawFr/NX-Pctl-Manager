@@ -276,6 +276,32 @@ void playstats_fetch(PlayStats *out)
     nsExit();
 }
 
+void playstats_icons(PlayIcon *icons, size_t count)
+{
+    for (size_t i = 0; i < count; i++) {
+        icons[i].jpeg = NULL;
+        icons[i].size = 0;
+    }
+    if (!count || R_FAILED(nsInitialize())) return;
+    NsApplicationControlData *cd = (NsApplicationControlData *)malloc(sizeof(NsApplicationControlData));
+    if (cd) {
+        for (size_t i = 0; i < count; i++) {
+            u64 got = 0;
+            if (R_FAILED(nsGetApplicationControlData(NsApplicationControlSource_Storage, icons[i].app_id, cd, sizeof(*cd), &got)) ||
+                got <= sizeof(cd->nacp))
+                continue;
+            const size_t size = got - sizeof(cd->nacp);
+            if (size > sizeof(cd->icon)) continue;
+            icons[i].jpeg = (unsigned char *)malloc(size);
+            if (!icons[i].jpeg) break;   // out of memory: the rest stay without an icon
+            memcpy(icons[i].jpeg, cd->icon, size);
+            icons[i].size = size;
+        }
+        free(cd);
+    }
+    nsExit();
+}
+
 size_t playstats_by_account(u64 app_id, AccountPlay *out, size_t max, Result *rc_out)
 {
     size_t n = 0;

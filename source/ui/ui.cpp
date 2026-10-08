@@ -9,6 +9,7 @@
 #include "util/duration.hpp"
 #include "util/paths.hpp"
 
+#include <algorithm>
 #include <ctime>
 #include <fmt/format.h>
 #include <memory>
@@ -23,12 +24,24 @@ void register_theme_colors()
     // PlayGuard brand teal / amber, darkened on the light theme so every status
     // value keeps a contrast of at least 4.5:1 on the borealis backgrounds.
     auto& light = brls::Theme::getLightTheme();
+    // The focus highlight, the click pulse and the active sidebar item in the
+    // icon's teal (borealis' defaults are the Switch's cyan / blue), so the
+    // app looks like its icon. Values keep borealis' blue: teal values would
+    // read as the "ok" state.
+    light.addColor("brls/highlight/color1", nvgRGB(0x14, 0xA3, 0x8A));
+    light.addColor("brls/highlight/color2", nvgRGB(0x4A, 0xD6, 0xBA));
+    light.addColor("brls/click_pulse", nvgRGBA(0x14, 0xA3, 0x8A, 38));
+    light.addColor("brls/sidebar/active_item", nvgRGB(0x0F, 0x8A, 0x74));
     light.addColor("brand/ok", nvgRGB(0x0A, 0x6E, 0x5C));
     light.addColor("brand/warn", nvgRGB(0x8A, 0x52, 0x00));
     light.addColor("brand/bad", nvgRGB(0xB7, 0x1C, 0x1C));
     light.addColor("brand/gauge_track", nvgRGBA(0, 0, 0, 34));
     light.addColor("brand/note", nvgRGB(0x5C, 0x5C, 0x5C));
     auto& dark = brls::Theme::getDarkTheme();
+    dark.addColor("brls/highlight/color1", nvgRGB(0x2E, 0xC4, 0xA6));
+    dark.addColor("brls/highlight/color2", nvgRGB(0x9A, 0xF0, 0xDC));
+    dark.addColor("brls/click_pulse", nvgRGBA(0x2E, 0xC4, 0xA6, 38));
+    dark.addColor("brls/sidebar/active_item", nvgRGB(0x2E, 0xC4, 0xA6));
     // A clear green, not the logo teal: the dark theme's default value colour is
     // already teal, so "OK" would not stand out from plain values.
     dark.addColor("brand/ok", nvgRGB(0x7E, 0xD9, 0x57));
@@ -91,6 +104,12 @@ void notify(const std::string& text)
     brls::sync([text]() { brls::Application::notify(text); });
 }
 
+void error(const std::string& text)
+{
+    brls::Logger::info("error: {}", text);
+    brls::sync([text]() { info(text); });
+}
+
 bool save_config()
 {
     if (config::save()) return true;
@@ -101,7 +120,7 @@ bool save_config()
 void notify_result(Result rc, const std::string& ok_text, const std::string& error_prefix)
 {
     if (R_SUCCEEDED(rc)) notify(ok_text);
-    else notify(error_prefix + " — " + rc_text(rc));
+    else error(error_prefix + " — " + rc_text(rc));
 }
 
 void on_cancel(brls::Dialog* dialog, std::function<void()> on_cancel)
@@ -239,6 +258,28 @@ std::string fmt_minutes(uint16_t m)
     if (m < 60) return brls::getStr("playguard/common/minutes", (int)m);
     if (m % 60 == 0) return brls::getStr("playguard/common/hours", (int)(m / 60));
     return brls::getStr("playguard/common/hours_minutes", (int)(m / 60), fmt::format("{:02d}", (int)(m % 60)));
+}
+
+std::string days_summary(const uint16_t days[7])
+{
+    bool uniform = true, any_nolimit = false;
+    int lo = -1, hi = -1;
+    for (int d = 0; d < 7; d++) {
+        uniform &= days[d] == days[0];
+        if (days[d] == PT_DAY_NOLIMIT) {
+            any_nolimit = true;
+            continue;
+        }
+        lo = lo < 0 ? days[d] : std::min<int>(lo, days[d]);
+        hi = hi < 0 ? days[d] : std::max<int>(hi, days[d]);
+    }
+    if (uniform)
+        return days[0] == PT_DAY_NOLIMIT ? "playguard/common/no_limit"_i18n
+                                         : brls::getStr("playguard/play_timer/state/every_day", fmt_minutes(days[0]));
+    if (lo < 0) return "playguard/common/no_limit"_i18n;
+    // Inside the sentence: "1 h to no limit", not "1 h to No limit".
+    const std::string top = any_nolimit ? "playguard/common/no_limit_in_text"_i18n : fmt_minutes((uint16_t)hi);
+    return brls::getStr("playguard/play_timer/profile_range", fmt_minutes((uint16_t)lo), top);
 }
 
 std::string fmt_played(uint16_t m)

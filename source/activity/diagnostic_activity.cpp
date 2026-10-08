@@ -43,7 +43,7 @@ void DiagnosticActivity::onContentAvailable()
     this->getContentView()->registerAction("playguard/dev/report_save"_i18n, brls::BUTTON_Y, [this](brls::View*) {
         std::string err;
         const std::string path = diagnostic::save(this->report, &err);
-        if (path.empty()) ui::notify("playguard/toast/diag_err"_i18n + ": " + err);
+        if (path.empty()) ui::error("playguard/toast/diag_err"_i18n + ": " + err);
         else ui::notify(brls::getStr("playguard/toast/diag_saved", path));
         return true;
     });

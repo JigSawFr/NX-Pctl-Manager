@@ -2,10 +2,15 @@
 #include "tab/activity_tab.hpp"
 
 #include <algorithm>
+#include <cstdlib>
 #include <fmt/format.h>
 #include <string>
 #include <vector>
 
+#include <map>
+#include <set>
+
+#include "activity/game_activity.hpp"
 #include "ui/ui.hpp"
 #include "util/config.hpp"
 #include "util/paths.hpp"
@@ -19,6 +24,10 @@ namespace
 // reuses the last read instead of walking the activity log again.
 constexpr auto MAX_AGE = std::chrono::seconds(60);
 
+// Icons for the first rows of the list only: each one is a texture of a few
+// hundred KB, and the list can hold hundreds of games.
+constexpr size_t ICON_ROWS = 16;
+
 // Shared by every ActivityTab: borealis rebuilds the tab each time the sidebar
 // reaches it, the data (a walk through the whole play log) is not re-read.
 // UI thread only.
@@ -28,6 +37,12 @@ struct
     std::chrono::steady_clock::time_point read_at;
     bool busy = false;                  // a read is queued or running
     ActivityTab* shown = nullptr;       // the tab on screen, if any
+    // Icons read so far (the bytes as the control data holds them), and the
+    // games known to have none; kept for the run (icons do not change).
+    std::map<u64, std::vector<unsigned char>> icons;
+    std::set<u64> no_icon;
+    bool icons_busy = false;
+    bool icons_wanted = true;           // false in applet mode (little memory)
 } s_cache;
 
 uint64_t value_of(const GameStat& g, int period)
@@ -45,10 +60,6 @@ std::string game_name(const GameStat& g)
     return brls::getStr("playguard/activity/deleted_game", fmt::format("{:016X}", (unsigned long long)g.app_id));
 }
 
-std::string line(const std::string& label, const std::string& value)
-{
-    return "\n" + brls::getStr("playguard/common/line", label, value);
-}
 }   // namespace
 
 ActivityTab::ActivityTab()
@@ -78,6 +89,11 @@ ActivityTab::ActivityTab()
     });
     this->period = config::get().activity_period;
     s_cache.shown = this;
+    // Applet mode (opened from the album): a few MB for icons is too much.
+    SysInfo si;
+    sysinfo_get(&si);
+    s_cache.icons_wanted = !si.applet_mode;
+    ui::set_visible(progress.getView(), false);
     this->rebuild();
 }
 
@@ -94,10 +110,10 @@ void ActivityTab::refresh()
 
 void ActivityTab::fetch()
 {
-    // Every read says so, not only the first (X with a list on screen).
-    status->setText("playguard/activity/loading"_i18n);
-    status->setTextColor(ui::color_note());
-    ui::set_visible(status, true);
+    // Every read says so, not only the first (X with a list on screen): a
+    // spinner, since a long log takes a few seconds.
+    ui::set_visible(progress.getView(), true);
+    ui::set_visible(status, false);
     // Only one read at a time: its result goes to whichever Activity tab is on
     // screen when it ends.
     if (s_cache.busy) return;
@@ -149,17 +165,26 @@ void ActivityTab::rebuild()
         focus_in_list = v == list.getView();
     if (focus_in_list) brls::Application::giveFocus(sort);
     list->clearViews();
+    this->cells.clear();
+    ui::set_visible(progress.getView(), s_cache.busy);
     for (const GameStat* g : rows) {
-        auto* cell = new brls::DetailCell();
+        auto* cell = new GameCell(s_cache.icons_wanted && this->cells.size() < ICON_ROWS);
         cell->setText(game_name(*g));
         cell->setDetailText(ui::fmt_play_time(value_of(*g, p)));
         const GameStat copy = *g;
-        cell->registerClickAction([this, copy](brls::View*) {
-            this->show_details(copy);
+        cell->registerClickAction([copy](brls::View*) {
+            // Its own screen: the seven days as bars, the figures, each account.
+            std::vector<unsigned char> icon;
+            const auto it = s_cache.icons.find(copy.app_id);
+            if (it != s_cache.icons.end()) icon = it->second;
+            brls::Application::pushActivity(new GameActivity(copy, s_cache.stats, std::move(icon)));
             return true;
         });
         list->addView(cell);
+        this->cells.emplace_back(g->app_id, cell);
     }
+    this->apply_icons();
+    this->load_icons();
 
     std::string text;
     bool error = true;
@@ -178,37 +203,43 @@ void ActivityTab::rebuild()
     ui::set_visible(status, !text.empty());
 }
 
-void ActivityTab::show_details(const GameStat& g) const
+void ActivityTab::apply_icons()
 {
-    std::string text = game_name(g) + "\n";
-    if (s_cache.stats && s_cache.stats->windows_ok) {
-        text += line("playguard/activity/today"_i18n, ui::fmt_play_time(g.today_s));
-        text += line("playguard/activity/week"_i18n, ui::fmt_play_time(g.week_s));
-        // The days it was played on, most recent first ("Sat 1 h 20 · Thu 30 min").
-        std::string days_text;
-        for (int k = 1; k < 7; k++) {
-            if (!g.day_s[k]) continue;
-            if (!days_text.empty()) days_text += " · ";
-            days_text += brls::getStr(fmt::format("playguard/days_short/{}", (int)s_cache.stats->day_wday[k])) + " " +
-                         ui::fmt_play_time(g.day_s[k]);
-        }
-        if (!days_text.empty()) text += line("playguard/activity/before_today"_i18n, days_text);
+    for (size_t i = 0; i < this->cells.size() && i < ICON_ROWS; i++) {
+        const auto it = s_cache.icons.find(this->cells[i].first);
+        if (it != s_cache.icons.end()) this->cells[i].second->set_icon(it->second);
     }
-    if (g.totals_ok) {
-        text += line("playguard/activity/all_time"_i18n, ui::fmt_play_time(g.total_s));
-        text += line("playguard/activity/launches"_i18n, std::to_string(g.launches));
-        if (g.first_played) text += line("playguard/activity/first"_i18n, ui::time_text(g.first_played));
-        if (g.last_played) text += line("playguard/activity/last"_i18n, ui::time_text(g.last_played));
-        // All time per user account (read now: a few requests for this game only).
-        AccountPlay accounts[PLAYSTATS_MAX_ACCOUNTS];
-        Result rc = 0;
-        const size_t n = playstats_by_account(g.app_id, accounts, PLAYSTATS_MAX_ACCOUNTS, &rc);
-        for (size_t i = 0; i < n; i++)
-            text += line(accounts[i].nickname[0] ? std::string(accounts[i].nickname) : "?",
-                         brls::getStr("playguard/activity/account_value", ui::fmt_play_time(accounts[i].total_s),
-                                      (int)accounts[i].launches));
+}
+
+void ActivityTab::load_icons()
+{
+    if (!s_cache.icons_wanted || s_cache.icons_busy) return;
+    auto wanted = std::make_shared<std::vector<PlayIcon>>();
+    for (size_t i = 0; i < this->cells.size() && i < ICON_ROWS; i++) {
+        const u64 id = this->cells[i].first;
+        if (s_cache.icons.count(id) || s_cache.no_icon.count(id)) continue;
+        wanted->push_back(PlayIcon{ id, nullptr, 0 });
     }
-    ui::info(text);
+    if (wanted->empty()) return;
+    s_cache.icons_busy = true;
+    brls::async([wanted]() {
+        playstats_icons(wanted->data(), wanted->size());
+        brls::sync([wanted]() {
+            s_cache.icons_busy = false;
+            for (PlayIcon& icon : *wanted) {
+                if (icon.jpeg && icon.size) s_cache.icons[icon.app_id].assign(icon.jpeg, icon.jpeg + icon.size);
+                else s_cache.no_icon.insert(icon.app_id);
+                std::free(icon.jpeg);
+                icon.jpeg = nullptr;
+            }
+            // The list may have changed meanwhile (another period): put what
+            // arrived on the cells now on screen, then ask for what they lack.
+            if (s_cache.shown) {
+                s_cache.shown->apply_icons();
+                s_cache.shown->load_icons();
+            }
+        });
+    });
 }
 
 // Every game with any figure, in the order of the list on screen; minutes as
@@ -274,7 +305,7 @@ void ActivityTab::export_to_sd() const
         }
         std::string err;
         const std::string path = table_export::save(t, (table_export::Format)index, paths::exports_dir(), "activity", &err);
-        if (path.empty()) ui::notify("playguard/activity/export_err"_i18n + ": " + err);
+        if (path.empty()) ui::error("playguard/activity/export_err"_i18n + ": " + err);
         else ui::notify(brls::getStr("playguard/activity/exported", path));
     });
 }

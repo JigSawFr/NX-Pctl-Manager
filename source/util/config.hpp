@@ -55,7 +55,7 @@ struct Config
 constexpr int    SCHEMA             = 1;    // "schema" in config.json
 // What start_tab may be, in the sidebar's order.
 constexpr const char* START_TABS[] = { "dashboard", "play_timer", "activity", "restrictions",
-                                       "clock", "security", "tools" };
+                                       "clock", "security", "preferences", "tools" };
 // What extra_amounts may be (the Tools picker offers these sets).
 constexpr int EXTRA_SETS[][3] = { { 15, 30, 60 }, { 10, 20, 30 }, { 30, 60, 90 }, { 5, 10, 15 } };
 constexpr int BACKUP_KEEP[]   = { 0, 5, 10, 20 };

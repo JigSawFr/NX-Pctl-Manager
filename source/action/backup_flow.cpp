@@ -191,7 +191,7 @@ void save_now()
 {
     std::string err;
     const std::string path = save_snapshot(&err);
-    if (path.empty()) ui::notify("playguard/backup/save_err"_i18n + ": " + err);
+    if (path.empty()) ui::error("playguard/backup/save_err"_i18n + ": " + err);
     else ui::notify(brls::getStr("playguard/backup/saved", path));
 }
 

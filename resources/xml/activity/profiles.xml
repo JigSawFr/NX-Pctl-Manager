@@ -29,8 +29,8 @@
 
             <brls:Header title="@i18n/playguard/play_timer/profiles_section_saved" marginBottom="8"/>
             <brls:Box id="pf_list" width="auto" height="auto" axis="column" alignItems="stretch"/>
-            <brls:Label id="pf_empty" text="@i18n/playguard/play_timer/profile_none" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
-            <brls:Label id="pf_hint" text="@i18n/playguard/play_timer/profiles_hint" fontSize="18" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
+            <brls:Label id="pf_empty" text="@i18n/playguard/play_timer/profile_none" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
+            <brls:Label id="pf_hint" text="@i18n/playguard/play_timer/profiles_hint" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
             <brls:Header title="@i18n/playguard/play_timer/profiles_section_new" marginTop="24" marginBottom="8"/>
             <brls:DetailCell id="pf_save" title="@i18n/playguard/play_timer/profile_save"/>
             <brls:DetailCell id="pf_new" title="@i18n/playguard/play_timer/profile_new"/>

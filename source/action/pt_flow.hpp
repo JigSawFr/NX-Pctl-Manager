@@ -30,7 +30,7 @@ int played_today_min(const PtState& pt);
 // today's limit below the time already played, the dialog says the game in
 // progress will be suspended. With nothing to say and no unlock needed,
 // `write` runs at once. `write(did_unlock)` only runs when it is safe to
-// write; otherwise a toast has already explained why.
+// write; otherwise the user has already been told why.
 // `danger`: the confirm button is drawn in the "bad" colour (removing or
 // overwriting limits).
 void confirm_write(const std::string& body, const std::string& confirm_label,
@@ -45,6 +45,15 @@ void finish_write(Result rc, bool did_unlock, const std::string& ok_text,
 
 // "Same limit every day" picker (quick values + Custom…), then confirm_write.
 void choose_uniform_limit(const PtState& pt, std::function<void()> refresh);
+
+// One day's limit picker: the quick values, "Enter a duration…" (the number
+// pad) and "No limit", with `current` pre-selected. `on_value` gets the
+// minutes (PT_DAY_NOLIMIT for no limit).
+void pick_limit(const std::string& title, uint16_t current, std::function<void(uint16_t)> on_value);
+
+// Changes one weekday's limit (0 = Sunday) on the console, through pick_limit
+// and confirm_write: what the week chart does on A.
+void change_day_limit(int day, uint16_t current, std::function<void()> refresh);
 
 // True when "Extra time today…" can be offered: a writable build, a limit
 // applies today and it is below 24 h.

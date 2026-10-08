@@ -9,9 +9,12 @@
 
 #include <chrono>
 #include <memory>
+#include <utility>
+#include <vector>
 
 #include "tab/tab_base.hpp"
 #include "util/pctl_ops_c.hpp"
+#include "view/game_cell.hpp"
 #include "view/play_days.hpp"
 
 class ActivityTab : public TabBase
@@ -30,8 +33,13 @@ class ActivityTab : public TabBase
 
     void fetch();
     void rebuild();
-    void show_details(const GameStat& g) const;
+    // Reads the icons the list still lacks (first rows only), off the main
+    // thread, then puts them on the cells on screen.
+    void load_icons();
+    void apply_icons();
     void export_to_sd() const;
+
+    std::vector<std::pair<u64, GameCell*>> cells;   // the list on screen, top first
 
     BRLS_BIND(PlayDaysView,     days,        "ac_days");
     BRLS_BIND(brls::DetailCell, today,       "ac_today");
@@ -39,6 +47,7 @@ class ActivityTab : public TabBase
     BRLS_BIND(brls::DetailCell, total,       "ac_total");
     BRLS_BIND(brls::DetailCell, sort,        "ac_period");
     BRLS_BIND(brls::DetailCell, export_cell, "ac_export");
+    BRLS_BIND(brls::Box,        progress,    "ac_progress");
     BRLS_BIND(brls::Box,        list,        "ac_list");
     BRLS_BIND(brls::Label,      status,      "ac_status");
     BRLS_BIND(brls::Label,      note,        "ac_note");

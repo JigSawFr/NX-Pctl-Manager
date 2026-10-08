@@ -32,14 +32,14 @@ void save_reference(const pt_block::Block& now)
     ref.firmware = firmware();
     std::string err;
     if (pt_block::save_reference(ref, &err)) ui::notify("playguard/dev/pt_block_saved"_i18n);
-    else ui::notify("playguard/dev/pt_block_save_err"_i18n + ": " + err);
+    else ui::error("playguard/dev/pt_block_save_err"_i18n + ": " + err);
 }
 
 void save_report(const pt_block::Reference& ref, const pt_block::Block& now)
 {
     std::string err;
     const std::string path = diagnostic::save(pt_block::report(ref, now, ui::now_stamp()), &err);
-    if (path.empty()) ui::notify("playguard/toast/diag_err"_i18n + ": " + err);
+    if (path.empty()) ui::error("playguard/toast/diag_err"_i18n + ": " + err);
     else ui::notify(brls::getStr("playguard/toast/diag_saved", path));
 }
 }   // namespace
@@ -53,7 +53,7 @@ void open()
         return;
     }
     if (!pt.valid) {
-        ui::notify("playguard/dev/pt_block_err"_i18n + " — " + ui::rc_text(pt.config_rc));
+        ui::error("playguard/dev/pt_block_err"_i18n + " — " + ui::rc_text(pt.config_rc));
         return;
     }
     pt_block::Block now;

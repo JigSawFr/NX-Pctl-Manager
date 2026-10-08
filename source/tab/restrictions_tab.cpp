@@ -149,6 +149,23 @@ void RestrictionsTab::refresh()
 
     const bool custom = this->st.safety_level_ok && this->st.safety_level == PctlSafetyLevel_Custom &&
                         this->st.settings_ok;
+    // A preset: what it imposes, read-only, instead of a note saying the
+    // settings are hidden (the parent sees what applies without the picker).
+    PctlCustomSettings preset = {};
+    const bool preset_ok = !custom && this->st.safety_level_ok && this->st.safety_level != PctlSafetyLevel_Custom &&
+                           R_SUCCEEDED(pctl_get_level_settings(this->st.safety_level, &preset));
+    auto yes_no = [](bool v) { return v ? "playguard/common/yes"_i18n : "playguard/common/no"_i18n; };
+    custom_header->setTitle(custom ? "playguard/restrictions/section_custom"_i18n
+                                   : "playguard/restrictions/section_level_settings"_i18n);
+    ui::set_visible(custom_header.getView(), custom || preset_ok);
+    ui::set_visible(preset_age.getView(), preset_ok);
+    ui::set_visible(preset_sns.getView(), preset_ok);
+    ui::set_visible(preset_comm.getView(), preset_ok);
+    if (preset_ok) {
+        preset_age->setDetailText(age_text(preset.rating_age));
+        preset_sns->setDetailText(yes_no(preset.sns_post_restriction));
+        preset_comm->setDetailText(yes_no(preset.free_communication_restriction));
+    }
     ui::set_visible(age.getView(), custom);
     ui::set_visible(sns.getView(), custom);
     ui::set_visible(comm.getView(), custom);

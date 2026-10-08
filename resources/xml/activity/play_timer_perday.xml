@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- Per-day play-time limits: edits are staged in `pending[]` and written
-     together by "Save". B leaves (asking first when something is unsaved). -->
+<!-- Per-day play-time limits: the week chart is the editor (←/→ pick a day,
+     A changes it); edits are staged in `pending[]` and written together by
+     "Save" (also Y). B leaves (asking first when something is unsaved). -->
 
 <brls:AppletFrame
     iconInterpolation="linear">
@@ -30,13 +31,8 @@
 
             <brls:Header title="@i18n/playguard/play_timer/perday/section_days" marginBottom="8"/>
 
-            <brls:DetailCell id="pt_d1"/>
-            <brls:DetailCell id="pt_d2"/>
-            <brls:DetailCell id="pt_d3"/>
-            <brls:DetailCell id="pt_d4"/>
-            <brls:DetailCell id="pt_d5"/>
-            <brls:DetailCell id="pt_d6"/>
-            <brls:DetailCell id="pt_d0"/>
+            <PtWeekView id="pt_week" width="auto" height="auto" marginTop="8" marginBottom="8"/>
+            <brls:Label id="pt_unavailable" text="@i18n/playguard/play_timer/perday/unavailable" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/warn"/>
 
             <brls:Header title="@i18n/playguard/play_timer/perday/section_presets" marginTop="16" marginBottom="8"/>
 

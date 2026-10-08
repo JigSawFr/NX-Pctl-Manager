@@ -22,7 +22,7 @@ void export_diagnostic()
 {
     std::string err;
     std::string path = diagnostic::save(diagnostic::current_report(), &err);
-    if (path.empty()) ui::notify("playguard/toast/diag_err"_i18n + ": " + err);
+    if (path.empty()) ui::error("playguard/toast/diag_err"_i18n + ": " + err);
     else ui::notify(brls::getStr("playguard/toast/diag_saved", path));
 }
 }   // namespace
@@ -34,6 +34,12 @@ PlayTimerTab::PlayTimerTab()
     bedtime_note->setSingleLine(false);
     ui::init_unlock_banner(unlocked_banner, [this]() { this->refresh(); });
     this->enable_auto_refresh(5000);
+
+    // The week chart is the editor: ←/→ pick a day, A changes its limit.
+    week->set_on_pick([this](int day) {
+        if (!this->pt.valid) return;
+        pt_flow::change_day_limit(day, this->pt.day_min[day], [this]() { this->refresh(); });
+    });
 
     quick->registerClickAction([this](brls::View*) {
         pt_flow::choose_uniform_limit(this->pt, [this]() { this->refresh(); });
@@ -109,7 +115,11 @@ void PlayTimerTab::refresh()
     ui::set_visible(week.getView(), fw_ok && this->pt.valid);
     ui::set_visible(week_header.getView(), fw_ok && this->pt.valid);
     if (!fw_ok) return;
-    if (this->pt.valid) week->show(this->pt);
+    if (this->pt.valid) {
+        week->show(this->pt);
+        week->set_editable(writable);
+        week_header->setTitle(writable ? "playguard/play_timer/week_title_edit"_i18n : "playguard/play_timer/week_title"_i18n);
+    }
 
     // Profiles…: the profile applied now, else how many are saved.
     const std::string current = this->pt.valid ? profiles::match(this->pt.day_min) : "";
@@ -117,10 +127,11 @@ void PlayTimerTab::refresh()
     profiles_cell->setDetailText(!current.empty() ? current
                                  : saved ? brls::getStr("playguard/play_timer/profiles_count", (int)saved) : "");
 
-    // "Same limit every day": show the current value when all days agree.
+    // "Same limit every day": the value when all days agree, else the range
+    // they span ("1 h to 3 h"; a dash would read as "unavailable").
     bool uniform = this->pt.valid;
     for (int i = 1; i < 7 && uniform; i++) uniform = this->pt.day_min[i] == this->pt.day_min[0];
-    quick->setDetailText(uniform ? ui::fmt_minutes(this->pt.day_min[0]) : "—");
+    quick->setDetailText(uniform ? ui::fmt_minutes(this->pt.day_min[0]) : ui::days_summary(this->pt.day_min));
 
     const std::string na = "playguard/common/unavailable"_i18n;
     if (this->pt.bedtime_valid) {

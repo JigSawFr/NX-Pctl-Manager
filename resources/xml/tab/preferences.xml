@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Preferences: the app (language, theme, start tab), the play timer
+     (relock, extra time) and the start-up checks. Backups, updates,
+     diagnostics and the console stay in Tools & about. -->
+
+<brls:Box
+    width="auto"
+    height="auto">
+
+    <brls:ScrollingFrame
+        width="auto"
+        height="auto"
+        grow="1.0">
+
+        <brls:Box
+            width="auto"
+            height="auto"
+            axis="column"
+            alignItems="stretch"
+            paddingLeft="@style/brls/tab_frame/content_padding_sides"
+            paddingRight="@style/brls/tab_frame/content_padding_sides"
+            paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
+            paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
+
+            <brls:Header title="@i18n/playguard/prefs/section_app" marginBottom="8"/>
+            <brls:DetailCell id="pf_language" title="@i18n/playguard/tools/language"/>
+            <brls:DetailCell id="pf_theme" title="@i18n/playguard/tools/theme"/>
+            <brls:DetailCell id="pf_start_tab" title="@i18n/playguard/tools/start_tab"/>
+            <brls:Header title="@i18n/playguard/prefs/section_play_timer" marginTop="24" marginBottom="8"/>
+            <brls:BooleanCell id="pf_auto_relock"/>
+            <brls:DetailCell id="pf_extra_amounts" title="@i18n/playguard/tools/extra_amounts"/>
+            <brls:BooleanCell id="pf_extra_auto"/>
+            <brls:BooleanCell id="pf_advanced"/>
+            <brls:Header title="@i18n/playguard/prefs/section_startup" marginTop="24" marginBottom="8"/>
+            <brls:BooleanCell id="pf_clock_check"/>
+            <brls:Label id="pf_note" text="@i18n/playguard/prefs/note" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
+
+        </brls:Box>
+
+    </brls:ScrollingFrame>
+
+</brls:Box>

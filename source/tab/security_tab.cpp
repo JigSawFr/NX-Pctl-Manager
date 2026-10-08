@@ -68,6 +68,9 @@ SecurityTab::SecurityTab()
     this->enable_auto_refresh(5000);
     pr_note->setSingleLine(false);
     pin_lock_note->setSingleLine(false);
+    // Deleting everything is the one irreversible action here: its line is
+    // drawn in the danger colour, not only its section title.
+    del->title->setTextColor(ui::color_bad());
     pin_lock_cell->registerClickAction([this](brls::View*) {
         pin_lock::choose([this]() { this->refresh(); });
         return true;
@@ -151,6 +154,7 @@ void SecurityTab::refresh()
     pr_note->setTextColor(paired ? ui::color_warn() : ui::color_note());
 
     pin_lock_cell->setDetailText(pin_lock::mode_text());
+    pin_lock_note->setText(pin_lock::note_text());
     const bool writable = !app::read_only();
     const bool has_pin  = s.pin_length_ok && s.pin_length > 0;
     const bool unlocked = s.temp_unlocked_ok && s.temp_unlocked;

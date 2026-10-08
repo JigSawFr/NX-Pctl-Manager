@@ -5,6 +5,7 @@
 #include "action/fw_gate.hpp"
 #include "action/pt_flow.hpp"
 #include "action/update_flow.hpp"
+#include "activity/onboarding_activity.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
 #include "util/config.hpp"
@@ -36,7 +37,7 @@ void MainActivity::onContentAvailable()
         if (config::get().start_tab == t) break;
         start++;
     }
-    if (start > 0 && start < (int)(sizeof(config::START_TABS) / sizeof(config::START_TABS[0]))) {
+    if (start > 0 && start < (int)(sizeof(config::START_TABS) / sizeof(config::START_TABS[0]))) {   // ui::tab::of knows them all
         brls::sync([this, start]() {
             auto stack = brls::Application::getActivitiesStack();
             auto* frame = dynamic_cast<brls::TabFrame*>(this->getView("main_tabs"));
@@ -56,6 +57,9 @@ void MainActivity::onContentAvailable()
 
     // Firmware newer than the checked one: the firmware screen (or the remembered choice).
     fw_gate::on_main_screen();
+    // Nothing set up yet (no PIN): the first steps, once per start.
+    if (OnboardingActivity::wanted_at_start())
+        brls::sync([]() { brls::Application::pushActivity(new OnboardingActivity()); });
 
     this->day = ui::today_date();
     this->day_timer.setPeriod(30000);
