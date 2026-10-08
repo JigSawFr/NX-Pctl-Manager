@@ -24,6 +24,11 @@ static backup::Snapshot full()
     s.vr_restricted = true;
     s.days_ok = true;
     s.days    = { 180, 120, 120, 0xFFFF, 120, 0, 1440 };
+    s.alarm_ok       = true;
+    s.alarm_disabled = true;
+    s.rating_org_ok  = true;
+    s.rating_org     = 6;
+    s.raw_block      = std::string(4, '0') + "0101" + std::string(128, 'A');
     return s;
 }
 
@@ -33,7 +38,8 @@ static bool same(const backup::Snapshot& a, const backup::Snapshot& b)
            a.level == b.level && a.custom_ok == b.custom_ok && a.rating_age == b.rating_age &&
            a.sns_restricted == b.sns_restricted && a.comm_restricted == b.comm_restricted &&
            a.vr_ok == b.vr_ok && a.vr_restricted == b.vr_restricted && a.days_ok == b.days_ok &&
-           a.days == b.days;
+           a.days == b.days && a.alarm_ok == b.alarm_ok && a.alarm_disabled == b.alarm_disabled &&
+           a.rating_org_ok == b.rating_org_ok && a.rating_org == b.rating_org && a.raw_block == b.raw_block;
 }
 
 static bool parses(const std::string& text)
@@ -96,6 +102,20 @@ static void test_validation()
     assert(!parses(with("180,", "")));                                   // six days
     assert(!parses(with("\"days_from_sunday\"", "\"days\"")));
     assert(parses(with("180", "0")));
+
+    // The fields kept for the record are validated too.
+    assert(!parses(with("\"alarm_disabled\": true", "\"alarm_disabled\": 1")));
+    assert(!parses(with("\"rating_organization\": 6", "\"rating_organization\": 64")));
+    assert(!parses(with("\"raw_0x44\": \"0000", "\"raw_0x44\": \"zz00")));
+    assert(!parses(with("\"raw_0x44\": \"0000", "\"raw_0x44\": \"00")));       // 134 digits
+    assert(parses(with("\"raw_0x44\": \"0000", "\"raw_0x44\": \"abcd")));      // either case
+
+    // A backup from before these fields still reads.
+    backup::Snapshot old_one = full();
+    old_one.alarm_ok = old_one.rating_org_ok = false;
+    old_one.raw_block.clear();
+    backup::Snapshot back;
+    assert(backup::from_json(backup::to_json(old_one), back) && !back.alarm_ok && !back.rating_org_ok && back.raw_block.empty());
 }
 
 static void test_files()

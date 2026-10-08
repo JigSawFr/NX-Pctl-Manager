@@ -11,6 +11,7 @@
 // LICENSE file or <https://www.gnu.org/licenses/gpl-3.0.html> for details.
 #pragma once
 #include "nx_types.h"
+#include "pure.h"
 
 typedef enum {
     PctlSafetyLevel_None       = 0,
@@ -91,6 +92,7 @@ typedef struct {
 
     bool   valid;                 Result config_rc;    // 145601 GetPlayTimerSettings
     u16    day_min[7];            // Sun..Sat minutes or PT_DAY_NOLIMIT; meaningful only when valid
+    u16    block[PT_U16_COUNT];   // the 0x44 block as read (backups keep it; pure.h)
     bool   enabled_valid;         Result enabled_rc;     bool enabled;     // 1453
     bool   restricted_valid;      Result restricted_rc;  bool restricted;  // 1455
     bool   temporary_unlocked_valid; Result temporary_unlocked_rc; bool temporary_unlocked; // 1006
