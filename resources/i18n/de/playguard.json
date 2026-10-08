@@ -111,7 +111,7 @@
         "probe": "Schreibgeschützt mit Entwicklertools (zur Analyse)",
         "risk": "Mit allen Funktionen fortfahren, auf eigenes Risiko",
         "risk_body": "Firmware {} wurde nicht geprüft: Änderungen an den Altersbeschränkungen oder an der Uhr können sich anders auswirken oder die Konsole abstürzen lassen.\n\nPrüfen Sie jedes Ergebnis und exportieren Sie eine Diagnose, wenn etwas nicht stimmt.",
-        "risk_confirm": "Auf eigenes Risiko fortfahren",
+        "risk_confirm": "Auf eigenes Risiko",
         "remember": "Diese Auswahl für diese Firmware und Version merken",
         "note": "Sie können über Tools & Info › Kompatibilität zu diesem Bildschirm zurückkehren.",
         "update_toast": "PlayGuard {} unterstützt Firmware {}: Tools & Info › Nach Updates suchen."
@@ -662,7 +662,7 @@
         "pt_block_same": "Seit der Referenz vom {} hat sich kein Wert geändert.",
         "pt_block_changed_one": "1 Wert hat sich seit der Referenz vom {} geändert:",
         "pt_block_changed": "{} Werte haben sich seit der Referenz vom {} geändert:",
-        "pt_block_report": "Auf der SD-Karte speichern",
+        "pt_block_report": "Auf SD-Karte speichern",
         "pt_block_new": "Neue Referenz",
         "gate": "Firmware-Bildschirm erneut anzeigen",
         "forget": "Firmware-Wahl vergessen",

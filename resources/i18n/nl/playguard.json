@@ -267,7 +267,7 @@
         "remove_confirm": "Verwijderen",
         "gate": {
             "body": "De speeltijdtimer telt af, dus het ouderlijk toezicht wordt eerst tijdelijk ontgrendeld met de opgeslagen pincode (je hoeft die niet te onthouden).",
-            "confirm": "Ontgrendelen en toepassen",
+            "confirm": "Toepassen",
             "relock_auto": "Het wordt direct na de wijziging weer vergrendeld.",
             "relock_manual": "Je kunt het direct na de wijziging weer vergrendelen.",
             "failed": "Kan het ouderlijk toezicht niet ontgrendelen"

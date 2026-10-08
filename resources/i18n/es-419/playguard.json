@@ -111,7 +111,7 @@
         "probe": "Solo lectura con las herramientas de desarrollo (para investigar)",
         "risk": "Continuar con todas las funciones, bajo mi responsabilidad",
         "risk_body": "El firmware {} no se ha verificado: los cambios en el control parental o en el reloj pueden tener efectos inesperados o hacer que la consola se cuelgue.\n\nVerifique cada resultado y exporte un diagnóstico si algo parece incorrecto.",
-        "risk_confirm": "Continuar bajo mi responsabilidad",
+        "risk_confirm": "Asumir el riesgo",
         "remember": "Recordar esta elección para este firmware y esta versión",
         "note": "Puede volver a esta pantalla desde Herramientas e info › Compatibilidad.",
         "update_toast": "PlayGuard {} es compatible con el firmware {}: Herramientas e info › Buscar actualizaciones."

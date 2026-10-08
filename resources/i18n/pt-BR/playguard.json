@@ -111,7 +111,7 @@
         "probe": "Somente leitura com as ferramentas de desenvolvedor (para investigar)",
         "risk": "Continuar com todos os recursos, por minha conta e risco",
         "risk_body": "O firmware {} não foi verificado: alterar o controle dos pais ou o relógio pode se comportar de outra forma ou travar o console.\n\nConfira cada resultado e exporte um diagnóstico se algo parecer errado.",
-        "risk_confirm": "Continuar por minha conta e risco",
+        "risk_confirm": "Assumir o risco",
         "remember": "Lembrar esta escolha para este firmware e esta versão",
         "note": "Você pode voltar a esta tela em Ferramentas e info › Compatibilidade.",
         "update_toast": "O PlayGuard {} é compatível com o firmware {}: Ferramentas e info › Procurar atualizações."

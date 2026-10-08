@@ -111,7 +111,7 @@
         "probe": "Só de leitura com as ferramentas de programador (para investigar)",
         "risk": "Continuar com todas as funções, por minha conta e risco",
         "risk_body": "O firmware {} não foi verificado: alterar o controlo parental ou o relógio pode ter um comportamento diferente ou causar uma falha da consola.\n\nVerifique cada resultado e exporte um diagnóstico se algo parecer errado.",
-        "risk_confirm": "Continuar por minha conta e risco",
+        "risk_confirm": "Assumir o risco",
         "remember": "Lembrar esta escolha para este firmware e esta versão",
         "note": "Pode voltar a este ecrã em Ferramentas e info › Compatibilidade.",
         "update_toast": "O PlayGuard {} suporta o firmware {}: Ferramentas e info › Procurar atualizações."
