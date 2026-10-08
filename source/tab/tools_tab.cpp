@@ -5,6 +5,7 @@
 
 #include "action/backup_flow.hpp"
 #include "action/fw_gate.hpp"
+#include "action/pt_block_flow.hpp"
 #include "action/update_flow.hpp"
 #include "activity/diagnostic_activity.hpp"
 #include "activity/firmware_gate_activity.hpp"
@@ -219,6 +220,10 @@ ToolsTab::ToolsTab()
         brls::Application::pushActivity(new DiagnosticActivity());
         return true;
     });
+    dev_pt_block->registerClickAction([](brls::View*) {
+        pt_block_flow::open();
+        return true;
+    });
     dev_gate->registerClickAction([](brls::View*) {
         brls::Application::pushActivity(new FirmwareGateActivity());
         return true;
@@ -321,6 +326,7 @@ void ToolsTab::refresh()
                           { dev_mode.getView(), dev },
                           { dev_read_only.getView(), dev },
                           { dev_report.getView(), dev },
+                          { dev_pt_block.getView(), dev },
                           { dev_gate.getView(), dev && fw_gate::needed() },
                           { dev_forget.getView(), dev } });
     mode->setDetailText(si.applet_mode ? "playguard/tools/mode_applet"_i18n : "playguard/tools/mode_app"_i18n);

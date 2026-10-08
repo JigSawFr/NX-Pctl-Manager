@@ -27,6 +27,12 @@
  *   1044 GetFreeCommunicationApplicationList <- u32 offset -> u32 count + Out|MapAlias buffer
  *        (FreeCommunicationApplicationInfo, layout not documented: only dumped raw)
  *   1043 DeleteSettings                   (no args) privileged -- IRREVERSIBLE
+ *   1903 GetExemptApplicationListCountForDebug [5.0.0+] -> u32, and
+ *   1904 GetExemptApplicationListForDebug [5.0.0+], read like 1039 / 1044
+ *        (no published signature: taken to mirror them; dumped raw, 1904
+ *        only when 1903 counts an entry)
+ *   Not called: 9401/9402 GetEvents(WithJson) [20.0.0+] and 1404/1411/1421
+ *   (paired account): no published signature, and 1404 may go online.
  *   1062 GetStereoVisionRestriction       -> bool [4.0.0+]   1063 Set… <- bool
  *   1201 UnlockRestrictionTemporarily     <- PIN, In|HipcPointer buffer, NUL-terminated
  *                                            (MapAlias or no buffer => 0xF601 session closed;
@@ -641,6 +647,30 @@ void pctl_dump(char *buf, size_t bufsz)
           if (n) rep_hex(&p, e, list, n);
       } else {
           rep(&p, e, "-\n");
+      } }
+
+    // Software exempt from the restrictions (a debug list, expected empty).
+    if (!(srv = dump_session(&p, e, "1903"))) goto done;
+    { u32 exempt = 0;
+      Result r = rd_u32(srv, 1903, &exempt);
+      rep(&p, e, "%6u %-38s rc=0x%08X  ", 1903u, "GetExemptApplicationListCountForDebug", (unsigned)r);
+      if (R_SUCCEEDED(r)) rep(&p, e, "%u\n", (unsigned)exempt); else rep(&p, e, "-\n");
+      if (R_SUCCEEDED(r) && exempt > 0) {
+          if (!(srv = dump_session(&p, e, "1904"))) goto done;
+          u8 list[0x200]; memset(list, 0, sizeof(list));
+          u32 offset = 0, count = 0;
+          Result lr = serviceDispatchInOut(srv, 1904, offset, count,
+              .buffer_attrs = { SfBufferAttr_HipcMapAlias | SfBufferAttr_Out },
+              .buffers      = { { list, sizeof(list) } });
+          rep(&p, e, "%6u %-38s rc=0x%08X  ", 1904u, "GetExemptApplicationListForDebug(0)", (unsigned)lr);
+          if (R_SUCCEEDED(lr)) {
+              rep(&p, e, "count=%u\n", (unsigned)count);
+              size_t n = (size_t)count * 8;   // an application ID each, expected
+              if (n > sizeof(list)) n = sizeof(list);
+              if (n) rep_hex(&p, e, list, n);
+          } else {
+              rep(&p, e, "-\n");
+          }
       } }
 
     // GetPinCode is probed for compatibility only: the output buffer and the
