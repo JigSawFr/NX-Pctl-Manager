@@ -28,7 +28,7 @@
         "not_set": "Sin definir",
         "no_limit": "Sin límite",
         "no_limit_in_text": "sin límite",
-        "zero_minutes": "0 min (sin juego)",
+        "zero_minutes": "0 min (sin jugar)",
         "line": "{}: {}",
         "minutes": "{} min",
         "min_sec": "{} min {} s",
@@ -71,15 +71,15 @@
         "6": "Sáb"
     },
     "numpad": {
-        "guide": "Horas:minutos (1:30) o minutos (90), hasta 24:00. 0 = sin juego ese día."
+        "guide": "Horas:minutos (1:30) o minutos (90), hasta 24:00. 0 = sin jugar ese día."
     },
     "error": {
         "code": "error {}",
         "code_hint": "error {}: {}",
         "read_only": "el modo de solo lectura está activado",
-        "write_gated": "el temporizador de juego está en marcha; desbloquee antes temporalmente el control parental",
+        "write_gated": "el temporizador de juego está en marcha; primero desbloquee temporalmente el control parental",
         "fw_unsupported": "no compatible con este firmware",
-        "unlock_not_effective": "el sistema no confirmó el desbloqueo temporal; use el icono del control parental en el menú HOME e inténtelo de nuevo",
+        "unlock_not_effective": "el sistema no confirmó el desbloqueo temporal; use el ícono de Control parental del menú HOME e inténtelo de nuevo",
         "not_custom": "elija primero el nivel de restricción “Personalizado”",
         "invalid_argument": "valor no válido",
         "autocorrect_off": "active primero “Sincronizar el reloj por Internet” en la configuración de la consola",
@@ -110,7 +110,7 @@
         "read_only_short": "Solo lectura",
         "probe": "Solo lectura con las herramientas de desarrollo (para investigar)",
         "risk": "Continuar con todas las funciones, bajo mi responsabilidad",
-        "risk_body": "El firmware {} no se ha verificado: cambiar el control parental o el reloj puede comportarse de otra forma o bloquear la consola.\n\nVerifique cada resultado y exporte un diagnóstico si algo parece incorrecto.",
+        "risk_body": "El firmware {} no se ha verificado: los cambios en el control parental o en el reloj pueden tener efectos inesperados o hacer que la consola se cuelgue.\n\nVerifique cada resultado y exporte un diagnóstico si algo parece incorrecto.",
         "risk_confirm": "Continuar bajo mi responsabilidad",
         "remember": "Recordar esta elección para este firmware y esta versión",
         "note": "Puede volver a esta pantalla desde Herramientas › Compatibilidad.",
@@ -135,7 +135,7 @@
         "gauge_known": "Jugado: {} de {}",
         "gauge_none": "Sin límite de tiempo de juego hoy",
         "gauge_none_played": "Sin límite hoy · jugado: {}",
-        "gauge_log": "≈ {} jugado de {} (registro de actividad)",
+        "gauge_log": "Jugado: ≈ {} de {} (registro de actividad)",
         "remaining_log": "≈ {}",
         "gauge_unknown": "Tiempo de juego no disponible",
         "gauge_reached": "Se alcanzó el límite de hoy",
@@ -171,7 +171,7 @@
         "stop_confirm": "Parar por hoy",
         "stop_done": "No se juega más hoy.",
         "stop_restore_body": "El {}, el límite del {} se fijó en {} solo para ese día. ¿Volver a dejarlo en {}?",
-        "applet": "PlayGuard se está ejecutando como applet (abierto desde el álbum), con poca memoria: una exportación o una lista larga de actividad puede fallar. Para usar la aplicación completa, ábrala manteniendo presionado R al iniciar un juego."
+        "applet": "PlayGuard se está ejecutando como applet (abierto desde el Álbum), con poca memoria: una exportación o una lista larga en Actividad puede fallar. Para usar la aplicación completa, ábrala manteniendo presionado R al iniciar un juego."
     },
     "onboarding": {
         "title": "Primeros pasos",
@@ -186,7 +186,7 @@
         "todo": "Pendiente",
         "step_unlink": "4. Desvincular la app para celular (su próxima sincronización lo desharía)",
         "at_start": "Mostrar al iniciar mientras no haya PIN",
-        "note": "El PIN es el de la propia consola; el límite se verifica con el reloj de red, así que debe ser preciso.",
+        "note": "El PIN es el de la propia consola; el límite se calcula con el reloj de red, así que debe ser preciso.",
         "close": "Cerrar"
     },
     "compat": {
@@ -201,7 +201,7 @@
         "state": {
             "active": "Temporizador activo",
             "inactive": "Temporizador desactivado",
-            "remaining_short": "{} restantes hoy",
+            "remaining_short": "Quedan {} hoy",
             "unlocked_short": "desbloqueado temporalmente, no se cuenta",
             "reached_alert": "Se alcanzó el límite de hoy: el juego se suspendió.",
             "not_set": "Sin límite",
@@ -229,7 +229,7 @@
         "profiles_section_new": "Nuevo perfil",
         "profiles_hint": "A en un perfil: aplicarlo, editar sus límites, cambiarle el nombre o eliminarlo.",
         "profile_current": "{} (actual)",
-        "profile_range": "{} a {}",
+        "profile_range": "De {} a {}",
         "profile_saved": "Perfil “{}” guardado.",
         "profile_renamed": "Perfil renombrado: {}.",
         "profile_save_err": "No se pudo guardar el perfil",
@@ -313,7 +313,7 @@
         "account_all": "Todas las cuentas",
         "today": "Hoy",
         "week": "Últimos 7 días",
-        "all_time": "Desde siempre",
+        "all_time": "Total",
         "section_game_time": "Tiempo de juego",
         "section_accounts": "Por cuenta de usuario",
         "accounts_none": "Ninguna cuenta tiene datos de este juego (los juegos eliminados solo conservan sus totales).",
@@ -337,12 +337,12 @@
             "today": "Hoy (min)",
             "week": "Últimos 7 días (min)",
             "day": "{} (min)",
-            "total": "Desde siempre (min)"
+            "total": "Total (min)"
         },
         "periods": {
             "0": "Hoy",
             "1": "Últimos 7 días",
-            "2": "Desde siempre"
+            "2": "Total"
         },
         "loading": "Leyendo los datos de juego de la consola…",
         "none": {
@@ -375,7 +375,7 @@
         "custom_hint": "Después, elija cada restricción a continuación.",
         "section_custom": "Ajustes personalizados",
         "section_level_settings": "Qué restringe este nivel",
-        "age": "Restringir programas por clasificación por edades",
+        "age": "Restringir software por clasificación por edad",
         "age_none": "Sin restricción",
         "age_value": "Hasta {} años",
         "sns": "Restringir publicaciones en redes sociales",
@@ -384,9 +384,9 @@
         "section_other": "Otros",
         "vr": "Restringir el modo RV",
         "org": "Sistema de clasificación",
-        "confirm_org": "¿Usar las clasificaciones por edades de {}? El límite de edad del nivel de restricción se interpreta con las clasificaciones de esta organización.",
-        "free_comm": "Programas autorizados a comunicarse",
-        "free_comm_value": "{} programa(s)",
+        "confirm_org": "¿Usar las clasificaciones por edad de {}? El límite de edad del nivel de restricción se interpreta con las clasificaciones de esta organización.",
+        "free_comm": "Software autorizado a comunicarse",
+        "free_comm_value": "{} título(s)",
         "note": "Es la misma configuración que en Configuración de la consola › Control parental.",
         "saved": "Restricción guardada.",
         "save_err": "No se pudo guardar la restricción"
@@ -483,7 +483,7 @@
         "section_danger": "Zona de peligro",
         "delete": "Eliminar todo el control parental",
         "delete_body": "¿Eliminar todo el control parental?\n\nEsto borra el PIN, todas las restricciones y el límite de tiempo de juego. No se puede deshacer, pero antes se guarda un respaldo de la configuración (sin el PIN) en la tarjeta SD: Herramientas › Restaurar un respaldo.",
-        "delete_body2": "Última comprobación: ¿eliminarlo todo ahora?",
+        "delete_body2": "Última confirmación: ¿eliminarlo todo ahora?",
         "delete_confirm": "Eliminar",
         "delete_confirm2": "Eliminar definitivamente",
         "deleted": "Control parental eliminado.",
@@ -500,7 +500,7 @@
         },
         "notes": {
             "off": "Cualquiera que tenga la consola puede cambiar aquí la configuración.",
-            "changes": "Cualquiera puede consultar; solo el adulto cambia algo (se vuelve a pedir tras 5 minutos). Volver a bloquear nunca lo pide.",
+            "changes": "Cualquiera puede consultar; solo el padre o la madre puede cambiar algo (se vuelve a pedir tras 5 minutos). Volver a bloquear nunca lo pide.",
             "open": "Una pantalla de bloqueo hasta que se ingresa el PIN. Volver a bloquear nunca lo pide."
         },
         "no_pin": "Defina primero un PIN (Definir o cambiar el PIN).",
@@ -586,7 +586,7 @@
         "compat_ok_info": "Este firmware se verificó con PlayGuard: todas las funciones están disponibles.",
         "mode": "Modo de inicio",
         "mode_app": "Aplicación (memoria completa)",
-        "mode_applet": "Applet (iniciado desde el álbum)",
+        "mode_applet": "Applet (iniciado desde el Álbum)",
         "data": "Carpeta de datos",
         "license": "Licencia",
         "license_value": "GPLv3 · Interfaz: borealis (Apache 2.0)",
@@ -602,7 +602,7 @@
         },
         "update": "Buscar actualizaciones",
         "update_daily": "Buscar actualizaciones cada día",
-        "update_last": "Última comprobación: {}",
+        "update_last": "Última búsqueda: {}",
         "flag_read_only": "solo lectura",
         "flag_dev": "desarrollador"
     },
@@ -639,7 +639,7 @@
         "available_no_fw": "Aún no es compatible con el firmware {}.",
         "up_to_date": "PlayGuard {} es la versión más reciente.",
         "failed": "No se pudieron buscar actualizaciones ({}).",
-        "manual_body": "Para actualizar, abra sphaira (su menú GitHub ya conoce PlayGuard) o Homebrew App Store, o descargue playguard.nro desde {} y cópielo en /switch/playguard/ de la tarjeta SD.",
+        "manual_body": "Para actualizar, abra sphaira (su menú GitHub ya conoce PlayGuard) o la Homebrew App Store, o descargue playguard.nro desde {} y cópielo en /switch/playguard/ de la tarjeta SD.",
         "open_body": "PlayGuard se cerrará y abrirá {}. Busque allí PlayGuard para actualizarlo.",
         "open_confirm": "Abrir {}",
         "update_with": "Actualizar con {}",
@@ -654,7 +654,7 @@
         "report_title": "Informe de diagnóstico",
         "report_save": "Guardar",
         "pt_block": "Comparar el bloque del temporizador",
-        "pt_block_intro": "¿Guardar la configuración del temporizador de juego tal como está ahora, como referencia?\n\nDespués, cambie un solo ajuste en la app Control parental de Nintendo Switch, deje que la consola se sincronice y vuelva aquí: PlayGuard mostrará los valores que cambiaron. Así se pueden descifrar los ajustes que PlayGuard aún no muestra (hora de dormir, solo alarma o suspender el programa).",
+        "pt_block_intro": "¿Guardar la configuración del temporizador de juego tal como está ahora, como referencia?\n\nDespués, cambie un solo ajuste en la app Control parental de Nintendo Switch, deje que la consola se sincronice y vuelva aquí: PlayGuard mostrará los valores que cambiaron. Así se pueden descifrar los ajustes que PlayGuard aún no muestra (hora de dormir, solo alarma o suspender el software).",
         "pt_block_save": "Guardar la referencia",
         "pt_block_saved": "Referencia guardada.",
         "pt_block_save_err": "No se pudo guardar la referencia",
@@ -718,7 +718,7 @@
             "profile": "Perfil “{}”"
         },
         "when": "Cuándo",
-        "how": "Desde",
+        "how": "Origen",
         "before": "Antes",
         "after": "Después",
         "needs_advanced": "Para restablecerlo hace falta “Mostrar acciones avanzadas del temporizador” (Preferencias).",

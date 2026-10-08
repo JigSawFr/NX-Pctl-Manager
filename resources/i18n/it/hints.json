@@ -3,12 +3,12 @@
     "cancel": "Annulla",
     "back": "Indietro",
     "exit": "Esci",
-    "exit_hint": "Si sta per uscire dall'applicazione",
+    "exit_hint": "Stai per uscire dall'applicazione",
     "open": "Apri",
     "on": "Attivato",
     "off": "Disattivato",
     "delete": "Elimina",
     "save": "Salva",
-    "input": "Inserire...",
+    "input": "Inserisci...",
     "submit": "Conferma"
 }

@@ -3,12 +3,12 @@
     "cancel": "Cancelar",
     "back": "Voltar",
     "exit": "Sair",
-    "exit_hint": "Vai sair desta app",
+    "exit_hint": "Vai sair desta aplicação",
     "open": "Abrir",
     "on": "Ativado",
     "off": "Desativado",
     "delete": "Eliminar",
     "save": "Guardar",
-    "input": "Inserir",
+    "input": "Introduzir",
     "submit": "Confirmar"
 }

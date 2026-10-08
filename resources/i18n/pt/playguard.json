@@ -10,14 +10,14 @@
         "activity": "Atividade",
         "restrictions": "Restrições",
         "clock": "Relógio de rede",
-        "security": "Segurança e app",
+        "security": "Segurança e aplicação",
         "preferences": "Preferências",
         "tools": "Ferramentas e info"
     },
     "hints": {
         "refresh": "Atualizar",
         "open": "Abrir",
-        "exit_again": "Pressione B novamente para sair"
+        "exit_again": "Prima B novamente para sair"
     },
     "common": {
         "yes": "Sim",
@@ -40,8 +40,8 @@
         "quit": "Sair",
         "delete": "Eliminar",
         "applied": "Guardado.",
-        "restart_body": "Guardado. A alteração aplica-se da próxima vez que a app for aberta.\n\nSair agora?",
-        "read_only_note": "Modo só de leitura: por enquanto, nada pode ser alterado a partir desta app."
+        "restart_body": "Guardado. A alteração aplica-se da próxima vez que a aplicação for iniciada.\n\nSair agora?",
+        "read_only_note": "Modo só de leitura: por enquanto, nada pode ser alterado a partir desta aplicação."
     },
     "days": {
         "0": "Domingo",
@@ -84,7 +84,7 @@
         "invalid_argument": "valor inválido",
         "autocorrect_off": "ative primeiro \"Sincronizar relógio através da Internet\" nas Definições da consola",
         "state_unknown": "não foi possível ler o estado atual do temporizador de jogo, por isso nada foi escrito",
-        "not_confirmed": "o PIN não foi inserido, por isso nada foi alterado",
+        "not_confirmed": "o PIN não foi introduzido, por isso nada foi alterado",
         "no_pin": "não está definido nenhum PIN de controlo parental",
         "session_closed": "o sistema fechou a sessão do controlo parental; tente novamente",
         "bad_pin_format": "o sistema recusou o formato do PIN",
@@ -113,8 +113,8 @@
         "risk_body": "O firmware {} não foi verificado: alterar o controlo parental ou o relógio pode ter um comportamento diferente ou causar uma falha da consola.\n\nVerifique cada resultado e exporte um diagnóstico se algo parecer errado.",
         "risk_confirm": "Continuar por minha conta e risco",
         "remember": "Lembrar esta escolha para este firmware e esta versão",
-        "note": "Pode voltar a esta escolha em Ferramentas › Compatibilidade.",
-        "update_toast": "O PlayGuard {} suporta o firmware {}: Ferramentas › Procurar atualizações."
+        "note": "Pode voltar a este ecrã em Ferramentas e info › Compatibilidade.",
+        "update_toast": "O PlayGuard {} suporta o firmware {}: Ferramentas e info › Procurar atualizações."
     },
     "dashboard": {
         "section_status": "Controlo parental",
@@ -145,7 +145,7 @@
         "clock": "Relógio de rede",
         "clock_ok": "Preciso",
         "clock_bad": "Impreciso",
-        "pairing": "App móvel",
+        "pairing": "Aplicação móvel",
         "pairing_on": "Vinculada",
         "pairing_off": "Não vinculada",
         "serial": "Número de série",
@@ -171,20 +171,20 @@
         "stop_confirm": "Parar por hoje",
         "stop_done": "Jogo terminado por hoje.",
         "stop_restore_body": "Em {}, o limite de {} foi definido para {} apenas nesse dia. Repor o limite em {}?",
-        "applet": "O PlayGuard está a ser executado como applet (aberto a partir do álbum), com pouca memória: uma exportação ou uma lista de Atividade longa podem falhar. Para a app completa, abra-a mantendo R pressionado ao iniciar um jogo."
+        "applet": "O PlayGuard está a ser executado como applet (aberto a partir do álbum), com pouca memória: uma exportação ou uma lista longa em Atividade podem falhar. Para usar a aplicação completa, abra-a mantendo premido o botão R ao iniciar um jogo."
     },
     "onboarding": {
         "title": "Primeiros passos",
         "open": "Primeiros passos…",
         "pin_missing": "Ainda sem PIN",
-        "headline": "Três passos e a consola fica protegida. A num passo executa-o.",
+        "headline": "Três passos e a consola fica protegida. Prima A num passo para o executar.",
         "all_done": "Tudo pronto: a consola está protegida. Pode voltar aqui a qualquer momento em Ferramentas e info.",
         "section_steps": "Passos",
         "step_pin": "1. Definir um PIN de controlo parental",
         "step_limit": "2. Escolher um limite diário de tempo de jogo",
         "step_clock": "3. Verificar o relógio de rede",
         "todo": "Por fazer",
-        "step_unlink": "4. Desvincular a app móvel (a próxima sincronização anularia isto)",
+        "step_unlink": "4. Desvincular a aplicação móvel (a próxima sincronização anularia isto)",
         "at_start": "Mostrar ao iniciar enquanto não houver PIN",
         "note": "O PIN é o da própria consola; o limite é verificado com o relógio de rede, que tem de estar preciso.",
         "close": "Fechar"
@@ -196,7 +196,7 @@
         "not_ams": "Atmosphère não encontrado"
     },
     "play_timer": {
-        "fw_too_old": "O temporizador de jogo requer o firmware 21.0.0 ou mais recente. O resto da app continua a funcionar.",
+        "fw_too_old": "O temporizador de jogo requer o firmware 21.0.0 ou mais recente. Os outros separadores continuam a funcionar.",
         "fw_too_old_short": "Requer firmware 21.0.0+",
         "state": {
             "active": "Temporizador ativo",
@@ -249,7 +249,7 @@
         "bedtime_value_on": "{} (ativado)",
         "bedtime_value_off": "{} (desativado)",
         "bedtime_reset": "O alarme é reposto às",
-        "bedtime_note": "Por enquanto, o alarme de hora de dormir só pode ser alterado na app móvel.",
+        "bedtime_note": "Por enquanto, o alarme de hora de dormir só pode ser alterado na aplicação móvel.",
         "section_advanced": "Avançado",
         "alarm": "Alarme \"Tempo esgotado\"",
         "pause": "Pausar a contagem",
@@ -290,7 +290,7 @@
             "section_save": "Guardar",
             "save": "Guardar estes limites",
             "pick_title": "{}: limite",
-            "pick_minutes": "Inserir uma duração…",
+            "pick_minutes": "Introduzir uma duração…",
             "pick_no_limit": "Sem limite",
             "unsaved_count": "{} alteração(ões) por guardar",
             "save_hint": "Guardar ({})",
@@ -384,7 +384,7 @@
         "section_other": "Outros",
         "vr": "Restringir o modo VR",
         "org": "Organismo de classificação",
-        "confirm_org": "Usar as classificações {}? O limite de idade do nível de restrição é lido com as classificações deste organismo.",
+        "confirm_org": "Usar as classificações etárias {}? O limite de idade do nível de restrição é interpretado segundo as classificações deste organismo.",
         "free_comm": "Software autorizado a comunicar",
         "free_comm_value": "{} título(s)",
         "note": "São as mesmas opções que em Definições da consola › Controlo parental.",
@@ -398,11 +398,11 @@
         "accuracy": "Relógio de rede preciso",
         "auto": "Sincronizar relógio através da Internet",
         "zone": "Fuso horário",
-        "why": "O temporizador de jogo depende do relógio de rede. Quando este é impreciso (uma consola que nunca chega aos servidores da Nintendo), acerte-o aqui a partir de um servidor de hora público.",
+        "why": "O temporizador de jogo depende do relógio de rede. Quando este é impreciso (uma consola que nunca se liga aos servidores da Nintendo), acerte-o aqui a partir de um servidor de hora público.",
         "section_server": "Servidor de hora",
         "region": "Região",
         "server": "Servidor",
-        "custom": "Inserir um nome de servidor…",
+        "custom": "Introduzir um nome de servidor…",
         "custom_header": "Nome ou endereço IP do servidor NTP",
         "region_names": {
             "global": "Mundial (pool.ntp.org)",
@@ -422,7 +422,7 @@
         "result_line_err": "{}: {}",
         "result_summary": "Hora mediana: {}\nDiferença do relógio de rede: {}",
         "result_spread": "Atenção: os servidores diferem {} s entre si.",
-        "result_none": "Nenhum servidor respondeu. Verifique a conexão à Internet.",
+        "result_none": "Nenhum servidor respondeu. Verifique a ligação à Internet.",
         "need_measure": "Meça primeiro (uma medição é válida durante 2 minutos).",
         "expired": "A medição tem mais de 2 minutos. Meça novamente.",
         "valid_for": "Válida por mais {}",
@@ -439,26 +439,26 @@
         "autosync_off_note": "Para acertar o relógio de rede com base nesta medição, ative primeiro \"Sincronizar relógio através da Internet\" nas Definições da consola.",
         "ntp_err": {
             "bad_host": "não é um nome de servidor",
-            "lookup": "servidor não encontrado (sem conexão à Internet?)",
+            "lookup": "servidor não encontrado (sem ligação à Internet?)",
             "network": "erro de rede",
             "timeout": "sem resposta",
             "bad_reply": "resposta inválida"
         },
-        "start_off": "O relógio de rede tem uma diferença de {} (verificado com {}). O temporizador de jogo depende dele: consulte Relógio de rede.",
+        "start_off": "O relógio de rede tem uma diferença de {} (verificado com {}). O temporizador de jogo depende dele: consulte o separador Relógio de rede.",
         "guided_body": "O relógio de rede está impreciso, e o temporizador de jogo depende dele.\n\nMedir a hora com {} agora? (A consola tem de estar online.) Antes de o relógio ser acertado, será pedida confirmação.",
         "guided_measure": "Medir agora",
         "guided_fine": "O relógio de rede está preciso: nada a fazer."
     },
     "pairing": {
-        "section": "App Controlo Parental Nintendo Switch",
-        "active": "Vinculada a um smartphone",
+        "section": "Aplicação Controlo Parental Nintendo Switch",
+        "active": "Vinculada a um telemóvel",
         "updated": "Última sincronização",
-        "unlink": "Desvincular a app móvel",
-        "unlink_body": "Desvincular a app móvel Controlo Parental Nintendo Switch desta consola?\n\nCaso contrário, a próxima sincronização substitui os limites definidos aqui.",
+        "unlink": "Desvincular a aplicação móvel",
+        "unlink_body": "Desvincular desta consola a aplicação móvel Controlo Parental Nintendo Switch?\n\nCaso contrário, a próxima sincronização substitui os limites definidos aqui.",
         "unlink_confirm": "Desvincular",
-        "unlinked": "App móvel desvinculada.",
-        "unlink_err": "Não foi possível desvincular a app móvel",
-        "note": "Enquanto a consola estiver vinculada, a app móvel substitui as definições feitas aqui na próxima sincronização."
+        "unlinked": "Aplicação móvel desvinculada.",
+        "unlink_err": "Não foi possível desvincular a aplicação móvel",
+        "note": "Enquanto a consola estiver vinculada, a aplicação móvel substitui as definições feitas aqui na próxima sincronização."
     },
     "security": {
         "section_status": "Estado",
@@ -468,7 +468,7 @@
         "section_actions": "Ações",
         "set_pin": "Definir ou alterar o PIN",
         "show_pin": "Mostrar o PIN",
-        "show_pin_body": "Mostrar o PIN?\n\nQualquer pessoa que esteja a ver poderá lê-lo: certifique-se de que a criança não está a olhar.",
+        "show_pin_body": "Mostrar o PIN no ecrã?\n\nQualquer pessoa que esteja a olhar para o ecrã poderá lê-lo: certifique-se de que a criança não está a ver.",
         "show_pin_confirm": "Mostrar",
         "show_pin_title": "PIN atual",
         "show_pin_err": "Não foi possível ler o PIN",
@@ -482,7 +482,7 @@
         "banner_action": "Bloquear agora",
         "section_danger": "Zona de perigo",
         "delete": "Eliminar todo o controlo parental",
-        "delete_body": "Eliminar todo o controlo parental?\n\nIsto apaga o PIN, todas as restrições e o limite de tempo de jogo. Não pode ser anulado, mas antes é guardada uma cópia de segurança das definições (sem o PIN) no cartão SD: Ferramentas › Restaurar uma cópia de segurança.",
+        "delete_body": "Eliminar todo o controlo parental?\n\nIsto apaga o PIN, todas as restrições e o limite de tempo de jogo. Não pode ser anulado, mas antes é guardada uma cópia de segurança das definições (sem o PIN) no cartão SD: Ferramentas e info › Restaurar uma cópia de segurança.",
         "delete_body2": "Última verificação: eliminar tudo agora?",
         "delete_confirm": "Eliminar",
         "delete_confirm2": "Eliminar definitivamente",
@@ -501,13 +501,13 @@
         "notes": {
             "off": "Qualquer pessoa com a consola na mão pode alterar as definições aqui.",
             "changes": "Todos podem consultar; só o responsável altera algo (pedido novamente após 5 minutos). Voltar a bloquear nunca o pede.",
-            "open": "Um bloqueio até o PIN ser inserido. Voltar a bloquear nunca o pede."
+            "open": "Um ecrã de bloqueio até o PIN ser introduzido. Voltar a bloquear nunca o pede."
         },
         "no_pin": "Defina primeiro um PIN (Definir ou alterar o PIN).",
         "set": "Pedir o PIN: {}",
         "locked_title": "O PlayGuard está bloqueado",
-        "locked_body": "Insira o PIN de controlo parental para o abrir.",
-        "enter": "Inserir o PIN"
+        "locked_body": "Introduza o PIN de controlo parental para o abrir.",
+        "enter": "Introduzir o PIN"
     },
     "tools": {
         "section_diag": "Diagnóstico",
@@ -564,14 +564,14 @@
         "serial_note_emummc": "Esta emuMMC usa o número de série real da consola: se ficar online, os servidores da Nintendo veem-no. Para o ocultar, defina blank_prodinfo_emummc=1 em atmosphere/config/exosphere.ini e reinicie (o Atmosphère avisa que a ocultação não é garantidamente segura).",
         "patches": "Patches de jogos",
         "patches_syspatch": "sys-patch",
-        "patches_files": "Sigpatches ({})",
+        "patches_files": "Ficheiros sigpatch ({})",
         "patches_incomplete": "sys-patch, incompleto",
         "patches_none": "Nenhum encontrado",
-        "patches_note_files": "Recomenda-se agora usar o sys-patch: aplica patches ao sistema sempre que a consola inicia, em vez de sigpatches que têm de corresponder a cada versão do firmware.",
-        "patches_note_redundant": "O sys-patch está ativo: os sigpatches ({}) já não são necessários.",
+        "patches_note_files": "Recomenda-se agora usar o sys-patch: aplica patches ao sistema sempre que a consola arranca, em vez de ficheiros que têm de corresponder a cada versão do firmware.",
+        "patches_note_redundant": "O sys-patch está ativo: os ficheiros sigpatch ({}) já não são necessários.",
         "patches_note_not_at_boot": "O sys-patch está instalado, mas não é iniciado com a consola: ative-o no overlay de sysmodules (ou crie atmosphere/contents/420000000000000B/flags/boot2.flag) e reinicie.",
-        "patches_note_no_log": "O sys-patch não deixou registo desde o último reinício, por isso não é possível verificar o que aplicou: defina enable_logging=1 em config/sys-patch/config.ini e reinicie.",
-        "patches_note_stale": "O registo do sys-patch foi escrito para o firmware {} no {}: não foi executado desde o último reinício.",
+        "patches_note_no_log": "O sys-patch não deixou registo neste arranque, por isso não é possível verificar o que aplicou: defina enable_logging=1 em config/sys-patch/config.ini e reinicie.",
+        "patches_note_stale": "O registo do sys-patch foi escrito para o firmware {} em {}: o sys-patch não foi executado neste arranque.",
         "patches_note_skipped": "O sys-patch está desativado para este armazenamento: defina {}=1 em config/sys-patch/config.ini e reinicie.",
         "patches_note_unpatched": "O sys-patch não aplicou: {}. Atualize o sys-patch para este firmware.",
         "auto_relock": "Bloquear novamente após uma alteração",
@@ -585,7 +585,7 @@
         "compat": "Compatibilidade",
         "compat_ok_info": "Este firmware foi verificado com o PlayGuard: todas as funções estão disponíveis.",
         "mode": "Modo de execução",
-        "mode_app": "App (memória completa)",
+        "mode_app": "Aplicação (memória completa)",
         "mode_applet": "Applet (aberto a partir do álbum)",
         "data": "Pasta de dados",
         "license": "Licença",
@@ -607,7 +607,7 @@
         "flag_dev": "programador"
     },
     "prefs": {
-        "section_app": "App",
+        "section_app": "Aplicação",
         "section_play_timer": "Temporizador de jogo",
         "section_startup": "Ao iniciar",
         "note": "As cópias de segurança, as atualizações, o relatório de diagnóstico e a consola estão em Ferramentas e info."
@@ -626,7 +626,7 @@
         "same_count": "{} outra(s) definição(ões) já são iguais.",
         "restore_confirm": "Restaurar",
         "not_restored_advanced": " (não restaurado: as ações avançadas do temporizador estão desativadas)",
-        "no_pin_note": "Esta consola não tem PIN definido: a cópia de segurança não contém nenhum. Defina-o depois em Segurança e app.",
+        "no_pin_note": "Esta consola não tem PIN definido: a cópia de segurança não contém nenhum. Defina-o depois em Segurança e aplicação.",
         "restored": "Definições restauradas.",
         "restore_err": "Não restaurado: {}",
         "before_delete_err": "Não foi possível criar antes uma cópia de segurança ({}).\n\nEliminar tudo mesmo assim?",
@@ -635,11 +635,11 @@
     "update": {
         "checking": "A procurar atualizações…",
         "available": "O PlayGuard {} está disponível (esta é a {}).",
-        "available_toast": "O PlayGuard {} está disponível: Ferramentas › Procurar atualizações.",
+        "available_toast": "O PlayGuard {} está disponível: Ferramentas e info › Procurar atualizações.",
         "available_no_fw": "Ainda não suporta o firmware {}.",
         "up_to_date": "O PlayGuard {} é a versão mais recente.",
         "failed": "Não foi possível procurar atualizações ({}).",
-        "manual_body": "Para atualizar, abra o sphaira (o menu GitHub já conhece o PlayGuard) ou a Homebrew App Store, ou obtenha playguard.nro em {} e copie-o para /switch/playguard/ no cartão SD.",
+        "manual_body": "Para atualizar, abra o sphaira (o menu GitHub já conhece o PlayGuard) ou a Homebrew App Store, ou transfira o playguard.nro de {} e copie-o para /switch/playguard/ no cartão SD.",
         "open_body": "O PlayGuard vai fechar e abrir {}. Procure aí o PlayGuard para o atualizar.",
         "open_confirm": "Abrir {}",
         "update_with": "Atualizar com {}",
@@ -654,7 +654,7 @@
         "report_title": "Relatório de diagnóstico",
         "report_save": "Guardar",
         "pt_block": "Comparar o bloco do temporizador",
-        "pt_block_intro": "Guardar as definições atuais do temporizador de jogo como referência?\n\nDepois, altere uma definição na app Controlo Parental Nintendo Switch, deixe a consola sincronizar e volte aqui: o PlayGuard lista os valores que mudaram. É assim que se podem interpretar as definições que o PlayGuard ainda não mostra (hora de dormir, só alarme ou suspender o software).",
+        "pt_block_intro": "Guardar as definições atuais do temporizador de jogo como referência?\n\nDepois, altere uma definição na aplicação Controlo Parental Nintendo Switch, deixe a consola sincronizar e volte aqui: o PlayGuard lista os valores que mudaram. É assim que se podem interpretar as definições que o PlayGuard ainda não mostra (hora de dormir, só alarme ou suspender o software).",
         "pt_block_save": "Guardar a referência",
         "pt_block_saved": "Referência guardada.",
         "pt_block_save_err": "Não foi possível guardar a referência",
@@ -666,11 +666,11 @@
         "pt_block_new": "Nova referência",
         "gate": "Mostrar novamente o aviso de firmware",
         "forget": "Esquecer a escolha do firmware",
-        "forgotten": "A escolha do firmware será pedida novamente na próxima vez que a app for aberta.",
+        "forgotten": "A escolha do firmware será pedida novamente da próxima vez que a aplicação for iniciada.",
         "already_on": "O modo de programador já está ativo.",
-        "enabled": "Modo de programador ativo: veja o fim de Ferramentas.",
-        "presses_left": "Pressione mais {} vezes para ativar o modo de programador.",
-        "presses_left_one": "Pressione mais 1 vez para ativar o modo de programador."
+        "enabled": "Modo de programador ativo: veja o fim de Ferramentas e info.",
+        "presses_left": "Prima mais {} vezes para ativar o modo de programador.",
+        "presses_left_one": "Prima mais 1 vez para ativar o modo de programador."
     },
     "toast": {
         "diag_saved": "Diagnóstico guardado: {}",
@@ -699,7 +699,7 @@
             "pin": "PIN definido",
             "unlock": "Desbloqueio temporário",
             "relock": "Bloqueado novamente",
-            "unlink": "App móvel desvinculada",
+            "unlink": "Aplicação móvel desvinculada",
             "delete": "Todo o controlo parental eliminado",
             "clock": "Relógio da consola acertado",
             "restore": "Cópia de segurança restaurada"
