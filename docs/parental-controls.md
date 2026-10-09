@@ -121,9 +121,10 @@ Header, as seen so far:
 |---|---|---|
 | `00 01` | `01 01` | non-zero while a limit or a bedtime is set (observed) |
 | `02 03` | `01 00` | unknown, constant |
-| `04..06` | zeros | unknown |
-| `07` | `06` | unknown; there even in the "off" block, with every other byte zero (observed) |
-| `08..0B` | zeros | unknown; with `04..06`, candidates for the "alarm only" vs "suspend the software" choice and a daily mode |
+| `04..0B` | `00 00 00 06 00 00 00 00` | the same format as a day; probably the `DAILY` rule (hypothesis below). Its `06` stays even in the "off" block (observed) |
+
+The byte-by-byte reading of a real block is under
+[Reading a diagnostic report](#reading-a-diagnostic-report).
 
 One day (8 bytes):
 
@@ -151,6 +152,40 @@ as a reference (Developer tools › play-timer block), Sunday and Saturday were
 changed from 120 to 180 minutes in PlayGuard, then the block was read again.
 Only two bytes changed: `0x12` and `0x42`, both `78` → `B4`. The header, the
 flags and the bedtime bytes stayed as they were.
+
+### Hypothesis: the header is the modes plus a "daily" rule
+
+**Not verified.** The companion app's API, as reproduced by open-source
+clients ([pynintendoparental](https://github.com/pantherale0/pynintendoparental),
+used by Home Assistant, and
+[switch-parental-controls](https://github.com/udondan/switch-parental-controls)),
+describes the play timer with:
+
+- `restrictionMode`: `ALARM` (an alarm only) or `FORCED_TERMINATION` (the
+  software is suspended);
+- `timerMode`: `DAILY` (one rule for every day) or `EACH_DAY_OF_THE_WEEK`;
+- `dailyRegulations`: that one rule, and `eachDayOfTheWeekRegulations`: seven,
+  each with a limit and a bedtime.
+
+That is exactly eight rules and a few modes, and the block holds:
+
+- 12 header bytes = **4 mode bytes + one 8-byte rule**;
+- bytes `04..0B` follow the day format to the byte, down to the `06` of the
+  default 06:00 "allowed again" time at their +3, which no other header field
+  would explain;
+- that `06` stays when everything else is cleared, like a default.
+
+So the guess is: bytes `00..03` hold the modes (among them most likely
+`timerMode`, `01` = each day of the week, since every observed block uses the
+per-day rules, and `restrictionMode`), and bytes `04..0B` hold the `DAILY`
+rule. Which mode sits in which byte is open.
+
+How to test it, once a tool can write single bytes while the console is
+temporarily unlocked (with the block saved first and put back after):
+put a limit in the `04..0B` rule, set the byte that looks like `timerMode` to
+0, then read 1454 / 1459: the remaining time should follow the daily rule.
+For `restrictionMode`, let the time run out once with each value and note
+whether the software is suspended.
 
 ### Time spent and time left
 
@@ -199,11 +234,100 @@ The play timer counts per day, so the console's clocks matter.
   user clock, with automatic correction off and accuracy insufficient
   (observed, 22.0.0, every report of 2026-10-09).
 
+## Reading a diagnostic report
+
+The report prints what each command returns, raw. Three habits make it
+readable:
+
+- **Little-endian.** Every number the console sends is stored lowest byte
+  first. `78 00` is `0x0078` = 120; `00 C8 6E 7B 4C 01 00 00` is
+  `0x0000014C7B6EC800`.
+- **TimeSpan is in nanoseconds.** Divide by 1 000 000 000:
+  `0x0000014C7B6EC800` = 1 428 000 000 000 ns = 1428 s = 23 min 48 s.
+- **`rc=0x00000000` is success.** Anything else is a Horizon result code; the
+  value after it is then meaningless (the report prints `-`).
+
+### A free-communication list entry (1044)
+
+```
+00 60 CE 0E A0 C9 00 01   01   00 00 00 00 00 00 00
+└──────── u64 LE ───────┘  │   └─────── zeros ─────┘
+ application 0100C9A00ECE6000  unknown, always 01
+```
+
+### The play-timer block, byte by byte
+
+The block of the 20:10 report (22.0.0, 2026-10-09), as the report prints it:
+
+```
+01 01 01 00 00 00 00 06 00 00 00 00 00 00 00 06
+00 01 B4 00 00 00 00 06 00 01 00 00 00 00 00 06
+00 01 00 00 00 00 00 06 00 01 00 00 00 00 00 06
+00 01 00 00 00 00 00 06 00 01 78 00 00 00 00 06
+00 01 B4 00
+```
+
+Cut into its fields instead of rows of 16:
+
+```
+offset  bytes                     field
+0x00    01 01 01 00               header: four mode bytes (see the hypothesis below)
+0x04    00 00 00 06 00 00 00 00   an eighth rule? same format as a day, see below
+0x0C    00 00 00 06 00 01 B4 00   Sunday     limit on, 0x00B4 = 180 min
+0x14    00 00 00 06 00 01 00 00   Monday     limit on, 0 min: no play
+0x1C    00 00 00 06 00 01 00 00   Tuesday    limit on, 0 min
+0x24    00 00 00 06 00 01 00 00   Wednesday  limit on, 0 min
+0x2C    00 00 00 06 00 01 00 00   Thursday   limit on, 0 min
+0x34    00 00 00 06 00 01 78 00   Friday     limit on, 0x0078 = 120 min
+0x3C    00 00 00 06 00 01 B4 00   Saturday   limit on, 0x00B4 = 180 min
+```
+
+One day, field by field (Sunday above):
+
+```
+00   00   00   06   00   01   B4 00
+│    │    │    │    │    │    └───┴── limit, minutes, u16 LE: 0x00B4 = 180   verified
+│    │    │    │    │    └─────────── limit flag: 1 = this day has a limit    verified
+│    │    │    │    └──────────────── play allowed again, minute: 00          inferred
+│    │    │    └───────────────────── play allowed again, hour: 06            inferred
+│    │    └────────────────────────── bedtime alarm, minute                   inferred
+│    └─────────────────────────────── bedtime alarm, hour                     inferred
+└──────────────────────────────────── bedtime on                              inferred
+```
+
+The code (`source/core/pure.h`) reads the same block as 34 u16 instead of
+bytes. The `header=0101 0001` of the report is the first two: bytes `01 01`,
+then `01 00`. Because the header is 12 bytes, a day's u16 straddle its fields:
+a day's `[+0]` = `0x0600` is its bytes +2 and +3 (alarm minute, allowed-again
+hour), `[+1]` = `0x0100` its bytes +4 and +5 (allowed-again minute, limit
+flag), `[+2]` its minutes.
+
+The morning reports (no PIN, no limit) show the "everything off" block:
+
+```
+0x00    00 00 00 00               header: all zero
+0x04    00 00 00 06 00 00 00 00   only the 06 is left
+0x0C    00 00 00 00 00 00 00 00   Sunday … Saturday: all zero
+ …
+```
+
+### 1459, byte by byte
+
+From the same 20:10 report:
+
+```
+0x00  02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+      └ 02: today has a limit (00 without one; other values unknown)
+0x10  00 C8 6E 7B 4C 01 00 00 00 00 00 00 00 00 00 00
+      └──────── u64 LE ───────┘
+       0x0000014C7B6EC800 ns = 1428 s, the value 1454 returned
+```
+
 ## Still open
 
 - 1406 `GetSettingsLastUpdated` fails with `0x0001188E`: why?
-- The header bytes `02..0B`: where the "alarm only" vs "suspend the software"
-  choice is kept.
+- The header: which of bytes `00..03` is `timerMode`, which
+  `restrictionMode`; whether `04..0B` is the `DAILY` rule (hypothesis above).
 - The bedtime bytes with a bedtime actually on.
 - 1459's first byte; 1460's layout (23.0.0+).
 - When the time spent resets.
