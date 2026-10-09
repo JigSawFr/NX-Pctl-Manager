@@ -143,6 +143,11 @@ bool perform(const std::string& url, const Extra& x, std::string* body, std::str
     curl_slist_free_all(headers);
     if (status_out) *status_out = status;
 
+    // A refusal often comes as a large HTML page: say the status, not its size.
+    if (status >= 400) {
+        if (error) *error = "HTTP " + std::to_string(status);
+        return false;
+    }
     if (sink.overflow) {
         if (error) *error = "response too large";
         return false;
@@ -153,10 +158,6 @@ bool perform(const std::string& url, const Extra& x, std::string* body, std::str
     }
     if (rc != CURLE_OK) {
         if (error) *error = message[0] ? message : curl_easy_strerror(rc);
-        return false;
-    }
-    if (status >= 400) {
-        if (error) *error = "HTTP " + std::to_string(status);
         return false;
     }
     return true;

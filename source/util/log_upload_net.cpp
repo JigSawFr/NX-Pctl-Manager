@@ -25,9 +25,13 @@ Result upload(const std::string& text)
         status = 201;
     } else
 #endif
-    if (!http::post("https://dpaste.org/api/", form(text), "application/x-www-form-urlencoded", &body, &r.error,
-                    &status)) {
-        return r;
+    {
+        std::string type;
+        const std::string data = form(text, &type);
+        if (!http::post("https://dpaste.org/api/", data, type.c_str(), &body, &r.error, &status)) {
+            r.error = "dpaste.org: " + r.error;
+            return r;
+        }
     }
     if (!parse_reply(body, &r.url)) {
         r.error = "unexpected answer from dpaste.org (HTTP " + std::to_string(status) + ")";

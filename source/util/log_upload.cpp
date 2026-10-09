@@ -97,10 +97,20 @@ std::string issue_url(const std::string& repo_url, const std::string& paste_url,
     return url;
 }
 
-std::string form(const std::string& text)
+std::string form(const std::string& text, std::string* content_type)
 {
-    // "_text": shown as plain text, never highlighted as code.
-    return "content=" + url_encode(text) + "&format=url&lexer=_text&expires=" + std::to_string(EXPIRES_S);
+    std::string boundary = "PlayGuardBoundary";
+    for (int n = 0; text.find(boundary) != std::string::npos; n++) boundary = "PlayGuardBoundary" + std::to_string(n);
+    *content_type = "multipart/form-data; boundary=" + boundary;
+    std::string out;
+    auto field = [&](const char* name, const std::string& value) {
+        out += "--" + boundary + "\r\nContent-Disposition: form-data; name=\"" + name + "\"\r\n\r\n" + value + "\r\n";
+    };
+    field("content", text);
+    field("format", "url");
+    field("lexer", "_text");   // shown as plain text, never highlighted as code
+    field("expires", std::to_string(EXPIRES_S));
+    return out + "--" + boundary + "--\r\n";
 }
 
 std::string short_url(const std::string& url)

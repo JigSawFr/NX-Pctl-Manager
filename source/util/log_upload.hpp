@@ -20,8 +20,9 @@
 namespace log_upload
 {
 
-// dpaste.org refuses a request much over 500 KiB; the text is sent
-// percent-encoded (up to three times longer), and a report is about 30 KiB.
+// dpaste.org refuses a request much over 500 KiB. The text is sent as is
+// (multipart, not percent-encoded, which made a JSON file up to three times
+// longer and got a full bundle refused); a report is about 30 KiB.
 constexpr size_t MAX_BYTES = 160 * 1024;
 
 // How long dpaste.org keeps a paste, in seconds (one of the durations it accepts).
@@ -61,8 +62,10 @@ std::string url_encode(const std::string& text);
 std::string issue_url(const std::string& repo_url, const std::string& paste_url, const std::string& version,
                       const std::string& firmware, const std::string& atmosphere);
 
-// The form body of the upload: the text, the link as the answer, the expiry.
-std::string form(const std::string& text);
+// The form body of the upload (multipart/form-data): the text, the link as
+// the answer, the expiry. *content_type gets the type with its boundary,
+// one the text does not hold.
+std::string form(const std::string& text, std::string* content_type);
 
 // "https://dpaste.org/AbC1" -> "dpaste.org/AbC1": what to type by hand.
 std::string short_url(const std::string& url);
