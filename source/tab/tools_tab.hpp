@@ -41,6 +41,8 @@ class ToolsTab : public TabBase
     BRLS_BIND(brls::Header,      dev_header,  "tl_dev_header");
     BRLS_BIND(brls::BooleanCell, dev_mode,    "tl_dev_mode");
     BRLS_BIND(brls::BooleanCell, dev_read_only, "tl_dev_read_only");
+    BRLS_BIND(brls::BooleanCell, dev_pt_log,  "tl_dev_pt_log");
+    BRLS_BIND(brls::Label,       dev_pt_log_note, "tl_dev_pt_log_note");
     BRLS_BIND(brls::DetailCell,  dev_report,  "tl_dev_report");
     BRLS_BIND(brls::DetailCell,  dev_pt_block,"tl_dev_pt_block");
     BRLS_BIND(brls::DetailCell,  dev_github,  "tl_dev_github");

@@ -118,7 +118,10 @@ if DEVBUILD:
     open(installed_nro, "wb").write(b"the build before")
 if not GATE and not ERRORS and not DEVBUILD:
     env.setdefault("PLAYGUARD_SIM_NUMPAD", "1:30")   # what the system number pad returns
-    env.setdefault("PLAYGUARD_SIM_PASTE", "https://dpaste.org/SmOkE1")   # what dpaste.org answers
+    env.setdefault("PLAYGUARD_SIM_PASTE", "https://bpa.st/SMOKE")   # what bpa.st (or GitHub) answers
+    github_token = os.path.join(run_dir, "playguard_data", "github_token")
+    if os.path.exists(github_token):
+        os.remove(github_token)   # signed out: the first report goes to bpa.st
 if ERRORS:
     env.setdefault("PLAYGUARD_SIM_FAIL", "unlock")
     env.setdefault("PLAYGUARD_SIM_RESTRICTED", "1")
@@ -448,7 +451,7 @@ shot("27_back")
 # Send a report online: the confirmation, then the link and its QR codes.
 uploads = os.path.join(run_dir, "playguard_data", "logs", "uploads.txt")
 def upload_count():
-    return open(uploads).read().count("https://dpaste.org/SmOkE1") if os.path.exists(uploads) else 0
+    return open(uploads).read().count("https://bpa.st/SMOKE") if os.path.exists(uploads) else 0
 uploads_before = upload_count()
 logs = os.path.join(run_dir, "playguard_data", "logs")
 saved = [f for f in (os.listdir(logs) if os.path.isdir(logs) else []) if f[:8].isdigit() and f.endswith(".txt")]
@@ -463,6 +466,21 @@ shot("27_upload_link")
 if upload_count() != uploads_before + 1:
     fail("the report link was not recorded in " + uploads)
 key("Return")              # OK
+# Signed in to GitHub: where to send it comes first, a secret gist by default.
+open(github_token, "w").write("gho_smoke")
+key("Return")              # Send a report online (still focused)
+if any(f[:8].isdigit() and f.endswith(".txt") for f in os.listdir(logs)):
+    key("Return")          # this report, the first choice
+shot("27_upload_host")
+key("Return")              # Secret gist on GitHub
+shot("27_upload_gist_confirm")
+key("Right")               # Send
+key("Return")
+shot("27_upload_gist_link")
+if upload_count() != uploads_before + 2:
+    fail("the gist link was not recorded in " + uploads)
+key("Return")              # OK
+os.remove(github_token)
 
 # Activity: one game's screen, then a PDF export to the (simulated) SD card.
 exports = os.path.join(run_dir, "playguard_data", "exports")

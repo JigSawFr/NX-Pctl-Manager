@@ -167,6 +167,7 @@ void load()
     read_bool(j, "auto_relock", c.auto_relock);
     read_bool(j, "extra_auto_restore", c.extra_auto_restore);
     read_bool(j, "dev_mode", c.dev_mode);
+    read_bool(j, "pt_log", c.pt_log);
     read_string(j, "update_via", c.update_via);
     read_bool(j, "update_daily", c.update_daily);
     read_string(j, "update_checked", c.update_checked);
@@ -218,6 +219,7 @@ bool save()
     j["auto_relock"]     = s_config.auto_relock;
     j["extra_auto_restore"] = s_config.extra_auto_restore;
     j["dev_mode"]        = s_config.dev_mode;
+    j["pt_log"]          = s_config.pt_log;
     j["update_via"]      = s_config.update_via;
     j["update_daily"]    = s_config.update_daily;
     j["update_checked"]  = s_config.update_checked;

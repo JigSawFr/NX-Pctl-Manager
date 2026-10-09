@@ -11,7 +11,7 @@
 
 **Le contrôle parental de la Nintendo Switch, directement sur la console — sans application mobile, sans compte Nintendo, sans Internet.**
 
-PlayGuard est un homebrew qui ramène sur la console, hors ligne, les réglages de l'application mobile Contrôle parental Nintendo Switch : limite quotidienne de temps de jeu, restrictions, code PIN, horloge réseau, activité de jeu — et un moyen de reprendre la main quand la console est bloquée.
+PlayGuard est un homebrew qui ramène sur la console, hors ligne, les réglages de l'application mobile [Contrôle parental Nintendo Switch](https://apps.apple.com/fr/app/contr%C3%B4le-parental-nintendo-sw/id1190074407) : limite quotidienne de temps de jeu, restrictions, code PIN, horloge réseau, activité de jeu — et un moyen de reprendre la main quand la console est bloquée. Ce qu'il couvre de l'application mobile, et ce qui manque encore : [docs/companion-app.md](docs/companion-app.md) (en anglais).
 
 ![Vue d'ensemble](images/screenshots/dashboard_fr_dark.png)
 
@@ -20,6 +20,7 @@ PlayGuard est un homebrew qui ramène sur la console, hors ligne, les réglages 
 
 ## Sommaire
 
+- [Pourquoi PlayGuard](#pourquoi-playguard)
 - [Points forts](#points-forts)
 - [Compatibilité](#compatibilité)
 - [Installation](#installation)
@@ -31,6 +32,14 @@ PlayGuard est un homebrew qui ramène sur la console, hors ligne, les réglages 
 - [Signaler un bug](#signaler-un-bug)
 - [Contribuer](#contribuer)
 - [Licence et remerciements](#licence-et-remerciements)
+
+## Pourquoi PlayGuard
+
+Les enfants aiment les jeux vidéo, et les jeux vidéo, ce sont des écrans : les limiter fait partie de prendre soin d'eux. Sur une Switch d'origine, l'application mobile de Nintendo s'en chargeait. En passant la console sous firmware personnalisé, le champ des possibles s'ouvre — mais le contrôle parental saute, car l'application mobile n'atteint plus la console. Savoir combien de temps ils ont joué, fixer une limite, faire arrêter le jeu sans bataille ni éternel « encore cinq minutes » devenait compliqué.
+
+Les rares outils existants ne faisaient pas l'affaire : un suivi d'activité peu maintenu et peu détaillé, un contrôle parental peu développé et inabouti. Je ne voulais pas non plus d'un remplacement maison, ni d'un sysmodule qui tourne en permanence en arrière-plan. L'objectif : **réutiliser au maximum le contrôle parental de la console**, avec tout ce qu'il sait déjà faire — la limite, le code PIN, les avertissements, la suspension — et ramener ses réglages sur la console. C'est PlayGuard.
+
+Piloter le contrôle parental de la console ouvre aussi la porte à bien plus : remonter le temps de jeu vers un serveur à la maison, recevoir des ordres, Home Assistant, des automatisations. Ce vers quoi cela pourrait aller est dans [l'horizon de la feuille de route](ROADMAP.md#horizon) (en anglais).
 
 ## Points forts
 
@@ -244,7 +253,7 @@ PlayGuard pilote le contrôle parental intégré à la console (le service `pctl
 1. *Outils › Exporter un rapport de diagnostic* enregistre un fichier texte dans `sd:/switch/playguard/logs/` : firmware, version d'Atmosphère, horloges, stockage, masquage du numéro de série, état des patchs de jeux, et le résultat brut de chaque requête au contrôle parental. **Il ne contient jamais le code PIN ni le numéro de série.**
 2. [Ouvrez un ticket](https://github.com/JigSawFr/PlayGuard/issues/new) (en anglais ou en français) et joignez-le.
 
-Ou, console connectée, *Outils › Envoyer un rapport en ligne* (Ⓧ sur le rapport de diagnostic en mode développeur) l'envoie, avec les fichiers de débogage (la référence du bloc du minuteur, l'historique des modifications et les réglages de PlayGuard), sur [dpaste.org](https://dpaste.org), après avoir indiqué exactement ce qui part. PlayGuard affiche le lien et deux QR codes : le rapport, et le formulaire de signalement de bug avec le lien et vos versions déjà remplis. Toute personne qui a le lien peut lire le rapport pendant 30 jours, puis dpaste.org le supprime ; les liens sont conservés dans `logs/uploads.txt`. Un rapport enregistré plus tôt dans `logs/` peut être envoyé de la même façon.
+Ou, console connectée, *Outils › Envoyer un rapport en ligne* (Ⓧ sur le rapport de diagnostic en mode développeur) l'envoie, avec les fichiers de débogage (la référence du bloc du minuteur, la fin de l'enregistrement du minuteur, l'historique des modifications et les réglages de PlayGuard), sur [bpa.st](https://bpa.st) ou, quand PlayGuard est connecté à GitHub (outils développeur), dans un gist secret de votre compte (proposé en premier), après avoir indiqué exactement ce qui part. PlayGuard affiche le lien et deux QR codes : le rapport, et le formulaire de signalement de bug avec le lien et vos versions déjà remplis. Toute personne qui a le lien peut lire le rapport : pendant un mois sur bpa.st, qui le supprime ensuite, ou jusqu'à ce que vous supprimiez le gist sur GitHub. Les liens sont conservés dans `logs/uploads.txt`, avec le lien de suppression de bpa.st pour effacer une paste plus tôt. Un rapport enregistré plus tôt dans `logs/` peut être envoyé de la même façon.
 
 <details>
 <summary>Mode développeur (examiner un nouveau firmware)</summary>
@@ -253,13 +262,14 @@ Appuyez sept fois sur *À propos › Version* ; les outils développeur apparais
 
 - un interrupteur **lecture seule** — activé, l'application ne peut rien modifier : c'est la façon sûre d'examiner un nouveau firmware (l'écran firmware le propose directement) ;
 - le rapport de diagnostic à l'écran (Ⓨ l'enregistre, Ⓧ l'envoie en ligne), et un raccourci pour l'exporter depuis l'onglet Temps de jeu ;
-- **Installer un autre build** sur place, pour tester un correctif avant sa publication : la dernière version publiée, l'un des 20 derniers commits de `main`, ou le dernier build d'une pull request ouverte (forks compris). La version publiée ne demande rien ; les autres sont les artefacts du workflow de build, que GitHub ne donne qu'aux utilisateurs connectés : **Compte GitHub** connecte PlayGuard avec un code et un QR code à scanner avec un téléphone (aucune autorisation demandée : le jeton ne peut lire que ce qui est public ; il est gardé dans `github_token`, jamais envoyé avec un rapport, et *Compte GitHub* permet de se déconnecter). PlayGuard télécharge le build, le vérifie (taille, empreinte SHA-256 enregistrée par GitHub, en-tête NRO), le met à la place de son propre `.nro` et redémarre dessus (derrière *Demander le code PIN* quand il est activé). La liste est gardée 10 minutes et s'affiche aussitôt (sa dernière ligne, *Actualiser la liste*, la recharge). La même liste permet de revenir à la version publiée à tout moment ; *À propos › Version* affiche le commit en mode développeur. Les artefacts expirent au bout de 90 jours ;
+- **Installer un autre build** sur place, pour tester un correctif avant sa publication : la dernière version publiée, l'un des 20 derniers commits de `main`, ou le dernier build d'une pull request ouverte (forks compris). La version publiée ne demande rien ; les autres sont les artefacts du workflow de build, que GitHub ne donne qu'aux utilisateurs connectés : **Compte GitHub** connecte PlayGuard avec un code et un QR code à scanner avec un téléphone (seule autorisation demandée : créer des gists, pour *Envoyer un rapport en ligne* ; sinon le jeton ne peut lire que ce qui est public ; il est gardé dans `github_token`, jamais envoyé avec un rapport, et *Compte GitHub* permet de se déconnecter). PlayGuard télécharge le build, le vérifie (taille, empreinte SHA-256 enregistrée par GitHub, en-tête NRO), le met à la place de son propre `.nro` et redémarre dessus (derrière *Demander le code PIN* quand il est activé). La liste est gardée 10 minutes et s'affiche aussitôt (sa dernière ligne, *Actualiser la liste*, la recharge). La même liste permet de revenir à la version publiée à tout moment ; *À propos › Version* affiche le commit en mode développeur. Les artefacts expirent au bout de 90 jours ;
 - **Comparer le bloc du minuteur**, pour décoder les réglages que PlayGuard n'affiche pas encore : enregistrez le bloc brut comme référence, changez un réglage dans l'application mobile, revenez — PlayGuard liste les valeurs qui ont changé (enregistrées dans `logs/` sur demande). « Alarme seulement » / « suspendre le logiciel » pourrait être trouvé ainsi, et les champs du coucher confirmés. Joignez ce fichier à un ticket, ou envoyez-le avec le rapport (*Envoyer un rapport en ligne*).
+- **Enregistrer le temps de jeu** : toutes les 30 s tant que PlayGuard est ouvert, une ligne de ce que rapporte le minuteur (temps restant, temps écoulé, bloc brut des réglages…) dans `logs/play_timer_log.csv`, un fichier qui s'ouvre dans un tableur. Laissé ouvert après minuit, ou jusqu'à la fin du temps, il montre ce qu'un seul rapport ne peut pas montrer : quand le temps écoulé repart à zéro, ce que dit la console vers la fin. L'interrupteur est mémorisé ; il n'enregistre qu'en mode développeur. Ce qu'on sait déjà est dans [docs/parental-controls.md](docs/parental-controls.md) (en anglais).
 </details>
 
 ## Contribuer
 
-La compilation, le simulateur de bureau, l'architecture du code, le processus de publication et la traduction sont décrits dans **[CONTRIBUTING.md](CONTRIBUTING.md)** (en anglais).
+La compilation, le simulateur de bureau, l'architecture du code, le processus de publication et la traduction sont décrits dans **[CONTRIBUTING.md](CONTRIBUTING.md)** (en anglais). La suite, et les idées en attente d'une décision : **[ROADMAP.md](ROADMAP.md)** (en anglais).
 
 En bref :
 
@@ -280,5 +290,8 @@ GPLv3 — voir [`LICENSE`](LICENSE). Maintenu par **[JigSawFr](https://github.co
 - QR codes : **[QR Code generator](https://github.com/nayuki/QR-Code-generator)** de Project Nayuki (MIT), dans `extern/qrcodegen/`.
 - Diagnostic fw 22.5, libération de session et synchronisation NTP adaptés de **[anbingxi/NX-Pctl-Manager](https://github.com/anbingxi/NX-Pctl-Manager/tree/diag/fw22-5-readonly)**.
 - Référence des commandes : [switchbrew — Parental Control services](https://switchbrew.org/wiki/Parental_Control_services).
+
+> [!NOTE]
+> **Comment PlayGuard est développé.** Des assistants de code à base d'IA ont été utilisés pendant le développement : écriture et relecture du code, traductions, documentation. Les changements de PlayGuard sont pilotés, relus et validés par un développeur professionnel, couverts par les tests unitaires C et le simulateur desktop, et testés sur une vraie console (22.1.0 / Atmosphère 1.11.1) avant publication.
 
 PlayGuard n'est ni affilié à Nintendo ni approuvé par Nintendo. Nintendo Switch est une marque de Nintendo.

@@ -11,7 +11,7 @@
 
 **Nintendo Switch parental controls, right on the console — no phone app, no Nintendo account, no internet.**
 
-PlayGuard is a homebrew app that brings the settings of the Nintendo Switch Parental Controls phone app onto the console itself, for offline use: daily play-time limits, restrictions, PIN, network clock, play activity — and a way back in when you are locked out.
+PlayGuard is a homebrew app that brings the settings of the [Nintendo Switch Parental Controls](https://apps.apple.com/fr/app/contr%C3%B4le-parental-nintendo-sw/id1190074407) phone app onto the console itself, for offline use: daily play-time limits, restrictions, PIN, network clock, play activity — and a way back in when you are locked out. What it covers of the phone app, and what is still missing: [docs/companion-app.md](docs/companion-app.md).
 
 ![Overview](images/screenshots/dashboard.png)
 
@@ -20,6 +20,7 @@ PlayGuard is a homebrew app that brings the settings of the Nintendo Switch Pare
 
 ## Contents
 
+- [Why PlayGuard](#why-playguard)
 - [Highlights](#highlights)
 - [Compatibility](#compatibility)
 - [Install](#install)
@@ -31,6 +32,14 @@ PlayGuard is a homebrew app that brings the settings of the Nintendo Switch Pare
 - [Reporting a bug](#reporting-a-bug)
 - [Contributing](#contributing)
 - [License and credits](#license-and-credits)
+
+## Why PlayGuard
+
+Children love video games, and video games mean screens: a limit is part of looking after them. On an unmodified Switch, Nintendo's phone app took care of it. Once the console runs custom firmware, a whole new world opens up — and parental control goes out of the window, because the phone app no longer reaches the console. Knowing how long they played, setting a limit, getting the game stopped without a fight or one more "five more minutes" became hard.
+
+The few tools that existed did not do the job: activity reports that were barely maintained and not very detailed, parental controls that were rough and unfinished. And I did not want a custom replacement either, or a sysmodule always running in the background. The idea was to **reuse the console's own parental controls as much as possible**, with everything they already do — the limit, the PIN, the warnings, the suspension — and to bring their settings back onto the console. That is PlayGuard.
+
+Driving the console's own controls also opens the door to much more: reporting play time to a home server, taking orders from it, Home Assistant, automations. Where that could go is in the [roadmap's horizon](ROADMAP.md#horizon).
 
 ## Highlights
 
@@ -244,7 +253,7 @@ PlayGuard drives the parental controls built into the console (the `pctl` servic
 1. *Tools › Export a diagnostic report* saves a text file in `sd:/switch/playguard/logs/`: firmware, Atmosphère version, clocks, storage, serial-blanking and game-patch status, and the raw result of every parental-control query. **It never contains the PIN or the serial number.**
 2. [Open an issue](https://github.com/JigSawFr/PlayGuard/issues/new) and attach it.
 
-Or, with the console online, *Tools › Send a report online* (Ⓧ on the diagnostic report in developer mode) sends it, with the debug files (the play-timer block reference, the change history and PlayGuard's settings), to [dpaste.org](https://dpaste.org), after saying exactly what goes. It shows the link and two QR codes: the report, and the bug-report form with the link and your versions already filled in. Anyone with the link can read the report for 30 days, then dpaste.org deletes it; the links are kept in `logs/uploads.txt`. A report saved earlier in `logs/` can be sent the same way.
+Or, with the console online, *Tools › Send a report online* (Ⓧ on the diagnostic report in developer mode) sends it, with the debug files (the play-timer block reference, the end of the play-timer recording, the change history and PlayGuard's settings), to [bpa.st](https://bpa.st) or, when PlayGuard is signed in to GitHub (developer tools), to a secret gist in your account (offered first), after saying exactly what goes. It shows the link and two QR codes: the report, and the bug-report form with the link and your versions already filled in. Anyone with the link can read the report: for one month on bpa.st, which then deletes it, or until you delete the gist on GitHub. The links are kept in `logs/uploads.txt`, with bpa.st's removal link to delete a paste sooner. A report saved earlier in `logs/` can be sent the same way.
 
 <details>
 <summary>Developer mode (investigating a new firmware)</summary>
@@ -253,13 +262,14 @@ Press *About › Version* seven times; the developer tools appear at the end of 
 
 - a **read-only** switch — with it on, the app cannot change anything: the safe way to investigate a new firmware (the firmware screen offers it directly);
 - the diagnostic report on screen (Ⓨ saves it, Ⓧ sends it online), and a shortcut to export it from the Play timer tab;
-- **Install another build** in place, to test a fix before it is released: the latest release, one of the last 20 commits of `main`, or the newest build of an open pull request (forks included). The release needs nothing; the others are the build workflow's artifacts, which GitHub hands to signed-in users only: **GitHub account** signs in with a code and a QR code to scan with a phone (no permission asked: the token can only read what is public; it is kept in `github_token`, never sent with a report, and *GitHub account* signs out). PlayGuard downloads the build, checks it (size, the SHA-256 GitHub records, the NRO header), puts it in place of its own `.nro` and restarts on it (behind *Ask for the PIN* when that is on). The list is kept for 10 minutes and shown at once (its last line, *Refresh the list*, fetches it again). The same list goes back to the release at any time; *About › Version* shows the commit in developer mode. Artifacts expire after 90 days;
+- **Install another build** in place, to test a fix before it is released: the latest release, one of the last 20 commits of `main`, or the newest build of an open pull request (forks included). The release needs nothing; the others are the build workflow's artifacts, which GitHub hands to signed-in users only: **GitHub account** signs in with a code and a QR code to scan with a phone (the only permission asked is to create gists, for *Send a report online*; otherwise the token can only read what is public; it is kept in `github_token`, never sent with a report, and *GitHub account* signs out). PlayGuard downloads the build, checks it (size, the SHA-256 GitHub records, the NRO header), puts it in place of its own `.nro` and restarts on it (behind *Ask for the PIN* when that is on). The list is kept for 10 minutes and shown at once (its last line, *Refresh the list*, fetches it again). The same list goes back to the release at any time; *About › Version* shows the commit in developer mode. Artifacts expire after 90 days;
 - **Compare the play-timer block**, to decode settings PlayGuard does not show yet: save the raw block as a reference, change one setting in the phone app, come back — PlayGuard lists the values that changed (saved in `logs/` on request). "Alarm only" vs "suspend the software" could be found this way, and the bedtime fields confirmed. Attach that file to an issue, or send it with the report (*Send a report online*).
+- **Record the play timer**: every 30 s while PlayGuard is open, one line of what the play timer reports (time left, time spent, the raw settings block…) in `logs/play_timer_log.csv`, a spreadsheet-ready file. Left open over midnight, or until the time is up, it shows what one report cannot: when the time spent resets, what the console says near the end. The switch is remembered; it only records in developer mode. What is known so far is in [docs/parental-controls.md](docs/parental-controls.md).
 </details>
 
 ## Contributing
 
-Build instructions, the desktop simulator, the code layout, the release process and how to translate PlayGuard are in **[CONTRIBUTING.md](CONTRIBUTING.md)**.
+Build instructions, the desktop simulator, the code layout, the release process and how to translate PlayGuard are in **[CONTRIBUTING.md](CONTRIBUTING.md)**. What comes next, and the ideas waiting for a decision: **[ROADMAP.md](ROADMAP.md)**.
 
 Quick taste:
 
@@ -280,5 +290,8 @@ GPLv3 — see [`LICENSE`](LICENSE). Maintained by **[JigSawFr](https://github.co
 - QR codes: **[QR Code generator](https://github.com/nayuki/QR-Code-generator)** by Project Nayuki (MIT), in `extern/qrcodegen/`.
 - fw 22.5 diagnosis, session release and NTP synchronisation adapted from **[anbingxi/NX-Pctl-Manager](https://github.com/anbingxi/NX-Pctl-Manager/tree/diag/fw22-5-readonly)**.
 - Command reference: [switchbrew — Parental Control services](https://switchbrew.org/wiki/Parental_Control_services).
+
+> [!NOTE]
+> **How PlayGuard is built.** AI coding assistants were used alongside development: writing and reviewing code, translations and documentation. PlayGuard's changes are driven, reviewed and validated by a professional developer, covered by the C unit tests and the desktop simulator, and tested on a real console (22.1.0 / Atmosphère 1.11.1) before release.
 
 PlayGuard is not affiliated with or endorsed by Nintendo. Nintendo Switch is a trademark of Nintendo.

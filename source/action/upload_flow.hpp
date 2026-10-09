@@ -1,6 +1,8 @@
-// upload_flow — Tools › Send a report online: pick a report, say where it
-// goes, send it (util/log_upload.hpp), then show its link and two QR codes:
-// the report itself, and the bug-report form with the link already in it.
+// upload_flow — Tools › Send a report online: pick a report, and where to
+// send it when signed in to GitHub (a secret gist by default, or bpa.st),
+// confirm what goes where, send it (util/log_upload.hpp), then show its link
+// and two QR codes: the report itself, and the bug-report form with the link
+// already in it.
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).
 #pragma once
 

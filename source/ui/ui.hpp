@@ -201,8 +201,9 @@ void offer_restart();
 void note_unlocked(bool valid, bool unlocked);
 bool known_unlocked();
 
-// After app::set_read_only / set_dev_mode: updates the main screen title and
-// re-reads the tab on screen.
+// After app::set_read_only / set_dev_mode: updates the main screen title,
+// starts or stops the play-timer recorder (action/pt_log_flow) and re-reads
+// the tab on screen.
 void on_mode_changed();
 
 }   // namespace ui

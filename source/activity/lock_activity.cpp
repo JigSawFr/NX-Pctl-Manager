@@ -24,7 +24,7 @@ void LockActivity::onContentAvailable()
 void LockActivity::try_unlock()
 {
     if (!pin_lock::ask()) {
-        ui::notify(ui::rc_text(NXM_RC_NOT_CONFIRMED));
+        ui::notify(pin_lock::refusal_text());
         return;
     }
     // The main screen in place of this one (nothing to come back to).

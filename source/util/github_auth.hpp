@@ -1,12 +1,14 @@
 // github_auth — signs PlayGuard in to GitHub with the device flow, for the
 // developer tools' development builds (dev_builds.hpp: GitHub hands Actions
-// artifacts to signed-in users only).
+// artifacts to signed-in users only) and the reports sent as gists.
 //
 // PlayGuard shows a short code and github.com/login/device (a QR code); the
 // developer enters the code on a phone and authorises the "PlayGuard" OAuth
-// app; PlayGuard polls until GitHub hands it a token. No scope is asked for:
-// the token can only read what is public, and is revoked from GitHub
-// (Settings › Applications) or by Disconnect here, which forgets it.
+// app; PlayGuard polls until GitHub hands it a token. The only scope asked
+// for is "gist", so that "Send a report online" can make a secret gist
+// (log_upload.hpp); otherwise the token can only read what is public. It is
+// revoked from GitHub (Settings › Applications) or by Disconnect here, which
+// forgets it.
 //
 // The token is kept in its own file, sd:/switch/playguard/github_token,
 // never in config.json, which "Send a report online" sends.

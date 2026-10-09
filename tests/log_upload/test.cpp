@@ -1,6 +1,6 @@
 // Host tests for source/util/log_upload.cpp: which debug files and saved
 // reports are offered, the bundle and its cut on a whole UTF-8 character,
-// dpaste.org answers and the form sent, percent-encoding and the prefilled bug-report link.
+// bpa.st and GitHub answers, the bodies sent, percent-encoding and the prefilled bug-report link.
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
@@ -9,6 +9,7 @@
 
 #include "util/log_upload.hpp"
 #include "util/paths.hpp"
+#include "util/pt_log.hpp"
 
 static void write(const std::string& path, const std::string& content)
 {
@@ -35,6 +36,16 @@ static void test_files()
     files = log_upload::debug_files();
     assert(files.size() == 3);
     for (const auto& f : files) assert(f.content.find("gho_secret") == std::string::npos);
+
+    // The recorder's file, after the block: only its end, header kept.
+    std::string csv = pt_log::header();
+    for (int i = 0; i < 5000; i++) csv += "2026-10-09 20:10:52,1791569454,0,1,0,0,1428,5772,7200,,\n";
+    write(pt_log::path(), csv);
+    files = log_upload::debug_files();
+    assert(files.size() == 4 && files[1].name == "logs/play_timer_log.csv" && files[2].name == "history.json");
+    assert(files[1].content.size() <= log_upload::PT_LOG_BYTES && files[1].content.size() > 40000);
+    assert(files[1].content.compare(0, pt_log::header().size(), pt_log::header()) == 0);
+    assert(std::remove(pt_log::path().c_str()) == 0);
 
     write(paths::logs_dir() + "/20261008_090000.txt", "a");
     write(paths::logs_dir() + "/20261009_141203.txt", "b");
@@ -81,47 +92,79 @@ static void test_bundle()
 
 static void test_reply()
 {
-    std::string url = "kept";
-    assert(log_upload::parse_reply("https://dpaste.org/AbC1\n", &url) && url == "https://dpaste.org/AbC1");
-    assert(log_upload::parse_reply("  https://dpaste.org/x9  ", &url) && url == "https://dpaste.org/x9");
-    url = "kept";
-    const char* bad[] = { "", "https://dpaste.org/", "http://dpaste.org/AbC1", "https://evil.example/AbC1",
-                          "https://dpaste.org.evil.example/AbC1", "https://dpaste.org/Ab/C1",
-                          "https://dpaste.org/AbC1.txt", "https://dpaste.org/Ab C1", "<html>error</html>",
-                          "\"https://dpaste.org/AbC1\"", "https://dpaste.org/AbC1?x=1" };
+    std::string url = "kept", removal = "kept";
+    const std::string ok = "Paste URL:   https://bpa.st/ABCD\nRaw URL:     https://bpa.st/raw/ABCD\n"
+                           "Removal URL: https://bpa.st/remove/EFGH2\n";
+    assert(log_upload::parse_bpaste(ok, &url, &removal));
+    assert(url == "https://bpa.st/ABCD" && removal == "https://bpa.st/remove/EFGH2");
+    url = removal = "kept";
+    const char* bad[] = { "", "<html>error</html>", "Invalid `raw` supplied.\n",
+                          "Enhance your calm, you have exceeded the ratelimit.",
+                          "Paste URL:   https://bpa.st/ABCD\n",   // no removal link
+                          "Paste URL:   http://bpa.st/ABCD\nRemoval URL: https://bpa.st/remove/EFGH\n",
+                          "Paste URL:   https://bpa.st.evil.example/ABCD\nRemoval URL: https://bpa.st/remove/EFGH\n",
+                          "Paste URL:   https://bpa.st/AB/CD\nRemoval URL: https://bpa.st/remove/EFGH\n",
+                          "Paste URL:   https://bpa.st/ABCD?x\nRemoval URL: https://bpa.st/remove/EFGH\n",
+                          "Paste URL:   https://bpa.st/ABCD\nRemoval URL: https://evil.example/remove/EFGH\n",
+                          "x Paste URL: https://bpa.st/ABCD\nRemoval URL: https://bpa.st/remove/EFGH\n" };
     for (const char* b : bad) {
-        assert(!log_upload::parse_reply(b, &url));
+        assert(!log_upload::parse_bpaste(b, &url, &removal));
+        assert(url == "kept" && removal == "kept");
+    }
+
+    assert(log_upload::parse_gist(R"({"id": "aa5a", "html_url": "https://gist.github.com/aa5a315d61ae9438b18d"})",
+                                  &url));
+    assert(url == "https://gist.github.com/aa5a315d61ae9438b18d");
+    assert(log_upload::parse_gist(R"({"html_url": "https://gist.github.com/octo-cat/aa5a"})", &url) &&
+           url == "https://gist.github.com/octo-cat/aa5a");
+    url = "kept";
+    const char* bad_gist[] = { "", "not json", "[]", R"({"message": "Not Found"})", R"({"html_url": 5})",
+                               R"({"html_url": "https://gist.github.com/"})",
+                               R"({"html_url": "http://gist.github.com/aa5a"})",
+                               R"({"html_url": "https://gist.github.com.evil.example/aa5a"})",
+                               R"({"html_url": "https://gist.github.com//aa5a"})",
+                               R"({"html_url": "https://gist.github.com/aa5a/"})",
+                               R"({"html_url": "https://gist.github.com/aa5a?x=1"})" };
+    for (const char* b : bad_gist) {
+        assert(!log_upload::parse_gist(b, &url));
         assert(url == "kept");
     }
 }
 
-static void test_form()
+static void test_bodies()
 {
     std::string type;
     const std::string f = log_upload::form("a b&c=\n{\"é\": 1}", &type);
     assert(type == "multipart/form-data; boundary=PlayGuardBoundary");
-    assert(f == "--PlayGuardBoundary\r\nContent-Disposition: form-data; name=\"content\"\r\n\r\na b&c=\n{\"é\": 1}\r\n"
-                "--PlayGuardBoundary\r\nContent-Disposition: form-data; name=\"format\"\r\n\r\nurl\r\n"
-                "--PlayGuardBoundary\r\nContent-Disposition: form-data; name=\"lexer\"\r\n\r\n_text\r\n"
-                "--PlayGuardBoundary\r\nContent-Disposition: form-data; name=\"expires\"\r\n\r\n" +
-                    std::to_string(30L * 24 * 3600) + "\r\n--PlayGuardBoundary--\r\n");
+    assert(f == "--PlayGuardBoundary\r\nContent-Disposition: form-data; name=\"raw\"\r\n\r\na b&c=\n{\"é\": 1}\r\n"
+                "--PlayGuardBoundary\r\nContent-Disposition: form-data; name=\"lexer\"\r\n\r\ntext\r\n"
+                "--PlayGuardBoundary\r\nContent-Disposition: form-data; name=\"expiry\"\r\n\r\n1month\r\n"
+                "--PlayGuardBoundary--\r\n");
     // A text holding the boundary gets another one.
     log_upload::form("x --PlayGuardBoundary PlayGuardBoundary0", &type);
     assert(type == "multipart/form-data; boundary=PlayGuardBoundary1");
+
+    assert(log_upload::gist_body("a \"b\"\n\xC3\xA9", "1.2.0") ==
+           R"({"description":"PlayGuard 1.2.0 diagnostic report","files":{"playguard-report.txt":{"content":"a \"b\"\n)"
+           "\xC3\xA9"
+           R"("}},"public":false})");
+
+    assert(log_upload::max_bytes(log_upload::Host::Bpaste) == 128 * 1024);
+    assert(log_upload::max_bytes(log_upload::Host::Gist) == 512 * 1024);
 }
 
 static void test_urls()
 {
     assert(log_upload::url_encode("aZ09-_.~") == "aZ09-_.~");
-    assert(log_upload::url_encode("https://dpaste.org/A b") == "https%3A%2F%2Fdpaste.org%2FA%20b");
+    assert(log_upload::url_encode("https://bpa.st/A b") == "https%3A%2F%2Fbpa.st%2FA%20b");
     assert(log_upload::url_encode("\xC3\xA8") == "%C3%A8");
-    assert(log_upload::issue_url("https://github.com/o/r", "https://dpaste.org/AbC1", "1.2.0", "23.0.1", "1.12.0") ==
-           "https://github.com/o/r/issues/new?template=1-bug.yml&report=https%3A%2F%2Fdpaste.org%2FAbC1"
+    assert(log_upload::issue_url("https://github.com/o/r", "https://bpa.st/ABCD", "1.2.0", "23.0.1", "1.12.0") ==
+           "https://github.com/o/r/issues/new?template=1-bug.yml&report=https%3A%2F%2Fbpa.st%2FABCD"
            "&version=1.2.0&firmware=23.0.1&atmosphere=1.12.0");
-    assert(log_upload::issue_url("https://github.com/o/r", "https://dpaste.org/X", "", "", "") ==
-           "https://github.com/o/r/issues/new?template=1-bug.yml&report=https%3A%2F%2Fdpaste.org%2FX");
-    assert(log_upload::short_url("https://dpaste.org/AbC1") == "dpaste.org/AbC1");
-    assert(log_upload::short_url("dpaste.org/AbC1") == "dpaste.org/AbC1");
+    assert(log_upload::issue_url("https://github.com/o/r", "https://gist.github.com/aa5a", "", "", "") ==
+           "https://github.com/o/r/issues/new?template=1-bug.yml&report=https%3A%2F%2Fgist.github.com%2Faa5a");
+    assert(log_upload::short_url("https://bpa.st/ABCD") == "bpa.st/ABCD");
+    assert(log_upload::short_url("bpa.st/ABCD") == "bpa.st/ABCD");
 }
 
 int main()
@@ -133,10 +176,10 @@ int main()
     test_files();
     test_bundle();
     test_reply();
-    test_form();
+    test_bodies();
     test_urls();
 
     std::system((std::string("rm -rf '") + dir + "'").c_str());
-    std::puts("log upload files, bundle, dpaste.org answer and form, bug-report link assertions passed");
+    std::puts("log upload files, bundle, bpa.st and gist answers and bodies, bug-report link assertions passed");
     return 0;
 }

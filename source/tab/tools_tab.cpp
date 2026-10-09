@@ -9,6 +9,7 @@
 #include "action/fw_gate.hpp"
 #include "action/pt_block_flow.hpp"
 #include "action/pt_flow.hpp"
+#include "action/pt_log_flow.hpp"
 #include "action/upload_flow.hpp"
 #include "activity/diagnostic_activity.hpp"
 #include "activity/firmware_gate_activity.hpp"
@@ -21,6 +22,7 @@
 #include "util/github_auth.hpp"
 #include "util/history.hpp"
 #include "util/patches.hpp"
+#include "util/pt_log.hpp"
 #include "util/paths.hpp"
 
 using namespace brls::literals;
@@ -129,6 +131,12 @@ ToolsTab::ToolsTab()
                                pt_flow::relock_if_interrupted();
                            });
     });
+    dev_pt_log->init("playguard/dev/pt_log"_i18n, config::get().pt_log, [](bool on) {
+        config::get().pt_log = on;
+        if (!config::save()) ui::notify("playguard/toast/config_err"_i18n);
+        pt_log_flow::apply();
+        if (on) ui::notify(brls::getStr("playguard/dev/pt_log_on", pt_log::path()));
+    });
     dev_report->registerClickAction([](brls::View*) {
         brls::Application::pushActivity(new DiagnosticActivity());
         return true;
@@ -173,6 +181,7 @@ void ToolsTab::refresh()
     const bool dev = app::dev_mode();
     dev_mode->setOn(dev, false);
     dev_read_only->setOn(ro, false);
+    dev_pt_log->setOn(cfg.pt_log, false);
     fw->setDetailText(fwv);
     ams->setDetailText(si.ams_valid ? fmt::format("{}.{}.{}", si.ams_major, si.ams_minor, si.ams_micro)
                                     : "playguard/common/unavailable"_i18n);
@@ -205,6 +214,8 @@ void ToolsTab::refresh()
                           { dev_header.getView(), dev },
                           { dev_mode.getView(), dev },
                           { dev_read_only.getView(), dev },
+                          { dev_pt_log.getView(), dev },
+                          { dev_pt_log_note.getView(), dev },
                           { dev_report.getView(), dev },
                           { dev_pt_block.getView(), dev },
                           { dev_github.getView(), dev },

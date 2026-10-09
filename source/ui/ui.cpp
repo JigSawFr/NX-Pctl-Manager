@@ -2,6 +2,7 @@
 #include "ui/ui.hpp"
 
 #include "action/history_flow.hpp"
+#include "action/pt_log_flow.hpp"
 #include "activity/main_activity.hpp"
 #include "app.hpp"
 #include "core/platform.h"
@@ -796,6 +797,7 @@ void note_unlocked(bool valid, bool unlocked)
 
 void on_mode_changed()
 {
+    pt_log_flow::apply();   // the recorder only runs in developer mode
     for (brls::Activity* activity : brls::Application::getActivitiesStack())
         if (auto* main = dynamic_cast<MainActivity*>(activity)) main->update_title();
     TabBase::refresh_shown();
