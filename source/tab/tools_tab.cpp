@@ -5,6 +5,7 @@
 
 #include "action/backup_flow.hpp"
 #include "action/dev_build_flow.hpp"
+#include "action/github_login_flow.hpp"
 #include "action/fw_gate.hpp"
 #include "action/pt_block_flow.hpp"
 #include "action/pt_flow.hpp"
@@ -17,6 +18,7 @@
 #include "ui/ui.hpp"
 #include "util/config.hpp"
 #include "util/diagnostics.hpp"
+#include "util/github_auth.hpp"
 #include "util/history.hpp"
 #include "util/patches.hpp"
 #include "util/paths.hpp"
@@ -135,6 +137,10 @@ ToolsTab::ToolsTab()
         pt_block_flow::open();
         return true;
     });
+    dev_github->registerClickAction([this](brls::View*) {
+        github_login_flow::open([this]() { this->refresh(); });
+        return true;
+    });
     dev_build->registerClickAction([](brls::View*) {
         dev_build_flow::open();
         return true;
@@ -201,9 +207,12 @@ void ToolsTab::refresh()
                           { dev_read_only.getView(), dev },
                           { dev_report.getView(), dev },
                           { dev_pt_block.getView(), dev },
+                          { dev_github.getView(), dev },
                           { dev_build.getView(), dev },
                           { dev_gate.getView(), dev && fw_gate::needed() },
                           { dev_forget.getView(), dev } });
+    dev_github->setDetailText(github_auth::token().empty() ? "playguard/github/not_signed_in"_i18n
+                                                           : "playguard/github/signed_in_short"_i18n);
     // Read-only: restoring would write; it stays in sight, greyed.
     ui::show_writable(backup_restore, !ro);
 }

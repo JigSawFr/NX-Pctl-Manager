@@ -16,6 +16,8 @@ namespace dev_builds
 
 namespace
 {
+using nlohmann::json;
+
 bool is_hex(const std::string& s)
 {
     return std::all_of(s.begin(), s.end(), [](char c) { return std::isxdigit((unsigned char)c) != 0; });
@@ -27,118 +29,140 @@ std::string lower(std::string s)
     return s;
 }
 
-std::string str(const nlohmann::json& j, const char* key)
+std::string str(const json& j, const char* key)
 {
     const auto it = j.find(key);
     return it != j.end() && it->is_string() ? it->get<std::string>() : std::string();
 }
 
-// The asset fields every build needs; false when one is missing.
-bool asset_fields(const nlohmann::json& a, Build* b)
+int64_t integer(const json& j, const char* key)
 {
-    const auto size = a.find("size");
-    b->url = str(a, "browser_download_url");
-    b->date = str(a, "updated_at");
-    b->sha256 = digest_hex(str(a, "digest"));
-    if (size == a.end() || !size->is_number_unsigned() || b->url.compare(0, 8, "https://") != 0) return false;
-    b->size = size->get<uint64_t>();
-    return b->size > 0;
+    const auto it = j.find(key);
+    return it != j.end() && it->is_number_integer() ? it->get<int64_t>() : 0;
 }
 
-// "pr-38" -> 38; 0 for anything else.
-int pr_number(const std::string& tag)
+// A full commit hash -> its first 7 digits; empty when it is not one.
+std::string short_commit(const std::string& sha)
 {
-    if (tag.size() < 4 || tag.size() > 9 || tag.compare(0, 3, "pr-") != 0) return 0;
-    const std::string n = tag.substr(3);
-    if (!std::all_of(n.begin(), n.end(), ::isdigit) || n[0] == '0') return 0;
-    return std::stoi(n);
+    return sha.size() >= 7 && sha.size() <= 64 && is_hex(sha) ? lower(sha.substr(0, 7)) : "";
 }
 
-bool parse_object(const nlohmann::json& r, std::vector<Build>* out)
+bool https(const std::string& url) { return url.compare(0, 8, "https://") == 0; }
+
+template <typename F>
+bool parse(const std::string& text, F f)
 {
-    if (!r.is_object() || !r.contains("assets") || !r["assets"].is_array()) return false;
-    const std::string tag = str(r, "tag_name");
-    const bool pre = r.value("prerelease", false);
-    const bool draft = r.value("draft", false);
-    if (draft) return false;
-    const int pr = pr_number(tag);
-    std::vector<Build> found;
-    for (const auto& a : r["assets"]) {
-        if (!a.is_object()) continue;
-        const std::string name = str(a, "name");
-        Build b;
-        if (!pre && name == "playguard.nro") {
-            b.kind = Kind::Release;
-            b.version = tag.size() > 1 && tag[0] == 'v' ? tag.substr(1) : tag;
-        } else if (pre && (tag == "dev" || pr) && !(b.commit = commit_of(name)).empty()) {
-            b.kind = tag == "dev" ? Kind::Main : Kind::PullRequest;
-            b.pr = pr;
-            if (pr) b.title = str(r, "name");
-        } else {
-            continue;
-        }
-        if (asset_fields(a, &b)) found.push_back(b);
+    try {
+        return f(json::parse(text));
+    } catch (const std::exception&) {
+        return false;
     }
-    if (found.empty()) return false;
-    if (pr) {
-        // Only the newest build of a pull request.
-        auto newest = std::max_element(found.begin(), found.end(),
-                                       [](const Build& x, const Build& y) { return x.date < y.date; });
-        found = { *newest };
-    }
-    out->insert(out->end(), found.begin(), found.end());
-    return true;
 }
 }   // namespace
 
-std::string commit_of(const std::string& asset_name)
+bool parse_release(const std::string& text, Build* out)
 {
-    static const std::string PREFIX = "playguard-", SUFFIX = ".nro";
-    if (asset_name.size() != PREFIX.size() + 7 + SUFFIX.size()) return "";
-    if (asset_name.compare(0, PREFIX.size(), PREFIX) != 0) return "";
-    if (asset_name.compare(asset_name.size() - SUFFIX.size(), SUFFIX.size(), SUFFIX) != 0) return "";
-    const std::string commit = asset_name.substr(PREFIX.size(), 7);
-    return is_hex(commit) ? lower(commit) : "";
-}
-
-bool parse_release(const std::string& json, std::vector<Build>* out)
-{
-    try {
-        return parse_object(nlohmann::json::parse(json), out);
-    } catch (const std::exception&) {
+    return parse(text, [out](const json& r) {
+        if (!r.is_object() || r.value("prerelease", true) || r.value("draft", true)) return false;
+        if (!r.contains("assets") || !r["assets"].is_array()) return false;
+        const std::string tag = str(r, "tag_name");
+        for (const auto& a : r["assets"]) {
+            if (!a.is_object() || str(a, "name") != "playguard.nro") continue;
+            Build b;
+            b.kind = Kind::Release;
+            b.version = tag.size() > 1 && tag[0] == 'v' ? tag.substr(1) : tag;
+            b.url = str(a, "browser_download_url");
+            b.date = str(a, "updated_at");
+            b.sha256 = digest_hex(str(a, "digest"));
+            const int64_t size = integer(a, "size");
+            if (b.version.empty() || !https(b.url) || size <= 0) return false;
+            b.size = (uint64_t)size;
+            *out = b;
+            return true;
+        }
         return false;
-    }
-}
-
-bool parse_releases(const std::string& json, std::vector<Build>* out)
-{
-    try {
-        const auto j = nlohmann::json::parse(json);
-        if (!j.is_array()) return false;
-        bool any = false;
-        for (const auto& r : j) any |= parse_object(r, out);
-        return any;
-    } catch (const std::exception&) {
-        return false;
-    }
-}
-
-void sort(std::vector<Build>* builds)
-{
-    auto rank = [](Kind k) { return k == Kind::Release ? 0 : k == Kind::Main ? 1 : 2; };
-    std::stable_sort(builds->begin(), builds->end(), [&rank](const Build& a, const Build& b) {
-        if (rank(a.kind) != rank(b.kind)) return rank(a.kind) < rank(b.kind);
-        if (a.kind == Kind::PullRequest && a.pr != b.pr) return a.pr > b.pr;
-        return a.date > b.date;
     });
+}
+
+bool parse_artifacts(const std::string& text, std::vector<Artifact>* out)
+{
+    return parse(text, [out](const json& j) {
+        if (!j.is_object() || !j.contains("artifacts") || !j["artifacts"].is_array()) return false;
+        for (const auto& a : j["artifacts"]) {
+            if (!a.is_object() || str(a, "name") != "playguard_release" || a.value("expired", true)) continue;
+            if (!a.contains("workflow_run") || !a["workflow_run"].is_object()) continue;
+            const auto& run = a["workflow_run"];
+            Artifact x;
+            x.url = str(a, "archive_download_url");
+            x.date = str(a, "created_at");
+            x.sha256 = digest_hex(str(a, "digest"));
+            x.branch = str(run, "head_branch");
+            x.commit = short_commit(str(run, "head_sha"));
+            x.repo = integer(run, "repository_id");
+            x.head_repo = integer(run, "head_repository_id");
+            const int64_t size = integer(a, "size_in_bytes");
+            if (!https(x.url) || size <= 0 || x.commit.empty() || x.branch.empty() || !x.repo || !x.head_repo) continue;
+            x.size = (uint64_t)size;
+            out->push_back(x);
+        }
+        return true;
+    });
+}
+
+bool parse_pulls(const std::string& text, std::vector<Pull>* out)
+{
+    return parse(text, [out](const json& j) {
+        if (!j.is_array()) return false;
+        for (const auto& p : j) {
+            if (!p.is_object() || !p.contains("head") || !p["head"].is_object()) continue;
+            const auto& head = p["head"];
+            Pull x;
+            x.number = (int)integer(p, "number");
+            x.title = str(p, "title");
+            x.branch = str(head, "ref");
+            // A fork that was deleted has no repository: its builds cannot be matched.
+            x.head_repo = head.contains("repo") && head["repo"].is_object() ? integer(head["repo"], "id") : 0;
+            if (x.number > 0 && !x.branch.empty() && x.head_repo) out->push_back(x);
+        }
+        return true;
+    });
+}
+
+std::vector<Build> combine(const std::vector<Artifact>& artifacts, const std::vector<Pull>& pulls, size_t keep_main)
+{
+    std::vector<Artifact> sorted = artifacts;
+    std::stable_sort(sorted.begin(), sorted.end(), [](const Artifact& a, const Artifact& b) { return a.date > b.date; });
+    auto build = [](const Artifact& a, Kind kind) {
+        Build b;
+        b.kind = kind;
+        b.artifact = true;
+        b.commit = a.commit;
+        b.date = a.date;
+        b.url = a.url;
+        b.size = a.size;
+        b.sha256 = a.sha256;
+        return b;
+    };
+    std::vector<Build> out;
     std::set<std::string> seen;
-    builds->erase(std::remove_if(builds->begin(), builds->end(),
-                                 [&seen](const Build& b) {
-                                     const std::string key = std::to_string((int)b.kind) + ":" +
-                                                             std::to_string(b.pr) + ":" + b.commit + b.version;
-                                     return !seen.insert(key).second;
-                                 }),
-                  builds->end());
+    for (const Artifact& a : sorted) {
+        if (out.size() >= keep_main) break;
+        // Pushed to this repository's main (a fork's "main" is a pull request's branch).
+        if (a.branch == "main" && a.head_repo == a.repo && seen.insert(a.commit).second) out.push_back(build(a, Kind::Main));
+    }
+    std::vector<Pull> by_number = pulls;
+    std::sort(by_number.begin(), by_number.end(), [](const Pull& a, const Pull& b) { return a.number > b.number; });
+    for (const Pull& p : by_number) {
+        for (const Artifact& a : sorted) {
+            if (a.branch != p.branch || a.head_repo != p.head_repo) continue;
+            Build b = build(a, Kind::PullRequest);
+            b.pr = p.number;
+            b.title = p.title;
+            out.push_back(b);
+            break;   // the newest only
+        }
+    }
+    return out;
 }
 
 std::string digest_hex(const std::string& digest)
@@ -154,7 +178,7 @@ bool is_nro(const std::string& head)
     return head.size() >= 0x14 && head.compare(0x10, 4, "NRO0") == 0;
 }
 
-bool verify(const std::string& path, const Build& b, std::string* error)
+bool verify_file(const std::string& path, uint64_t size, const std::string& sha256, std::string* error)
 {
     FILE* f = std::fopen(path.c_str(), "rb");
     if (!f) {
@@ -162,14 +186,12 @@ bool verify(const std::string& path, const Build& b, std::string* error)
         return false;
     }
     Sha256 hash;
-    std::string head;
-    uint64_t size = 0;
+    uint64_t got = 0;
     char buf[16 * 1024];
     size_t n;
     while ((n = std::fread(buf, 1, sizeof(buf), f)) > 0) {
-        if (head.size() < 0x20) head.append(buf, std::min(n, (size_t)0x20 - head.size()));
         hash.update(buf, n);
-        size += n;
+        got += n;
     }
     const bool read_error = std::ferror(f) != 0;
     std::fclose(f);
@@ -177,15 +199,24 @@ bool verify(const std::string& path, const Build& b, std::string* error)
         if (error) *error = "cannot read the download";
         return false;
     }
-    if (size != b.size) {
-        if (error) *error = "size " + std::to_string(size) + " instead of " + std::to_string(b.size);
+    if (got != size) {
+        if (error) *error = "size " + std::to_string(got) + " instead of " + std::to_string(size);
         return false;
     }
-    if (!b.sha256.empty() && hash.hex() != b.sha256) {
+    if (!sha256.empty() && hash.hex() != sha256) {
         if (error) *error = "SHA-256 does not match";
         return false;
     }
-    if (!is_nro(head)) {
+    return true;
+}
+
+bool verify_nro(const std::string& path, std::string* error)
+{
+    FILE* f = std::fopen(path.c_str(), "rb");
+    char head[0x20] = {};
+    const size_t n = f ? std::fread(head, 1, sizeof(head), f) : 0;
+    if (f) std::fclose(f);
+    if (!is_nro(std::string(head, n))) {
         if (error) *error = "not an NRO file";
         return false;
     }

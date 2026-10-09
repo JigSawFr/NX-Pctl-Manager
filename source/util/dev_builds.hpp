@@ -1,18 +1,17 @@
 // dev_builds — install another build of PlayGuard in place, from the
 // developer tools: the latest release, one of the last commits of main, or
-// the build of an open pull request.
+// the newest build of an open pull request (forks included).
 //
-// CI (.github/workflows/build.yml, job dev-builds) publishes them as GitHub
-// pre-releases, readable without an account:
-//   tag "dev":   playguard-<commit>.nro for the last commits of main;
-//   tag "pr-<n>": playguard-<commit>.nro, the latest build of pull request n
-//                 (from this repository only; removed when it closes).
-// Pre-releases are never "latest": the update check and the stores keep to
-// the releases.
+// The release is the playguard.nro of the latest GitHub release, readable
+// without an account. The others are the playguard_release artifact the
+// build workflow keeps for every run (.github/workflows/build.yml): a zip
+// holding playguard.nro, which GitHub only hands to a signed-in user, hence
+// the token of util/github_auth.hpp. Artifacts expire (90 days by default).
 //
-// The download is checked (size, the SHA-256 GitHub records for the asset,
-// the NRO header) before it replaces the running .nro, which hbloader loaded
-// whole into memory, so it can be overwritten; then hbloader starts it.
+// The download is checked (size and the SHA-256 GitHub records; for an
+// artifact, the zip's, then the CRC-32 of playguard.nro inside it; the NRO
+// header) before it replaces the running .nro, which hbloader loaded whole
+// into memory, so it can be overwritten; then hbloader starts it.
 //
 // Everything but fetch() and download() is plain C++ for the host tests
 // (tests/dev_builds); those two are in dev_builds_net.cpp.
@@ -30,47 +29,63 @@ enum class Kind
 {
     Release,       // the latest release (playguard.nro)
     Main,          // a commit of main
-    PullRequest,   // the latest build of a pull request
+    PullRequest,   // the newest build of an open pull request
 };
 
 struct Build
 {
     Kind        kind = Kind::Main;
+    bool        artifact = false;   // url, size and sha256 are those of a zip holding playguard.nro
     std::string version;   // Release: "1.2.0"
     int         pr = 0;    // PullRequest: its number
     std::string title;     // PullRequest: its title
     std::string commit;    // Main / PullRequest: 7 hex digits
-    std::string date;      // "2026-10-09T12:03:00Z", when the asset was uploaded
-    std::string url;       // browser_download_url
+    std::string date;      // "2026-10-09T12:03:00Z", when it was built
+    std::string url;       // the download (an artifact's archive_download_url needs the token)
     uint64_t    size = 0;
     std::string sha256;    // 64 hex digits; empty when GitHub gave no digest
 };
 
-// "playguard-1a2b3c4.nro" -> "1a2b3c4"; empty for any other name.
-std::string commit_of(const std::string& asset_name);
+// One run's artifact, as GET /repos/…/actions/artifacts lists it.
+struct Artifact
+{
+    std::string sha256, url, date, branch, commit;   // commit: the run's head, 7 hex digits
+    uint64_t    size = 0;
+    int64_t     repo = 0, head_repo = 0;   // the run's repository and the head's (a fork's for its PRs)
+};
 
-// One release object of the GitHub API (GET /repos/…/releases/…) into the
-// builds it holds: "dev" gives one per commit, "pr-<n>" its newest, a
-// release that is not a pre-release its playguard.nro. False for anything
-// else (no builds, malformed).
-bool parse_release(const std::string& json, std::vector<Build>* out);
-// The same for an array of them (GET /repos/…/releases).
-bool parse_releases(const std::string& json, std::vector<Build>* out);
+// An open pull request (GET /repos/…/pulls).
+struct Pull
+{
+    int         number = 0;
+    std::string title, branch;
+    int64_t     head_repo = 0;
+};
 
-// Release first, then main newest first, then pull requests by number,
-// highest first; the same build twice (same kind and commit) once.
-void sort(std::vector<Build>* builds);
+// The latest release (GET /repos/…/releases/latest): its playguard.nro.
+// False for anything else (a pre-release, no such asset, malformed).
+bool parse_release(const std::string& json, Build* out);
+// The "playguard_release" artifacts that have not expired, newest first as listed.
+bool parse_artifacts(const std::string& json, std::vector<Artifact>* out);
+bool parse_pulls(const std::string& json, std::vector<Pull>* out);
 
-// "sha256:<64 hex>" (GitHub's asset digest) -> the 64 hex digits, lower
-// case; empty when malformed.
+// The builds: main's newest `keep_main` commits (pushed to this repository's
+// main), then for each open pull request the newest artifact of its branch
+// in its repository. Newest first within each kind; one per commit.
+std::vector<Build> combine(const std::vector<Artifact>& artifacts, const std::vector<Pull>& pulls,
+                           size_t keep_main = 20);
+
+// "sha256:<64 hex>" (GitHub's digest) -> the 64 hex digits, lower case;
+// empty when malformed.
 std::string digest_hex(const std::string& digest);
 
 // An NRO: "NRO0" at offset 0x10.
 bool is_nro(const std::string& head);
 
-// Checks the downloaded file against `b` (size, SHA-256 when known, NRO
-// header). False, and *error set (in English), when it does not match.
-bool verify(const std::string& path, const Build& b, std::string* error);
+// Checks a downloaded file against `size` and `sha256` (when known).
+bool verify_file(const std::string& path, uint64_t size, const std::string& sha256, std::string* error);
+// Checks that `path` is an NRO.
+bool verify_nro(const std::string& path, std::string* error);
 
 // Replaces `target` with `fresh` (both on the same file system): target
 // moves aside to "<target>.old", fresh takes its name, then the old one is
@@ -78,14 +93,16 @@ bool verify(const std::string& path, const Build& b, std::string* error);
 // missing target is simply created.
 bool replace(const std::string& target, const std::string& fresh, std::string* error);
 
-// The builds that can be installed, newest first (see sort()). Blocking
-// (network): run it with brls::async. On the desktop build
-// PLAYGUARD_SIM_DEV_BUILDS ("offline", or a JSON file holding a release
-// array) replaces the network.
-bool fetch(std::vector<Build>* out, std::string* error);
+// The builds that can be installed: the release, then (with a token) main
+// and the pull requests. Blocking (network): run it with brls::async.
+// *needs_login is set when there is no token, so only the release is listed.
+// On the desktop build PLAYGUARD_SIM_DEV_BUILDS ("offline", or a folder
+// holding latest.json, artifacts.json and pulls.json) replaces the network.
+bool fetch(std::vector<Build>* out, bool* needs_login, std::string* error);
 
-// Downloads `b` to `path` and verifies it. Blocking. On the desktop build,
-// with PLAYGUARD_SIM_DEV_BUILDS set, the URL is a local file to copy.
+// Downloads `b` to `path` (playguard.nro itself, out of the zip for an
+// artifact) and verifies it. Blocking. On the desktop build, with
+// PLAYGUARD_SIM_DEV_BUILDS set, a URL "https://<path>" is a local file.
 bool download(const Build& b, const std::string& path, std::string* error);
 
 }   // namespace dev_builds

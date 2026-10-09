@@ -59,11 +59,22 @@ size_t on_data(char* data, size_t size, size_t count, void* user)
 
 namespace
 {
-// One request: GET when `post` is null, else a POST of `*post` as `content_type`.
-// `to_file` replaces the in-memory sink for a download.
-bool perform(const std::string& url, const std::string* post, const char* content_type, std::string* body,
-             std::string* error, size_t max_bytes, long timeout_s, long* status_out, Sink* to_file = nullptr)
+// What a request adds to a plain GET.
+struct Extra
 {
+    const std::string* post = nullptr;           // POST this body…
+    const char*        content_type = nullptr;   // … as this type
+    const Headers*     headers = nullptr;
+    bool               follow = true;            // follow redirects (never for a POST)
+    std::string*       location = nullptr;       // the redirect target, when not followed
+    Sink*              to_file = nullptr;        // replaces the in-memory sink (download)
+};
+
+bool perform(const std::string& url, const Extra& x, std::string* body, std::string* error, size_t max_bytes,
+             long timeout_s, long* status_out)
+{
+    const std::string* post = x.post;
+    Sink* to_file = x.to_file;
     std::lock_guard<std::mutex> guard(s_lock);
     body->clear();
     if (status_out) *status_out = 0;
@@ -88,7 +99,7 @@ bool perform(const std::string& url, const std::string* post, const char* conten
     char message[CURL_ERROR_SIZE] = "";
     struct curl_slist* headers = nullptr;
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, x.follow && !post ? 1L : 0L);
     curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 5L);
     // HTTPS only, redirects included (no downgrade to http:// or other schemes).
 #if LIBCURL_VERSION_NUM >= 0x075500
@@ -110,18 +121,24 @@ bool perform(const std::string& url, const std::string* post, const char* conten
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &sink);
     curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, message);
     if (post) {
-        // A redirect must not turn the POST into a GET elsewhere.
-        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 0L);
+        // Never followed (above): a redirect must not turn the POST into a GET elsewhere.
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post->data());
         curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE_LARGE, (curl_off_t)post->size());
-        headers = curl_slist_append(headers, (std::string("Content-Type: ") + content_type).c_str());
+        headers = curl_slist_append(headers, (std::string("Content-Type: ") + x.content_type).c_str());
         headers = curl_slist_append(headers, "Expect:");   // no 100-continue round trip
-        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     }
+    if (x.headers)
+        for (const std::string& h : *x.headers) headers = curl_slist_append(headers, h.c_str());
+    if (headers) curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
     const CURLcode rc = curl_easy_perform(curl);
     long status = 0;
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &status);
+    if (x.location) {
+        char* target = nullptr;
+        curl_easy_getinfo(curl, CURLINFO_REDIRECT_URL, &target);
+        *x.location = target ? target : "";
+    }
     curl_easy_cleanup(curl);
     curl_slist_free_all(headers);
     if (status_out) *status_out = status;
@@ -146,15 +163,38 @@ bool perform(const std::string& url, const std::string* post, const char* conten
 }
 }   // namespace
 
-bool get(const std::string& url, std::string* body, std::string* error, size_t max_bytes, long timeout_s)
+bool get(const std::string& url, std::string* body, std::string* error, size_t max_bytes, long timeout_s,
+         const Headers& headers)
 {
-    return perform(url, nullptr, nullptr, body, error, max_bytes, timeout_s, nullptr);
+    Extra x;
+    x.headers = &headers;
+    return perform(url, x, body, error, max_bytes, timeout_s, nullptr);
 }
 
 bool post(const std::string& url, const std::string& data, const char* content_type, std::string* body,
-          std::string* error, long* status, size_t max_bytes, long timeout_s)
+          std::string* error, long* status, size_t max_bytes, long timeout_s, const Headers& headers)
 {
-    return perform(url, &data, content_type, body, error, max_bytes, timeout_s, status);
+    Extra x;
+    x.post = &data;
+    x.content_type = content_type;
+    x.headers = &headers;
+    return perform(url, x, body, error, max_bytes, timeout_s, status);
+}
+
+bool redirect(const std::string& url, std::string* target, std::string* error, const Headers& headers)
+{
+    Extra x;
+    x.headers = &headers;
+    x.follow = false;
+    x.location = target;
+    std::string body;
+    long status = 0;
+    if (!perform(url, x, &body, error, 64 * 1024, 30, &status)) return false;
+    if (status < 300 || status >= 400 || target->compare(0, 8, "https://") != 0) {
+        if (error) *error = "no redirect (HTTP " + std::to_string(status) + ")";
+        return false;
+    }
+    return true;
 }
 
 bool download(const std::string& url, const std::string& path, std::string* error, size_t max_bytes,
@@ -172,7 +212,9 @@ bool download(const std::string& url, const std::string& path, std::string* erro
     Sink sink{ &unused, max_bytes };
     sink.file = file;
     sink.progress = std::move(progress);
-    bool ok = perform(url, nullptr, nullptr, &unused, error, max_bytes, timeout_s, nullptr, &sink);
+    Extra x;
+    x.to_file = &sink;
+    bool ok = perform(url, x, &unused, error, max_bytes, timeout_s, nullptr);
     if (std::fclose(file) != 0 && ok) {
         if (error) *error = "cannot write the file";
         ok = false;

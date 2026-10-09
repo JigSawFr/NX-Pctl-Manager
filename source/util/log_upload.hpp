@@ -36,7 +36,8 @@ struct Part
 // The debug files found in the data directory, in a fixed order:
 // logs/play_timer_block.json (Developer tools › play-timer block),
 // history.json (the change history) and config.json (PlayGuard's settings;
-// the PIN is not one of them). Missing ones are left out.
+// the PIN is not one of them). Missing ones are left out. Never the GitHub
+// token (github_auth.hpp keeps it in a file of its own).
 std::vector<Part> debug_files();
 
 // Names of the reports saved in logs/ ("20261009_141203.txt"), newest first,
