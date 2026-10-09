@@ -88,7 +88,8 @@
         "no_pin": "non è impostato alcun PIN del filtro famiglia",
         "session_closed": "il sistema ha chiuso la sessione del filtro famiglia; riprova",
         "bad_pin_format": "il sistema ha rifiutato il formato del PIN",
-        "pctl_refused": "rifiutato dal servizio del filtro famiglia"
+        "pctl_refused": "rifiutato dal servizio del filtro famiglia",
+        "relock_failed": "la console è stata sbloccata ma non è stato possibile bloccarla di nuovo: bloccala ora (Sicurezza e app › Blocca ora)"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -538,6 +539,8 @@
         "continue": "Apri PlayGuard",
         "note": "Sei arrivato a questa schermata con il file RESCUE, quindi qui il PIN non viene richiesto. Imposta un nuovo PIN o elimina il filtro famiglia, poi apri PlayGuard.",
         "note_failed": "Il recupero non si è concluso da solo. Puoi riprovare da qui, oppure estrarre la scheda SD e modificare le impostazioni da un computer.",
+        "note_refused": "Tutto il filtro famiglia sarebbe stato eliminato, ma non è stato possibile rimuovere il file di richiesta dalla scheda SD, che sarebbe stato rieseguito a ogni avvio. Rimuovilo da un computer e riprova, oppure usa le azioni qui sotto.",
+        "request_kept": "Non è stato possibile rimuovere il file {} dalla scheda SD: finché resta lì, la console viene sbloccata di nuovo a ogni avvio. Rimuovilo da un computer.",
         "note_deleted": "Il filtro famiglia è stato eliminato, PIN compreso. Apri PlayGuard: da lì potrai configurarlo di nuovo quando vuoi.",
         "note_no_pin": "Non era impostato alcun PIN del filtro famiglia, quindi non c'era nulla da sbloccare. Puoi impostarne uno qui, poi aprire PlayGuard.",
         "failed_code": "Risposta della console: {}.",
@@ -545,7 +548,8 @@
             "unlocked": "Il filtro famiglia è stato sbloccato, così PlayGuard ha potuto aprirsi.",
             "deleted": "Il filtro famiglia è stato eliminato.",
             "no_pin": "Non c'era alcun PIN da recuperare: nessun PIN del filtro famiglia è impostato.",
-            "failed": "Il recupero non è riuscito a concludersi."
+            "failed": "Il recupero non è riuscito a concludersi.",
+            "refused": "Non è stato eliminato nulla: non è stato possibile rimuovere il file RESCUE dalla scheda SD."
         },
         "hint": {
             "show_pin": "se l'hai dimenticato",

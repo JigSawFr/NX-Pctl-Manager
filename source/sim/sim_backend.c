@@ -234,9 +234,11 @@ Result pctl_get_level_settings(u32 level, PctlCustomSettings *out)
     *out = level == PctlSafetyLevel_Custom ? S.custom : presets[level];
     return 0;
 }
-Result pctl_play_timer_set_alarm_disabled(bool d) { RO_GUARD(); FAIL_IF("write"); S.alarm_disabled = d; return 0; }
-Result pctl_play_timer_start(void)                { RO_GUARD(); FAIL_IF("write"); S.paused = false; return 0; }
-Result pctl_play_timer_stop(void)                 { RO_GUARD(); FAIL_IF("write"); S.paused = true; return 0; }
+// The same gate as pctl_ops.c: no play-timer write while it counts down.
+#define PT_GATE() do { if ((timer_enabled() || S.limit_reached) && !S.temp_unlocked) return NXM_RC_WRITE_GATED; } while (0)
+Result pctl_play_timer_set_alarm_disabled(bool d) { RO_GUARD(); PT_GATE(); FAIL_IF("write"); S.alarm_disabled = d; return 0; }
+Result pctl_play_timer_start(void)                { RO_GUARD(); PT_GATE(); FAIL_IF("write"); S.paused = false; return 0; }
+Result pctl_play_timer_stop(void)                 { RO_GUARD(); PT_GATE(); FAIL_IF("write"); S.paused = true; return 0; }
 
 void pctl_play_timer_query(PtState *o)
 {

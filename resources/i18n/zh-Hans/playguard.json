@@ -88,7 +88,8 @@
         "no_pin": "尚未设置家长控制PIN",
         "session_closed": "系统已关闭家长控制会话，请重试",
         "bad_pin_format": "系统拒绝了此PIN格式",
-        "pctl_refused": "家长控制服务拒绝了此操作"
+        "pctl_refused": "家长控制服务拒绝了此操作",
+        "relock_failed": "主机已解锁，但无法重新锁定：请立即锁定（安全与应用 › 立即启用）"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -538,6 +539,8 @@
         "continue": "打开PlayGuard",
         "note": "您是通过RESCUE文件进入此画面的，因此这里不会要求输入PIN。请设置新PIN或删除家长控制，然后打开PlayGuard。",
         "note_failed": "恢复未能自动完成。您可以在这里重试，或取出SD卡在电脑上修改设置。",
+        "note_refused": "本应删除所有家长控制，但无法从 SD 卡移除请求文件，它会在每次启动时再次执行。请在电脑上删除它后重试，或使用下方的操作。",
+        "request_kept": "无法从 SD 卡移除 {} 文件：在删除之前，主机每次启动都会再次解锁。请在电脑上删除它。",
         "note_deleted": "所有家长控制（包括PIN）都已删除。打开PlayGuard，随时可以重新设置。",
         "note_no_pin": "未设置家长控制PIN，因此没有需要解除的内容。您可以在这里设置PIN，然后打开PlayGuard。",
         "failed_code": "主机返回：{}",
@@ -545,7 +548,8 @@
             "unlocked": "已解除家长控制，因此PlayGuard得以打开。",
             "deleted": "已删除所有家长控制。",
             "no_pin": "没有可恢复的PIN：未设置家长控制PIN。",
-            "failed": "未能完成恢复。"
+            "failed": "未能完成恢复。",
+            "refused": "未删除任何内容：无法从 SD 卡移除 RESCUE 文件。"
         },
         "hint": {
             "show_pin": "忘记时",

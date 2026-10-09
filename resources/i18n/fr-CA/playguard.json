@@ -88,7 +88,8 @@
         "no_pin": "aucun NIP de contrôle parental n'est défini",
         "session_closed": "le système a fermé la session du contrôle parental; réessayez",
         "bad_pin_format": "le système a refusé le format du NIP",
-        "pctl_refused": "refusé par le service du contrôle parental"
+        "pctl_refused": "refusé par le service du contrôle parental",
+        "relock_failed": "la console a été déverrouillée mais n'a pas pu être reverrouillée : verrouillez-la maintenant (Sécurité et appli › Verrouiller maintenant)"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -538,6 +539,8 @@
         "continue": "Ouvrir PlayGuard",
         "note": "Vous êtes arrivé à cet écran grâce au fichier RESCUE : aucun NIP n'est demandé ici. Définissez un nouveau NIP ou supprimez le contrôle parental, puis ouvrez PlayGuard.",
         "note_failed": "La récupération n'a pas abouti d'elle-même. Vous pouvez réessayer ici, ou retirer la carte SD et modifier les réglages sur un ordinateur.",
+        "note_refused": "Tout le contrôle parental aurait été supprimé, mais le fichier de demande n'a pas pu être retiré de la carte SD : il aurait été rejoué à chaque démarrage. Supprimez-le depuis un ordinateur puis réessayez, ou utilisez les actions ci-dessous.",
+        "request_kept": "Le fichier {} n'a pas pu être retiré de la carte SD : tant qu'il y est, la console est de nouveau déverrouillée à chaque démarrage. Supprimez-le depuis un ordinateur.",
         "note_deleted": "Tout le contrôle parental a été supprimé, NIP compris. Ouvrez PlayGuard : vous pourrez le reconfigurer à tout moment depuis l'application.",
         "note_no_pin": "Aucun NIP de contrôle parental n'était défini, il n'y avait donc rien à déverrouiller. Vous pouvez en définir un ici, puis ouvrir PlayGuard.",
         "failed_code": "Réponse de la console : {}.",
@@ -545,7 +548,8 @@
             "unlocked": "Le contrôle parental a été déverrouillé, PlayGuard a donc pu s'ouvrir.",
             "deleted": "Tout le contrôle parental a été supprimé.",
             "no_pin": "Aucun NIP à récupérer : aucun NIP de contrôle parental n'est défini.",
-            "failed": "La récupération n'a pas pu aboutir."
+            "failed": "La récupération n'a pas pu aboutir.",
+            "refused": "Rien n'a été supprimé : le fichier RESCUE n'a pas pu être retiré de la carte SD."
         },
         "hint": {
             "show_pin": "en cas d'oubli",

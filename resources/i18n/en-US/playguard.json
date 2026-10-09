@@ -88,7 +88,8 @@
         "no_pin": "no parental-control PIN is set",
         "session_closed": "the system closed the parental-control session; try again",
         "bad_pin_format": "the system rejected the PIN format",
-        "pctl_refused": "refused by the parental-control service"
+        "pctl_refused": "refused by the parental-control service",
+        "relock_failed": "the console was unlocked but could not be locked again: lock it now (Security & app › Lock now)"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -538,6 +539,8 @@
         "continue": "Open PlayGuard",
         "note": "You reached this screen with the RESCUE file, so no PIN is asked here. Set a new PIN or remove the parental controls, then open PlayGuard.",
         "note_failed": "Recovery did not finish on its own. You can still try from here, or remove the SD card and edit the settings on a computer.",
+        "note_refused": "Every parental control would have been deleted, but the request file could not be removed from the SD card, so it would have run again at every start. Remove it from a computer, then try again, or use the actions below.",
+        "request_kept": "The {} file could not be removed from the SD card: until it is, the console is unlocked again at every start. Remove it from a computer.",
         "note_deleted": "Every parental control was removed, including the PIN. Open PlayGuard — you can set it up again from there whenever you like.",
         "note_no_pin": "No parental-control PIN was set, so there was nothing to unlock. You can set one here, then open PlayGuard.",
         "failed_code": "The console reported {}.",
@@ -545,7 +548,8 @@
             "unlocked": "Parental controls were unlocked, so PlayGuard could open.",
             "deleted": "Every parental control was deleted.",
             "no_pin": "There was no PIN to recover: no parental-control PIN is set.",
-            "failed": "Recovery could not finish."
+            "failed": "Recovery could not finish.",
+            "refused": "Nothing was deleted: the RESCUE file could not be removed from the SD card."
         },
         "hint": {
             "show_pin": "if you forgot it",

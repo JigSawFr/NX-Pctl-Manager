@@ -7,8 +7,11 @@
 // sd:/switch/playguard/ from a computer and turns the console on:
 //   - empty, or any text: the sysmodule unlocks parental controls temporarily
 //     with the stored PIN (as the PIN screen would), so PlayGuard can open;
-//   - the word "delete" in it: the sysmodule deletes every parental control.
-// The request is removed before anything is done (it is used once), and the
+//   - a line that reads "delete" (any case, spaces around it ignored): the
+//     sysmodule deletes every parental control.
+// The request is removed before anything is done (it is used once); should
+// that fail it is renamed RESCUE.done, and should that fail too a delete is
+// not done (it would run again every boot) while an unlock still is. The
 // result is left in rescue_report.txt for PlayGuard, which shows it, records
 // it in the change history and removes the report.
 //
@@ -32,6 +35,7 @@ extern "C" {
 // file system ignores case, so "rescue.txt" is found too.
 #define RESCUE_REQUEST_NAME     "RESCUE"
 #define RESCUE_REQUEST_NAME_TXT "RESCUE.txt"
+#define RESCUE_REQUEST_NAME_DONE "RESCUE.done"   // a request that could not be removed
 #define RESCUE_REPORT_NAME      "rescue_report.txt"
 
 typedef enum {
@@ -43,20 +47,32 @@ typedef enum {
     RescueResult_Ok     = 0,
     RescueResult_NoPin  = 1,   // nothing to unlock: no PIN is set
     RescueResult_Failed = 2,   // `rc` says why
+    RescueResult_Refused = 3,  // a delete not done: the request could not be removed
 } RescueResult;
+
+// What became of the request file (RESCUE or RESCUE.txt) before acting on it,
+// from best to worst (the sysmodule keeps the worse of the two names).
+typedef enum {
+    RescueRequest_Removed = 0,   // deleted, as it should be
+    RescueRequest_Renamed = 1,   // could not be deleted: renamed RESCUE.done
+    RescueRequest_Kept    = 2,   // could be neither: still there, acted on again next boot
+} RescueRequest;
 
 typedef struct {
     RescueMode   mode;
     RescueResult result;
     uint32_t     rc;        // the last failure, 0 when none
     uint32_t     unlocks;   // unlocks done (again when the system locked in between)
+    RescueRequest request;  // "request=" line; Removed when absent (older reports)
 } RescueReport;
 
-// The mode a request asks for: Delete when its first `len` bytes contain
-// "delete" in any case, else Unlock (an empty file included).
+// The mode a request asks for: Delete when, in its first `len` bytes, a line
+// reads "delete" in any case once ASCII spaces (and a UTF-8 byte-order mark at
+// the start) are trimmed; else Unlock (an empty file included). "delete
+// everything" or "undelete" is an unlock: deleting takes an unambiguous word.
 RescueMode rescue_request_mode(const char *content, size_t len);
 
-// "mode=unlock\nresult=ok\nrc=0x00000000\nunlocks=1\n" into buf. Returns the
+// "mode=unlock\nresult=ok\nrc=0x00000000\nunlocks=1\nrequest=removed\n" into buf. Returns the
 // length written, or 0 when it does not fit (buf then holds "").
 size_t rescue_report_format(const RescueReport *r, char *buf, size_t size);
 
@@ -66,7 +82,8 @@ size_t rescue_report_format(const RescueReport *r, char *buf, size_t size);
 bool rescue_report_parse(const char *text, size_t len, RescueReport *out);
 
 const char *rescue_mode_name(RescueMode mode);         // "unlock" / "delete"
-const char *rescue_result_name(RescueResult result);   // "ok" / "no_pin" / "failed"
+const char *rescue_result_name(RescueResult result);   // "ok" / "no_pin" / "failed" / "refused"
+const char *rescue_request_name(RescueRequest request); // "removed" / "renamed" / "kept"
 
 #ifdef __cplusplus
 }

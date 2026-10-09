@@ -88,7 +88,8 @@
         "no_pin": "no hay ningún PIN de control parental definido",
         "session_closed": "el sistema ha cerrado la sesión del control parental; inténtelo de nuevo",
         "bad_pin_format": "el sistema ha rechazado el formato del PIN",
-        "pctl_refused": "rechazado por el servicio de control parental"
+        "pctl_refused": "rechazado por el servicio de control parental",
+        "relock_failed": "la consola se desbloqueó pero no se pudo volver a bloquear: bloquéala ahora (Seguridad y app › Bloquear ahora)"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -538,6 +539,8 @@
         "continue": "Abrir PlayGuard",
         "note": "Ha llegado a esta pantalla con el archivo RESCUE, así que aquí no se pide el PIN. Defina un PIN nuevo o elimine el control parental y, después, abra PlayGuard.",
         "note_failed": "La recuperación no ha terminado por sí sola. Puede volver a intentarlo desde aquí, o sacar la tarjeta SD y cambiar los ajustes en un ordenador.",
+        "note_refused": "Se habría eliminado todo el control parental, pero no se pudo quitar el archivo de solicitud de la tarjeta SD, así que se habría repetido en cada arranque. Elimínalo desde un ordenador y vuelve a intentarlo, o usa las acciones de abajo.",
+        "request_kept": "No se pudo quitar el archivo {} de la tarjeta SD: mientras siga ahí, la consola se desbloquea de nuevo en cada arranque. Elimínalo desde un ordenador.",
         "note_deleted": "Se ha eliminado todo el control parental, PIN incluido. Abra PlayGuard: desde ahí puede volver a configurarlo cuando quiera.",
         "note_no_pin": "No había ningún PIN de control parental, así que no había nada que desbloquear. Puede definir uno aquí y, después, abrir PlayGuard.",
         "failed_code": "Respuesta de la consola: {}.",
@@ -545,7 +548,8 @@
             "unlocked": "Se ha desbloqueado el control parental para que PlayGuard pudiera abrirse.",
             "deleted": "Se ha eliminado todo el control parental.",
             "no_pin": "No había ningún PIN que recuperar: no hay un PIN de control parental definido.",
-            "failed": "La recuperación no ha podido terminar."
+            "failed": "La recuperación no ha podido terminar.",
+            "refused": "No se eliminó nada: no se pudo quitar el archivo RESCUE de la tarjeta SD."
         },
         "hint": {
             "show_pin": "si lo ha olvidado",
