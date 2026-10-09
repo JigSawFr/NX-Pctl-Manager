@@ -11,7 +11,7 @@
 
 **Le contrôle parental de la Nintendo Switch, directement sur la console — sans application mobile, sans compte Nintendo, sans Internet.**
 
-PlayGuard est un homebrew qui ramène sur la console, hors ligne, les réglages de l'application mobile Contrôle parental Nintendo Switch : limite quotidienne de temps de jeu, restrictions, code PIN, horloge réseau, activité de jeu — et un moyen de reprendre la main quand la console est bloquée.
+PlayGuard est un homebrew qui ramène sur la console, hors ligne, les réglages de l'application mobile [Contrôle parental Nintendo Switch](https://apps.apple.com/fr/app/contr%C3%B4le-parental-nintendo-sw/id1190074407) : limite quotidienne de temps de jeu, restrictions, code PIN, horloge réseau, activité de jeu — et un moyen de reprendre la main quand la console est bloquée. Ce qu'il couvre de l'application mobile, et ce qui manque encore : [docs/companion-app.md](docs/companion-app.md) (en anglais).
 
 ![Vue d'ensemble](images/screenshots/dashboard_fr_dark.png)
 
@@ -20,6 +20,7 @@ PlayGuard est un homebrew qui ramène sur la console, hors ligne, les réglages 
 
 ## Sommaire
 
+- [Pourquoi PlayGuard](#pourquoi-playguard)
 - [Points forts](#points-forts)
 - [Compatibilité](#compatibilité)
 - [Installation](#installation)
@@ -31,6 +32,14 @@ PlayGuard est un homebrew qui ramène sur la console, hors ligne, les réglages 
 - [Signaler un bug](#signaler-un-bug)
 - [Contribuer](#contribuer)
 - [Licence et remerciements](#licence-et-remerciements)
+
+## Pourquoi PlayGuard
+
+Les enfants aiment les jeux vidéo, et les jeux vidéo, ce sont des écrans : les limiter fait partie de prendre soin d'eux. Sur une Switch d'origine, l'application mobile de Nintendo s'en chargeait. En passant la console sous firmware personnalisé, le champ des possibles s'ouvre — mais le contrôle parental saute, car l'application mobile n'atteint plus la console. Savoir combien de temps ils ont joué, fixer une limite, faire arrêter le jeu sans bataille ni éternel « encore cinq minutes » devenait compliqué.
+
+Les rares outils existants ne faisaient pas l'affaire : un suivi d'activité peu maintenu et peu détaillé, un contrôle parental peu développé et inabouti. Je ne voulais pas non plus d'un remplacement maison, ni d'un sysmodule qui tourne en permanence en arrière-plan. L'objectif : **réutiliser au maximum le contrôle parental de la console**, avec tout ce qu'il sait déjà faire — la limite, le code PIN, les avertissements, la suspension — et ramener ses réglages sur la console. C'est PlayGuard.
+
+Piloter le contrôle parental de la console ouvre aussi la porte à bien plus : remonter le temps de jeu vers un serveur à la maison, recevoir des ordres, Home Assistant, des automatisations. Ce vers quoi cela pourrait aller est dans [l'horizon de la feuille de route](ROADMAP.md#horizon) (en anglais).
 
 ## Points forts
 
@@ -260,7 +269,7 @@ Appuyez sept fois sur *À propos › Version* ; les outils développeur apparais
 
 ## Contribuer
 
-La compilation, le simulateur de bureau, l'architecture du code, le processus de publication et la traduction sont décrits dans **[CONTRIBUTING.md](CONTRIBUTING.md)** (en anglais).
+La compilation, le simulateur de bureau, l'architecture du code, le processus de publication et la traduction sont décrits dans **[CONTRIBUTING.md](CONTRIBUTING.md)** (en anglais). La suite, et les idées en attente d'une décision : **[ROADMAP.md](ROADMAP.md)** (en anglais).
 
 En bref :
 
@@ -281,5 +290,8 @@ GPLv3 — voir [`LICENSE`](LICENSE). Maintenu par **[JigSawFr](https://github.co
 - QR codes : **[QR Code generator](https://github.com/nayuki/QR-Code-generator)** de Project Nayuki (MIT), dans `extern/qrcodegen/`.
 - Diagnostic fw 22.5, libération de session et synchronisation NTP adaptés de **[anbingxi/NX-Pctl-Manager](https://github.com/anbingxi/NX-Pctl-Manager/tree/diag/fw22-5-readonly)**.
 - Référence des commandes : [switchbrew — Parental Control services](https://switchbrew.org/wiki/Parental_Control_services).
+
+> [!NOTE]
+> **Comment PlayGuard est développé.** Des assistants de code à base d'IA ont été utilisés pendant le développement : écriture et relecture du code, traductions, documentation. Les changements de PlayGuard sont pilotés, relus et validés par un développeur professionnel, couverts par les tests unitaires C et le simulateur desktop, et testés sur une vraie console (22.1.0 / Atmosphère 1.11.1) avant publication.
 
 PlayGuard n'est ni affilié à Nintendo ni approuvé par Nintendo. Nintendo Switch est une marque de Nintendo.

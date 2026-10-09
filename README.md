@@ -11,7 +11,7 @@
 
 **Nintendo Switch parental controls, right on the console — no phone app, no Nintendo account, no internet.**
 
-PlayGuard is a homebrew app that brings the settings of the Nintendo Switch Parental Controls phone app onto the console itself, for offline use: daily play-time limits, restrictions, PIN, network clock, play activity — and a way back in when you are locked out.
+PlayGuard is a homebrew app that brings the settings of the [Nintendo Switch Parental Controls](https://apps.apple.com/fr/app/contr%C3%B4le-parental-nintendo-sw/id1190074407) phone app onto the console itself, for offline use: daily play-time limits, restrictions, PIN, network clock, play activity — and a way back in when you are locked out. What it covers of the phone app, and what is still missing: [docs/companion-app.md](docs/companion-app.md).
 
 ![Overview](images/screenshots/dashboard.png)
 
@@ -20,6 +20,7 @@ PlayGuard is a homebrew app that brings the settings of the Nintendo Switch Pare
 
 ## Contents
 
+- [Why PlayGuard](#why-playguard)
 - [Highlights](#highlights)
 - [Compatibility](#compatibility)
 - [Install](#install)
@@ -31,6 +32,14 @@ PlayGuard is a homebrew app that brings the settings of the Nintendo Switch Pare
 - [Reporting a bug](#reporting-a-bug)
 - [Contributing](#contributing)
 - [License and credits](#license-and-credits)
+
+## Why PlayGuard
+
+Children love video games, and video games mean screens: a limit is part of looking after them. On an unmodified Switch, Nintendo's phone app took care of it. Once the console runs custom firmware, a whole new world opens up — and parental control goes out of the window, because the phone app no longer reaches the console. Knowing how long they played, setting a limit, getting the game stopped without a fight or one more "five more minutes" became hard.
+
+The few tools that existed did not do the job: activity reports that were barely maintained and not very detailed, parental controls that were rough and unfinished. And I did not want a custom replacement either, or a sysmodule always running in the background. The idea was to **reuse the console's own parental controls as much as possible**, with everything they already do — the limit, the PIN, the warnings, the suspension — and to bring their settings back onto the console. That is PlayGuard.
+
+Driving the console's own controls also opens the door to much more: reporting play time to a home server, taking orders from it, Home Assistant, automations. Where that could go is in the [roadmap's horizon](ROADMAP.md#horizon).
 
 ## Highlights
 
@@ -260,7 +269,7 @@ Press *About › Version* seven times; the developer tools appear at the end of 
 
 ## Contributing
 
-Build instructions, the desktop simulator, the code layout, the release process and how to translate PlayGuard are in **[CONTRIBUTING.md](CONTRIBUTING.md)**.
+Build instructions, the desktop simulator, the code layout, the release process and how to translate PlayGuard are in **[CONTRIBUTING.md](CONTRIBUTING.md)**. What comes next, and the ideas waiting for a decision: **[ROADMAP.md](ROADMAP.md)**.
 
 Quick taste:
 
@@ -281,5 +290,8 @@ GPLv3 — see [`LICENSE`](LICENSE). Maintained by **[JigSawFr](https://github.co
 - QR codes: **[QR Code generator](https://github.com/nayuki/QR-Code-generator)** by Project Nayuki (MIT), in `extern/qrcodegen/`.
 - fw 22.5 diagnosis, session release and NTP synchronisation adapted from **[anbingxi/NX-Pctl-Manager](https://github.com/anbingxi/NX-Pctl-Manager/tree/diag/fw22-5-readonly)**.
 - Command reference: [switchbrew — Parental Control services](https://switchbrew.org/wiki/Parental_Control_services).
+
+> [!NOTE]
+> **How PlayGuard is built.** AI coding assistants were used alongside development: writing and reviewing code, translations and documentation. PlayGuard's changes are driven, reviewed and validated by a professional developer, covered by the C unit tests and the desktop simulator, and tested on a real console (22.1.0 / Atmosphère 1.11.1) before release.
 
 PlayGuard is not affiliated with or endorsed by Nintendo. Nintendo Switch is a trademark of Nintendo.

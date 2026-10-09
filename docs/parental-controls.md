@@ -367,6 +367,9 @@ From the same 20:10 report:
 - What turned the header's byte `07` from `06` to `00`.
 - The `01` byte of each free-communication list entry.
 - Whether time spent counts while temporarily unlocked.
+- Whether a PIN entered from the HOME menu is logged anywhere PlayGuard can
+  read (the companion app shows it since 2.5.0; see
+  [companion-app.md](companion-app.md)).
 
 ## How to add a finding
 
