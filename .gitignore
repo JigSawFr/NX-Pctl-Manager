@@ -80,6 +80,7 @@ toolchain.txt
 /node_modules
 /out-rescue
 /smoke-rescue
+/smoke-devbuild
 /sysmodule/build
 /sysmodule/out
 *.nsp
