@@ -12,7 +12,8 @@
         "clock": "Relógio de rede",
         "security": "Segurança e aplicação",
         "preferences": "Preferências",
-        "tools": "Ferramentas e info"
+        "tools": "Ferramentas",
+        "about": "Sobre"
     },
     "hints": {
         "refresh": "Atualizar",
@@ -647,6 +648,11 @@
         "flag_read_only": "só de leitura",
         "flag_dev": "programador"
     },
+    "about": {
+        "section_changelog": "Novidades",
+        "changelog_note": "As versões mais recentes, em inglês. Todas as versões: {}",
+        "changelog_none": "Não foi possível ler a lista de alterações. Todas as versões: {}"
+    },
     "prefs": {
         "section_app": "Aplicação",
         "section_play_timer": "Temporizador de jogo",
@@ -709,7 +715,7 @@
         "forget": "Esquecer a escolha do firmware",
         "forgotten": "A escolha do firmware será pedida novamente da próxima vez que a aplicação for iniciada.",
         "already_on": "O modo de programador já está ativo.",
-        "enabled": "Modo de programador ativo: veja o fim de Ferramentas e info.",
+        "enabled": "Modo de programador ativo: veja o fim de Ferramentas.",
         "presses_left": "Prima mais {} vezes para ativar o modo de programador.",
         "presses_left_one": "Prima mais 1 vez para ativar o modo de programador."
     },

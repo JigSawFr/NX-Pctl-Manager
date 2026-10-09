@@ -12,7 +12,8 @@
         "clock": "네트워크 시계",
         "security": "보안 및 앱",
         "preferences": "환경 설정",
-        "tools": "도구 및 정보"
+        "tools": "도구",
+        "about": "정보"
     },
     "hints": {
         "refresh": "새로 고침",
@@ -647,6 +648,11 @@
         "flag_read_only": "읽기 전용",
         "flag_dev": "개발자"
     },
+    "about": {
+        "section_changelog": "변경 사항",
+        "changelog_note": "최신 릴리스(영어). 모든 릴리스: {}",
+        "changelog_none": "변경 사항 목록을 읽을 수 없습니다. 모든 릴리스: {}"
+    },
     "prefs": {
         "section_app": "앱",
         "section_play_timer": "플레이 타이머",
@@ -709,7 +715,7 @@
         "forget": "펌웨어 선택 초기화",
         "forgotten": "다음에 실행할 때 펌웨어 선택을 다시 묻습니다.",
         "already_on": "개발자 모드가 이미 켜져 있습니다.",
-        "enabled": "개발자 모드를 켰습니다: 도구 및 정보 탭 맨 아래를 확인하세요.",
+        "enabled": "개발자 모드를 켰습니다: 도구 탭 맨 아래를 확인하세요.",
         "presses_left": "{}번 더 누르면 개발자 모드가 켜집니다.",
         "presses_left_one": "1번 더 누르면 개발자 모드가 켜집니다."
     },

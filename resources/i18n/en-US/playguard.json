@@ -12,7 +12,8 @@
         "clock": "Network clock",
         "security": "Security & app",
         "preferences": "Preferences",
-        "tools": "Tools & about"
+        "tools": "Tools",
+        "about": "About"
     },
     "hints": {
         "refresh": "Refresh",
@@ -647,6 +648,11 @@
         "flag_read_only": "read-only",
         "flag_dev": "developer"
     },
+    "about": {
+        "section_changelog": "What's new",
+        "changelog_note": "The latest releases. All the releases: {}",
+        "changelog_none": "The list of changes could not be read. All the releases: {}"
+    },
     "prefs": {
         "section_app": "App",
         "section_play_timer": "Play timer",
@@ -709,7 +715,7 @@
         "forget": "Forget the firmware choice",
         "forgotten": "The firmware choice will be asked again at the next launch.",
         "already_on": "Developer mode is already on.",
-        "enabled": "Developer mode is on: see the end of Tools & about.",
+        "enabled": "Developer mode is on: see the end of Tools.",
         "presses_left": "{} more presses to turn on developer mode.",
         "presses_left_one": "1 more press to turn on developer mode."
     },

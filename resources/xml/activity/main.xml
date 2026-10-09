@@ -50,6 +50,10 @@
             <ToolsTab/>
         </brls:Tab>
 
+        <brls:Tab label="@i18n/playguard/tabs/about">
+            <AboutTab/>
+        </brls:Tab>
+
     </brls:TabFrame>
 
 </brls:AppletFrame>

@@ -12,7 +12,8 @@
         "clock": "Netwerkklok",
         "security": "Beveiliging & app",
         "preferences": "Voorkeuren",
-        "tools": "Tools & info"
+        "tools": "Tools",
+        "about": "Info"
     },
     "hints": {
         "refresh": "Vernieuwen",
@@ -647,6 +648,11 @@
         "flag_read_only": "alleen-lezen",
         "flag_dev": "ontwikkelaar"
     },
+    "about": {
+        "section_changelog": "Wat is er nieuw",
+        "changelog_note": "De nieuwste versies, in het Engels. Alle versies: {}",
+        "changelog_none": "De lijst met wijzigingen kon niet worden gelezen. Alle versies: {}"
+    },
     "prefs": {
         "section_app": "App",
         "section_play_timer": "Speeltijdtimer",
@@ -709,7 +715,7 @@
         "forget": "Firmwarekeuze vergeten",
         "forgotten": "Bij de volgende start wordt opnieuw naar de firmwarekeuze gevraagd.",
         "already_on": "De ontwikkelaarsmodus staat al aan.",
-        "enabled": "De ontwikkelaarsmodus staat aan: zie het einde van Tools & info.",
+        "enabled": "De ontwikkelaarsmodus staat aan: zie het einde van Tools.",
         "presses_left": "Nog {} keer drukken om de ontwikkelaarsmodus aan te zetten.",
         "presses_left_one": "Nog 1 keer drukken om de ontwikkelaarsmodus aan te zetten."
     },

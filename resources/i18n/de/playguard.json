@@ -12,7 +12,8 @@
         "clock": "Netzwerkuhr",
         "security": "Sicherheit & App",
         "preferences": "Optionen",
-        "tools": "Tools & Info"
+        "tools": "Tools",
+        "about": "Info"
     },
     "hints": {
         "refresh": "Aktualisieren",
@@ -647,6 +648,11 @@
         "flag_read_only": "schreibgeschützt",
         "flag_dev": "Entwickler"
     },
+    "about": {
+        "section_changelog": "Neuigkeiten",
+        "changelog_note": "Die neuesten Versionen, auf Englisch. Alle Versionen: {}",
+        "changelog_none": "Die Liste der Änderungen konnte nicht gelesen werden. Alle Versionen: {}"
+    },
     "prefs": {
         "section_app": "App",
         "section_play_timer": "Spielzeit",
@@ -709,7 +715,7 @@
         "forget": "Firmware-Wahl vergessen",
         "forgotten": "Die Firmware-Wahl wird beim nächsten Start erneut abgefragt.",
         "already_on": "Der Entwicklermodus ist bereits aktiv.",
-        "enabled": "Entwicklermodus aktiv: siehe Ende des Tabs Tools & Info.",
+        "enabled": "Entwicklermodus aktiv: siehe Ende des Tabs Tools.",
         "presses_left": "Noch {} Mal drücken, um den Entwicklermodus zu aktivieren.",
         "presses_left_one": "Noch 1 Mal drücken, um den Entwicklermodus zu aktivieren."
     },

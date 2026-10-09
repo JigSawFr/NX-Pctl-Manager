@@ -128,6 +128,8 @@ set(ASSEMBLE_RESOURCES
             ${MERGED_RESOURCES}/img/borealis_96.png ${MERGED_RESOURCES}/img/borealis_256.png
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_RESOURCES} ${MERGED_RESOURCES}
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_RESOURCES}/i18n/en-US ${MERGED_RESOURCES}/i18n/en-GB
+    # About shows the latest releases from it (util/changelog.cpp).
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/CHANGELOG.md ${MERGED_RESOURCES}/CHANGELOG.md
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_ICON} ${MERGED_RESOURCES}/img/app_icon.jpg)
 
 set(PLAYGUARD_COPY_SHADERS)

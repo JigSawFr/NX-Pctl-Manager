@@ -12,19 +12,20 @@
 
 using namespace brls::literals;
 
-// Eight tabs and three separators do not fit the 720p sidebar at borealis'
-// sizes (70 px items, 30 px separators): "Tools & about" fell below the
-// edge. Tighter items there only; detail cells keep the shared 70 px.
+// Nine tabs and three separators do not fit the 720p sidebar at borealis'
+// sizes (70 px items, 30 px separators): "Tools" and "About" fell below the
+// edge (559 px between the header and the footer: 20 + 9 × 54 + 3 × 16 = 554).
+// Tighter items there only; detail cells keep the shared 70 px.
 static void compact_sidebar(brls::View* tab_frame)
 {
     auto* sidebar = tab_frame ? dynamic_cast<brls::Sidebar*>(tab_frame->getView("brls/tab_frame/sidebar")) : nullptr;
     brls::SidebarItem* first = sidebar ? sidebar->getItem(0) : nullptr;
     brls::Box* list = first ? first->getParent() : nullptr;
     if (!list) return;
-    list->setPaddingTop(14);
-    list->setPaddingBottom(14);
+    list->setPaddingTop(10);
+    list->setPaddingBottom(10);
     for (brls::View* v : list->getChildren()) {
-        if (dynamic_cast<brls::SidebarItem*>(v)) v->setHeight(58);
+        if (dynamic_cast<brls::SidebarItem*>(v)) v->setHeight(54);
         else v->setHeight(16);   // a separator: its line is drawn at mid-height
     }
 }

@@ -44,7 +44,6 @@ ToolsTab::ToolsTab()
 {
     export_note->setSingleLine(false);
     backup_note->setSingleLine(false);
-    credits->setSingleLine(false);
     serial_note->setSingleLine(false);
     patches_note->setSingleLine(false);
 
@@ -119,10 +118,6 @@ ToolsTab::ToolsTab()
         update_flow::check_now();
         return true;
     });
-    version->registerClickAction([this](brls::View*) {
-        this->count_version_press();
-        return true;
-    });
     // On a firmware newer than the checked one, the firmware screen again.
     compat->registerClickAction([](brls::View*) {
         if (fw_gate::needed()) brls::Application::pushActivity(new FirmwareGateActivity());
@@ -168,28 +163,6 @@ ToolsTab::ToolsTab()
     });
 }
 
-void ToolsTab::count_version_press()
-{
-    if (app::dev_mode()) {
-        ui::notify("playguard/dev/already_on"_i18n);
-        return;
-    }
-    // Seven presses, at most 3 s apart.
-    const brls::Time now = brls::getCPUTimeUsec();
-    if (now - this->last_version_press > 3000000) this->version_presses = 0;
-    this->last_version_press = now;
-    const int left = 7 - ++this->version_presses;
-    if (left > 0) {
-        if (left == 1) ui::notify("playguard/dev/presses_left_one"_i18n);
-        else if (left <= 3) ui::notify(brls::getStr("playguard/dev/presses_left", left));
-        return;
-    }
-    this->version_presses = 0;
-    ui::notify(app::set_dev_mode(true, true) ? "playguard/dev/enabled"_i18n
-                                             : "playguard/dev/enabled"_i18n + " " + "playguard/toast/config_err"_i18n);
-    ui::on_mode_changed();
-}
-
 void ToolsTab::refresh()
 {
     const auto& cfg = config::get();
@@ -207,10 +180,6 @@ void ToolsTab::refresh()
     sysinfo_version_string(si.hos_version, fwv, sizeof(fwv));
     const bool ro  = app::read_only();
     const bool dev = app::dev_mode();
-    std::string flags;
-    if (ro) flags += " · " + "playguard/tools/flag_read_only"_i18n;
-    if (dev) flags += " · " + "playguard/tools/flag_dev"_i18n;
-    version->setDetailText(app::version() + flags);
     update_via->setDetailText(brls::getStr("playguard/tools/update_via_values/" +
                                            std::string(UPDATE_VIA[index_of(UPDATE_VIA, cfg.update_via)])));
     dev_mode->setOn(dev, false);
@@ -253,12 +222,6 @@ void ToolsTab::refresh()
                           { dev_forget.getView(), dev } });
     // Read-only: restoring would write; it stays in sight, greyed.
     ui::show_writable(backup_restore, !ro);
-    mode->setDetailText(si.applet_mode ? "playguard/tools/mode_applet"_i18n : "playguard/tools/mode_app"_i18n);
-    data->setDetailText(paths::data_dir());
-    license->setDetailText("playguard/tools/license_value"_i18n);
-    source->setDetailText(app::repo_url());
-    // A note rather than a cell: the credits are longer than a cell's value.
-    credits->setText(brls::getStr("playguard/tools/credits_line", "playguard/tools/credits_value"_i18n));
 }
 
 brls::View* ToolsTab::create()

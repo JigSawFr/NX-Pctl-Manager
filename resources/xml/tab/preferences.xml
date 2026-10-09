@@ -2,7 +2,7 @@
 
 <!-- Preferences: the app (language, theme, start tab), the play timer
      (relock, extra time) and the start-up checks. Backups, updates,
-     diagnostics and the console stay in Tools & about. -->
+     diagnostics and the console stay in Tools. -->
 
 <brls:Box
     width="auto"

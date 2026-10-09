@@ -60,7 +60,7 @@ PlayGuard est un homebrew qui ramène sur la console, hors ligne, les réglages 
 | **Lanceurs** | hbmenu, **sphaira**, **Homebrew App Store** | Le lancement par-dessus un jeu (title override) est recommandé. L'application indique si elle tourne en application ou en applet (album). |
 | **Testé sur console** | 22.1.0 / Atmosphère 1.11.1 | 23.0.1 / 1.12.0 est couvert par la table des commandes ([switchbrew](https://switchbrew.org/wiki/Parental_Control_services)) mais pas encore testé sur console — vos retours sont bienvenus. |
 
-**Firmware plus récent ?** PlayGuard s'ouvre **en lecture seule** et vérifie si une version plus récente le prend en charge. Si c'est le cas, il propose de mettre à jour avec sphaira ou le Homebrew App Store. Sinon, vous choisissez : lecture seule, lecture seule avec les outils développeur (pour diagnostiquer le firmware), ou toutes les fonctions à vos risques. Le choix peut être mémorisé pour ce firmware et cette version de l'application ; *Outils et à propos › Compatibilité* rouvre l'écran.
+**Firmware plus récent ?** PlayGuard s'ouvre **en lecture seule** et vérifie si une version plus récente le prend en charge. Si c'est le cas, il propose de mettre à jour avec sphaira ou le Homebrew App Store. Sinon, vous choisissez : lecture seule, lecture seule avec les outils développeur (pour diagnostiquer le firmware), ou toutes les fonctions à vos risques. Le choix peut être mémorisé pour ce firmware et cette version de l'application ; *Outils › Compatibilité* rouvre l'écran.
 
 ## Installation
 
@@ -184,7 +184,7 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 </details>
 
 <details>
-<summary><b>Outils et à propos</b> — historique, sauvegardes, mises à jour, infos console</summary>
+<summary><b>Outils</b> et <b>À propos</b> — historique, sauvegardes, mises à jour, infos console, version et changelog</summary>
 
 - **Historique des modifications :** ce que PlayGuard a changé (limites, niveau de restriction, code PIN, déverrouillages, dissociation, horloge, restaurations…), quand et depuis où. Ⓐ sur une modification l'affiche et, pour une valeur, **remet la précédente** — avec le même déverrouillage et le même code PIN que toute modification, en signalant si elle a changé depuis.
 - **Sauvegarder / restaurer les réglages** sur la carte SD : niveau de restriction, réglages personnalisés, mode VR, organisme de classification, limites quotidiennes, alarme « temps écoulé » (avec les actions avancées activées), et pour mémoire le bloc brut du minuteur — jamais le code PIN. La restauration ne liste que ce qui changerait. Nombre de sauvegardes conservées au choix.
@@ -192,6 +192,7 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 - **Mises à jour :** recherche maintenant ou une fois par jour au lancement ; *Mettre à jour avec* sphaira, le Homebrew App Store ou à la main.
 - **Exporter un rapport de diagnostic** (voir [Signaler un bug](#signaler-un-bug)).
 - **Console :** firmware, Atmosphère, compatibilité, stockage (emuMMC ou sysMMC), **masquage du numéro de série** par Atmosphère (en partie caché jusqu'à Ⓐ ; avertissement en emuMMC s'il n'est pas masqué), **patchs de jeux** (sys-patch ou fichiers sigpatches, avec une recommandation de sys-patch quand seuls des fichiers sont utilisés).
+- **À propos** (son propre onglet) : version, mode de lancement, dossier des données, licence, code source et crédits, puis les **nouveautés** des dernières versions (le changelog intégré, en anglais).
 </details>
 
 ## Sûr par conception
@@ -233,13 +234,13 @@ PlayGuard pilote le contrôle parental intégré à la console (le service `pctl
 
 ## Signaler un bug
 
-1. *Outils et à propos › Exporter un rapport de diagnostic* enregistre un fichier texte dans `sd:/switch/playguard/logs/` : firmware, version d'Atmosphère, horloges, stockage, masquage du numéro de série, état des patchs de jeux, et le résultat brut de chaque requête au contrôle parental. **Il ne contient jamais le code PIN ni le numéro de série.**
+1. *Outils › Exporter un rapport de diagnostic* enregistre un fichier texte dans `sd:/switch/playguard/logs/` : firmware, version d'Atmosphère, horloges, stockage, masquage du numéro de série, état des patchs de jeux, et le résultat brut de chaque requête au contrôle parental. **Il ne contient jamais le code PIN ni le numéro de série.**
 2. [Ouvrez un ticket](https://github.com/JigSawFr/PlayGuard/issues/new) (en anglais ou en français) et joignez-le.
 
 <details>
 <summary>Mode développeur (examiner un nouveau firmware)</summary>
 
-Appuyez sept fois sur *Outils et à propos › Version*. Il ajoute :
+Appuyez sept fois sur *À propos › Version* ; les outils développeur apparaissent à la fin d'*Outils*. Il ajoute :
 
 - un interrupteur **lecture seule** — activé, l'application ne peut rien modifier : c'est la façon sûre d'examiner un nouveau firmware (l'écran firmware le propose directement) ;
 - le rapport de diagnostic à l'écran, et un raccourci pour l'exporter depuis l'onglet Temps de jeu ;

@@ -12,7 +12,8 @@
         "clock": "ネットワーク時計",
         "security": "セキュリティ",
         "preferences": "オプション",
-        "tools": "ツール・情報"
+        "tools": "ツール",
+        "about": "情報"
     },
     "hints": {
         "refresh": "更新",
@@ -647,6 +648,11 @@
         "flag_read_only": "閲覧のみ",
         "flag_dev": "開発者"
     },
+    "about": {
+        "section_changelog": "更新内容",
+        "changelog_note": "最新のリリース（英語）。すべてのリリース：{}",
+        "changelog_none": "変更履歴を読み込めませんでした。すべてのリリース：{}"
+    },
     "prefs": {
         "section_app": "アプリ",
         "section_play_timer": "プレイ時間",
@@ -709,7 +715,7 @@
         "forget": "ファームウェアの選択を忘れる",
         "forgotten": "次回の起動時に、ファームウェアの選択をもう一度確認します。",
         "already_on": "開発者モードはすでにONです。",
-        "enabled": "開発者モードをONにしました。「ツール・情報」の最後を見てください。",
+        "enabled": "開発者モードをONにしました。「ツール」の最後を見てください。",
         "presses_left": "あと{}回押すと開発者モードになります。",
         "presses_left_one": "あと1回押すと開発者モードになります。"
     },

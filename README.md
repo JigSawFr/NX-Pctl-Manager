@@ -60,7 +60,7 @@ PlayGuard is a homebrew app that brings the settings of the Nintendo Switch Pare
 | **Launchers** | hbmenu, **sphaira**, **Homebrew App Store** | Launching over a game (title override) is recommended. The app says whether it runs as an application or as an applet (album). |
 | **Tested on hardware** | 22.1.0 / Atmosphère 1.11.1 | 23.0.1 / 1.12.0 is covered by the command table ([switchbrew](https://switchbrew.org/wiki/Parental_Control_services)) but not yet tested on hardware — reports are welcome. |
 
-**Newer firmware?** PlayGuard opens **read-only** and checks whether a newer release supports it. If one does, it offers to update through sphaira or the Homebrew App Store. Otherwise you choose: read-only, read-only with the developer tools (to investigate the firmware), or every feature at your own risk. The choice can be remembered for that firmware and app version; *Tools & about › Compatibility* brings the screen back.
+**Newer firmware?** PlayGuard opens **read-only** and checks whether a newer release supports it. If one does, it offers to update through sphaira or the Homebrew App Store. Otherwise you choose: read-only, read-only with the developer tools (to investigate the firmware), or every feature at your own risk. The choice can be remembered for that firmware and app version; *Tools › Compatibility* brings the screen back.
 
 ## Install
 
@@ -184,7 +184,7 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 </details>
 
 <details>
-<summary><b>Tools & about</b> — history, backups, updates, console info</summary>
+<summary><b>Tools</b> and <b>About</b> — history, backups, updates, console info, version and changelog</summary>
 
 - **Change history:** what PlayGuard changed (limits, restriction level, PIN, unlocks, unlinking, the clock, restores …), when and from where. Ⓐ on a change shows it and, for a value, **puts the previous one back** — through the same unlock and PIN as any change, saying if it changed since.
 - **Back up / restore the settings** on the SD card: restriction level, custom settings, VR mode, rating organisation, daily limits, the "time's up" alarm (with the advanced actions on), and the raw play-timer block for the record — never the PIN. A restore lists only what would change. Choose how many backups to keep.
@@ -192,6 +192,7 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 - **Updates:** check now or once a day at start-up; *Update with* sphaira, Homebrew App Store or by hand.
 - **Export a diagnostic report** (see [Reporting a bug](#reporting-a-bug)).
 - **Console:** firmware, Atmosphère, compatibility, storage (emuMMC or sysMMC), whether Atmosphère **blanks the serial number** (partly hidden until Ⓐ; a warning on emuMMC when it is not), **game patches** (sys-patch or sigpatch files, recommending sys-patch when only files are used).
+- **About** (its own tab): version, launch mode, data folder, license, source and credits, then **what's new** in the latest releases (the bundled changelog, in English).
 </details>
 
 ## Safety by design
@@ -233,13 +234,13 @@ PlayGuard drives the parental controls built into the console (the `pctl` servic
 
 ## Reporting a bug
 
-1. *Tools & about › Export a diagnostic report* saves a text file in `sd:/switch/playguard/logs/`: firmware, Atmosphère version, clocks, storage, serial-blanking and game-patch status, and the raw result of every parental-control query. **It never contains the PIN or the serial number.**
+1. *Tools › Export a diagnostic report* saves a text file in `sd:/switch/playguard/logs/`: firmware, Atmosphère version, clocks, storage, serial-blanking and game-patch status, and the raw result of every parental-control query. **It never contains the PIN or the serial number.**
 2. [Open an issue](https://github.com/JigSawFr/PlayGuard/issues/new) and attach it.
 
 <details>
 <summary>Developer mode (investigating a new firmware)</summary>
 
-Press *Tools & about › Version* seven times. It adds:
+Press *About › Version* seven times; the developer tools appear at the end of *Tools*. It adds:
 
 - a **read-only** switch — with it on, the app cannot change anything: the safe way to investigate a new firmware (the firmware screen offers it directly);
 - the diagnostic report on screen, and a shortcut to export it from the Play timer tab;

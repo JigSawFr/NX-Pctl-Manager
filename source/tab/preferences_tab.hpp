@@ -1,8 +1,8 @@
 // PreferencesTab — language, theme and start tab; the play-timer preferences
 // (lock again after a change, extra-time amounts, putting the usual limit
 // back by itself, advanced actions); the start-up clock check. Split from
-// Tools & about, which keeps backups, updates, diagnostics, the console and
-// the developer tools.
+// Tools, which keeps backups, updates, diagnostics, the console and the
+// developer tools.
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 

@@ -12,7 +12,8 @@
         "clock": "Relógio de rede",
         "security": "Segurança e app",
         "preferences": "Preferências",
-        "tools": "Ferramentas e info"
+        "tools": "Ferramentas",
+        "about": "Sobre"
     },
     "hints": {
         "refresh": "Atualizar",
@@ -647,6 +648,11 @@
         "flag_read_only": "somente leitura",
         "flag_dev": "desenvolvedor"
     },
+    "about": {
+        "section_changelog": "Novidades",
+        "changelog_note": "As versões mais recentes, em inglês. Todas as versões: {}",
+        "changelog_none": "Não foi possível ler a lista de mudanças. Todas as versões: {}"
+    },
     "prefs": {
         "section_app": "App",
         "section_play_timer": "Tempo de jogo",
@@ -709,7 +715,7 @@
         "forget": "Esquecer a escolha de firmware",
         "forgotten": "A escolha de firmware será pedida de novo na próxima vez que o app for aberto.",
         "already_on": "O modo de desenvolvedor já está ativado.",
-        "enabled": "Modo de desenvolvedor ativado: veja o final de Ferramentas e info.",
+        "enabled": "Modo de desenvolvedor ativado: veja o final de Ferramentas.",
         "presses_left": "Pressione mais {} vezes para ativar o modo de desenvolvedor.",
         "presses_left_one": "Pressione mais 1 vez para ativar o modo de desenvolvedor."
     },

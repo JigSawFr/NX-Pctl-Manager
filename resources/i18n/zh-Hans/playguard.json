@@ -12,7 +12,8 @@
         "clock": "网络时钟",
         "security": "安全与应用",
         "preferences": "偏好设置",
-        "tools": "工具与关于"
+        "tools": "工具",
+        "about": "关于"
     },
     "hints": {
         "refresh": "刷新",
@@ -647,6 +648,11 @@
         "flag_read_only": "只读",
         "flag_dev": "开发者"
     },
+    "about": {
+        "section_changelog": "更新内容",
+        "changelog_note": "最近的版本（英文）。所有版本：{}",
+        "changelog_none": "无法读取更新记录。所有版本：{}"
+    },
     "prefs": {
         "section_app": "应用",
         "section_play_timer": "游戏时间",
@@ -709,7 +715,7 @@
         "forget": "清除系统版本选择",
         "forgotten": "下次启动时将再次询问系统版本的选择。",
         "already_on": "开发者模式已开启。",
-        "enabled": "开发者模式已开启：请查看“工具与关于”末尾。",
+        "enabled": "开发者模式已开启：请查看“工具”末尾。",
         "presses_left": "再按{}次即可开启开发者模式。",
         "presses_left_one": "再按1次即可开启开发者模式。"
     },

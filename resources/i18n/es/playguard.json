@@ -12,7 +12,8 @@
         "clock": "Reloj de red",
         "security": "Seguridad y app",
         "preferences": "Preferencias",
-        "tools": "Herramientas e info"
+        "tools": "Herramientas",
+        "about": "Acerca de"
     },
     "hints": {
         "refresh": "Actualizar",
@@ -647,6 +648,11 @@
         "flag_read_only": "solo lectura",
         "flag_dev": "desarrollador"
     },
+    "about": {
+        "section_changelog": "Novedades",
+        "changelog_note": "Las últimas versiones, en inglés. Todas las versiones: {}",
+        "changelog_none": "No se pudo leer la lista de cambios. Todas las versiones: {}"
+    },
     "prefs": {
         "section_app": "Aplicación",
         "section_play_timer": "Tiempo de juego",
@@ -709,7 +715,7 @@
         "forget": "Olvidar la elección del firmware",
         "forgotten": "La elección del firmware se volverá a pedir en el próximo inicio.",
         "already_on": "El modo desarrollador ya está activado.",
-        "enabled": "Modo desarrollador activado: consulte el final de Herramientas e info.",
+        "enabled": "Modo desarrollador activado: consulte el final de Herramientas.",
         "presses_left": "Faltan {} pulsaciones para activar el modo desarrollador.",
         "presses_left_one": "Falta 1 pulsación para activar el modo desarrollador."
     },

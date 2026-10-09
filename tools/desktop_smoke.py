@@ -10,7 +10,7 @@ each screen are written to the output folder.
 
 The "gate" scenario starts on a firmware newer than the checked one, with a
 simulated release that supports it: the firmware screen, read-only mode,
-seven presses on Version for the developer mode, its report, a play-timer
+seven presses on About › Version for the developer mode, its report, a play-timer
 block reference, the firmware screen again and the hand-over of the update
 to sphaira (simulated hbloader).
 
@@ -142,7 +142,12 @@ else:
     fail("no window after 30 s")
 time.sleep(2)
 
-tabs = ["dashboard", "play_timer", "activity", "restrictions", "clock", "security", "preferences", "tools"]
+tabs = ["dashboard", "play_timer", "activity", "restrictions", "clock", "security", "preferences", "tools", "about"]
+
+
+def steps(a, b):
+    """Sidebar presses from tab `a` down to tab `b` (negative: up)."""
+    return tabs.index(b) - tabs.index(a)
 
 
 def finish(check=None):
@@ -167,15 +172,18 @@ if GATE:
     key("Right")
     shot("03_play_timer_read_only")
     key("Left")
-    # Tools: seven presses on Version turn the developer mode on.
-    key("Down", len(tabs) - 2)
+    # About: seven presses on Version (its first cell) turn the developer mode on.
+    key("Down", steps("play_timer", "about"))
     key("Right")
-    key("Down", 40, hold=0.15) # to the last focusable cell (Version), held: a long tab
     key("Return", 7)
     shot("04_dev_enabled")
-    # A short press does not get past the bottom edge of a long tab (borealis'
-    # natural scrolling needs the button held for a few frames): press like a hand.
-    key("Down", 14, hold=0.15) # the Developer section, down to its last cell
+    # The developer tools are at the end of Tools. A short press does not get
+    # past the bottom edge of a long tab (borealis' natural scrolling needs the
+    # button held for a few frames): press like a hand.
+    key("Left")
+    key("Up", steps("tools", "about"))
+    key("Right")
+    key("Down", 50, hold=0.15) # the Developer section, down to its last cell
     shot("05_dev_tools")
     key("Up", 3)               # Show the diagnostic report
     key("Return")
@@ -270,7 +278,7 @@ for i, tab in enumerate(tabs[1:], start=2):
 
 # Extra-time picker, per-day editor (the week chart is the editor) and its
 # day picker.
-key("Up", len(tabs) - 2)   # from Tools back to Play timer
+key("Up", steps("play_timer", tabs[-1]))   # from the last tab back to Play timer
 key("Right")               # the week chart, on today
 key("Right")               # tomorrow's day
 key("Return")              # its limit picker, from the tab itself
@@ -300,7 +308,7 @@ shot("23_back")
 
 # Settings backup: save one, open the list and the restore summary (cancelled).
 key("Left")                # back to the sidebar
-key("Down", len(tabs) - 2) # Tools & about
+key("Down", steps("play_timer", "tools"))
 key("Right")               # First steps…
 key("Down", 2)             # past the change history: Back up the settings
 backups = os.path.join(run_dir, "playguard_data", "backups")
@@ -323,7 +331,7 @@ def pdfs():
     return {f for f in (os.listdir(exports) if os.path.isdir(exports) else []) if f.endswith(".pdf")}
 pdfs_before = pdfs()   # the run folder is kept between local runs
 key("Left")                # back to the sidebar
-key("Up", len(tabs) - 3)   # Activity
+key("Up", steps("activity", "tools"))
 key("Right")               # Account (the simulated console has two; the totals are not focusable)
 key("Down", 3)             # past Period and Export: the first game
 key("Return")

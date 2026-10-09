@@ -244,7 +244,7 @@ void DashboardTab::refresh()
     pairing->setDetailTextColor(paired ? ui::color_warn() : ui::color_neutral());
 
     // Firmware and compatibility appear here only when there is something to
-    // check; Tools › About always shows them.
+    // check; Tools › Console always shows them.
     const bool compat_issue = sysinfo_compat(&si) != SysCompat_Ok;
     linked(fw, ui::fw_text(si));
     NVGcolor c = ui::color_neutral();

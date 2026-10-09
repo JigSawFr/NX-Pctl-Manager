@@ -15,6 +15,7 @@
 #include "activity/main_activity.hpp"
 #include "activity/rescue_activity.hpp"
 #include "app.hpp"
+#include "tab/about_tab.hpp"
 #include "tab/activity_tab.hpp"
 #include "tab/clock_tab.hpp"
 #include "tab/dashboard_tab.hpp"
@@ -78,6 +79,7 @@ int main(int argc, char* argv[])
     brls::Application::registerXMLView("SecurityTab",     SecurityTab::create);
     brls::Application::registerXMLView("PreferencesTab",  PreferencesTab::create);
     brls::Application::registerXMLView("ToolsTab",        ToolsTab::create);
+    brls::Application::registerXMLView("AboutTab",        AboutTab::create);
 
     if (app::init()) {
         // Untested firmware: read-only (or the remembered choice) before any tab is built.
