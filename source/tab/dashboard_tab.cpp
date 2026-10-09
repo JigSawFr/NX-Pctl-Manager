@@ -39,6 +39,7 @@ DashboardTab::DashboardTab()
     : TabBase("xml/tab/dashboard.xml")
 {
     applet->setSingleLine(false);
+    counted->setSingleLine(false);
     first_steps->setDetailText("playguard/onboarding/pin_missing"_i18n);
     first_steps->setDetailTextColor(ui::color_warn());
     first_steps->registerClickAction([](brls::View*) {
@@ -280,6 +281,7 @@ void DashboardTab::refresh()
                           { extra_pending.getView(), pending },
                           { alarm.getView(), pt_flow::alarm_off(pt) },
                           { first_steps.getView(), not_set_up }, { applet.getView(), si.applet_mode },
+                          { counted.getView(), !si.applet_mode },
                           { fw.getView(), compat_issue }, { compat.getView(), compat_issue },
                           { serial.getView(), serial_issue }, { game_patches.getView(), patches_issue },
                           { unlocked_banner.getView(), unlocked } });
