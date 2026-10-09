@@ -230,6 +230,21 @@ Observed on 22.0.0, 2026-10-09 (a Friday, limit 120 minutes):
 When the time spent resets on its own (midnight local time, or the "allowed
 again" time) is not confirmed yet.
 
+### When the time runs out
+
+**A limit written by PlayGuard is enforced by the console** (verified,
+22.0.0, 2026-10-09): once today's time was used up, the system put up its
+full-screen "time limit reached, no more play today" message (in French:
+*Vous avez atteint la limite de temps de jeu et ne pouvez plus jouer
+aujourd'hui*), with two choices only: *Sleep mode* and *Disable parental
+controls* (the second asks for the PIN).
+
+- No "continue" choice: this looks like the suspend behaviour
+  (`FORCED_TERMINATION`) rather than an alarm only (inferred; which header
+  byte selects it is still open).
+- The PIN prompt behind *Disable parental controls* is the system's: a child
+  who knows the PIN gets past the limit there.
+
 ### 1459 `GetPlayTimerRemainingTimeDisplayInfo`
 
 0x20 bytes. Observed on 22.0.0:
