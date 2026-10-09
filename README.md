@@ -89,6 +89,7 @@ All in `sd:/switch/playguard/`:
 | `backups/` | Settings backups (never contain the PIN) |
 | `exports/` | Activity exports |
 | `own_time.txt` | When PlayGuard was open over a game (last 8 days), left out of the Activity tab |
+| `cache/` | The last play activity read (every account, and each account viewed), shown at once on the next start while the log is read again |
 | `github_token` | Developer mode only: the GitHub sign-in of *Install another build* (deleted by signing out) |
 | `rescue_report.txt` | Left by the recovery sysmodule after it acted, until PlayGuard shows it at start-up |
 | `logs/` | Diagnostic reports (never contain the PIN or the serial number), the developer tools' files, and `uploads.txt` (the links of the reports sent online) |
@@ -146,6 +147,7 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 - Sort by period; the first games show their icon (not in applet mode, to spare memory).
 - Ⓐ on a game: its last seven days as bars, launches, first and last play, time per user account. Deleted games keep their all-time figures.
 - **Export to the SD card** as CSV, JSON, XLSX (Excel) or PDF, one column per day.
+- Opens at once on the last figures read (kept on the SD card between runs), refreshed in the background when over a minute old; Ⓧ reads them again now, with a spinner.
 - Times are approximate if the console clock was changed.
 </details>
 

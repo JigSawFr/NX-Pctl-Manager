@@ -2,8 +2,10 @@
 // console's play data, for every account or one, and its export to the SD
 // card (CSV, JSON, XLSX or PDF). Read-only, so also in read-only mode. The
 // data comes from play_data (read off the main thread, shared with the
-// Overview): coming back within a minute reuses it; Ⓧ reads it again. The
-// chart marks each day's current limit (every account only).
+// Overview, and kept on the SD card for the next run): what is known shows at
+// once, and is read again in the background when over a minute old, without
+// a spinner; Ⓧ reads it again with one. The chart marks each day's current
+// limit (every account only).
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).
 #pragma once
 
@@ -31,7 +33,9 @@ class ActivityTab : public TabBase
     enum Period { Today = 0, Week = 1, AllTime = 2 };
     int period = Week;
 
-    void fetch();
+    // Reads the data again. `shown`: with the spinner, even over a list (Ⓧ);
+    // otherwise only when there is nothing to show yet.
+    void fetch(bool shown);
     void rebuild();
     // Reads the icons the list still lacks (first rows only), off the main
     // thread, then puts them on the cells on screen.
@@ -45,6 +49,7 @@ class ActivityTab : public TabBase
     // on top: the list is rebuilt once this one is back. Deleting its cells
     // sooner would free the one borealis gives the focus back to.
     bool stale = false;
+    bool spinner = false;   // Ⓧ pressed: the spinner stays until its read ends
     std::shared_ptr<bool> alive = std::make_shared<bool>(true);
 
     BRLS_BIND(PlayDaysView,     days,        "ac_days");
