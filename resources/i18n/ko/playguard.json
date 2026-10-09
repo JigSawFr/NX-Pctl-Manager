@@ -459,6 +459,7 @@
         "seconds": "{}초",
         "busy": "현재 요청이 끝날 때까지 기다려 주세요.",
         "autosync_off_note": "이 측정값으로 네트워크 시계를 맞추려면 먼저 설정에서 \"인터넷으로 시계 맞추기\"를 켜세요.",
+        "auto_how": "PlayGuard can only read this setting: it belongs to System Settings, which only the HOME menu can open.\n\nTo change it: HOME menu › System Settings › System › Date and Time › Synchronise Clock via Internet.\n\nWhen it is on, the console clock follows the network clock. Note: when the clock was moved, the console was seen to start today's play time over.",
         "ntp_err": {
             "bad_host": "서버 이름이 아님",
             "lookup": "서버를 찾을 수 없음(인터넷 미연결?)",
@@ -761,6 +762,9 @@
         "pt_block_changed": "바뀐 값 {}개 (기준: {}):",
         "pt_block_report": "SD 카드에 저장",
         "pt_block_new": "새 기준",
+        "pt_log": "Record the play timer",
+        "pt_log_note": "Every 30 s while PlayGuard is open, one line of what the play timer reports (time left, time spent, 1459, the settings block) in logs/play_timer_log.csv. Leave PlayGuard open over midnight, or until the time is up, to see what the console does then. Sent with the diagnostic report.",
+        "pt_log_on": "Recording every 30 s in {}",
         "gate": "펌웨어 화면 다시 보기",
         "forget": "펌웨어 선택 초기화",
         "forgotten": "다음에 실행할 때 펌웨어 선택을 다시 묻습니다.",

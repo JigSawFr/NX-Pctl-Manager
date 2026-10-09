@@ -459,6 +459,7 @@
         "seconds": "{} s",
         "busy": "Patientez jusqu'à la fin de la requête en cours.",
         "autosync_off_note": "Pour régler l'horloge réseau d'après cette mesure, activez d'abord « Synchroniser l'horloge via Internet » dans les paramètres de la console.",
+        "auto_how": "PlayGuard peut seulement lire ce réglage : il fait partie des Paramètres de la console, que seul le menu HOME peut ouvrir.\n\nPour le changer : menu HOME › Paramètres de la console › Console › Date et heure › Synchroniser l'horloge via Internet.\n\nQuand il est activé, l'horloge de la console suit l'horloge réseau. À noter : quand l'horloge a été déplacée, la console a remis à zéro le temps de jeu du jour.",
         "ntp_err": {
             "bad_host": "nom de serveur invalide",
             "lookup": "serveur introuvable (pas de connexion Internet ?)",
@@ -761,6 +762,9 @@
         "pt_block_changed": "{} valeurs ont changé depuis la référence du {} :",
         "pt_block_report": "Enregistrer sur la carte SD",
         "pt_block_new": "Nouvelle référence",
+        "pt_log": "Enregistrer le temps de jeu",
+        "pt_log_note": "Toutes les 30 s tant que PlayGuard est ouvert, une ligne de ce que rapporte le temps de jeu (temps restant, temps écoulé, 1459, le bloc des réglages) dans logs/play_timer_log.csv. Laissez PlayGuard ouvert après minuit, ou jusqu'à la fin du temps, pour voir ce que fait alors la console. Envoyé avec le rapport de diagnostic.",
+        "pt_log_on": "Enregistrement toutes les 30 s dans {}",
         "gate": "Revoir l'écran firmware",
         "forget": "Oublier le choix pour le firmware",
         "forgotten": "Le choix pour le firmware sera redemandé au prochain lancement.",

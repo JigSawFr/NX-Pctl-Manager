@@ -459,6 +459,7 @@
         "seconds": "{} s",
         "busy": "Please wait for the current request.",
         "autosync_off_note": "To set the network clock from it, first turn on \"Synchronise Clock via Internet\" in System Settings.",
+        "auto_how": "PlayGuard can only read this setting: it belongs to System Settings, which only the HOME menu can open.\n\nTo change it: HOME menu › System Settings › System › Date and Time › Synchronise Clock via Internet.\n\nWhen it is on, the console clock follows the network clock. Note: when the clock was moved, the console was seen to start today's play time over.",
         "ntp_err": {
             "bad_host": "not a server name",
             "lookup": "server not found (no Internet connection?)",
@@ -761,6 +762,9 @@
         "pt_block_changed": "{} values changed since the reference of {}:",
         "pt_block_report": "Save to the SD card",
         "pt_block_new": "New reference",
+        "pt_log": "Record the play timer",
+        "pt_log_note": "Every 30 s while PlayGuard is open, one line of what the play timer reports (time left, time spent, 1459, the settings block) in logs/play_timer_log.csv. Leave PlayGuard open over midnight, or until the time is up, to see what the console does then. Sent with the diagnostic report.",
+        "pt_log_on": "Recording every 30 s in {}",
         "gate": "Show the firmware screen again",
         "forget": "Forget the firmware choice",
         "forgotten": "The firmware choice will be asked again at the next launch.",

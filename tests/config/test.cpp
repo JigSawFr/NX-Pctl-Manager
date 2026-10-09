@@ -24,7 +24,7 @@ static void test_defaults()
     std::remove(paths::config_file().c_str());
     config::load();
     const auto& c = config::get();
-    assert(c.language == "system" && c.theme == "system" && c.auto_relock && !c.dev_mode);
+    assert(c.language == "system" && c.theme == "system" && c.auto_relock && !c.dev_mode && !c.pt_log);
     assert(!c.extra_auto_restore);
     assert(c.extra_weekday == -1 && !c.relock_pending && c.fw_gate_choice.empty());
 
@@ -39,14 +39,14 @@ static void test_defaults()
 static void test_fields()
 {
     // A wrong field keeps its default; the others are read.
-    write_config(R"({"language": 5, "theme": "dark", "dev_mode": 1, "auto_relock": false,
+    write_config(R"({"language": 5, "theme": "dark", "dev_mode": 1, "auto_relock": false, "pt_log": "yes",
                     "fw_gate_fw": "24.0.0", "fw_gate_app": "1.0.0", "fw_gate_choice": "risk",
                     "extra_weekday": 3, "extra_date": "2026-10-06", "extra_base": 60, "extra_value": 90,
                     "relock_pending": true, "extra_auto_restore": true,
                     "custom_servers": ["a.example", 7, "b.example"]})");
     config::load();
     auto c = config::get();
-    assert(c.language == "system" && c.theme == "dark" && !c.dev_mode && !c.auto_relock);
+    assert(c.language == "system" && c.theme == "dark" && !c.dev_mode && !c.auto_relock && !c.pt_log);
     assert(c.fw_gate_fw == "24.0.0" && c.fw_gate_app == "1.0.0" && c.fw_gate_choice == "risk");
     assert(c.extra_weekday == 3 && c.extra_date == "2026-10-06" && c.extra_base == 60 && c.extra_value == 90);
     assert(c.relock_pending && c.extra_auto_restore);
@@ -107,6 +107,7 @@ static void test_round_trip()
     c.ntp_server = "fr.pool.ntp.org";
     c.custom_servers = { "time.example" };
     c.dev_mode = true;
+    c.pt_log = true;
     c.relock_pending = true;
     c.extra_weekday = 0;
     c.extra_date = "2026-10-05";
@@ -120,7 +121,7 @@ static void test_round_trip()
     c = config::Config{};
     config::load();
     assert(c.language == "fr" && c.theme == "light" && c.ntp_server == "fr.pool.ntp.org");
-    assert(c.custom_servers.size() == 1 && c.dev_mode && c.relock_pending);
+    assert(c.custom_servers.size() == 1 && c.dev_mode && c.pt_log && c.relock_pending);
     assert(c.extra_weekday == 0 && c.extra_base == 120 && c.extra_value == 150 && c.extra_auto_restore);
 
     // Console lock: the flag and the seven saved limits round-trip.

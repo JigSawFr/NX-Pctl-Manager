@@ -459,6 +459,7 @@
         "seconds": "{} s",
         "busy": "Espere a que termine la solicitud en curso.",
         "autosync_off_note": "Para ajustar el reloj de red con esta medición, active primero “Sincronizar el reloj por Internet” en la configuración de la consola.",
+        "auto_how": "PlayGuard can only read this setting: it belongs to System Settings, which only the HOME menu can open.\n\nTo change it: HOME menu › System Settings › System › Date and Time › Synchronise Clock via Internet.\n\nWhen it is on, the console clock follows the network clock. Note: when the clock was moved, the console was seen to start today's play time over.",
         "ntp_err": {
             "bad_host": "no es un nombre de servidor",
             "lookup": "servidor no encontrado (¿sin conexión a Internet?)",
@@ -761,6 +762,9 @@
         "pt_block_changed": "{} valores cambiaron desde la referencia del {}:",
         "pt_block_report": "Guardar en la tarjeta SD",
         "pt_block_new": "Nueva referencia",
+        "pt_log": "Record the play timer",
+        "pt_log_note": "Every 30 s while PlayGuard is open, one line of what the play timer reports (time left, time spent, 1459, the settings block) in logs/play_timer_log.csv. Leave PlayGuard open over midnight, or until the time is up, to see what the console does then. Sent with the diagnostic report.",
+        "pt_log_on": "Recording every 30 s in {}",
         "gate": "Volver a la pantalla de firmware",
         "forget": "Olvidar la elección del firmware",
         "forgotten": "La elección del firmware se volverá a pedir en el próximo inicio.",
