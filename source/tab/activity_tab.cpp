@@ -85,7 +85,7 @@ ActivityTab::ActivityTab()
     note->setSingleLine(false);
     // Ⓧ reads the data again, however recent the last read.
     this->registerAction("playguard/hints/refresh"_i18n, brls::BUTTON_X, [this](brls::View*) {
-        this->fetch();
+        this->fetch(true);
         return true;
     });
     account->registerClickAction([this](brls::View*) {
@@ -95,7 +95,7 @@ ActivityTab::ActivityTab()
         ui::pick("playguard/activity/account"_i18n, labels, s_cache.account + 1, [this](int index) {
             s_cache.account = index - 1;
             this->rebuild();
-            if (!play_data::fresh(play_data::key_of(chosen_account()), MAX_AGE)) this->fetch();
+            if (!play_data::fresh(play_data::key_of(chosen_account()), MAX_AGE)) this->fetch(false);
         });
         return true;
     });
@@ -151,15 +151,20 @@ void ActivityTab::refresh()
         });
     }
     if (play_data::fresh(play_data::key_of(chosen_account()), MAX_AGE)) return;
-    this->fetch();
+    this->fetch(false);
 }
 
-void ActivityTab::fetch()
+void ActivityTab::fetch(bool shown)
 {
-    // Every read says so, not only the first (X with a list on screen): a
-    // spinner, since a long log takes a few seconds.
-    ui::set_visible(progress.getView(), true);
-    ui::set_visible(status, false);
+    // A long log takes a few seconds. What is known stays on screen meanwhile
+    // (the last read, this run's or the last run's), so a read of its own is
+    // silent; Ⓧ, or nothing to show yet, gets the spinner.
+    const bool nothing = !shown_stats();
+    if (shown) this->spinner = true;
+    if (shown || nothing) {
+        ui::set_visible(progress.getView(), true);
+        ui::set_visible(status, false);
+    }
     play_data::fetch(chosen_account());   // one read per account at a time
 }
 
@@ -169,6 +174,7 @@ void ActivityTab::rebuild()
     sort->setDetailText(brls::getStr(fmt::format("playguard/activity/periods/{}", this->period)));
     account->setDetailText(account_label(who));
     const bool reading = play_data::busy(play_data::key_of(who));
+    if (!reading) this->spinner = false;
     const std::shared_ptr<const PlayStats> data = shown_stats();
     if (!data) {
         // Nothing read for this account yet: an empty list, not the previous one.
@@ -218,7 +224,7 @@ void ActivityTab::rebuild()
     if (focus_in_list) brls::Application::giveFocus(sort);
     list->clearViews();
     this->cells.clear();
-    ui::set_visible(progress.getView(), reading);
+    ui::set_visible(progress.getView(), reading && this->spinner);
     for (const GameStat* g : rows) {
         auto* cell = new GameCell(s_cache.icons_wanted && this->cells.size() < ICON_ROWS);
         cell->setText(game_name(*g));

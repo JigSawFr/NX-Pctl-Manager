@@ -68,7 +68,7 @@ CI runs all of the above plus the Switch build.
 | `source/activity/` | Screens: per-day editor, profiles, a game, first steps, change history, firmware |
 | `source/view/` | Widgets: the week chart, the gauge, the day bars, the game cell |
 | `source/ui/` | Dialogs, formatting, theme colours |
-| `source/util/` | NTP, config, profiles, settings backups, change history, play-log folding, table export, diagnostics, sending reports online, update check, store launcher |
+| `source/util/` | NTP, config, profiles, settings backups, change history, play-log folding, the play-data cache, table export, diagnostics, sending reports online, update check, store launcher |
 | `source/sim/` | The simulated console for the desktop build |
 | `resources/` | XML layouts and `i18n/<language>/playguard.json` |
 | `sysmodule/` | The optional recovery boot sysmodule; shares `source/core/rescue.c` with the app. See [`sysmodule/README.md`](sysmodule/README.md) |
