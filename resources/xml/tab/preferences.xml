@@ -2,7 +2,7 @@
 
 <!-- Preferences: the app (language, theme, start tab), the play timer
      (relock, extra time) and the start-up checks. Backups, updates,
-     diagnostics and the console stay in Tools & about. -->
+     diagnostics and the console stay in Tools. -->
 
 <brls:Box
     width="auto"
@@ -34,6 +34,7 @@
             <brls:BooleanCell id="pf_advanced"/>
             <brls:Header title="@i18n/playguard/prefs/section_startup" marginTop="24" marginBottom="8"/>
             <brls:BooleanCell id="pf_clock_check"/>
+            <brls:BooleanCell id="pf_support_reminder"/>
             <brls:Label id="pf_note" text="@i18n/playguard/prefs/note" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
 
         </brls:Box>

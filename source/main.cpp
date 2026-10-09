@@ -15,6 +15,7 @@
 #include "activity/main_activity.hpp"
 #include "activity/rescue_activity.hpp"
 #include "app.hpp"
+#include "tab/about_tab.hpp"
 #include "tab/activity_tab.hpp"
 #include "tab/clock_tab.hpp"
 #include "tab/dashboard_tab.hpp"
@@ -26,6 +27,7 @@
 #include "ui/ui.hpp"
 #include "util/config.hpp"
 #include "util/http.hpp"
+#include "view/made_in_france.hpp"
 #include "view/play_days.hpp"
 #include "view/pt_gauge.hpp"
 #include "view/pt_state_header.hpp"
@@ -70,6 +72,7 @@ int main(int argc, char* argv[])
     brls::Application::registerXMLView("PtGauge",         PtGauge::create);
     brls::Application::registerXMLView("PtWeekView",      PtWeekView::create);
     brls::Application::registerXMLView("PlayDaysView",    PlayDaysView::create);
+    brls::Application::registerXMLView("MadeInFrance",    MadeInFrance::create);
     brls::Application::registerXMLView("DashboardTab",    DashboardTab::create);
     brls::Application::registerXMLView("PlayTimerTab",    PlayTimerTab::create);
     brls::Application::registerXMLView("ActivityTab",     ActivityTab::create);
@@ -78,6 +81,7 @@ int main(int argc, char* argv[])
     brls::Application::registerXMLView("SecurityTab",     SecurityTab::create);
     brls::Application::registerXMLView("PreferencesTab",  PreferencesTab::create);
     brls::Application::registerXMLView("ToolsTab",        ToolsTab::create);
+    brls::Application::registerXMLView("AboutTab",        AboutTab::create);
 
     if (app::init()) {
         // Untested firmware: read-only (or the remembered choice) before any tab is built.

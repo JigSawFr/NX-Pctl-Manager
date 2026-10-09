@@ -12,7 +12,8 @@
         "clock": "Netwerkklok",
         "security": "Beveiliging & app",
         "preferences": "Voorkeuren",
-        "tools": "Tools & info"
+        "tools": "Tools",
+        "about": "Info"
     },
     "hints": {
         "refresh": "Vernieuwen",
@@ -114,8 +115,8 @@
         "risk_body": "Firmware {} is niet gecontroleerd: het wijzigen van ouderlijk toezicht of de klok kan anders werken of de console laten vastlopen.\n\nControleer elk resultaat en exporteer een diagnose als er iets niet klopt.",
         "risk_confirm": "Doorgaan op eigen risico",
         "remember": "Deze keuze onthouden voor deze firmware en deze versie",
-        "note": "Je kunt via Tools & info › Compatibiliteit naar dit scherm terugkeren.",
-        "update_toast": "PlayGuard {} ondersteunt firmware {}: Tools & info › Op updates controleren."
+        "note": "Je kunt via Tools › Compatibiliteit naar dit scherm terugkeren.",
+        "update_toast": "PlayGuard {} ondersteunt firmware {}: Info › Op updates controleren."
     },
     "dashboard": {
         "section_status": "Ouderlijk toezicht",
@@ -180,7 +181,7 @@
         "open": "Eerste stappen…",
         "pin_missing": "Nog geen pincode",
         "headline": "Drie stappen en de console is beschermd. Druk op A bij een stap om die uit te voeren.",
-        "all_done": "Alles is klaar: de console is beschermd. Je kunt hier altijd naar terugkeren via Tools & info.",
+        "all_done": "Alles is klaar: de console is beschermd. Je kunt hier altijd naar terugkeren via Tools.",
         "section_steps": "Stappen",
         "step_pin": "1. Een pincode voor ouderlijk toezicht instellen",
         "step_limit": "2. Een dagelijkse speeltijdlimiet kiezen",
@@ -490,7 +491,7 @@
         "banner_action": "Nu vergrendelen",
         "section_danger": "Gevarenzone",
         "delete": "Ouderlijk toezicht wissen",
-        "delete_body": "Ouderlijk toezicht volledig verwijderen?\n\nHiermee worden de pincode, alle beperkingen en de speeltijdlimiet gewist. Dit kan niet ongedaan worden gemaakt, maar eerst wordt een back-up van de instellingen (zonder de pincode) op de SD-kaart opgeslagen: Tools & info › Back-up terugzetten.",
+        "delete_body": "Ouderlijk toezicht volledig verwijderen?\n\nHiermee worden de pincode, alle beperkingen en de speeltijdlimiet gewist. Dit kan niet ongedaan worden gemaakt, maar eerst wordt een back-up van de instellingen (zonder de pincode) op de SD-kaart opgeslagen: Tools › Back-up terugzetten.",
         "delete_body2": "Laatste controle: nu alles verwijderen?",
         "delete_confirm": "Verwijderen",
         "delete_confirm2": "Definitief verwijderen",
@@ -637,10 +638,7 @@
         "mode_applet": "Applet (gestart vanuit het album)",
         "data": "Gegevensmap",
         "license": "Licentie",
-        "license_value": "GPLv3 · UI: borealis (Apache 2.0)",
         "source": "Broncode",
-        "credits_value": "JigSawFr · gebaseerd op Pctl Manager van Taylor · anbingxi (NTP, fixes voor fw 22.5)",
-        "credits_line": "Credits: {}",
         "update_via": "Bijwerken met",
         "update_via_values": {
             "auto": "Automatisch (sphaira, anders App Store)",
@@ -654,11 +652,31 @@
         "flag_read_only": "alleen-lezen",
         "flag_dev": "ontwikkelaar"
     },
+    "about": {
+        "section_changelog": "Nieuw in {}",
+        "changelog_note": "Eerdere versies: {}",
+        "changelog_none": "Geen notities voor deze versie (een ontwikkelversie?). Alle versies: {}",
+        "section_credits": "Met dank aan",
+        "credit_author": "Ontwikkelaar",
+        "credit_upstream": "Gebaseerd op",
+        "credit_upstream_value": "Pctl Manager van Taylor",
+        "credit_fixes": "fw 22.5-fixes en NTP",
+        "credit_ui": "Interface",
+        "section_support": "PlayGuard steunen",
+        "support_note": "PlayGuard is gratis, open source en zonder advertenties. Helpt het je gezin, dan kun je de ontwikkeling steunen: scan een code met je telefoon (selecteer hem om te vergroten).",
+        "made_in_france": "Made in France",
+        "support_body": "PlayGuard is gratis, open source en zonder advertenties. Helpt het je gezin, dan kun je de ontwikkeling steunen: scan een code met je telefoon.",
+        "reminder_title": "Heb je iets aan PlayGuard?",
+        "reminder_never": "Niet meer tonen",
+        "reminder_off": "De maandelijkse herinnering staat uit. Zet hem weer aan via Voorkeuren › Bij het opstarten.",
+        "whats_new_close": "Doorgaan"
+    },
     "prefs": {
         "section_app": "App",
         "section_play_timer": "Speeltijdtimer",
         "section_startup": "Bij het opstarten",
-        "note": "Back-ups, updates, het diagnoserapport en de console staan onder Tools & info."
+        "note": "Back-ups, het diagnoserapport en de console staan onder Tools; updates onder Info.",
+        "support_reminder": "Herinner me één keer per maand om PlayGuard te steunen"
     },
     "backup": {
         "saved": "Back-up van instellingen gemaakt: {}",
@@ -683,7 +701,7 @@
     "update": {
         "checking": "Controleren op updates…",
         "available": "PlayGuard {} is beschikbaar (je hebt {}).",
-        "available_toast": "PlayGuard {} is beschikbaar: Tools & info › Op updates controleren.",
+        "available_toast": "PlayGuard {} is beschikbaar: Info › Op updates controleren.",
         "available_no_fw": "Die versie ondersteunt firmware {} nog niet.",
         "up_to_date": "PlayGuard {} is de nieuwste versie.",
         "failed": "Kan niet op updates controleren ({}).",
@@ -716,7 +734,7 @@
         "forget": "Firmwarekeuze vergeten",
         "forgotten": "Bij de volgende start wordt opnieuw naar de firmwarekeuze gevraagd.",
         "already_on": "De ontwikkelaarsmodus staat al aan.",
-        "enabled": "De ontwikkelaarsmodus staat aan: zie het einde van Tools & info.",
+        "enabled": "De ontwikkelaarsmodus staat aan: zie het einde van Tools.",
         "presses_left": "Nog {} keer drukken om de ontwikkelaarsmodus aan te zetten.",
         "presses_left_one": "Nog 1 keer drukken om de ontwikkelaarsmodus aan te zetten."
     },

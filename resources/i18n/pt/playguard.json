@@ -12,7 +12,8 @@
         "clock": "Relógio de rede",
         "security": "Segurança e aplicação",
         "preferences": "Preferências",
-        "tools": "Ferramentas e info"
+        "tools": "Ferramentas",
+        "about": "Sobre"
     },
     "hints": {
         "refresh": "Atualizar",
@@ -114,8 +115,8 @@
         "risk_body": "O firmware {} não foi verificado: alterar o controlo parental ou o relógio pode ter um comportamento diferente ou causar uma falha da consola.\n\nVerifique cada resultado e exporte um diagnóstico se algo parecer errado.",
         "risk_confirm": "Assumir o risco",
         "remember": "Lembrar esta escolha para este firmware e esta versão",
-        "note": "Pode voltar a este ecrã em Ferramentas e info › Compatibilidade.",
-        "update_toast": "O PlayGuard {} suporta o firmware {}: Ferramentas e info › Procurar atualizações."
+        "note": "Pode voltar a este ecrã em Ferramentas › Compatibilidade.",
+        "update_toast": "O PlayGuard {} suporta o firmware {}: Sobre › Procurar atualizações."
     },
     "dashboard": {
         "section_status": "Controlo parental",
@@ -180,7 +181,7 @@
         "open": "Primeiros passos…",
         "pin_missing": "Ainda sem PIN",
         "headline": "Três passos e a consola fica protegida. Prima A num passo para o executar.",
-        "all_done": "Tudo pronto: a consola está protegida. Pode voltar aqui a qualquer momento em Ferramentas e info.",
+        "all_done": "Tudo pronto: a consola está protegida. Pode voltar aqui a qualquer momento em Ferramentas.",
         "section_steps": "Passos",
         "step_pin": "1. Definir um PIN de controlo parental",
         "step_limit": "2. Escolher um limite diário de tempo de jogo",
@@ -490,7 +491,7 @@
         "banner_action": "Bloquear agora",
         "section_danger": "Zona de perigo",
         "delete": "Eliminar todo o controlo parental",
-        "delete_body": "Eliminar todo o controlo parental?\n\nIsto apaga o PIN, todas as restrições e o limite de tempo de jogo. Não pode ser anulado, mas antes é guardada uma cópia de segurança das definições (sem o PIN) no cartão SD: Ferramentas e info › Restaurar cópia de segurança.",
+        "delete_body": "Eliminar todo o controlo parental?\n\nIsto apaga o PIN, todas as restrições e o limite de tempo de jogo. Não pode ser anulado, mas antes é guardada uma cópia de segurança das definições (sem o PIN) no cartão SD: Ferramentas › Restaurar cópia de segurança.",
         "delete_body2": "Última verificação: eliminar tudo agora?",
         "delete_confirm": "Eliminar",
         "delete_confirm2": "Eliminar definitivamente",
@@ -637,10 +638,7 @@
         "mode_applet": "Applet (aberto a partir do álbum)",
         "data": "Pasta de dados",
         "license": "Licença",
-        "license_value": "GPLv3 · Interface: borealis (Apache 2.0)",
         "source": "Código-fonte",
-        "credits_value": "JigSawFr · baseado no Pctl Manager de Taylor · anbingxi (NTP, correções fw 22.5)",
-        "credits_line": "Créditos: {}",
         "update_via": "Atualizar com",
         "update_via_values": {
             "auto": "Automático (sphaira, senão App Store)",
@@ -654,11 +652,31 @@
         "flag_read_only": "só de leitura",
         "flag_dev": "programador"
     },
+    "about": {
+        "section_changelog": "Novidades da {}",
+        "changelog_note": "Versões anteriores: {}",
+        "changelog_none": "Sem notas para esta versão (uma versão de desenvolvimento?). Todas as versões: {}",
+        "section_credits": "Créditos",
+        "credit_author": "Programador",
+        "credit_upstream": "Baseado em",
+        "credit_upstream_value": "Pctl Manager de Taylor",
+        "credit_fixes": "Correções fw 22.5 e NTP",
+        "credit_ui": "Interface",
+        "section_support": "Apoiar o PlayGuard",
+        "support_note": "O PlayGuard é gratuito, de código aberto e sem anúncios. Se ajuda a sua família, pode apoiar o seu desenvolvimento: leia um código com o telemóvel (selecione-o para o ampliar).",
+        "made_in_france": "Made in France",
+        "support_body": "O PlayGuard é gratuito, de código aberto e sem anúncios. Se ajuda a sua família, pode apoiar o seu desenvolvimento: leia um código com o telemóvel.",
+        "reminder_title": "O PlayGuard é-lhe útil?",
+        "reminder_never": "Não mostrar novamente",
+        "reminder_off": "O lembrete mensal está desativado. Pode reativá-lo em Preferências › Ao iniciar.",
+        "whats_new_close": "Continuar"
+    },
     "prefs": {
         "section_app": "Aplicação",
         "section_play_timer": "Temporizador de jogo",
         "section_startup": "Ao iniciar",
-        "note": "As cópias de segurança, as atualizações, o relatório de diagnóstico e a consola estão em Ferramentas e info."
+        "note": "As cópias de segurança, o relatório de diagnóstico e a consola estão em Ferramentas; as atualizações em Sobre.",
+        "support_reminder": "Lembrar-me uma vez por mês de apoiar o PlayGuard"
     },
     "backup": {
         "saved": "Cópia de segurança criada: {}",
@@ -683,7 +701,7 @@
     "update": {
         "checking": "A procurar atualizações…",
         "available": "O PlayGuard {} está disponível (tem a {}).",
-        "available_toast": "O PlayGuard {} está disponível: Ferramentas e info › Procurar atualizações.",
+        "available_toast": "O PlayGuard {} está disponível: Sobre › Procurar atualizações.",
         "available_no_fw": "Ainda não suporta o firmware {}.",
         "up_to_date": "O PlayGuard {} é a versão mais recente.",
         "failed": "Não foi possível procurar atualizações ({}).",
@@ -716,7 +734,7 @@
         "forget": "Esquecer a escolha do firmware",
         "forgotten": "A escolha do firmware será pedida novamente da próxima vez que a aplicação for iniciada.",
         "already_on": "O modo de programador já está ativo.",
-        "enabled": "Modo de programador ativo: veja o fim de Ferramentas e info.",
+        "enabled": "Modo de programador ativo: veja o fim de Ferramentas.",
         "presses_left": "Prima mais {} vezes para ativar o modo de programador.",
         "presses_left_one": "Prima mais 1 vez para ativar o modo de programador."
     },

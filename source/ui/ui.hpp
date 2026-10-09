@@ -160,11 +160,12 @@ constexpr int clock        = 5;
 constexpr int security     = 7;   // PIN, unlock, companion app, delete
 constexpr int preferences  = 9;
 constexpr int tools        = 10;
+constexpr int about        = 11;   // version, credits, changelog
 // The n-th tab (0 = Overview) as a sidebar position (separators count).
 constexpr int of(int n)
 {
-    constexpr int positions[] = { dashboard, play_timer, activity, restrictions, clock, security, preferences, tools };
-    return n >= 0 && n < 8 ? positions[n] : dashboard;
+    constexpr int positions[] = { dashboard, play_timer, activity, restrictions, clock, security, preferences, tools, about };
+    return n >= 0 && n < (int)(sizeof(positions) / sizeof(positions[0])) ? positions[n] : dashboard;
 }
 }   // namespace tab
 

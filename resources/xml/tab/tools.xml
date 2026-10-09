@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- Settings backup, updates, diagnostics, the console, about and (once
-     enabled by seven presses on Version) the developer tools. The
-     preferences have their own tab (preferences.xml). -->
+<!-- First steps, history, settings backup, diagnostics, the console and (once enabled
+     by seven presses on About › Version) the developer tools. The
+     preferences and About have their own tabs (preferences.xml, about.xml). -->
 
 <brls:Box
     width="auto"
@@ -32,10 +32,6 @@
             <brls:DetailCell id="tl_backup_restore" title="@i18n/playguard/tools/backup_restore"/>
             <brls:DetailCell id="tl_backup_keep" title="@i18n/playguard/tools/backup_keep"/>
             <brls:Label id="tl_backup_note" text="" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
-            <brls:Header title="@i18n/playguard/tools/section_update" marginTop="24" marginBottom="8"/>
-            <brls:DetailCell id="tl_update" title="@i18n/playguard/tools/update"/>
-            <brls:BooleanCell id="tl_update_daily"/>
-            <brls:DetailCell id="tl_update_via" title="@i18n/playguard/tools/update_via"/>
             <brls:Header title="@i18n/playguard/tools/section_diag" marginTop="24" marginBottom="8"/>
             <brls:DetailCell id="tl_export" title="@i18n/playguard/tools/export"/>
             <brls:Label id="tl_export_note" text="" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
@@ -49,13 +45,6 @@
             <brls:Label id="tl_serial_note" text="@i18n/playguard/tools/serial_note_emummc" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/warn"/>
             <brls:DetailCell id="tl_patches" title="@i18n/playguard/tools/patches"/>
             <brls:Label id="tl_patches_note" text="" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
-            <brls:Header title="@i18n/playguard/tools/section_about" marginTop="24" marginBottom="8"/>
-            <brls:DetailCell id="tl_version" title="@i18n/playguard/tools/version"/>
-            <brls:DetailCell id="tl_mode" focusable="false" title="@i18n/playguard/tools/mode"/>
-            <brls:DetailCell id="tl_data" focusable="false" title="@i18n/playguard/tools/data"/>
-            <brls:DetailCell id="tl_license" focusable="false" title="@i18n/playguard/tools/license"/>
-            <brls:DetailCell id="tl_source" focusable="false" title="@i18n/playguard/tools/source"/>
-            <brls:Label id="tl_credits" text="" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
             <brls:Header id="tl_dev_header" title="@i18n/playguard/dev/section" marginTop="24" marginBottom="8"/>
             <brls:BooleanCell id="tl_dev_mode"/>
             <brls:BooleanCell id="tl_dev_read_only"/>

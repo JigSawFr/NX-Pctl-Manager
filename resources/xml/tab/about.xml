@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- About: the app (version — seven presses turn the developer tools on, at
+     the end of Tools —, launch mode, data folder), its updates, what changed
+     in this version (the bundled CHANGELOG.md, filled in by AboutTab), the
+     credits, how to support it (QR codes of the funding links, Ⓐ shows one
+     larger), and "Made in France". -->
+
+<brls:Box
+    width="auto"
+    height="auto">
+
+    <brls:ScrollingFrame
+        width="auto"
+        height="auto"
+        grow="1.0">
+
+        <brls:Box
+            width="auto"
+            height="auto"
+            axis="column"
+            alignItems="stretch"
+            paddingLeft="@style/brls/tab_frame/content_padding_sides"
+            paddingRight="@style/brls/tab_frame/content_padding_sides"
+            paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
+            paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
+
+            <brls:Header title="@i18n/playguard/tools/section_about" marginBottom="8"/>
+            <brls:DetailCell id="ab_version" title="@i18n/playguard/tools/version"/>
+            <brls:DetailCell id="ab_mode" focusable="false" title="@i18n/playguard/tools/mode"/>
+            <brls:DetailCell id="ab_data" focusable="false" title="@i18n/playguard/tools/data"/>
+            <brls:Header title="@i18n/playguard/tools/section_update" marginTop="24" marginBottom="8"/>
+            <brls:DetailCell id="ab_update" title="@i18n/playguard/tools/update"/>
+            <brls:BooleanCell id="ab_update_daily"/>
+            <brls:DetailCell id="ab_update_via" title="@i18n/playguard/tools/update_via"/>
+            <brls:Header id="ab_changelog_header" marginTop="24" marginBottom="8"/>
+            <brls:Box id="ab_changelog" width="auto" height="auto" axis="column" alignItems="stretch"/>
+            <brls:Label id="ab_changelog_note" text="" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
+            <brls:Header title="@i18n/playguard/about/section_credits" marginTop="24" marginBottom="8"/>
+            <brls:DetailCell id="ab_author" focusable="false" title="@i18n/playguard/about/credit_author"/>
+            <brls:DetailCell id="ab_upstream" focusable="false" title="@i18n/playguard/about/credit_upstream"/>
+            <brls:DetailCell id="ab_fixes" focusable="false" title="@i18n/playguard/about/credit_fixes"/>
+            <brls:DetailCell id="ab_ui" focusable="false" title="@i18n/playguard/about/credit_ui"/>
+            <brls:DetailCell id="ab_license" focusable="false" title="@i18n/playguard/tools/license"/>
+            <brls:DetailCell id="ab_source" title="@i18n/playguard/tools/source"/>
+            <brls:Header title="@i18n/playguard/about/section_support" marginTop="24" marginBottom="8"/>
+            <brls:Label id="ab_support_note" text="@i18n/playguard/about/support_note" fontSize="20" marginBottom="6" textColor="@theme/brand/note"/>
+            <brls:Box id="ab_funding" width="auto" height="auto" axis="row" justifyContent="spaceEvenly" marginTop="8"/>
+            <MadeInFrance marginTop="32" marginBottom="8"/>
+
+        </brls:Box>
+
+    </brls:ScrollingFrame>
+
+</brls:Box>

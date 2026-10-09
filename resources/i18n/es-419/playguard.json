@@ -12,7 +12,8 @@
         "clock": "Reloj de red",
         "security": "Seguridad y app",
         "preferences": "Preferencias",
-        "tools": "Herramientas e info"
+        "tools": "Herramientas",
+        "about": "Información"
     },
     "hints": {
         "refresh": "Actualizar",
@@ -114,8 +115,8 @@
         "risk_body": "El firmware {} no se ha verificado: los cambios en el control parental o en el reloj pueden tener efectos inesperados o hacer que la consola se cuelgue.\n\nVerifique cada resultado y exporte un diagnóstico si algo parece incorrecto.",
         "risk_confirm": "Asumir el riesgo",
         "remember": "Recordar esta elección para este firmware y esta versión",
-        "note": "Puede volver a esta pantalla desde Herramientas e info › Compatibilidad.",
-        "update_toast": "PlayGuard {} es compatible con el firmware {}: Herramientas e info › Buscar actualizaciones."
+        "note": "Puede volver a esta pantalla desde Herramientas › Compatibilidad.",
+        "update_toast": "PlayGuard {} es compatible con el firmware {}: Información › Buscar actualizaciones."
     },
     "dashboard": {
         "section_status": "Control parental",
@@ -180,7 +181,7 @@
         "open": "Primeros pasos…",
         "pin_missing": "Aún no hay PIN",
         "headline": "Tres pasos y la consola queda protegida. Presione A en un paso para realizarlo.",
-        "all_done": "Todo listo: la consola está protegida. Puede volver aquí cuando quiera desde Herramientas e info.",
+        "all_done": "Todo listo: la consola está protegida. Puede volver aquí cuando quiera desde Herramientas.",
         "section_steps": "Pasos",
         "step_pin": "1. Definir un PIN de control parental",
         "step_limit": "2. Elegir un límite diario de tiempo de juego",
@@ -490,7 +491,7 @@
         "banner_action": "Bloquear ahora",
         "section_danger": "Zona de peligro",
         "delete": "Eliminar todo el control parental",
-        "delete_body": "¿Eliminar todo el control parental?\n\nEsto borra el PIN, todas las restricciones y el límite de tiempo de juego. No se puede deshacer, pero antes se guarda un respaldo de la configuración (sin el PIN) en la tarjeta SD: Herramientas e info › Restaurar un respaldo.",
+        "delete_body": "¿Eliminar todo el control parental?\n\nEsto borra el PIN, todas las restricciones y el límite de tiempo de juego. No se puede deshacer, pero antes se guarda un respaldo de la configuración (sin el PIN) en la tarjeta SD: Herramientas › Restaurar un respaldo.",
         "delete_body2": "Última confirmación: ¿eliminarlo todo ahora?",
         "delete_confirm": "Eliminar",
         "delete_confirm2": "Eliminar definitivamente",
@@ -637,10 +638,7 @@
         "mode_applet": "Applet (iniciado desde el Álbum)",
         "data": "Carpeta de datos",
         "license": "Licencia",
-        "license_value": "GPLv3 · Interfaz: borealis (Apache 2.0)",
         "source": "Código fuente",
-        "credits_value": "JigSawFr · basado en Pctl Manager de Taylor · anbingxi (NTP, correcciones para fw 22.5)",
-        "credits_line": "Créditos: {}",
         "update_via": "Actualizar con",
         "update_via_values": {
             "auto": "Automático (sphaira o App Store)",
@@ -654,11 +652,31 @@
         "flag_read_only": "solo lectura",
         "flag_dev": "desarrollador"
     },
+    "about": {
+        "section_changelog": "Novedades de la {}",
+        "changelog_note": "Versiones anteriores: {}",
+        "changelog_none": "No hay notas para esta versión (¿una versión de desarrollo?). Todas las versiones: {}",
+        "section_credits": "Créditos",
+        "credit_author": "Desarrollador",
+        "credit_upstream": "Basado en",
+        "credit_upstream_value": "Pctl Manager de Taylor",
+        "credit_fixes": "Correcciones fw 22.5 y NTP",
+        "credit_ui": "Interfaz",
+        "section_support": "Apoyar PlayGuard",
+        "support_note": "PlayGuard es gratuito, de código abierto y sin anuncios. Si ayuda a tu familia, puedes apoyar su desarrollo: escanea un código con tu teléfono (selecciónalo para ampliarlo).",
+        "made_in_france": "Made in France",
+        "support_body": "PlayGuard es gratuito, de código abierto y sin anuncios. Si ayuda a tu familia, puedes apoyar su desarrollo: escanea un código con tu teléfono.",
+        "reminder_title": "¿Te resulta útil PlayGuard?",
+        "reminder_never": "No volver a mostrar",
+        "reminder_off": "El recordatorio mensual está desactivado. Puedes reactivarlo en Preferencias › Al iniciar.",
+        "whats_new_close": "Continuar"
+    },
     "prefs": {
         "section_app": "Aplicación",
         "section_play_timer": "Tiempo de juego",
         "section_startup": "Al iniciar",
-        "note": "Los respaldos, las actualizaciones, el informe de diagnóstico y la consola están en Herramientas e info."
+        "note": "Los respaldos, el informe de diagnóstico y la consola están en Herramientas; las actualizaciones, en Información.",
+        "support_reminder": "Recordarme una vez al mes que apoye PlayGuard"
     },
     "backup": {
         "saved": "Respaldo de la configuración guardado: {}",
@@ -683,7 +701,7 @@
     "update": {
         "checking": "Buscando actualizaciones…",
         "available": "PlayGuard {} está disponible (tiene la {}).",
-        "available_toast": "PlayGuard {} está disponible: Herramientas e info › Buscar actualizaciones.",
+        "available_toast": "PlayGuard {} está disponible: Información › Buscar actualizaciones.",
         "available_no_fw": "Aún no es compatible con el firmware {}.",
         "up_to_date": "PlayGuard {} es la versión más reciente.",
         "failed": "No se pudieron buscar actualizaciones ({}).",
@@ -716,7 +734,7 @@
         "forget": "Olvidar la elección del firmware",
         "forgotten": "La elección del firmware se volverá a pedir en el próximo inicio.",
         "already_on": "El modo desarrollador ya está activado.",
-        "enabled": "Modo desarrollador activado: vea el final de Herramientas e info.",
+        "enabled": "Modo desarrollador activado: vea el final de Herramientas.",
         "presses_left": "Faltan {} pulsaciones para activar el modo desarrollador.",
         "presses_left_one": "Falta 1 pulsación para activar el modo desarrollador."
     },

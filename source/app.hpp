@@ -19,6 +19,9 @@ uint32_t    pctl_init_result();   // 0 if the probe succeeded
 
 std::string version();            // "1.0.0"
 const char* repo_url();
+// Funding links (.github/FUNDING.yml), shown in About.
+constexpr const char* SPONSORS_URL = "https://github.com/sponsors/JigSawFr";
+constexpr const char* KOFI_URL     = "https://ko-fi.com/jigsawfr";
 
 // Read-only mode: the service layer refuses every change (core/write_guard.h)
 // and the tabs hide their write controls. On at launch when the firmware is

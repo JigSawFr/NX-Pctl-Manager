@@ -4,6 +4,7 @@
 #include "action/clock_check.hpp"
 #include "action/fw_gate.hpp"
 #include "action/pt_flow.hpp"
+#include "action/support_flow.hpp"
 #include "action/update_flow.hpp"
 #include "activity/onboarding_activity.hpp"
 #include "app.hpp"
@@ -12,19 +13,20 @@
 
 using namespace brls::literals;
 
-// Eight tabs and three separators do not fit the 720p sidebar at borealis'
-// sizes (70 px items, 30 px separators): "Tools & about" fell below the
-// edge. Tighter items there only; detail cells keep the shared 70 px.
+// Nine tabs and three separators do not fit the 720p sidebar at borealis'
+// sizes (70 px items, 30 px separators): "Tools" and "About" fell below the
+// edge (559 px between the header and the footer: 20 + 9 × 54 + 3 × 16 = 554).
+// Tighter items there only; detail cells keep the shared 70 px.
 static void compact_sidebar(brls::View* tab_frame)
 {
     auto* sidebar = tab_frame ? dynamic_cast<brls::Sidebar*>(tab_frame->getView("brls/tab_frame/sidebar")) : nullptr;
     brls::SidebarItem* first = sidebar ? sidebar->getItem(0) : nullptr;
     brls::Box* list = first ? first->getParent() : nullptr;
     if (!list) return;
-    list->setPaddingTop(14);
-    list->setPaddingBottom(14);
+    list->setPaddingTop(10);
+    list->setPaddingBottom(10);
     for (brls::View* v : list->getChildren()) {
-        if (dynamic_cast<brls::SidebarItem*>(v)) v->setHeight(58);
+        if (dynamic_cast<brls::SidebarItem*>(v)) v->setHeight(54);
         else v->setHeight(16);   // a separator: its line is drawn at mid-height
     }
 }
@@ -78,6 +80,9 @@ void MainActivity::onContentAvailable()
     // Nothing set up yet (no PIN): the first steps, once per start.
     if (OnboardingActivity::wanted_at_start())
         brls::sync([]() { brls::Application::pushActivity(new OnboardingActivity()); });
+    // Then, with nothing else in front: "What's new" after an update, else the
+    // monthly "Support PlayGuard" reminder.
+    support_flow::at_start(this);
 
     this->day = ui::today_date();
     this->day_timer.setPeriod(30000);

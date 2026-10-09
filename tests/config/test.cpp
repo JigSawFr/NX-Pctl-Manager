@@ -167,6 +167,14 @@ static void test_preferences()
     assert(d.activity_period == 1 && d.export_format == 0 && d.backup_keep == 0);
     assert(!d.update_daily && d.update_checked.empty() && !d.clock_check_at_start && d.pin_lock == "off");
     assert(d.onboarding_at_start);
+    assert(d.support_reminder && d.support_reminded.empty() && d.seen_version.empty());
+    write_config(R"({"support_reminder": false, "support_reminded": "2026-10-09", "seen_version": "1.1.0"})");
+    config::load();
+    assert(!config::get().support_reminder && config::get().support_reminded == "2026-10-09");
+    assert(config::get().seen_version == "1.1.0");
+    write_config(R"({"support_reminded": "last month"})");
+    config::load();
+    assert(config::get().support_reminder && config::get().support_reminded.empty());
     write_config(R"({"onboarding_at_start": false})");
     config::load();
     assert(!config::get().onboarding_at_start);
@@ -215,11 +223,14 @@ static void test_preferences()
     config::get().start_tab = "tools";
     config::get().extra_amounts = { 5, 10, 15 };
     config::get().backup_keep = 20;
+    config::get().support_reminder = false;
+    config::get().seen_version = "1.2.0";
     assert(config::save());
     config::get() = config::Config{};
     config::load();
     assert(config::get().start_tab == "tools" && config::get().extra_amounts == std::vector<int>({ 5, 10, 15 }));
     assert(config::get().backup_keep == 20);
+    assert(!config::get().support_reminder && config::get().seen_version == "1.2.0");
 }
 
 static void test_tmp_recovery()

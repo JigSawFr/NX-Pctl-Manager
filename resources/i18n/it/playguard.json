@@ -12,7 +12,8 @@
         "clock": "Orologio di rete",
         "security": "Sicurezza e app",
         "preferences": "Preferenze",
-        "tools": "Strumenti e info"
+        "tools": "Strumenti",
+        "about": "Informazioni"
     },
     "hints": {
         "refresh": "Aggiorna",
@@ -114,8 +115,8 @@
         "risk_body": "Il firmware {} non è stato verificato: modificare il filtro famiglia o l'orologio potrebbe dare risultati diversi o bloccare la console.\n\nControlla ogni risultato ed esporta una diagnostica se qualcosa non va.",
         "risk_confirm": "Continua a mio rischio",
         "remember": "Ricorda questa scelta per questo firmware e questa versione",
-        "note": "Puoi tornare a questa schermata da Strumenti e info › Compatibilità.",
-        "update_toast": "PlayGuard {} supporta il firmware {}: Strumenti e info › Cerca aggiornamenti."
+        "note": "Puoi tornare a questa schermata da Strumenti › Compatibilità.",
+        "update_toast": "PlayGuard {} supporta il firmware {}: Informazioni › Cerca aggiornamenti."
     },
     "dashboard": {
         "section_status": "Filtro famiglia",
@@ -180,7 +181,7 @@
         "open": "Primi passi…",
         "pin_missing": "Nessun PIN impostato",
         "headline": "Tre passaggi e la console è protetta. Premi A su un passaggio per eseguirlo.",
-        "all_done": "Tutto pronto: la console è protetta. Puoi tornare qui in qualsiasi momento da Strumenti e info.",
+        "all_done": "Tutto pronto: la console è protetta. Puoi tornare qui in qualsiasi momento da Strumenti.",
         "section_steps": "Passaggi",
         "step_pin": "1. Imposta un PIN del filtro famiglia",
         "step_limit": "2. Scegli un limite giornaliero di tempo di gioco",
@@ -490,7 +491,7 @@
         "banner_action": "Blocca ora",
         "section_danger": "Zona pericolosa",
         "delete": "Elimina il filtro famiglia",
-        "delete_body": "Vuoi eliminare il filtro famiglia?\n\nVerranno cancellati il PIN, tutte le limitazioni e il limite di tempo di gioco. L'operazione è irreversibile, ma prima viene salvato un backup delle impostazioni (PIN escluso) sulla scheda SD: Strumenti e info › Ripristina un backup.",
+        "delete_body": "Vuoi eliminare il filtro famiglia?\n\nVerranno cancellati il PIN, tutte le limitazioni e il limite di tempo di gioco. L'operazione è irreversibile, ma prima viene salvato un backup delle impostazioni (PIN escluso) sulla scheda SD: Strumenti › Ripristina un backup.",
         "delete_body2": "Ultima conferma: vuoi eliminare tutto ora?",
         "delete_confirm": "Elimina",
         "delete_confirm2": "Elimina definitivamente",
@@ -637,10 +638,7 @@
         "mode_applet": "Applet (avviato dall'album)",
         "data": "Cartella dei dati",
         "license": "Licenza",
-        "license_value": "GPLv3 · Interfaccia: borealis (Apache 2.0)",
         "source": "Codice sorgente",
-        "credits_value": "JigSawFr · basato su Pctl Manager di Taylor · anbingxi (NTP, correzioni fw 22.5)",
-        "credits_line": "Riconoscimenti: {}",
         "update_via": "Aggiorna con",
         "update_via_values": {
             "auto": "Automatico (sphaira, altrimenti App Store)",
@@ -654,11 +652,31 @@
         "flag_read_only": "sola lettura",
         "flag_dev": "sviluppatore"
     },
+    "about": {
+        "section_changelog": "Novità della {}",
+        "changelog_note": "Versioni precedenti: {}",
+        "changelog_none": "Nessuna nota per questa versione (una build di sviluppo?). Tutte le versioni: {}",
+        "section_credits": "Crediti",
+        "credit_author": "Sviluppatore",
+        "credit_upstream": "Basato su",
+        "credit_upstream_value": "Pctl Manager di Taylor",
+        "credit_fixes": "Correzioni fw 22.5 e NTP",
+        "credit_ui": "Interfaccia",
+        "section_support": "Sostieni PlayGuard",
+        "support_note": "PlayGuard è gratuito, open source e senza pubblicità. Se aiuta la tua famiglia, puoi sostenerne lo sviluppo: inquadra un codice con il telefono (selezionalo per ingrandirlo).",
+        "made_in_france": "Made in France",
+        "support_body": "PlayGuard è gratuito, open source e senza pubblicità. Se aiuta la tua famiglia, puoi sostenerne lo sviluppo: inquadra un codice con il telefono.",
+        "reminder_title": "PlayGuard ti è utile?",
+        "reminder_never": "Non mostrare più",
+        "reminder_off": "Il promemoria mensile è disattivato. Puoi riattivarlo in Preferenze › All'avvio.",
+        "whats_new_close": "Continua"
+    },
     "prefs": {
         "section_app": "Applicazione",
         "section_play_timer": "Tempo di gioco",
         "section_startup": "All'avvio",
-        "note": "Backup, aggiornamenti, rapporto di diagnostica e informazioni sulla console si trovano in Strumenti e info."
+        "note": "Backup, rapporto di diagnostica e informazioni sulla console si trovano in Strumenti; gli aggiornamenti in Informazioni.",
+        "support_reminder": "Ricordami una volta al mese di sostenere PlayGuard"
     },
     "backup": {
         "saved": "Backup delle impostazioni eseguito: {}",
@@ -683,7 +701,7 @@
     "update": {
         "checking": "Ricerca di aggiornamenti…",
         "available": "È disponibile PlayGuard {} (versione attuale: {}).",
-        "available_toast": "È disponibile PlayGuard {}: Strumenti e info › Cerca aggiornamenti.",
+        "available_toast": "È disponibile PlayGuard {}: Informazioni › Cerca aggiornamenti.",
         "available_no_fw": "Non supporta ancora il firmware {}.",
         "up_to_date": "PlayGuard {} è la versione più recente.",
         "failed": "Impossibile cercare aggiornamenti ({}).",
@@ -716,7 +734,7 @@
         "forget": "Dimentica la scelta per il firmware",
         "forgotten": "La scelta per il firmware verrà richiesta di nuovo al prossimo avvio.",
         "already_on": "La modalità sviluppatore è già attiva.",
-        "enabled": "Modalità sviluppatore attiva: vedi la fine della scheda Strumenti e info.",
+        "enabled": "Modalità sviluppatore attiva: vedi la fine della scheda Strumenti.",
         "presses_left": "Premi ancora {} volte per attivare la modalità sviluppatore.",
         "presses_left_one": "Premi ancora una volta per attivare la modalità sviluppatore."
     },

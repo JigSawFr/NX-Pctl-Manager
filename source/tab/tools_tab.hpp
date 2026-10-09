@@ -1,7 +1,7 @@
-// ToolsTab — settings backup / restore, the update check and its store,
-// diagnostic export, the console (firmware, storage, serial, game patches),
-// About, and the developer tools (shown after seven presses on Version). The
-// preferences are in PreferencesTab.
+// ToolsTab — first steps, change history, settings backup / restore,
+// diagnostic export, the console (firmware, storage, serial, game patches)
+// and the developer tools (shown after seven presses on About › Version). The
+// preferences are in PreferencesTab, the version, updates and changelog in AboutTab.
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
@@ -18,10 +18,6 @@ class ToolsTab : public TabBase
 
   private:
     bool serial_revealed = false;   // until the tab is left (tabs are rebuilt when reopened)
-    int        version_presses     = 0;
-    brls::Time last_version_press  = 0;
-
-    void count_version_press();
 
     BRLS_BIND(brls::DetailCell,  first_steps, "tl_first_steps");
     BRLS_BIND(brls::DetailCell,  history, "tl_history");
@@ -30,11 +26,7 @@ class ToolsTab : public TabBase
     BRLS_BIND(brls::DetailCell,  backup_save, "tl_backup_save");
     BRLS_BIND(brls::DetailCell,  backup_restore, "tl_backup_restore");
     BRLS_BIND(brls::Label,       backup_note, "tl_backup_note");
-    BRLS_BIND(brls::BooleanCell, update_daily, "tl_update_daily");
     BRLS_BIND(brls::DetailCell,  backup_keep, "tl_backup_keep");
-    BRLS_BIND(brls::DetailCell,  update_via,  "tl_update_via");
-    BRLS_BIND(brls::DetailCell,  version,     "tl_version");
-    BRLS_BIND(brls::DetailCell,  update_cell, "tl_update");
     BRLS_BIND(brls::DetailCell,  fw,          "tl_fw");
     BRLS_BIND(brls::DetailCell,  ams,         "tl_ams");
     BRLS_BIND(brls::DetailCell,  compat,      "tl_compat");
@@ -44,11 +36,6 @@ class ToolsTab : public TabBase
     BRLS_BIND(brls::Label,       serial_note, "tl_serial_note");
     BRLS_BIND(brls::DetailCell,  game_patches, "tl_patches");
     BRLS_BIND(brls::Label,       patches_note, "tl_patches_note");
-    BRLS_BIND(brls::DetailCell,  mode,        "tl_mode");
-    BRLS_BIND(brls::DetailCell,  data,        "tl_data");
-    BRLS_BIND(brls::DetailCell,  license,     "tl_license");
-    BRLS_BIND(brls::DetailCell,  source,      "tl_source");
-    BRLS_BIND(brls::Label,       credits,     "tl_credits");
     BRLS_BIND(brls::Header,      dev_header,  "tl_dev_header");
     BRLS_BIND(brls::BooleanCell, dev_mode,    "tl_dev_mode");
     BRLS_BIND(brls::BooleanCell, dev_read_only, "tl_dev_read_only");

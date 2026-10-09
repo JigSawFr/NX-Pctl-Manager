@@ -105,6 +105,10 @@ PreferencesTab::PreferencesTab()
         config::get().advanced = on;
         ui::save_config();
     });
+    support_reminder->init("playguard/prefs/support_reminder"_i18n, config::get().support_reminder, [](bool on) {
+        config::get().support_reminder = on;
+        ui::save_config();
+    });
     clock_check->init("playguard/tools/clock_check"_i18n, config::get().clock_check_at_start, [](bool on) {
         config::get().clock_check_at_start = on;
         ui::save_config();
@@ -122,6 +126,7 @@ void PreferencesTab::refresh()
     extra_auto->setOn(cfg.extra_auto_restore, false);
     advanced->setOn(cfg.advanced, false);
     clock_check->setOn(cfg.clock_check_at_start, false);
+    support_reminder->setOn(cfg.support_reminder, false);
     // Read-only: the play-timer preferences would change nothing; they stay
     // in sight, greyed (A says why).
     const bool writable = !app::read_only();

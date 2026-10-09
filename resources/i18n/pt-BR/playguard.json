@@ -12,7 +12,8 @@
         "clock": "Relógio de rede",
         "security": "Segurança e app",
         "preferences": "Preferências",
-        "tools": "Ferramentas e info"
+        "tools": "Ferramentas",
+        "about": "Sobre"
     },
     "hints": {
         "refresh": "Atualizar",
@@ -114,8 +115,8 @@
         "risk_body": "O firmware {} não foi verificado: alterar o controle dos pais ou o relógio pode se comportar de outra forma ou travar o console.\n\nConfira cada resultado e exporte um diagnóstico se algo parecer errado.",
         "risk_confirm": "Assumir o risco",
         "remember": "Lembrar esta escolha para este firmware e esta versão",
-        "note": "Você pode voltar a esta tela em Ferramentas e info › Compatibilidade.",
-        "update_toast": "O PlayGuard {} é compatível com o firmware {}: Ferramentas e info › Procurar atualizações."
+        "note": "Você pode voltar a esta tela em Ferramentas › Compatibilidade.",
+        "update_toast": "O PlayGuard {} é compatível com o firmware {}: Sobre › Procurar atualizações."
     },
     "dashboard": {
         "section_status": "Controle dos pais",
@@ -180,7 +181,7 @@
         "open": "Primeiros passos…",
         "pin_missing": "Ainda sem PIN",
         "headline": "Três passos e o console fica protegido. Pressione A em um passo para realizá-lo.",
-        "all_done": "Tudo pronto: o console está protegido. Volte aqui quando quiser em Ferramentas e info.",
+        "all_done": "Tudo pronto: o console está protegido. Volte aqui quando quiser em Ferramentas.",
         "section_steps": "Passos",
         "step_pin": "1. Definir um PIN de controle dos pais",
         "step_limit": "2. Escolher um limite diário de tempo de jogo",
@@ -490,7 +491,7 @@
         "banner_action": "Bloquear agora",
         "section_danger": "Zona de perigo",
         "delete": "Excluir todo o controle dos pais",
-        "delete_body": "Excluir todo o controle dos pais?\n\nIsso apaga o PIN, todas as restrições e o limite de tempo de jogo. Não pode ser desfeito, mas antes um backup das configurações (sem o PIN) é salvo no cartão SD: Ferramentas e info › Restaurar um backup.",
+        "delete_body": "Excluir todo o controle dos pais?\n\nIsso apaga o PIN, todas as restrições e o limite de tempo de jogo. Não pode ser desfeito, mas antes um backup das configurações (sem o PIN) é salvo no cartão SD: Ferramentas › Restaurar um backup.",
         "delete_body2": "Última confirmação: excluir tudo agora?",
         "delete_confirm": "Excluir",
         "delete_confirm2": "Excluir definitivamente",
@@ -637,10 +638,7 @@
         "mode_applet": "Applet (aberto pelo álbum)",
         "data": "Pasta de dados",
         "license": "Licença",
-        "license_value": "GPLv3 · Interface: borealis (Apache 2.0)",
         "source": "Código-fonte",
-        "credits_value": "JigSawFr · baseado no Pctl Manager de Taylor · anbingxi (NTP, correções fw 22.5)",
-        "credits_line": "Créditos: {}",
         "update_via": "Atualizar com",
         "update_via_values": {
             "auto": "Automático (sphaira, senão App Store)",
@@ -654,11 +652,31 @@
         "flag_read_only": "somente leitura",
         "flag_dev": "desenvolvedor"
     },
+    "about": {
+        "section_changelog": "Novidades da {}",
+        "changelog_note": "Versões anteriores: {}",
+        "changelog_none": "Sem notas para esta versão (uma versão de desenvolvimento?). Todas as versões: {}",
+        "section_credits": "Créditos",
+        "credit_author": "Desenvolvedor",
+        "credit_upstream": "Baseado em",
+        "credit_upstream_value": "Pctl Manager de Taylor",
+        "credit_fixes": "Correções fw 22.5 e NTP",
+        "credit_ui": "Interface",
+        "section_support": "Apoiar o PlayGuard",
+        "support_note": "O PlayGuard é gratuito, de código aberto e sem anúncios. Se ele ajuda a sua família, você pode apoiar o desenvolvimento: escaneie um código com o celular (selecione-o para ampliar).",
+        "made_in_france": "Made in France",
+        "support_body": "O PlayGuard é gratuito, de código aberto e sem anúncios. Se ele ajuda a sua família, você pode apoiar o desenvolvimento: escaneie um código com o celular.",
+        "reminder_title": "O PlayGuard está sendo útil?",
+        "reminder_never": "Não mostrar de novo",
+        "reminder_off": "O lembrete mensal está desativado. Você pode reativá-lo em Preferências › Ao iniciar.",
+        "whats_new_close": "Continuar"
+    },
     "prefs": {
         "section_app": "App",
         "section_play_timer": "Tempo de jogo",
         "section_startup": "Ao iniciar",
-        "note": "Backups, atualizações, o relatório de diagnóstico e o console estão em Ferramentas e info."
+        "note": "Backups, o relatório de diagnóstico e o console estão em Ferramentas; as atualizações, em Sobre.",
+        "support_reminder": "Lembrar uma vez por mês de apoiar o PlayGuard"
     },
     "backup": {
         "saved": "Backup das configurações feito: {}",
@@ -683,7 +701,7 @@
     "update": {
         "checking": "Procurando atualizações…",
         "available": "O PlayGuard {} está disponível (você tem a {}).",
-        "available_toast": "O PlayGuard {} está disponível: Ferramentas e info › Procurar atualizações.",
+        "available_toast": "O PlayGuard {} está disponível: Sobre › Procurar atualizações.",
         "available_no_fw": "Ele ainda não é compatível com o firmware {}.",
         "up_to_date": "O PlayGuard {} é a versão mais recente.",
         "failed": "Não foi possível procurar atualizações ({}).",
@@ -716,7 +734,7 @@
         "forget": "Esquecer a escolha de firmware",
         "forgotten": "A escolha de firmware será pedida de novo na próxima vez que o app for aberto.",
         "already_on": "O modo de desenvolvedor já está ativado.",
-        "enabled": "Modo de desenvolvedor ativado: veja o final de Ferramentas e info.",
+        "enabled": "Modo de desenvolvedor ativado: veja o final de Ferramentas.",
         "presses_left": "Pressione mais {} vezes para ativar o modo de desenvolvedor.",
         "presses_left_one": "Pressione mais 1 vez para ativar o modo de desenvolvedor."
     },

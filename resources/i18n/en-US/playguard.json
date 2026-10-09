@@ -12,7 +12,8 @@
         "clock": "Network clock",
         "security": "Security & app",
         "preferences": "Preferences",
-        "tools": "Tools & about"
+        "tools": "Tools",
+        "about": "About"
     },
     "hints": {
         "refresh": "Refresh",
@@ -114,8 +115,8 @@
         "risk_body": "Firmware {} has not been checked: changing parental controls or the clock may behave differently or crash the console.\n\nCheck every result, and export a diagnostic if anything looks wrong.",
         "risk_confirm": "Continue at my own risk",
         "remember": "Remember this choice for this firmware and this version",
-        "note": "You can come back to this screen from Tools & about › Compatibility.",
-        "update_toast": "PlayGuard {} supports firmware {}: Tools & about › Check for updates."
+        "note": "You can come back to this screen from Tools › Compatibility.",
+        "update_toast": "PlayGuard {} supports firmware {}: About › Check for updates."
     },
     "dashboard": {
         "section_status": "Parental controls",
@@ -180,7 +181,7 @@
         "open": "First steps…",
         "pin_missing": "No PIN yet",
         "headline": "Three steps and the console is protected. A on a step does it.",
-        "all_done": "All set: the console is protected. Come back here any time from Tools & about.",
+        "all_done": "All set: the console is protected. Come back here any time from Tools.",
         "section_steps": "Steps",
         "step_pin": "1. Set a parental-control PIN",
         "step_limit": "2. Choose a daily play-time limit",
@@ -490,7 +491,7 @@
         "banner_action": "Lock now",
         "section_danger": "Danger zone",
         "delete": "Delete all parental controls",
-        "delete_body": "Delete all parental controls?\n\nThis wipes the PIN, every restriction and the play-time limit. It cannot be undone, but a backup of the settings (not the PIN) is saved on the SD card first: Tools & about › Restore a backup.",
+        "delete_body": "Delete all parental controls?\n\nThis wipes the PIN, every restriction and the play-time limit. It cannot be undone, but a backup of the settings (not the PIN) is saved on the SD card first: Tools › Restore a backup.",
         "delete_body2": "Last check: delete everything now?",
         "delete_confirm": "Delete",
         "delete_confirm2": "Delete permanently",
@@ -637,10 +638,7 @@
         "mode_applet": "Applet (launched from the album)",
         "data": "Data folder",
         "license": "License",
-        "license_value": "GPLv3 · UI: borealis (Apache 2.0)",
         "source": "Source code",
-        "credits_value": "JigSawFr · based on Pctl Manager by Taylor · anbingxi (NTP, fw 22.5 fixes)",
-        "credits_line": "Credits: {}",
         "update_via": "Update with",
         "update_via_values": {
             "auto": "Automatic (sphaira, else App Store)",
@@ -654,11 +652,31 @@
         "flag_read_only": "read-only",
         "flag_dev": "developer"
     },
+    "about": {
+        "section_changelog": "What's new in {}",
+        "changelog_note": "Earlier versions: {}",
+        "changelog_none": "No notes for this version (a development build?). Every release: {}",
+        "section_credits": "Credits",
+        "credit_author": "Developer",
+        "credit_upstream": "Based on",
+        "credit_upstream_value": "Pctl Manager by Taylor",
+        "credit_fixes": "fw 22.5 fixes and NTP",
+        "credit_ui": "Interface",
+        "section_support": "Support PlayGuard",
+        "support_note": "PlayGuard is free, open source and has no ads. If it helps your family, you can support its development: scan a code with your phone (select it to enlarge it).",
+        "made_in_france": "Made in France",
+        "support_body": "PlayGuard is free, open source and has no ads. If it helps your family, you can support its development: scan a code with your phone.",
+        "reminder_title": "Enjoying PlayGuard?",
+        "reminder_never": "Don't show again",
+        "reminder_off": "The monthly reminder is off. Preferences › At start-up turns it back on.",
+        "whats_new_close": "Continue"
+    },
     "prefs": {
         "section_app": "App",
         "section_play_timer": "Play timer",
         "section_startup": "At start-up",
-        "note": "Backups, updates, the diagnostic report and the console are in Tools & about."
+        "note": "Backups, the diagnostic report and the console are in Tools; updates are in About.",
+        "support_reminder": "Remind me once a month to support PlayGuard"
     },
     "backup": {
         "saved": "Settings backed up: {}",
@@ -683,7 +701,7 @@
     "update": {
         "checking": "Checking for updates…",
         "available": "PlayGuard {} is available (you have {}).",
-        "available_toast": "PlayGuard {} is available: Tools & about › Check for updates.",
+        "available_toast": "PlayGuard {} is available: About › Check for updates.",
         "available_no_fw": "It does not support firmware {} yet.",
         "up_to_date": "PlayGuard {} is the latest version.",
         "failed": "Could not check for updates ({}).",
@@ -716,7 +734,7 @@
         "forget": "Forget the firmware choice",
         "forgotten": "The firmware choice will be asked again at the next launch.",
         "already_on": "Developer mode is already on.",
-        "enabled": "Developer mode is on: see the end of Tools & about.",
+        "enabled": "Developer mode is on: see the end of Tools.",
         "presses_left": "{} more presses to turn on developer mode.",
         "presses_left_one": "1 more press to turn on developer mode."
     },

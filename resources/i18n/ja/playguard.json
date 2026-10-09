@@ -12,7 +12,8 @@
         "clock": "ネットワーク時計",
         "security": "セキュリティ",
         "preferences": "オプション",
-        "tools": "ツール・情報"
+        "tools": "ツール",
+        "about": "情報"
     },
     "hints": {
         "refresh": "更新",
@@ -114,8 +115,8 @@
         "risk_body": "ファームウェア{}は未確認です。みまもり設定や時計を変更すると、動作が異なったり本体がクラッシュしたりするおそれがあります。\n\n結果をひとつずつ確認し、おかしな点があれば診断レポートをエクスポートしてください。",
         "risk_confirm": "自己責任で続ける",
         "remember": "このファームウェアとバージョンでは、この選択を記憶する",
-        "note": "この画面には「ツール・情報 › 互換性」から戻れます。",
-        "update_toast": "PlayGuard {}はファームウェア{}に対応しています：「ツール・情報 › アップデートを確認」"
+        "note": "この画面には「ツール › 互換性」から戻れます。",
+        "update_toast": "PlayGuard {}はファームウェア{}に対応しています：「情報 › アップデートを確認」"
     },
     "dashboard": {
         "section_status": "みまもり設定",
@@ -180,7 +181,7 @@
         "open": "はじめに…",
         "pin_missing": "暗証番号未設定",
         "headline": "3つのステップで本体を守れます。ステップでAを押すと実行します。",
-        "all_done": "設定完了です。本体は守られています。「ツール・情報」からいつでもここに戻れます。",
+        "all_done": "設定完了です。本体は守られています。「ツール」からいつでもここに戻れます。",
         "section_steps": "ステップ",
         "step_pin": "1. みまもり設定の暗証番号を設定する",
         "step_limit": "2. 1日のプレイ時間の上限を選ぶ",
@@ -490,7 +491,7 @@
         "banner_action": "今すぐロック",
         "section_danger": "危険な操作",
         "delete": "みまもり設定をすべて削除",
-        "delete_body": "みまもり設定をすべて削除しますか？\n\n暗証番号、すべての制限、プレイ時間の上限が消去されます。元に戻すことはできませんが、先に設定のバックアップ（暗証番号は含みません）がSDカードに保存されます：「ツール・情報 › バックアップを復元」",
+        "delete_body": "みまもり設定をすべて削除しますか？\n\n暗証番号、すべての制限、プレイ時間の上限が消去されます。元に戻すことはできませんが、先に設定のバックアップ（暗証番号は含みません）がSDカードに保存されます：「ツール › バックアップを復元」",
         "delete_body2": "最終確認です。今すぐすべて削除しますか？",
         "delete_confirm": "削除",
         "delete_confirm2": "完全に削除",
@@ -637,10 +638,7 @@
         "mode_applet": "アプレット（アルバムから起動）",
         "data": "データフォルダー",
         "license": "ライセンス",
-        "license_value": "GPLv3 · UI：borealis（Apache 2.0）",
         "source": "ソースコード",
-        "credits_value": "JigSawFr · TaylorのPctl Managerをもとに作成 · anbingxi（NTP、fw 22.5の修正）",
-        "credits_line": "クレジット：{}",
         "update_via": "アップデート方法",
         "update_via_values": {
             "auto": "自動（sphaira、なければApp Store）",
@@ -654,11 +652,31 @@
         "flag_read_only": "閲覧のみ",
         "flag_dev": "開発者"
     },
+    "about": {
+        "section_changelog": "{}の更新内容",
+        "changelog_note": "以前のバージョン：{}",
+        "changelog_none": "このバージョンの更新内容はありません（開発版？）。すべてのリリース：{}",
+        "section_credits": "クレジット",
+        "credit_author": "開発者",
+        "credit_upstream": "ベース",
+        "credit_upstream_value": "Pctl Manager（Taylor）",
+        "credit_fixes": "fw 22.5の修正とNTP",
+        "credit_ui": "インターフェース",
+        "section_support": "PlayGuardを応援する",
+        "support_note": "PlayGuardは無料・オープンソースで、広告はありません。ご家族の役に立っていれば、開発を応援できます：スマートフォンでコードを読み取ってください（選ぶと拡大します）。",
+        "made_in_france": "Made in France",
+        "support_body": "PlayGuardは無料・オープンソースで、広告はありません。ご家族の役に立っていれば、開発を応援できます：スマートフォンでコードを読み取ってください。",
+        "reminder_title": "PlayGuardはお役に立っていますか？",
+        "reminder_never": "今後表示しない",
+        "reminder_off": "毎月のお知らせをOFFにしました。「オプション › 起動時」から再びONにできます。",
+        "whats_new_close": "続ける"
+    },
     "prefs": {
         "section_app": "アプリ",
         "section_play_timer": "プレイ時間",
         "section_startup": "起動時",
-        "note": "バックアップ、アップデート、診断レポート、本体の情報は「ツール・情報」にあります。"
+        "note": "バックアップ、診断レポート、本体の情報は「ツール」に、アップデートは「情報」にあります。",
+        "support_reminder": "月に一度、PlayGuardの応援についてお知らせする"
     },
     "backup": {
         "saved": "設定をバックアップしました：{}",
@@ -683,7 +701,7 @@
     "update": {
         "checking": "アップデートを確認しています…",
         "available": "PlayGuard {}が公開されています（現在は{}）。",
-        "available_toast": "PlayGuard {}が公開されています：「ツール・情報 › アップデートを確認」",
+        "available_toast": "PlayGuard {}が公開されています：「情報 › アップデートを確認」",
         "available_no_fw": "ファームウェア{}にはまだ対応していません。",
         "up_to_date": "PlayGuard {}は最新バージョンです。",
         "failed": "アップデートを確認できませんでした（{}）。",
@@ -716,7 +734,7 @@
         "forget": "ファームウェアの選択を忘れる",
         "forgotten": "次回の起動時に、ファームウェアの選択をもう一度確認します。",
         "already_on": "開発者モードはすでにONです。",
-        "enabled": "開発者モードをONにしました。「ツール・情報」の最後を見てください。",
+        "enabled": "開発者モードをONにしました。「ツール」の最後を見てください。",
         "presses_left": "あと{}回押すと開発者モードになります。",
         "presses_left_one": "あと1回押すと開発者モードになります。"
     },
