@@ -8,6 +8,7 @@
 #include "app.hpp"
 #include "ui/ui.hpp"
 #include "util/diagnostics.hpp"
+#include "util/github_auth.hpp"
 #include "util/log_upload.hpp"
 #include "util/paths.hpp"
 #include "util/pctl_ops_c.hpp"
@@ -48,12 +49,14 @@ brls::Box* qr_card(const std::string& title, const std::string& url, const std::
 
 // Keeps the links in logs/uploads.txt, newest last: one can be found again
 // after the dialog is closed.
-void remember(const std::string& url)
+// bpa.st's removal link is kept too: it is the only way to delete the paste
+// before it expires.
+void remember(const log_upload::Result& r)
 {
     const std::string path = paths::logs_dir() + "/uploads.txt";
     std::string list;
     paths::read_file(path, list);
-    list += ui::now_stamp() + "  " + url + "\n";
+    list += ui::now_stamp() + "  " + r.url + (r.removal.empty() ? "" : "  (remove: " + r.removal + ")") + "\n";
     if (paths::ensure_dir(paths::logs_dir())) paths::atomic_write(path, list);
 }
 
@@ -84,33 +87,50 @@ void show_link(const log_upload::Result& r)
     dialog->open();
 }
 
-void send(const std::vector<log_upload::Part>& parts)
+void send_to(const std::vector<log_upload::Part>& parts, log_upload::Host host)
 {
+    const bool gist = host == log_upload::Host::Gist;
     bool cut = false;
-    const std::string text = log_upload::bundle(parts, log_upload::MAX_BYTES, &cut);
+    const std::string text = log_upload::bundle(parts, log_upload::max_bytes(host), &cut);
     // Too large (a long history): the start, with the report, is what matters.
     std::string list;
     for (const auto& p : parts) list += "\n• " + p.name;
     if (cut) list += "\n" + "playguard/upload/partial"_i18n;
     const int kb = (int)((text.size() + 1023) / 1024);
-    const std::string body = brls::getStr("playguard/upload/confirm", kb) + "\n" + list + "\n\n" +
-                             "playguard/upload/confirm_public"_i18n;
-    ui::confirm(body, "playguard/upload/send"_i18n, [text]() {
+    const std::string where = gist ? "playguard/upload/where_gist"_i18n : std::string("bpa.st");
+    const std::string body = brls::getStr("playguard/upload/confirm", where, kb) + "\n" + list + "\n\n" +
+                             (gist ? "playguard/upload/confirm_gist"_i18n : "playguard/upload/confirm_public"_i18n);
+    const std::string token = gist ? github_auth::token() : std::string();
+    ui::confirm(body, "playguard/upload/send"_i18n, [text, host, token]() {
         ui::notify("playguard/upload/sending"_i18n);
         if (s_sending) return;
         s_sending = true;
-        brls::async([text]() {
-            const log_upload::Result r = log_upload::upload(text);
+        brls::async([text, host, token]() {
+            const log_upload::Result r = log_upload::upload(text, host, token, app::version());
             brls::sync([r]() {
                 s_sending = false;
                 if (!r.ok) {
-                    ui::info(brls::getStr("playguard/upload/failed", r.error));
+                    ui::info(r.relogin ? "playguard/upload/relogin"_i18n
+                                       : brls::getStr("playguard/upload/failed", r.error));
                     return;
                 }
-                remember(r.url);
+                remember(r);
                 show_link(r);
             });
         });
+    });
+}
+
+// Signed in to GitHub: a secret gist in the account, or bpa.st. Otherwise bpa.st.
+void send(const std::vector<log_upload::Part>& parts)
+{
+    if (github_auth::token().empty()) {
+        send_to(parts, log_upload::Host::Bpaste);
+        return;
+    }
+    const std::vector<std::string> hosts{ "playguard/upload/host_gist"_i18n, "playguard/upload/host_bpaste"_i18n };
+    ui::pick("playguard/upload/host"_i18n, hosts, 0, [parts](int i) {
+        send_to(parts, i == 0 ? log_upload::Host::Gist : log_upload::Host::Bpaste);
     });
 }
 
