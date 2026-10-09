@@ -44,7 +44,8 @@ uint64_t projected_now(const Measurement& m);  // the server time, now
 void apply(const Measurement& m, std::function<void(const std::string& message)> done);
 
 // The guided path from the Overview and the first steps: offers to measure
-// with the current server (a spinner while it runs), then to set the clock
+// with the current server (a spinner while it runs, which Cancel or B
+// closes, the late result then dropped), then to set the clock
 // from the result. `done` runs after the clock changed (to refresh).
 void guided(std::function<void()> done);
 

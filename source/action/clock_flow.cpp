@@ -2,8 +2,11 @@
 #include "action/clock_flow.hpp"
 
 #include <algorithm>
+#include <atomic>
 #include <borealis.hpp>
 #include <fmt/format.h>
+#include <memory>
+#include <system_error>
 #include <thread>
 #include <vector>
 
@@ -73,8 +76,8 @@ void write_clock(const Measurement& m, const std::string& before, std::function<
     done(message);
 }
 
-// A dialog that cannot be dismissed: a spinner and what is being asked.
-brls::Dialog* progress_dialog(const std::string& text)
+// A spinner and what is being asked; Cancel (or B) sets `cancelled`.
+brls::Dialog* progress_dialog(const std::string& text, std::shared_ptr<std::atomic<bool>> cancelled)
 {
     auto* spinner = new brls::ProgressSpinner(brls::ProgressSpinnerSize::LARGE);
     spinner->setWidth(60);
@@ -92,7 +95,8 @@ brls::Dialog* progress_dialog(const std::string& text)
     box->addView(spinner);
     box->addView(label);
     auto* dialog = new brls::Dialog(box);
-    dialog->setCancelable(false);
+    dialog->addButton("hints/cancel"_i18n, [cancelled]() { *cancelled = true; });
+    ui::on_cancel(dialog, [cancelled]() { *cancelled = true; });
     return dialog;
 }
 }   // namespace
@@ -107,12 +111,19 @@ void measure(const std::string& server, std::function<void(const Measurement&)> 
 {
     std::vector<std::string> hosts = { server };
     for (auto& h : ntp::cross_check_servers(server)) hosts.push_back(h);
-    brls::async([hosts, done]() {
-        // Query the servers in parallel so an unreachable one costs a single timeout.
+    auto run = [hosts, done]() {
+        // Query the servers in parallel so an unreachable one costs a single
+        // timeout (one after the other when no thread can be had).
         std::vector<ntp::Reply> replies(hosts.size());
         std::vector<std::thread> workers;
-        for (size_t i = 0; i < hosts.size(); i++)
-            workers.emplace_back([&replies, &hosts, i]() { replies[i] = ntp::fetch(hosts[i]); });
+        for (size_t i = 0; i < hosts.size(); i++) {
+            try {
+                workers.emplace_back([&replies, &hosts, i]() { replies[i] = ntp::fetch(hosts[i]); });
+            } catch (const std::system_error& e) {
+                brls::Logger::warning("NTP: no thread for {} ({}), querying it here", hosts[i], e.what());
+                replies[i] = ntp::fetch(hosts[i]);
+            }
+        }
         for (auto& w : workers) w.join();
         brls::sync([hosts, replies, done]() {
             // Bring every sample to the same instant, then take the median.
@@ -163,7 +174,17 @@ void measure(const std::string& server, std::function<void(const Measurement&)> 
             if (m.spread > 5) m.warning = brls::getStr("playguard/clock/result_spread", (int)m.spread);
             done(m);
         });
-    });
+    };
+    // A thread of its own rather than brls::async: that single queue also
+    // reads the play log, loads game icons and checks for updates, one task
+    // after the other, and the measurement (its spinner on screen) would wait
+    // behind them.
+    try {
+        std::thread(run).detach();
+    } catch (const std::system_error& e) {
+        brls::Logger::warning("NTP: no thread for the measurement ({}), queued instead", e.what());
+        brls::async(run);
+    }
 }
 
 int64_t seconds_left(const Measurement& m)
@@ -233,9 +254,12 @@ void guided(std::function<void()> done)
     ask->addButton("hints/cancel"_i18n, []() {});
     ask->addButton("playguard/clock/guided_measure"_i18n, [server, done]() {
         brls::sync([server, done]() {
-            auto* progress = progress_dialog(brls::getStr("playguard/clock/measuring", server));
+            auto cancelled = std::make_shared<std::atomic<bool>>(false);
+            auto* progress = progress_dialog(brls::getStr("playguard/clock/measuring", server), cancelled);
             progress->open();
-            measure(server, [progress, done](const Measurement& m) {
+            measure(server, [progress, cancelled, done](const Measurement& m) {
+                if (*cancelled) return;   // the dialog is already closed
+                *cancelled = true;
                 progress->close([m, done]() {
                     brls::sync([m, done]() {
                         if (!m.ok) {
