@@ -291,4 +291,7 @@ GPLv3 — voir [`LICENSE`](LICENSE). Maintenu par **[JigSawFr](https://github.co
 - Diagnostic fw 22.5, libération de session et synchronisation NTP adaptés de **[anbingxi/NX-Pctl-Manager](https://github.com/anbingxi/NX-Pctl-Manager/tree/diag/fw22-5-readonly)**.
 - Référence des commandes : [switchbrew — Parental Control services](https://switchbrew.org/wiki/Parental_Control_services).
 
+> [!NOTE]
+> **Comment PlayGuard est développé.** Des assistants de code à base d'IA ont été utilisés pendant le développement : écriture et relecture du code, traductions, documentation. Les changements de PlayGuard sont pilotés, relus et validés par un développeur professionnel, couverts par les tests unitaires C et le simulateur desktop, et testés sur une vraie console (22.1.0 / Atmosphère 1.11.1) avant publication.
+
 PlayGuard n'est ni affilié à Nintendo ni approuvé par Nintendo. Nintendo Switch est une marque de Nintendo.
