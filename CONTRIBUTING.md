@@ -82,7 +82,7 @@ Releases are automated with [release-please](https://github.com/googleapis/relea
 - **Squash-merge** pull requests, so each one lands as a single commit carrying that title. A plain merge commit makes release-please apply a PR's `BEGIN_COMMIT_OVERRIDE` block to every commit of the PR.
 - release-please keeps a `chore(main): release X.Y.Z` PR open; merging it tags the release and attaches the `.nro` / `.zip`.
 
-Each release also publishes `compat.json` (`tools/gen_compat.py`: the version and the newest checked firmware), which the app's update check reads, plus `build-info.txt` and `SHA256SUMS.txt`. Details in [`packaging/README.md`](packaging/README.md).
+Each release also publishes `compat.json` (`tools/gen_compat.py`: the version and the newest checked firmware), which the app's update check reads, plus `build-info.txt` and `SHA256SUMS.txt`. Details in [`packaging/README.md`](packaging/README.md). The `.nro`, both `.zip` and `compat.json` also carry a [build provenance attestation](https://docs.github.com/actions/security-for-github-actions/using-artifact-attestations): `gh attestation verify playguard.nro -R JigSawFr/PlayGuard` checks that a download was built by this repository's CI.
 
 When a change is visible to users, update **both** [README.md](README.md) and [README.fr.md](README.fr.md).
 

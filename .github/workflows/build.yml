@@ -16,13 +16,20 @@ on:
 permissions:
   contents: read
 
+# A new push to a pull request cancels the run on the commit it replaces. Everything else
+# (main, a release build called by release-please.yml) gets a group of its own and is
+# never cancelled or held back by another run.
+concurrency:
+  group: build-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   # Fast checks with no toolchain: C service layer unit tests (under
   # AddressSanitizer and UndefinedBehaviorSanitizer) + resources.
   host-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           submodules: true   # nlohmann/json (bundled with borealis) for the backup and export tests
       - name: Unit tests (service layer — writable and read-only — and UI-free helpers)
@@ -44,7 +51,7 @@ jobs:
       CCACHE_COMPRESS: "1"
       CCACHE_MAXSIZE: 400M
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           ref: ${{ inputs.tag || github.ref }}
           submodules: true
@@ -56,7 +63,7 @@ jobs:
           sudo apt-get install -y cmake ccache libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev \
             libxcursor-dev libxi-dev libxkbcommon-dev libwayland-dev wayland-protocols libdbus-1-dev \
             libcurl4-openssl-dev xvfb xdotool imagemagick dbus
-      - uses: actions/cache@v4
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: .ccache
           key: ccache-desktop-${{ github.sha }}
@@ -92,7 +99,7 @@ jobs:
           done
       - name: Upload screenshots
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: desktop_smoke_screenshots
           path: |
@@ -117,13 +124,13 @@ jobs:
       CCACHE_COMPRESS: "1"
       CCACHE_MAXSIZE: 400M
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           ref: ${{ inputs.tag || github.ref }}
           submodules: true
       - name: ccache
         run: apt-get update -qq && apt-get install -y -qq --no-install-recommends ccache
-      - uses: actions/cache@v4
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: .ccache
           key: ccache-switch-${{ github.sha }}
@@ -154,7 +161,7 @@ jobs:
           cat build-info.txt
           unzip -l playguard.zip
           unzip -l playguard-rescue.zip
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: playguard_release
           path: |
@@ -165,7 +172,7 @@ jobs:
             build-info.txt
             SHA256SUMS.txt
       - name: Linker map (what makes the .nro big)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: playguard_linker_map
           path: build/borealis.map
@@ -183,8 +190,12 @@ jobs:
     needs: [ host-tests, switch, desktop-smoke ]
     permissions:
       contents: write
+      # Build provenance (below): a signed statement, kept by GitHub, that these files
+      # were built by this workflow from this commit.
+      id-token: write
+      attestations: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           ref: ${{ inputs.tag }}
       - name: Tag matches the app version
@@ -193,12 +204,23 @@ jobs:
         run: |
           v=$(sed -n 's/^set(VERSION_\(MAJOR\|MINOR\|ALTER\) "\([0-9]*\)").*/\2/p' CMakeLists.txt | paste -sd.)
           test "v$v" = "$TAG" || { echo "tag $TAG != CMake version $v"; exit 1; }
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: playguard_release
           path: dist
+      # Anyone can then check that a download came from this repository's CI, unchanged:
+      #   gh attestation verify playguard.nro -R JigSawFr/PlayGuard
+      # SHA256SUMS.txt says the files match each other; this says who built them.
+      - name: Build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: |
+            dist/playguard.nro
+            dist/playguard.zip
+            dist/playguard-rescue.zip
+            dist/compat.json
       - name: Attach to the GitHub release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         with:
           tag_name: ${{ inputs.tag }}
           files: |
