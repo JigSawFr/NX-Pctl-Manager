@@ -144,4 +144,24 @@ std::vector<Line> parse(const std::string& md, int max_releases)
     return lines;
 }
 
+std::vector<Line> release_notes(const std::string& md, const std::string& version, std::string* date)
+{
+    auto bare = [](const std::string& v) { return !v.empty() && (v[0] == 'v' || v[0] == 'V') ? v.substr(1) : v; };
+    const std::string wanted = bare(version);
+    std::vector<Line> notes;
+    bool inside = false;
+    for (Line& l : parse(md, 0)) {
+        if (l.kind == Line::Release) {
+            if (inside) break;
+            const size_t dot = l.text.find(" · ");
+            if (wanted.empty() || bare(l.text.substr(0, dot)) != wanted) continue;
+            inside = true;
+            if (date) *date = dot == std::string::npos ? "" : l.text.substr(dot + std::string(" · ").size());
+        } else if (inside) {
+            notes.push_back(std::move(l));
+        }
+    }
+    return notes;
+}
+
 }   // namespace changelog

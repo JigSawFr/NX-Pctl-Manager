@@ -6,7 +6,6 @@
 #include "action/backup_flow.hpp"
 #include "action/fw_gate.hpp"
 #include "action/pt_block_flow.hpp"
-#include "action/update_flow.hpp"
 #include "activity/diagnostic_activity.hpp"
 #include "activity/firmware_gate_activity.hpp"
 #include "activity/history_activity.hpp"
@@ -23,16 +22,6 @@ using namespace brls::literals;
 
 namespace
 {
-const char* UPDATE_VIA[] = { "auto", "sphaira", "appstore", "manual" };
-
-template <size_t N>
-int index_of(const char* const (&list)[N], const std::string& value)
-{
-    for (size_t i = 0; i < N; i++)
-        if (value == list[i]) return (int)i;
-    return 0;
-}
-
 std::string keep_text(int keep)
 {
     return keep == 0 ? "playguard/tools/backup_keep_all"_i18n : brls::getStr("playguard/tools/backup_keep_n", keep);
@@ -85,10 +74,6 @@ ToolsTab::ToolsTab()
         return true;
     });
 
-    update_daily->init("playguard/tools/update_daily"_i18n, config::get().update_daily, [](bool on) {
-        config::get().update_daily = on;
-        ui::save_config();
-    });
     backup_keep->registerClickAction([this](brls::View*) {
         std::vector<std::string> labels;
         int selected = 0;
@@ -104,20 +89,6 @@ ToolsTab::ToolsTab()
         return true;
     });
 
-    update_via->registerClickAction([this](brls::View*) {
-        std::vector<std::string> labels;
-        for (const char* u : UPDATE_VIA) labels.push_back(brls::getStr(std::string("playguard/tools/update_via_values/") + u));
-        ui::pick("playguard/tools/update_via"_i18n, labels, index_of(UPDATE_VIA, config::get().update_via), [this](int i) {
-            config::get().update_via = UPDATE_VIA[i];
-            ui::save_config();
-            this->refresh();
-        });
-        return true;
-    });
-    update_cell->registerClickAction([](brls::View*) {
-        update_flow::check_now();
-        return true;
-    });
     // On a firmware newer than the checked one, the firmware screen again.
     compat->registerClickAction([](brls::View*) {
         if (fw_gate::needed()) brls::Application::pushActivity(new FirmwareGateActivity());
@@ -166,9 +137,7 @@ ToolsTab::ToolsTab()
 void ToolsTab::refresh()
 {
     const auto& cfg = config::get();
-    update_daily->setOn(cfg.update_daily, false);
     backup_keep->setDetailText(keep_text(cfg.backup_keep));
-    update_cell->setDetailText(cfg.update_checked.empty() ? "" : brls::getStr("playguard/tools/update_last", cfg.update_checked));
     const size_t backups = backup_flow::count();
     backup_restore->setDetailText(backups ? brls::getStr("playguard/tools/backup_count", (int)backups) : "");
     const size_t changes = history::load().size();
@@ -180,8 +149,6 @@ void ToolsTab::refresh()
     sysinfo_version_string(si.hos_version, fwv, sizeof(fwv));
     const bool ro  = app::read_only();
     const bool dev = app::dev_mode();
-    update_via->setDetailText(brls::getStr("playguard/tools/update_via_values/" +
-                                           std::string(UPDATE_VIA[index_of(UPDATE_VIA, cfg.update_via)])));
     dev_mode->setOn(dev, false);
     dev_read_only->setOn(ro, false);
     fw->setDetailText(fwv);

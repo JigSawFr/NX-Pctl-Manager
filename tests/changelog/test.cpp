@@ -57,6 +57,18 @@ int main()
     const auto plain = changelog::parse("* see [docs] and (abc) and ([not a ref](u))\n", 0);
     assert(plain.size() == 1 && plain[0].text == "see [docs] and (abc) and (not a ref)");
 
+    // Only the running version's notes.
+    std::string date;
+    const auto notes = changelog::release_notes(MD, "1.1.0", &date);
+    assert(date == "2026-10-10");
+    assert(notes.size() == 6 && notes[0].text == "Features" && notes.back().text == "uses romfs and borealis");
+    const auto first = changelog::release_notes(MD, "v1.0.0", &date);
+    assert(date == "2026-09-01" && first.size() == 1 && first[0].text == "First release.");
+    date = "unchanged";
+    assert(changelog::release_notes(MD, "1.2.0", &date).empty() && date == "unchanged");
+    assert(changelog::release_notes(MD, "1.1", nullptr).empty());
+    assert(changelog::release_notes(MD, "", nullptr).empty());
+
     assert(changelog::parse("", 0).empty());
     assert(changelog::parse("# Changelog\n", 0).empty());
 

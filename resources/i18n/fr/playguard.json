@@ -114,8 +114,8 @@
         "risk_body": "Le firmware {} n'a pas été vérifié : modifier le contrôle parental ou l'horloge peut se comporter différemment ou planter la console.\n\nVérifiez chaque résultat et exportez un diagnostic en cas de doute.",
         "risk_confirm": "Continuer à mes risques",
         "remember": "Mémoriser ce choix pour ce firmware et cette version",
-        "note": "Vous pouvez revenir à cet écran depuis Outils et à propos › Compatibilité.",
-        "update_toast": "PlayGuard {} prend en charge le firmware {} : Outils et à propos › Rechercher une mise à jour."
+        "note": "Vous pouvez revenir à cet écran depuis Outils › Compatibilité.",
+        "update_toast": "PlayGuard {} prend en charge le firmware {} : À propos › Rechercher une mise à jour."
     },
     "dashboard": {
         "section_status": "Contrôle parental",
@@ -180,7 +180,7 @@
         "open": "Premiers pas…",
         "pin_missing": "Pas encore de code PIN",
         "headline": "Trois étapes et la console est protégée. A sur une étape la réalise.",
-        "all_done": "Tout est en place : la console est protégée. Vous pouvez revenir ici depuis Outils et à propos.",
+        "all_done": "Tout est en place : la console est protégée. Vous pouvez revenir ici depuis Outils.",
         "section_steps": "Étapes",
         "step_pin": "1. Définir un code PIN de contrôle parental",
         "step_limit": "2. Choisir une limite de temps de jeu quotidienne",
@@ -488,7 +488,7 @@
         "banner_action": "Verrouiller maintenant",
         "section_danger": "Zone dangereuse",
         "delete": "Supprimer tout le contrôle parental",
-        "delete_body": "Supprimer tout le contrôle parental ?\n\nCela efface le code PIN, toutes les restrictions et la limite de temps de jeu. Action irréversible, mais une sauvegarde des réglages (sans le code PIN) est d'abord enregistrée sur la carte SD : Outils et à propos › Restaurer une sauvegarde.",
+        "delete_body": "Supprimer tout le contrôle parental ?\n\nCela efface le code PIN, toutes les restrictions et la limite de temps de jeu. Action irréversible, mais une sauvegarde des réglages (sans le code PIN) est d'abord enregistrée sur la carte SD : Outils › Restaurer une sauvegarde.",
         "delete_body2": "Dernière vérification : tout supprimer maintenant ?",
         "delete_confirm": "Supprimer",
         "delete_confirm2": "Supprimer définitivement",
@@ -631,10 +631,7 @@
         "mode_applet": "Applet (lancé depuis l'album)",
         "data": "Dossier des données",
         "license": "Licence",
-        "license_value": "GPLv3 · Interface : borealis (Apache 2.0)",
         "source": "Code source",
-        "credits_value": "JigSawFr · d'après Pctl Manager de Taylor · anbingxi (NTP, correctifs 22.5)",
-        "credits_line": "Crédits : {}",
         "update_via": "Mettre à jour avec",
         "update_via_values": {
             "auto": "Automatique (sphaira, sinon App Store)",
@@ -649,15 +646,24 @@
         "flag_dev": "développeur"
     },
     "about": {
-        "section_changelog": "Nouveautés",
-        "changelog_note": "Les dernières versions, en anglais. Toutes les versions : {}",
-        "changelog_none": "La liste des changements n'a pas pu être lue. Toutes les versions : {}"
+        "section_changelog": "Nouveautés de la {}",
+        "changelog_note": "Versions précédentes : {}",
+        "changelog_none": "Pas de notes pour cette version (une version de développement ?). Toutes les versions : {}",
+        "section_credits": "Crédits",
+        "credit_author": "Développeur",
+        "credit_upstream": "D'après",
+        "credit_upstream_value": "Pctl Manager de Taylor",
+        "credit_fixes": "Correctifs fw 22.5 et NTP",
+        "credit_ui": "Interface",
+        "section_support": "Soutenir PlayGuard",
+        "support_note": "PlayGuard est gratuit, libre et sans publicité. S'il aide votre famille, vous pouvez soutenir son développement depuis votre téléphone ou votre ordinateur :",
+        "made_in_france": "Made in France"
     },
     "prefs": {
         "section_app": "Application",
         "section_play_timer": "Temps de jeu",
         "section_startup": "Au lancement",
-        "note": "Les sauvegardes, les mises à jour, le rapport de diagnostic et la console sont dans Outils et à propos."
+        "note": "Les sauvegardes, le rapport de diagnostic et la console sont dans Outils ; les mises à jour dans À propos."
     },
     "backup": {
         "saved": "Réglages sauvegardés : {}",
@@ -682,7 +688,7 @@
     "update": {
         "checking": "Recherche d'une mise à jour…",
         "available": "PlayGuard {} est disponible (version actuelle : {}).",
-        "available_toast": "PlayGuard {} est disponible : Outils et à propos › Rechercher une mise à jour.",
+        "available_toast": "PlayGuard {} est disponible : À propos › Rechercher une mise à jour.",
         "available_no_fw": "Elle ne prend pas encore en charge le firmware {}.",
         "up_to_date": "PlayGuard {} est la dernière version.",
         "failed": "Impossible de rechercher une mise à jour ({}).",

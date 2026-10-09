@@ -114,8 +114,8 @@
         "risk_body": "系统版本{}尚未经过验证：更改家长控制或时钟可能出现异常，甚至导致主机崩溃。\n\n请检查每项结果，如有异常请导出诊断报告。",
         "risk_confirm": "继续（风险自负）",
         "remember": "针对此系统版本和应用版本记住此选择",
-        "note": "可从“工具与关于 › 兼容性”返回此画面。",
-        "update_toast": "PlayGuard {}支持系统版本{}：工具与关于 › 检查更新。"
+        "note": "可从“工具 › 兼容性”返回此画面。",
+        "update_toast": "PlayGuard {}支持系统版本{}：关于 › 检查更新。"
     },
     "dashboard": {
         "section_status": "家长控制",
@@ -180,7 +180,7 @@
         "open": "入门…",
         "pin_missing": "尚未设置PIN",
         "headline": "只需三步即可保护主机。在步骤上按A即可执行。",
-        "all_done": "设置完毕：主机已受保护。可随时从“工具与关于”返回此处。",
+        "all_done": "设置完毕：主机已受保护。可随时从“工具”返回此处。",
         "section_steps": "步骤",
         "step_pin": "1. 设置家长控制PIN",
         "step_limit": "2. 选择每天的游戏时间限制",
@@ -488,7 +488,7 @@
         "banner_action": "立即启用",
         "section_danger": "危险操作",
         "delete": "删除所有家长控制",
-        "delete_body": "要删除所有家长控制吗？\n\n这将清除PIN、所有限制和游戏时间限制，且无法撤销。删除前会先在SD卡上保存设置备份（不含PIN）：工具与关于 › 恢复备份。",
+        "delete_body": "要删除所有家长控制吗？\n\n这将清除PIN、所有限制和游戏时间限制，且无法撤销。删除前会先在SD卡上保存设置备份（不含PIN）：工具 › 恢复备份。",
         "delete_body2": "最后确认：要立即删除全部内容吗？",
         "delete_confirm": "删除",
         "delete_confirm2": "永久删除",
@@ -631,10 +631,7 @@
         "mode_applet": "小程序（从相册启动）",
         "data": "数据文件夹",
         "license": "许可证",
-        "license_value": "GPLv3 · 界面：borealis（Apache 2.0）",
         "source": "源代码",
-        "credits_value": "JigSawFr · 基于Taylor的Pctl Manager · anbingxi（NTP、22.5版修复）",
-        "credits_line": "致谢：{}",
         "update_via": "更新方式",
         "update_via_values": {
             "auto": "自动（sphaira，否则App Store）",
@@ -649,15 +646,24 @@
         "flag_dev": "开发者"
     },
     "about": {
-        "section_changelog": "更新内容",
-        "changelog_note": "最近的版本（英文）。所有版本：{}",
-        "changelog_none": "无法读取更新记录。所有版本：{}"
+        "section_changelog": "{} 更新内容",
+        "changelog_note": "早期版本：{}",
+        "changelog_none": "此版本没有更新说明（开发版本？）。所有版本：{}",
+        "section_credits": "致谢",
+        "credit_author": "开发者",
+        "credit_upstream": "基于",
+        "credit_upstream_value": "Taylor 的 Pctl Manager",
+        "credit_fixes": "fw 22.5 修复与 NTP",
+        "credit_ui": "界面",
+        "section_support": "支持 PlayGuard",
+        "support_note": "PlayGuard 免费、开源且无广告。如果它对您的家庭有帮助，可以在手机或电脑上支持它的开发：",
+        "made_in_france": "Made in France"
     },
     "prefs": {
         "section_app": "应用",
         "section_play_timer": "游戏时间",
         "section_startup": "启动时",
-        "note": "备份、更新、诊断报告和主机信息位于“工具与关于”中。"
+        "note": "备份、诊断报告和主机信息位于“工具”中，更新位于“关于”中。"
     },
     "backup": {
         "saved": "已备份设置：{}",
@@ -682,7 +688,7 @@
     "update": {
         "checking": "正在检查更新…",
         "available": "PlayGuard {}已推出（当前为{}）。",
-        "available_toast": "PlayGuard {}已推出：工具与关于 › 检查更新。",
+        "available_toast": "PlayGuard {}已推出：关于 › 检查更新。",
         "available_no_fw": "该版本尚不支持系统版本{}。",
         "up_to_date": "PlayGuard {}已是最新版本。",
         "failed": "无法检查更新（{}）。",

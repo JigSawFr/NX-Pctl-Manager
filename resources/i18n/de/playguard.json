@@ -114,8 +114,8 @@
         "risk_body": "Firmware {} wurde nicht geprüft: Änderungen an den Altersbeschränkungen oder an der Uhr können sich anders auswirken oder die Konsole abstürzen lassen.\n\nPrüfen Sie jedes Ergebnis und exportieren Sie eine Diagnose, wenn etwas nicht stimmt.",
         "risk_confirm": "Auf eigenes Risiko",
         "remember": "Diese Auswahl für diese Firmware und Version merken",
-        "note": "Sie können über Tools & Info › Kompatibilität zu diesem Bildschirm zurückkehren.",
-        "update_toast": "PlayGuard {} unterstützt Firmware {}: Tools & Info › Nach Updates suchen."
+        "note": "Sie können über Tools › Kompatibilität zu diesem Bildschirm zurückkehren.",
+        "update_toast": "PlayGuard {} unterstützt Firmware {}: Info › Nach Updates suchen."
     },
     "dashboard": {
         "section_status": "Altersbeschränkungen",
@@ -180,7 +180,7 @@
         "open": "Erste Schritte…",
         "pin_missing": "Noch keine Geheimzahl",
         "headline": "Drei Schritte, und die Konsole ist geschützt. Mit A führen Sie einen Schritt aus.",
-        "all_done": "Fertig: Die Konsole ist geschützt. Über Tools & Info können Sie jederzeit hierher zurückkehren.",
+        "all_done": "Fertig: Die Konsole ist geschützt. Über Tools können Sie jederzeit hierher zurückkehren.",
         "section_steps": "Schritte",
         "step_pin": "1. Geheimzahl für die Altersbeschränkungen festlegen",
         "step_limit": "2. Tägliches Spielzeitlimit wählen",
@@ -488,7 +488,7 @@
         "banner_action": "Jetzt aktivieren",
         "section_danger": "Gefahrenbereich",
         "delete": "Alle Altersbeschränkungen löschen",
-        "delete_body": "Alle Altersbeschränkungen löschen?\n\nDadurch werden die Geheimzahl, alle Einschränkungen und das Spielzeitlimit gelöscht. Das kann nicht rückgängig gemacht werden, aber zuvor wird eine Sicherung der Einstellungen (ohne Geheimzahl) auf der SD-Karte gespeichert: Tools & Info › Sicherung wiederherstellen.",
+        "delete_body": "Alle Altersbeschränkungen löschen?\n\nDadurch werden die Geheimzahl, alle Einschränkungen und das Spielzeitlimit gelöscht. Das kann nicht rückgängig gemacht werden, aber zuvor wird eine Sicherung der Einstellungen (ohne Geheimzahl) auf der SD-Karte gespeichert: Tools › Sicherung wiederherstellen.",
         "delete_body2": "Letzte Prüfung: Jetzt alles löschen?",
         "delete_confirm": "Löschen",
         "delete_confirm2": "Endgültig löschen",
@@ -631,10 +631,7 @@
         "mode_applet": "Applet (aus dem Album gestartet)",
         "data": "Datenordner",
         "license": "Lizenz",
-        "license_value": "GPLv3 · Oberfläche: borealis (Apache 2.0)",
         "source": "Quellcode",
-        "credits_value": "JigSawFr · basierend auf Pctl Manager von Taylor · anbingxi (NTP, Korrekturen für FW 22.5)",
-        "credits_line": "Danksagungen: {}",
         "update_via": "Aktualisieren mit",
         "update_via_values": {
             "auto": "Automatisch (sphaira, sonst App Store)",
@@ -649,15 +646,24 @@
         "flag_dev": "Entwickler"
     },
     "about": {
-        "section_changelog": "Neuigkeiten",
-        "changelog_note": "Die neuesten Versionen, auf Englisch. Alle Versionen: {}",
-        "changelog_none": "Die Liste der Änderungen konnte nicht gelesen werden. Alle Versionen: {}"
+        "section_changelog": "Neu in {}",
+        "changelog_note": "Frühere Versionen: {}",
+        "changelog_none": "Keine Hinweise zu dieser Version (ein Entwicklungs-Build?). Alle Versionen: {}",
+        "section_credits": "Mitwirkende",
+        "credit_author": "Entwickler",
+        "credit_upstream": "Basiert auf",
+        "credit_upstream_value": "Pctl Manager von Taylor",
+        "credit_fixes": "fw-22.5-Korrekturen und NTP",
+        "credit_ui": "Oberfläche",
+        "section_support": "PlayGuard unterstützen",
+        "support_note": "PlayGuard ist kostenlos, quelloffen und werbefrei. Wenn es Ihrer Familie hilft, können Sie die Entwicklung über Ihr Smartphone oder Ihren Computer unterstützen:",
+        "made_in_france": "Made in France"
     },
     "prefs": {
         "section_app": "App",
         "section_play_timer": "Spielzeit",
         "section_startup": "Beim Start",
-        "note": "Sicherungen, Updates, der Diagnosebericht und die Konsole befinden sich unter Tools & Info."
+        "note": "Sicherungen, der Diagnosebericht und die Konsole befinden sich unter Tools, Updates unter Info."
     },
     "backup": {
         "saved": "Einstellungen gesichert: {}",
@@ -682,7 +688,7 @@
     "update": {
         "checking": "Suche nach Updates…",
         "available": "PlayGuard {} ist verfügbar (installiert: {}).",
-        "available_toast": "PlayGuard {} ist verfügbar: Tools & Info › Nach Updates suchen.",
+        "available_toast": "PlayGuard {} ist verfügbar: Info › Nach Updates suchen.",
         "available_no_fw": "Sie unterstützt Firmware {} noch nicht.",
         "up_to_date": "PlayGuard {} ist die neueste Version.",
         "failed": "Suche nach Updates fehlgeschlagen ({}).",

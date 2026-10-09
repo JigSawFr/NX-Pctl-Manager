@@ -41,6 +41,7 @@
             <brls:Label id="ob_note" text="@i18n/playguard/onboarding/note" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
             <brls:BooleanCell id="ob_at_start" marginTop="16"/>
             <brls:DetailCell id="ob_close" title="@i18n/playguard/onboarding/close"/>
+            <MadeInFrance marginTop="24"/>
 
         </brls:Box>
 

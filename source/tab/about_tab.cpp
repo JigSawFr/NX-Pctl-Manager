@@ -1,17 +1,26 @@
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #include "tab/about_tab.hpp"
 
+#include "action/update_flow.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
 #include "util/changelog.hpp"
+#include "util/config.hpp"
 #include "util/paths.hpp"
 
 using namespace brls::literals;
 
 namespace
 {
-// The latest releases only: the full history is on the releases page.
-constexpr int CHANGELOG_RELEASES = 3;
+const char* UPDATE_VIA[] = { "auto", "sphaira", "appstore", "manual" };
+
+template <size_t N>
+int index_of(const char* const (&list)[N], const std::string& value)
+{
+    for (size_t i = 0; i < N; i++)
+        if (value == list[i]) return (int)i;
+    return 0;
+}
 
 brls::Label* note_label(const std::string& text, int font_size, NVGcolor color)
 {
@@ -27,37 +36,63 @@ brls::Label* note_label(const std::string& text, int font_size, NVGcolor color)
 AboutTab::AboutTab()
     : TabBase("xml/tab/about.xml")
 {
-    credits->setSingleLine(false);
     changelog_note->setSingleLine(false);
+    support_note->setSingleLine(false);
     version->registerClickAction([this](brls::View*) {
         this->count_version_press();
         return true;
     });
+
+    update_daily->init("playguard/tools/update_daily"_i18n, config::get().update_daily, [](bool on) {
+        config::get().update_daily = on;
+        ui::save_config();
+    });
+    update_via->registerClickAction([this](brls::View*) {
+        std::vector<std::string> labels;
+        for (const char* u : UPDATE_VIA) labels.push_back(brls::getStr(std::string("playguard/tools/update_via_values/") + u));
+        ui::pick("playguard/tools/update_via"_i18n, labels, index_of(UPDATE_VIA, config::get().update_via), [this](int i) {
+            config::get().update_via = UPDATE_VIA[i];
+            ui::save_config();
+            this->refresh();
+        });
+        return true;
+    });
+    update_cell->registerClickAction([](brls::View*) {
+        update_flow::check_now();
+        return true;
+    });
+
+    // The credits and the funding links do not change: set once.
+    author->setDetailText("JigSawFr");
+    upstream->setDetailText("playguard/about/credit_upstream_value"_i18n);
+    fixes->setDetailText("anbingxi");
+    ui_lib->setDetailText("borealis (Apache 2.0)");
+    license->setDetailText("GPLv3");
+    source->setDetailText(app::repo_url());
+    sponsors->setDetailText(app::SPONSORS_URL);
+    kofi->setDetailText(app::KOFI_URL);
     this->fill_changelog();
 }
 
 void AboutTab::fill_changelog()
 {
-    std::string md;
+    // This version's notes only: the earlier ones are on the releases page.
+    std::string md, date;
     paths::read_file(BRLS_ASSET("CHANGELOG.md"), md);
-    const auto lines = changelog::parse(md, CHANGELOG_RELEASES);
-    changelog_note->setText(brls::getStr(lines.empty() ? "playguard/about/changelog_none" : "playguard/about/changelog_note",
-                                         std::string(app::repo_url()) + "/releases"));
+    const auto lines = changelog::release_notes(md, app::version(), &date);
+    changelog_header->setTitle(brls::getStr("playguard/about/section_changelog", app::version()));
+    if (!date.empty()) changelog_header->setSubtitle(date);
+    const std::string releases = std::string(app::repo_url()) + "/releases";
+    changelog_note->setText(lines.empty() ? brls::getStr("playguard/about/changelog_none", releases)
+                                          : brls::getStr("playguard/about/changelog_note", releases));
     bool first = true;
     for (const changelog::Line& l : lines) {
         brls::View* view = nullptr;
         switch (l.kind) {
-            case changelog::Line::Release: {
-                auto* header = new brls::Header();
-                header->setTitle(l.text);
-                header->setMarginTop(first ? 8 : 24);
-                header->setMarginBottom(4);
-                view = header;
-                break;
-            }
+            case changelog::Line::Release:   // not under one version's heading
             case changelog::Line::Section:
                 view = note_label(l.text, 22, ui::color_text());
-                view->setMarginTop(12);
+                view->setMarginTop(first ? 0 : 12);
                 view->setMarginBottom(4);
                 break;
             case changelog::Line::Item: {
@@ -108,6 +143,12 @@ void AboutTab::count_version_press()
 
 void AboutTab::refresh()
 {
+    const auto& cfg = config::get();
+    update_daily->setOn(cfg.update_daily, false);
+    update_cell->setDetailText(cfg.update_checked.empty() ? "" : brls::getStr("playguard/tools/update_last", cfg.update_checked));
+    update_via->setDetailText(brls::getStr("playguard/tools/update_via_values/" +
+                                           std::string(UPDATE_VIA[index_of(UPDATE_VIA, cfg.update_via)])));
+
     SysInfo si;
     sysinfo_get(&si);
     std::string flags;
@@ -116,10 +157,6 @@ void AboutTab::refresh()
     version->setDetailText(app::version() + flags);
     mode->setDetailText(si.applet_mode ? "playguard/tools/mode_applet"_i18n : "playguard/tools/mode_app"_i18n);
     data->setDetailText(paths::data_dir());
-    license->setDetailText("playguard/tools/license_value"_i18n);
-    source->setDetailText(app::repo_url());
-    // A note rather than a cell: the credits are longer than a cell's value.
-    credits->setText(brls::getStr("playguard/tools/credits_line", "playguard/tools/credits_value"_i18n));
 }
 
 brls::View* AboutTab::create()
