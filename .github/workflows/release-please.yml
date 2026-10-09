@@ -41,5 +41,7 @@ jobs:
       id-token: write
       attestations: write
     uses: ./.github/workflows/build.yml
+    # The Docker Hub login for the switch job's image (see build.yml).
+    secrets: inherit
     with:
       tag: ${{ needs.release-please.outputs.tag_name }}
