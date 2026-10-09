@@ -233,6 +233,46 @@ static void test_accounts(void)
     assert(playlog_for_account(log, n, leo, mine, 1) == 1);
 }
 
+// PlayGuard's own time over a game: cut out of that game's sessions.
+static void test_skip(void)
+{
+    PlayLogTotal t[8];
+    uint64_t days[7];
+    for (int k = 0; k < 7; k++) days[k] = DAY_START - (uint64_t)k * DAY;
+    // A: 9:00-11:00 with PlayGuard open 9:30-9:40; B: 12:00 and still in
+    // focus (PlayGuard started over it at 17:50, open until now, 18:00).
+    const PlayLogEvent log[] = {
+        ev(A, PlayLogEv_Focus, DAY_START + 9 * H), ev(A, PlayLogEv_Unfocus, DAY_START + 11 * H),
+        ev(B, PlayLogEv_Focus, DAY_START + 12 * H),
+    };
+    const PlayLogSpan skip[] = {
+        { DAY_START + 17 * H + 3000, NOW },                      // in any order
+        { DAY_START + 9 * H + 1800, DAY_START + 9 * H + 2400 },
+        { DAY_START + 9 * H + 2000, DAY_START + 9 * H + 2100 },  // overlapping the one above
+        { DAY_START + 2 * H, DAY_START + 3 * H },                // no game: nothing to cut
+    };
+    size_t k = playlog_fold_days_skip(log, 3, NOW, days, skip, 4, t, 8);
+    assert(k == 2);
+    assert(find(t, k, A)->today_s == 2 * H - 600);
+    assert(find(t, k, B)->today_s == 6 * H - 600 && find(t, k, B)->week_s == 6 * H - 600);
+
+    // A span over a whole session: the game has no time at all left.
+    const PlayLogSpan all[] = { { DAY_START + 8 * H, DAY_START + 11 * H } };
+    k = playlog_fold_days_skip(log, 2, NOW, days, all, 1, t, 8);
+    assert(k == 0);
+
+    // A span across midnight cuts both days.
+    const PlayLogEvent night[] = {
+        ev(C, PlayLogEv_Focus, DAY_START - H), ev(C, PlayLogEv_Unfocus, DAY_START + H),
+    };
+    const PlayLogSpan around[] = { { DAY_START - 600, DAY_START + 300 } };
+    k = playlog_fold_days_skip(night, 2, NOW, days, around, 1, t, 8);
+    assert(k == 1 && t[0].day_s[0] == H - 300 && t[0].day_s[1] == H - 600);
+
+    // No spans: playlog_fold_days().
+    assert(playlog_fold_days_skip(log, 3, NOW, days, NULL, 5, t, 8) == 2 && find(t, 2, B)->today_s == 6 * H);
+}
+
 int main(void)
 {
     test_sessions();
@@ -242,6 +282,7 @@ int main(void)
     test_limits();
     test_days();
     test_accounts();
+    test_skip();
     puts("playlog session, window and per-account assertions passed");
     return 0;
 }

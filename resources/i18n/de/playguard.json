@@ -174,7 +174,8 @@
         "stop_confirm": "Für heute beenden",
         "stop_done": "Heute wird nicht mehr gespielt.",
         "stop_restore_body": "Am {} wurde das Limit für {} nur für diesen Tag auf {} gesetzt. Wieder auf {} setzen?",
-        "applet": "PlayGuard läuft als Applet (aus dem Album geöffnet) mit wenig Speicher: Ein Export oder eine lange Aktivitätsliste kann fehlschlagen. Für die vollständige App halten Sie beim Starten eines Spiels R gedrückt."
+        "applet": "PlayGuard läuft als Applet (aus dem Album geöffnet) mit wenig Speicher: Ein Export oder eine lange Aktivitätsliste kann fehlschlagen. Für die vollständige App halten Sie beim Starten eines Spiels R gedrückt.",
+        "counted": "Über einem Spiel geöffnet, zählt PlayGuard als dieses Spiel: Die Konsole rechnet die Zeit dem Spielzeit-Timer und der Aktivität des beim Start gewählten Nutzers an (der Aktivität-Tab von PlayGuard lässt sie weg). Öffne PlayGuard mit dem Nutzer eines Elternteils oder für einen kurzen Blick über das Album."
     },
     "onboarding": {
         "title": "Erste Schritte",
@@ -190,7 +191,7 @@
         "step_unlink": "4. Smart-Geräte-App trennen (ihre nächste Synchronisierung würde dies rückgängig machen)",
         "step_alarm": "{}. Alarm „Zeit ist um“ wieder einschalten (nichts warnt, wenn die Zeit um ist)",
         "at_start": "Beim Start anzeigen, solange keine Geheimzahl festgelegt ist",
-        "note": "Die Geheimzahl ist die der Konsole; das Limit richtet sich nach der Netzwerkuhr, daher muss sie genau sein.",
+        "note": "Die Geheimzahl ist die der Konsole; das Limit richtet sich nach der Netzwerkuhr, daher muss sie genau sein. Öffne PlayGuard mit dem Nutzer eines Elternteils: Über einem Spiel geöffnet, zählt seine Zeit als Spielzeit.",
         "close": "Schließen"
     },
     "compat": {
@@ -368,7 +369,7 @@
         "first": "Erstmals gespielt",
         "last": "Zuletzt gespielt",
         "less_than_minute": "< 1 min",
-        "note": "Aus dem Aktivitätsprotokoll der Konsole gelesen, für alle Nutzer. Die Zeiten sind ungefähr, wenn die Konsolenuhr geändert wurde, und ist PlayGuard über einem Spiel geöffnet, zählt das als Spielzeit dieses Spiels."
+        "note": "Aus dem Aktivitätsprotokoll der Konsole gelesen, für alle Nutzer. Die Zeiten sind ungefähr, wenn die Konsolenuhr geändert wurde. Die Zeit in PlayGuard über einem Spiel wird bei heute und den letzten 7 Tagen weggelassen, bleibt aber in den Gesamtzeiten, die die Konsole führt."
     },
     "restrictions": {
         "section_level": "Einschränkungskategorie",

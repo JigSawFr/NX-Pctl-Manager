@@ -174,7 +174,8 @@
         "stop_confirm": "Arrêter pour aujourd'hui",
         "stop_done": "Jeu arrêté pour aujourd'hui.",
         "stop_restore_body": "Le {}, la limite du {} a été mise à {} pour la journée seulement. La remettre à {} ?",
-        "applet": "PlayGuard tourne en mode applet (ouvert depuis l'album), avec peu de mémoire : un export ou une longue liste d'activité peut échouer. Pour l'application complète, ouvrez-la en maintenant R au lancement d'un jeu."
+        "applet": "PlayGuard tourne en mode applet (ouvert depuis l'album), avec peu de mémoire : un export ou une longue liste d'activité peut échouer. Pour l'application complète, ouvrez-la en maintenant R au lancement d'un jeu.",
+        "counted": "Ouvert par-dessus un jeu, PlayGuard compte comme ce jeu : la console ajoute ce temps au minuteur et à l'activité du compte choisi au lancement (l'onglet Activité de PlayGuard le retire). Ouvrez-le avec le compte d'un parent, ou depuis l'Album pour un simple coup d'œil."
     },
     "onboarding": {
         "title": "Premiers pas",
@@ -190,7 +191,7 @@
         "step_unlink": "4. Dissocier l'application mobile (sa prochaine synchro annulerait tout)",
         "step_alarm": "{}. Réactiver l'alarme « temps écoulé » (rien ne prévient quand le temps est écoulé)",
         "at_start": "Afficher au lancement tant qu'aucun code PIN n'est défini",
-        "note": "Le code PIN est celui de la console ; la limite est vérifiée avec l'horloge réseau, qui doit donc être précise.",
+        "note": "Le code PIN est celui de la console ; la limite est vérifiée avec l'horloge réseau, qui doit donc être précise. Ouvrez PlayGuard avec le compte d'un parent : ouvert par-dessus un jeu, son temps compte comme du jeu.",
         "close": "Fermer"
     },
     "compat": {
@@ -368,7 +369,7 @@
         "first": "Première partie",
         "last": "Dernière partie",
         "less_than_minute": "< 1 min",
-        "note": "Lu dans le journal d'activité de la console, pour tous les comptes. Les durées sont approximatives si l'horloge de la console a été modifiée, et PlayGuard ouvert par-dessus un jeu compte comme du temps passé dans ce jeu."
+        "note": "Lu dans le journal d'activité de la console, pour tous les comptes. Les durées sont approximatives si l'horloge de la console a été modifiée. Le temps passé dans PlayGuard ouvert par-dessus un jeu est retiré d'aujourd'hui et des 7 derniers jours, mais reste dans les totaux depuis toujours, tenus par la console."
     },
     "restrictions": {
         "section_level": "Niveau de restriction",
