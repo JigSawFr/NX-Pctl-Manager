@@ -50,6 +50,8 @@ PlayGuard is a homebrew app that brings the settings of the Nintendo Switch Pare
 | ![Activity](images/screenshots/activity.png) | ![A game](images/screenshots/activity_game.png) |
 | **Restrictions** | **Network clock** |
 | ![Restrictions](images/screenshots/restrictions.png) | ![Network clock](images/screenshots/clock.png) |
+| **Security & app** | **Preferences** |
+| ![Security & app](images/screenshots/security.png) | ![Preferences](images/screenshots/preferences.png) |
 
 ## Compatibility
 
@@ -86,6 +88,9 @@ All in `sd:/switch/playguard/`:
 | `profiles/` | Saved play-time limit profiles |
 | `backups/` | Settings backups (never contain the PIN) |
 | `exports/` | Activity exports |
+| `own_time.txt` | When PlayGuard was open over a game (last 8 days), left out of the Activity tab |
+| `github_token` | Developer mode only: the GitHub sign-in of *Install another build* (deleted by signing out) |
+| `rescue_report.txt` | Left by the recovery sysmodule after it acted, until PlayGuard shows it at start-up |
 | `logs/` | Diagnostic reports (never contain the PIN or the serial number), the developer tools' files, and `uploads.txt` (the links of the reports sent online) |
 
 More in [packaging/README.md](packaging/README.md).
