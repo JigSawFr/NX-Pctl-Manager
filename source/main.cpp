@@ -28,6 +28,7 @@
 #include "util/config.hpp"
 #include "util/http.hpp"
 #include "view/made_in_france.hpp"
+#include "view/scroll_view.hpp"
 #include "view/play_days.hpp"
 #include "view/pt_gauge.hpp"
 #include "view/pt_state_header.hpp"
@@ -68,6 +69,7 @@ int main(int argc, char* argv[])
     // We own the quit path (B on the sidebar / error screen).
     brls::Application::setGlobalQuit(false);
 
+    brls::Application::registerXMLView("ScrollView",      ScrollView::create);
     brls::Application::registerXMLView("PtStateHeader",   PtStateHeader::create);
     brls::Application::registerXMLView("PtGauge",         PtGauge::create);
     brls::Application::registerXMLView("PtWeekView",      PtWeekView::create);

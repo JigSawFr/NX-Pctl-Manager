@@ -7,7 +7,7 @@
     width="auto"
     height="auto">
 
-    <brls:ScrollingFrame
+    <ScrollView
         width="auto"
         height="auto"
         grow="1.0">
@@ -53,6 +53,6 @@
 
         </brls:Box>
 
-    </brls:ScrollingFrame>
+    </ScrollView>
 
 </brls:Box>
