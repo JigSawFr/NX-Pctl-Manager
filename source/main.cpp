@@ -57,12 +57,19 @@ int main(int argc, char* argv[])
     }
 
     brls::Application::createWindow("playguard/title"_i18n);
+    ui::use_latin_font();
 
     // Follows the console theme unless a preference says otherwise.
     if (cfg.theme == "dark")
         brls::Application::getPlatform()->setThemeVariant(brls::ThemeVariant::DARK);
     else if (cfg.theme == "light")
         brls::Application::getPlatform()->setThemeVariant(brls::ThemeVariant::LIGHT);
+
+    // No cross-fade when a screen opens or closes: on the console's LCD the
+    // two screens blended for 200 ms read as ghosting. 2 ms, not 0: borealis
+    // still runs (and ends) its animations, in whole milliseconds, and a
+    // picker's takes half of it.
+    brls::getStyle().addMetric("brls/animations/show", 2.0f);
 
     // PlayGuard status colours (light / dark variants), before any view exists.
     ui::register_theme_colors();

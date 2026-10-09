@@ -20,6 +20,10 @@ namespace ui
 // and the focus highlight in the icon's teal. register_theme_colors() must
 // run before the first lookup (borealis aborts on an unknown theme key).
 void     register_theme_colors();
+// On the console: the system's Latin / Japanese font as the default font of
+// every label, the Chinese one only as a fallback (except for Chinese). Right
+// after createWindow(), before the first label exists.
+void     use_latin_font();
 NVGcolor color_ok();
 NVGcolor color_warn();
 NVGcolor color_bad();

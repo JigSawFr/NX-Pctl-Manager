@@ -15,6 +15,10 @@
 #include <fmt/format.h>
 #include <memory>
 
+#ifdef __SWITCH__
+#include <switch.h>
+#endif
+
 using namespace brls::literals;
 
 namespace ui
@@ -50,6 +54,36 @@ void register_theme_colors()
     dark.addColor("brand/bad", nvgRGB(0xFF, 0x7A, 0x7A));
     dark.addColor("brand/gauge_track", nvgRGBA(255, 255, 255, 46));
     dark.addColor("brand/note", nvgRGB(0xB8, 0xB8, 0xB8));
+}
+
+void use_latin_font()
+{
+#ifdef __SWITCH__
+    // borealis (wiliwili's branch) draws every label with the Simplified
+    // Chinese system font, the Latin one only filling its gaps. That font has
+    // the pinyin letters é, è, ê… as full-width glyphs ("prot é g é e"), and a
+    // full-width "·" and "…". Chinese keeps it: the han in its own style.
+    const std::string locale = brls::Application::getLocale();
+    if (locale.rfind("zh", 0) == 0) return;
+
+    PlFontData standard;
+    if (R_FAILED(plGetSharedFontByType(&standard, PlSharedFontType_Standard))) return;
+    const int chinese = brls::Application::getFont(brls::FONT_CHINESE_SIMPLIFIED);
+    // Registered again under the name the default font is read from (once,
+    // by the first label): the font data is the system's, not copied.
+    if (!brls::Application::loadFontFromMemory(brls::FONT_CHINESE_SIMPLIFIED, standard.address, standard.size, false))
+        return;
+    const int latin = brls::Application::getFont(brls::FONT_CHINESE_SIMPLIFIED);
+    // The fallbacks the Chinese font had (fontstash looks one level deep).
+    NVGcontext* vg = brls::Application::getNVGContext();
+    for (int font : { chinese, brls::Application::getFont(brls::FONT_CHINESE_SIMPLIFIED_EXT),
+                      brls::Application::getFont(brls::FONT_CHINESE_TRADITIONAL),
+                      brls::Application::getFont(brls::FONT_KOREAN_REGULAR),
+                      brls::Application::getFont(brls::FONT_SWITCH_ICONS),
+                      brls::Application::getFont(brls::FONT_MATERIAL_ICONS),
+                      brls::Application::getFont(brls::FONT_EMOJI) })
+        if (font != brls::FONT_INVALID) nvgAddFallbackFontId(vg, latin, font);
+#endif
 }
 
 NVGcolor color_ok()      { return brls::Application::getTheme()["brand/ok"]; }
