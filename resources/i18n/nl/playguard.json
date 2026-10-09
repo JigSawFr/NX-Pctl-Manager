@@ -142,6 +142,7 @@
         "gauge_idle": "De resterende tijd wordt getoond terwijl er een game draait.",
         "gauge_unlocked": "Speeltijd wordt niet geteld zolang het ouderlijk toezicht ontgrendeld is.",
         "bedtime": "Bedtijdalarm",
+        "alarm_off": "Uit",
         "clock": "Netwerkklok",
         "clock_ok": "Nauwkeurig",
         "clock_bad": "Niet nauwkeurig",
@@ -185,6 +186,7 @@
         "step_clock": "3. De netwerkklok controleren",
         "todo": "Te doen",
         "step_unlink": "4. De smartphone-app ontkoppelen (de volgende synchronisatie zou dit ongedaan maken)",
+        "step_alarm": "{}. Alarm \"Tijd is om\" weer inschakelen (niets waarschuwt als de tijd om is)",
         "at_start": "Bij het opstarten tonen zolang er geen pincode is",
         "note": "De pincode is die van de console zelf; de limiet wordt gecontroleerd met de netwerkklok, die dus nauwkeurig moet zijn.",
         "close": "Sluiten"
@@ -252,6 +254,9 @@
         "bedtime_note": "Het bedtijdalarm kan voorlopig alleen via de smartphone-app worden gewijzigd.",
         "section_advanced": "Geavanceerd",
         "alarm": "Alarm \"Tijd is om\"",
+        "alarm_on_body": "Alarm \"Tijd is om\" weer inschakelen?\n\nAls de speeltijdlimiet is bereikt, toont de console het alarm weer, zoals standaard.",
+        "alarm_on_confirm": "Inschakelen",
+        "alarm_on_done": "Alarm \"Tijd is om\" ingeschakeld.",
         "pause": "Aftellen pauzeren",
         "resume": "Aftellen hervatten",
         "pause_body": "Het aftellen van vandaag pauzeren?\n\nHiervoor wordt een testopdracht van het systeem gebruikt. Gebruik dit alleen als je weet waarom je het nodig hebt.",
@@ -753,6 +758,7 @@
             "backup": "Back-up teruggezet",
             "undo": "Teruggezet vanuit de geschiedenis",
             "first_steps": "Eerste stappen",
+            "overview": "Overzicht",
             "profile": "Profiel \"{}\""
         },
         "when": "Wanneer",

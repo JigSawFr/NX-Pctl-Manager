@@ -37,6 +37,12 @@ void OnboardingActivity::onContentAvailable()
         });
         return true;
     });
+    alarm->setDetailText("playguard/dashboard/alarm_off"_i18n);   // the title says why
+    alarm->setDetailTextColor(ui::color_warn());
+    alarm->registerClickAction([this](brls::View*) {
+        pt_flow::turn_alarm_on("first_steps", [this]() { this->refresh(); });
+        return true;
+    });
 
     pin->registerClickAction([this](brls::View*) {
         // Blocks while the system PIN screen is shown.
@@ -114,6 +120,12 @@ void OnboardingActivity::refresh()
     unlink->setDetailTextColor(ui::color_warn());
     ui::set_visible(unlink.getView(), paired);
 
-    const bool done = has_pin && (!pt.fw_supported || any_limit) && (R_FAILED(accuracy_rc) || accurate) && !paired;
+    // Then, while the timer runs with its alarm off: nothing says time is up.
+    const bool alarm_off = pt_flow::alarm_off(pt);
+    alarm->setText(brls::getStr("playguard/onboarding/step_alarm", paired ? 5 : 4));
+    ui::set_visible(alarm.getView(), alarm_off);
+
+    const bool done = has_pin && (!pt.fw_supported || any_limit) && (R_FAILED(accuracy_rc) || accurate) && !paired
+                      && !alarm_off;
     headline->setText(done ? "playguard/onboarding/all_done"_i18n : "playguard/onboarding/headline"_i18n);
 }

@@ -85,6 +85,14 @@ std::string restore_label();
 // "+30 min" when extra time was added today and is still there, else "".
 std::string extra_today_text(const PtState& pt);
 
+// The timer is on and its "time's up" alarm is off: the console says nothing
+// when time is up. The Overview and First steps point it out.
+bool alarm_off(const PtState& pt);
+// Turns that alarm back on after a confirmation (the PIN asked before a
+// change, read-only mode: as for any change), recorded with `source`.
+// Not an advanced action: it puts back what the console does by default.
+void turn_alarm_on(const std::string& source, std::function<void()> refresh);
+
 // At start-up: the app stopped between an unlock made for a change and the
 // lock that follows it (config relock_pending) -> lock again now, with a toast.
 void relock_if_interrupted();

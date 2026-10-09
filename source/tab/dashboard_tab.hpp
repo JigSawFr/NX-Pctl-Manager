@@ -40,6 +40,7 @@ class DashboardTab : public TabBase
     BRLS_BIND(brls::DetailCell, extra_pending, "dash_extra_pending");
     BRLS_BIND(brls::DetailCell, remaining,   "dash_remaining");
     BRLS_BIND(brls::DetailCell, bedtime,     "dash_bedtime");
+    BRLS_BIND(brls::DetailCell, alarm,       "dash_alarm");
     BRLS_BIND(brls::DetailCell, clock,       "dash_clock");
     BRLS_BIND(brls::DetailCell, pairing,     "dash_pairing");
     BRLS_BIND(brls::DetailCell, serial,      "dash_serial");

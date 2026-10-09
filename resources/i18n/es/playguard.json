@@ -142,6 +142,7 @@
         "gauge_idle": "El tiempo restante se indica mientras se ejecuta un juego.",
         "gauge_unlocked": "El tiempo de juego no se cuenta mientras el control parental está desbloqueado.",
         "bedtime": "Alarma de hora de dormir",
+        "alarm_off": "Desactivada",
         "clock": "Reloj de red",
         "clock_ok": "Preciso",
         "clock_bad": "Impreciso",
@@ -185,6 +186,7 @@
         "step_clock": "3. Comprobar el reloj de red",
         "todo": "Pendiente",
         "step_unlink": "4. Desvincular la app para móvil (su próxima sincronización lo desharía)",
+        "step_alarm": "{}. Reactivar la alarma de «Se acabó el tiempo» (nada avisa al terminar)",
         "at_start": "Mostrar al iniciar mientras no haya PIN",
         "note": "El PIN es el de la propia consola; el límite se comprueba con el reloj de red, así que debe ser preciso.",
         "close": "Cerrar"
@@ -252,6 +254,9 @@
         "bedtime_note": "Por ahora, la alarma de hora de dormir solo se puede cambiar desde la app para móvil.",
         "section_advanced": "Avanzado",
         "alarm": "Alarma de «Se acabó el tiempo»",
+        "alarm_on_body": "¿Volver a activar la alarma de «Se acabó el tiempo»?\n\nCuando se alcance el límite de tiempo de juego, la consola volverá a mostrar la alarma, como hace de forma predeterminada.",
+        "alarm_on_confirm": "Activar",
+        "alarm_on_done": "Alarma de «Se acabó el tiempo» activada.",
         "pause": "Pausar la cuenta atrás",
         "resume": "Reanudar la cuenta atrás",
         "pause_body": "¿Pausar la cuenta atrás de hoy?\n\nEsto usa un comando de prueba del sistema. Úselo solo si sabe por qué lo necesita.",
@@ -753,6 +758,7 @@
             "backup": "Copia restaurada",
             "undo": "Restablecido desde el historial",
             "first_steps": "Primeros pasos",
+            "overview": "Resumen",
             "profile": "Perfil «{}»"
         },
         "when": "Cuándo",

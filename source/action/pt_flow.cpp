@@ -461,4 +461,21 @@ void offer_extra_time_restore(std::function<void()> refresh)
     dialog->open();
 }
 
+bool alarm_off(const PtState& pt)
+{
+    return pt.fw_supported && pt.enabled_valid && pt.enabled && pt.alarm_disabled_valid && pt.alarm_disabled;
+}
+
+void turn_alarm_on(const std::string& source, std::function<void()> refresh)
+{
+    if (ui::refuse_read_only()) return;
+    ui::confirm("playguard/play_timer/alarm_on_body"_i18n, "playguard/play_timer/alarm_on_confirm"_i18n,
+                [source, refresh]() {
+        const Result rc = pctl_play_timer_set_alarm_disabled(false);
+        if (R_SUCCEEDED(rc)) history_flow::record_values("alarm", { 1 }, { 0 }, source);
+        ui::notify_result(rc, "playguard/play_timer/alarm_on_done"_i18n, "playguard/play_timer/write_err"_i18n);
+        if (refresh) refresh();
+    });
+}
+
 }   // namespace pt_flow

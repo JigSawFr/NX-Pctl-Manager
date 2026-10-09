@@ -142,6 +142,7 @@
         "gauge_idle": "游戏运行时才会显示剩余时间。",
         "gauge_unlocked": "家长控制暂时解除期间不计算游戏时间。",
         "bedtime": "就寝提醒",
+        "alarm_off": "已关闭",
         "clock": "网络时钟",
         "clock_ok": "准确",
         "clock_bad": "不准确",
@@ -185,6 +186,7 @@
         "step_clock": "3. 检查网络时钟",
         "todo": "待完成",
         "step_unlink": "4. 解除手机应用的关联（否则下次同步会撤销这些设置）",
+        "step_alarm": "{}. 重新开启“时间到”提醒（否则时间到时不会有任何提醒）",
         "at_start": "未设置PIN时在启动时显示",
         "note": "PIN即主机本身的PIN；限制以网络时钟为准，因此网络时钟必须准确。",
         "close": "关闭"
@@ -252,6 +254,9 @@
         "bedtime_note": "目前就寝提醒只能通过手机应用更改。",
         "section_advanced": "高级",
         "alarm": "“时间到”提醒",
+        "alarm_on_body": "重新开启“时间到”提醒？\n\n达到游戏时间限制时，主机将像默认设置一样再次显示提醒。",
+        "alarm_on_confirm": "开启",
+        "alarm_on_done": "已开启“时间到”提醒。",
         "pause": "暂停计时",
         "resume": "继续计时",
         "pause_body": "要暂停今天的计时吗？\n\n此操作使用系统的测试命令。请仅在明确需要时使用。",
@@ -753,6 +758,7 @@
             "backup": "已恢复备份",
             "undo": "从历史记录恢复",
             "first_steps": "入门",
+            "overview": "概览",
             "profile": "配置“{}”"
         },
         "when": "时间",

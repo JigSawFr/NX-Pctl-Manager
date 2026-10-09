@@ -110,6 +110,7 @@ static void sim_init(void)
     S.custom.sns_post_restriction = true;
     S.limit_reached = getenv("PLAYGUARD_SIM_RESTRICTED") != NULL;
     S.autosync_off = getenv("PLAYGUARD_SIM_AUTOSYNC_OFF") != NULL;
+    S.alarm_disabled = getenv("PLAYGUARD_SIM_ALARM_OFF") != NULL;
     bool off = blank || getenv("PLAYGUARD_SIM_TIMER_OFF") != NULL;
     u16 days[7];
     for (int i = 0; i < 7; i++) days[i] = off ? PT_DAY_NOLIMIT : ((i == 0 || i == 6) ? 180 : 120);
