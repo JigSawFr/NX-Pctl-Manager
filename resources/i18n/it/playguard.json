@@ -174,7 +174,8 @@
         "stop_confirm": "Interrompi per oggi",
         "stop_done": "Gioco interrotto per oggi.",
         "stop_restore_body": "Il {}, il limite di {} è stato impostato a {} solo per quel giorno. Vuoi riportarlo a {}?",
-        "applet": "PlayGuard è in esecuzione come applet (aperto dall'album), con poca memoria: un'esportazione o un lungo elenco Attività potrebbero non riuscire. Per l'applicazione completa, aprila tenendo premuto R mentre avvii un gioco."
+        "applet": "PlayGuard è in esecuzione come applet (aperto dall'album), con poca memoria: un'esportazione o un lungo elenco Attività potrebbero non riuscire. Per l'applicazione completa, aprila tenendo premuto R mentre avvii un gioco.",
+        "counted": "Aperto sopra un gioco, PlayGuard conta come quel gioco: la console aggiunge il suo tempo al timer di gioco e all'attività dell'utente scelto all'avvio (la scheda Attività di PlayGuard lo esclude). Aprilo con l'utente di un genitore, o dall'Album per un'occhiata veloce."
     },
     "onboarding": {
         "title": "Primi passi",
@@ -190,7 +191,7 @@
         "step_unlink": "4. Scollega l'app Filtro famiglia (la sua prossima sincronizzazione annullerebbe tutto)",
         "step_alarm": "{}. Riattiva l'avviso \"Tempo scaduto\" (nulla avvisa allo scadere del tempo)",
         "at_start": "Mostra all'avvio finché non è impostato un PIN",
-        "note": "Il PIN è quello della console; il limite viene verificato con l'orologio di rete, che deve quindi essere preciso.",
+        "note": "Il PIN è quello della console; il limite viene verificato con l'orologio di rete, che deve quindi essere preciso. Apri PlayGuard con l'utente di un genitore: aperto sopra un gioco, il suo tempo conta come gioco.",
         "close": "Chiudi"
     },
     "compat": {
@@ -368,7 +369,7 @@
         "first": "Prima partita",
         "last": "Ultima partita",
         "less_than_minute": "< 1 min",
-        "note": "Letto dal registro attività della console, per tutti gli utenti. I tempi sono approssimativi se l'orologio della console è stato modificato, e PlayGuard aperto sopra un gioco conta come tempo trascorso in quel gioco."
+        "note": "Letto dal registro attività della console, per tutti gli utenti. I tempi sono approssimativi se l'orologio della console è stato modificato. Il tempo di PlayGuard aperto sopra un gioco è escluso da oggi e dagli ultimi 7 giorni, ma resta nei totali, tenuti dalla console."
     },
     "restrictions": {
         "section_level": "Livello limitazioni",

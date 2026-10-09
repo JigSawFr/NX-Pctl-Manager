@@ -424,6 +424,14 @@ void playstats_fetch(PlayStats *out)
     playstats_fetch_for(out, NULL);
 }
 
+// The made-up figures are not folded from a log: nothing to leave out.
+void playstats_fetch_skip(PlayStats *out, const PlayAccount *account, const PlayLogSpan *skip, size_t n_skip)
+{
+    (void)skip;
+    (void)n_skip;
+    playstats_fetch_for(out, account);
+}
+
 void playstats_fetch_for(PlayStats *out, const PlayAccount *account)
 {
     memset(out, 0, sizeof(*out));

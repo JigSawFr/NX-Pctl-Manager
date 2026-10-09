@@ -5,6 +5,9 @@
 #include <fmt/format.h>
 #include <map>
 #include <set>
+#include <vector>
+
+#include "util/own_time.hpp"
 
 namespace play_data
 {
@@ -55,9 +58,11 @@ void fetch(const PlayAccount* account)
     e.busy = true;
     const bool one = account != nullptr;
     const PlayAccount who = one ? *account : PlayAccount{};
-    brls::async([key, one, who]() {
+    // PlayGuard's own time over a game is not play: left out (util/own_time.hpp).
+    auto skip = std::make_shared<std::vector<PlayLogSpan>>(own_time::spans());
+    brls::async([key, one, who, skip]() {
         auto data = std::make_shared<PlayStats>();
-        playstats_fetch_for(data.get(), one ? &who : nullptr);
+        playstats_fetch_skip(data.get(), one ? &who : nullptr, skip->data(), skip->size());
         brls::sync([key, data]() {
             Entry& done = s_entries[key];
             done.busy    = false;
