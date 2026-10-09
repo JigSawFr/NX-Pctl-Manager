@@ -49,9 +49,13 @@ struct Part
     std::string content;
 };
 
+// The end of logs/play_timer_log.csv sent, at most (util/pt_log.hpp).
+constexpr size_t PT_LOG_BYTES = 48 * 1024;
+
 // The debug files found in the data directory, in a fixed order:
 // logs/play_timer_block.json (Developer tools › play-timer block),
-// history.json (the change history) and config.json (PlayGuard's settings;
+// logs/play_timer_log.csv (Developer tools › record the play timer: its last
+// PT_LOG_BYTES, header kept), history.json (the change history) and config.json (PlayGuard's settings;
 // the PIN is not one of them). Missing ones are left out. Never the GitHub
 // token (github_auth.hpp keeps it in a file of its own).
 std::vector<Part> debug_files();

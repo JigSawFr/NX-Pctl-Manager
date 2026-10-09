@@ -7,22 +7,22 @@
 #include <borealis/extern/nlohmann/json.hpp>
 
 #include "util/paths.hpp"
+#include "util/pt_log.hpp"
 
 namespace log_upload
 {
 
 std::vector<Part> debug_files()
 {
-    const std::pair<const char*, std::string> files[] = {
-        { "logs/play_timer_block.json", paths::logs_dir() + "/play_timer_block.json" },
-        { "history.json", paths::history_file() },
-        { "config.json", paths::config_file() },
-    };
     std::vector<Part> out;
-    for (const auto& f : files) {
-        std::string content;
-        if (paths::read_file(f.second, content)) out.push_back({ f.first, content });
-    }
+    std::string content;
+    if (paths::read_file(paths::logs_dir() + "/play_timer_block.json", content))
+        out.push_back({ "logs/play_timer_block.json", content });
+    // The recorder's file can reach megabytes: its last lines only.
+    if (paths::read_file(pt_log::path(), content))
+        out.push_back({ "logs/play_timer_log.csv", pt_log::tail(content, PT_LOG_BYTES) });
+    if (paths::read_file(paths::history_file(), content)) out.push_back({ "history.json", content });
+    if (paths::read_file(paths::config_file(), content)) out.push_back({ "config.json", content });
     return out;
 }
 

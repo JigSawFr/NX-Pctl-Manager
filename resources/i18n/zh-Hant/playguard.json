@@ -459,6 +459,7 @@
         "seconds": "{}秒",
         "busy": "請等待目前的請求完成。",
         "autosync_off_note": "若要依此設定網路時鐘，請先在系統設定中開啟「透過網際網路同步時鐘」。",
+        "auto_how": "PlayGuard can only read this setting: it belongs to System Settings, which only the HOME menu can open.\n\nTo change it: HOME menu › System Settings › System › Date and Time › Synchronise Clock via Internet.\n\nWhen it is on, the console clock follows the network clock. Note: when the clock was moved, the console was seen to start today's play time over.",
         "ntp_err": {
             "bad_host": "不是有效的伺服器名稱",
             "lookup": "找不到伺服器（未連線至網際網路？）",
@@ -767,6 +768,9 @@
         "pt_block_changed": "有{}個數值與{}的參考不同：",
         "pt_block_report": "儲存至SD卡",
         "pt_block_new": "新的參考",
+        "pt_log": "Record the play timer",
+        "pt_log_note": "Every 30 s while PlayGuard is open, one line of what the play timer reports (time left, time spent, 1459, the settings block) in logs/play_timer_log.csv. Leave PlayGuard open over midnight, or until the time is up, to see what the console does then. Sent with the diagnostic report.",
+        "pt_log_on": "Recording every 30 s in {}",
         "gate": "再次顯示韌體畫面",
         "forget": "清除韌體的選擇",
         "forgotten": "下次啟動時會再次詢問韌體的選擇。",

@@ -9,6 +9,7 @@
 
 #include "util/log_upload.hpp"
 #include "util/paths.hpp"
+#include "util/pt_log.hpp"
 
 static void write(const std::string& path, const std::string& content)
 {
@@ -35,6 +36,16 @@ static void test_files()
     files = log_upload::debug_files();
     assert(files.size() == 3);
     for (const auto& f : files) assert(f.content.find("gho_secret") == std::string::npos);
+
+    // The recorder's file, after the block: only its end, header kept.
+    std::string csv = pt_log::header();
+    for (int i = 0; i < 5000; i++) csv += "2026-10-09 20:10:52,1791569454,0,1,0,0,1428,5772,7200,,\n";
+    write(pt_log::path(), csv);
+    files = log_upload::debug_files();
+    assert(files.size() == 4 && files[1].name == "logs/play_timer_log.csv" && files[2].name == "history.json");
+    assert(files[1].content.size() <= log_upload::PT_LOG_BYTES && files[1].content.size() > 40000);
+    assert(files[1].content.compare(0, pt_log::header().size(), pt_log::header()) == 0);
+    assert(std::remove(pt_log::path().c_str()) == 0);
 
     write(paths::logs_dir() + "/20261008_090000.txt", "a");
     write(paths::logs_dir() + "/20261009_141203.txt", "b");

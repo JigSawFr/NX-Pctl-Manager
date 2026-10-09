@@ -17,6 +17,7 @@ struct Config
     bool advanced = false;             // show debug-class play-timer actions
     bool auto_relock = true;           // lock again right after a change that needed an unlock
     bool dev_mode = false;             // developer tools (7 presses on About > Version)
+    bool pt_log = false;               // Developer › record the play timer (action/pt_log_flow)
     std::string update_via = "auto";   // "auto", "sphaira", "appstore", "manual"
     bool update_daily = false;         // check for updates at start-up, once a day
     std::string update_checked;        // "YYYY-MM-DD" of the last check, any kind

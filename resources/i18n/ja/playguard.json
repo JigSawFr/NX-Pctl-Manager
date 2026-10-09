@@ -459,6 +459,7 @@
         "seconds": "{}秒",
         "busy": "現在の処理が終わるまでお待ちください。",
         "autosync_off_note": "この測定でネットワーク時計を合わせるには、先に設定の「インターネットで時計を合わせる」をONにしてください。",
+        "auto_how": "PlayGuard can only read this setting: it belongs to System Settings, which only the HOME menu can open.\n\nTo change it: HOME menu › System Settings › System › Date and Time › Synchronise Clock via Internet.\n\nWhen it is on, the console clock follows the network clock. Note: when the clock was moved, the console was seen to start today's play time over.",
         "ntp_err": {
             "bad_host": "サーバー名が正しくありません",
             "lookup": "サーバーが見つかりません（インターネット未接続？）",
@@ -767,6 +768,9 @@
         "pt_block_changed": "{}個の値が{}の基準から変わりました：",
         "pt_block_report": "SDカードに保存",
         "pt_block_new": "新しい基準",
+        "pt_log": "Record the play timer",
+        "pt_log_note": "Every 30 s while PlayGuard is open, one line of what the play timer reports (time left, time spent, 1459, the settings block) in logs/play_timer_log.csv. Leave PlayGuard open over midnight, or until the time is up, to see what the console does then. Sent with the diagnostic report.",
+        "pt_log_on": "Recording every 30 s in {}",
         "gate": "ファームウェア画面をもう一度表示",
         "forget": "ファームウェアの選択を忘れる",
         "forgotten": "次回の起動時に、ファームウェアの選択をもう一度確認します。",

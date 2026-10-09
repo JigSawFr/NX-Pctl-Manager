@@ -9,6 +9,7 @@
 
 #include "action/fw_gate.hpp"
 #include "action/pin_lock.hpp"
+#include "action/pt_log_flow.hpp"
 #include "action/rescue.hpp"
 #include "activity/init_error_activity.hpp"
 #include "activity/lock_activity.hpp"
@@ -119,10 +120,12 @@ int main(int argc, char* argv[])
         sysinfo_get(&si);
         own_time::start(!si.applet_mode);
     }
+    pt_log_flow::apply();   // Developer › Record the play timer, when on
 
     while (brls::Application::mainLoop())
         ;
 
+    pt_log_flow::stop();
     own_time::stop();
     app::shutdown();
     http::cleanup();
