@@ -295,6 +295,54 @@ static void test_overview(void)
     assert(!st.alarm_disabled_valid && st.valid && st.enabled_valid && model.refs == 0);
 }
 
+/* The recorder's reading: two sessions, both released, nothing written. */
+static void test_sample(void)
+{
+    PtSample smp;
+
+    reset();
+    model.unlocked = true;
+    model.enabled = true;
+    pctl_play_timer_sample(&smp);
+    assert(smp.session_rc == 0 && model.init_calls == 2 && model.exit_calls == 2 && model.refs == 0);
+    assert(model.writes == 0 && model.saw_1459 && model.saw_1952 && !model.saw_1460);
+    assert(smp.unlocked_rc == 0 && smp.unlocked && smp.enabled_rc == 0 && smp.enabled);
+    assert(smp.restricted_rc == 0 && !smp.restricted && smp.alarm_off_rc == 0 && smp.alarm_off);
+    assert(smp.remaining_rc == 0 && smp.remaining_ns == 3600000000000ULL);
+    assert(smp.spent_rc == 0 && smp.spent_ns == 60 && smp.extra_rc == 0 && smp.display_rc == 0);
+    assert(smp.block_rc == 0 && memcmp(smp.block, model.pt_block, sizeof(smp.block)) == 0);
+    assert(smp.bedtime_rc == 0 && smp.bedtime_on && smp.bedtime_hour == 21 && smp.bedtime_minute == 30);
+    /* 1006..1454 5 + 145601 + bedtime 3, then 1459 1952 1960 */
+    assert(model.ipc_calls == 12);
+
+    /* One command failing leaves the others read. */
+    reset();
+    model.fail_command = 1454;
+    model.fail_command2 = 1956;
+    pctl_play_timer_sample(&smp);
+    assert(smp.remaining_rc == MOCK_ERROR && smp.bedtime_rc == MOCK_ERROR);
+    assert(smp.block_rc == 0 && smp.spent_rc == 0 && smp.enabled_rc == 0 && model.refs == 0);
+
+    /* No first session: nothing read. No second one: its three reads say why. */
+    reset();
+    model.fail_init_call = 1;
+    pctl_play_timer_sample(&smp);
+    assert(smp.session_rc == MOCK_ERROR && model.ipc_calls == 0 && model.refs == 0);
+    assert(smp.enabled_rc == MOCK_ERROR && smp.block_rc == MOCK_ERROR && smp.spent_rc == MOCK_ERROR);
+    reset();
+    model.fail_init_call = 2;
+    pctl_play_timer_sample(&smp);
+    assert(smp.session_rc == MOCK_ERROR && smp.block_rc == 0 && !model.saw_1952);
+    assert(smp.display_rc == MOCK_ERROR && smp.spent_rc == MOCK_ERROR && smp.extra_rc == MOCK_ERROR);
+    assert(model.refs == 0);
+
+    /* Below 21.0.0: no play-timer IPC, as the report. */
+    reset_with(MAKEHOSVERSION(20, 5, 0));
+    pctl_play_timer_sample(&smp);
+    assert(smp.session_rc == NXM_RC_FW_UNSUPPORTED && model.ipc_calls == 0 && model.init_calls == 0);
+    assert(smp.enabled_rc == NXM_RC_FW_UNSUPPORTED && smp.display_rc == NXM_RC_FW_UNSUPPORTED);
+}
+
 static void test_reads(void)
 {
     PtState st;
@@ -997,6 +1045,7 @@ int main(void)
 {
     test_ownership();
     test_reads();
+    test_sample();
     test_overview();
     test_write_gate();
     test_command_gate();

@@ -50,6 +50,8 @@
             <brls:Header id="tl_dev_header" title="@i18n/playguard/dev/section" marginTop="24" marginBottom="8"/>
             <brls:BooleanCell id="tl_dev_mode"/>
             <brls:BooleanCell id="tl_dev_read_only"/>
+            <brls:BooleanCell id="tl_dev_pt_log"/>
+            <brls:Label id="tl_dev_pt_log_note" text="@i18n/playguard/dev/pt_log_note" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
             <brls:DetailCell id="tl_dev_report" title="@i18n/playguard/dev/report"/>
             <brls:DetailCell id="tl_dev_pt_block" title="@i18n/playguard/dev/pt_block"/>
             <brls:DetailCell id="tl_dev_gate" title="@i18n/playguard/dev/gate"/>

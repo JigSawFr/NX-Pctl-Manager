@@ -645,6 +645,51 @@ Result pctl_play_timer_set_alarm_disabled(bool disabled)
 Result pctl_play_timer_start(void) { return pt_gated_command(1451, NULL); }
 Result pctl_play_timer_stop(void)  { return pt_gated_command(1452, NULL); }
 
+// Every read of a PtSample failed with `rc`.
+static void pt_sample_failed(PtSample *out, Result rc)
+{
+    out->session_rc = out->unlocked_rc = out->enabled_rc = out->restricted_rc = out->alarm_off_rc =
+        out->remaining_rc = out->block_rc = out->bedtime_rc = out->display_rc = out->spent_rc =
+            out->extra_rc = rc;
+}
+
+void pctl_play_timer_sample(PtSample *out)
+{
+    memset(out, 0, sizeof(*out));
+    // Below 21.0.0 no play-timer command at all, as the diagnostic report.
+    if (!pt_fw_supported()) {
+        pt_sample_failed(out, NXM_RC_FW_UNSUPPORTED);
+        return;
+    }
+    Result rc = pctl_ops_reinit();
+    if (R_FAILED(rc)) {
+        pt_sample_failed(out, rc);
+        return;
+    }
+    Service *srv = pctlGetServiceSession_Service();
+    out->unlocked_rc   = rd_bool(srv, 1006, &out->unlocked);
+    out->enabled_rc    = rd_bool(srv, 1453, &out->enabled);
+    out->restricted_rc = rd_bool(srv, 1455, &out->restricted);
+    out->alarm_off_rc  = rd_bool(srv, 1458, &out->alarm_off);
+    out->remaining_rc  = rd_u64(srv, 1454, &out->remaining_ns);
+    out->block_rc      = serviceDispatchOut(srv, 145601, out->block);
+    out->bedtime_rc    = rd_bool(srv, 1954, &out->bedtime_on);
+    if (R_SUCCEEDED(out->bedtime_rc)) out->bedtime_rc = rd_u8(srv, 1956, &out->bedtime_hour);
+    if (R_SUCCEEDED(out->bedtime_rc)) out->bedtime_rc = rd_u8(srv, 1957, &out->bedtime_minute);
+
+    // The test / debug getters in their own session, as the report reads them.
+    out->session_rc = pctl_ops_reinit();
+    if (R_FAILED(out->session_rc)) {
+        out->display_rc = out->spent_rc = out->extra_rc = out->session_rc;
+        return;
+    }
+    srv = pctlGetServiceSession_Service();
+    out->display_rc = serviceDispatchOut(srv, 1459, out->display);
+    out->spent_rc   = rd_u64(srv, 1952, &out->spent_ns);
+    out->extra_rc   = rd_u64(srv, 1960, &out->extra_ns);
+    pctl_ops_exit();
+}
+
 // ---------------------------------------------------------------- diagnostics
 
 static void rep(char **p, char *end, const char *fmt, ...)

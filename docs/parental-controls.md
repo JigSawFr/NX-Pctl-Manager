@@ -340,6 +340,13 @@ From the same 20:10 report:
    take another one. For the play-timer block, save the reference first
    (Developer tools › play-timer block): the next report lists every byte that
    changed.
+   For what changes over time (the time spent, 1459, a reset at midnight),
+   turn on *Developer tools › Record the play timer* instead: one CSV line
+   every 30 s in `logs/play_timer_log.csv` while PlayGuard is open (its own
+   time counts, so the time runs down with PlayGuard alone). The two hex
+   columns are written only when they change. Its last 48 KB go with *Send a
+   report online*. PlayGuard does not run in the background: the recording
+   stops while a game is open, and while the console sleeps.
 2. Note the firmware, the date and exactly what was changed between the two.
 3. Add the fact here with its status, and update the comment next to the code
    that uses it.

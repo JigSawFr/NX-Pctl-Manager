@@ -293,6 +293,38 @@ void pctl_play_timer_query(PtState *o)
     o->bedtime_reset_minute = bed[wd].on ? bed[wd].end_minute : 0;
 }
 
+// The recorder's reading, built on the query above. 1459 as seen on hardware
+// (docs/parental-controls.md): 2 at 0x00 with a limit today, the remaining
+// time at 0x10; 1952 the made-up time played today.
+void pctl_play_timer_sample(PtSample *o)
+{
+    memset(o, 0, sizeof(*o));
+    PtState pt;
+    pctl_play_timer_query(&pt);
+    if (!pt.fw_supported) {
+        o->session_rc = o->unlocked_rc = o->enabled_rc = o->restricted_rc = o->alarm_off_rc =
+            o->remaining_rc = o->block_rc = o->bedtime_rc = o->display_rc = o->spent_rc = o->extra_rc =
+                NXM_RC_FW_UNSUPPORTED;
+        return;
+    }
+    o->block_rc = pt.config_rc;
+    memcpy(o->block, pt.block, sizeof(o->block));
+    o->unlocked = pt.temporary_unlocked;
+    o->enabled = pt.enabled;
+    o->restricted = pt.restricted;
+    o->alarm_off = pt.alarm_disabled;
+    o->remaining_ns = pt.remaining_ns;
+    o->bedtime_on = pt.bedtime_enabled;
+    o->bedtime_hour = pt.bedtime_hour;
+    o->bedtime_minute = pt.bedtime_minute;
+    const int wd = sim_weekday();
+    if (pt.fw_supported && pt.valid && pt.enabled && pt.day_min[wd] != PT_DAY_NOLIMIT) {
+        o->display[0] = 2;
+        memcpy(o->display + 0x10, &o->remaining_ns, sizeof(o->remaining_ns));
+    }
+    o->spent_ns = (u64)SIM_PLAYED_TODAY_MIN * 60 * 1000000000ULL;
+}
+
 Result pctl_play_timer_set_days(const u16 d[7])
 {
     RO_GUARD();

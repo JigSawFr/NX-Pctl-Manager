@@ -158,6 +158,26 @@ Result pctl_play_timer_set_alarm_disabled(bool disabled);  // 1953
 Result pctl_play_timer_start(void);                        // 1451
 Result pctl_play_timer_stop(void);                         // 1452
 
+// One reading of everything the play timer reports, for the developer
+// recorder (util/pt_log): 1006, 1453, 1455, 1458, 1454, 145601 and
+// 1954/1956/1957 in one session, then 1459, 1952 and 1960 in a second one,
+// as the diagnostic report reads them. Read only. Each *_rc is that command's
+// result; a value is meaningful only when its rc succeeded. A session that
+// cannot be opened gives its error to every read it held, and below 21.0.0
+// nothing is read: every rc is NXM_RC_FW_UNSUPPORTED.
+typedef struct {
+    Result session_rc;
+    Result unlocked_rc, enabled_rc, restricted_rc, alarm_off_rc, remaining_rc, block_rc,
+           bedtime_rc, display_rc, spent_rc, extra_rc;
+    bool   unlocked, enabled, restricted, alarm_off, bedtime_on;   // 1006 1453 1455 1458 1954
+    u8     bedtime_hour, bedtime_minute;                           // 1956 / 1957
+    u64    remaining_ns, spent_ns, extra_ns;                       // 1454 1952 1960
+    u8     display[0x20];                                          // 1459 [20.0.0+]
+    u16    block[PT_U16_COUNT];                                    // 145601 [21.0.0+]
+} PtSample;
+
+void pctl_play_timer_sample(PtSample *out);
+
 // Writes a multi-line read-only diagnostic report (raw rc + bytes for every
 // command above plus 1459/1460/1952/1960). PIN contents are never included.
 void pctl_dump(char *buf, size_t bufsz);
