@@ -90,7 +90,8 @@
         "session_closed": "系统已关闭家长控制会话，请重试",
         "bad_pin_format": "系统拒绝了此PIN格式",
         "pctl_refused": "家长控制服务拒绝了此操作",
-        "relock_failed": "主机已解锁，但无法重新锁定：请立即锁定（安全与应用 › 立即启用）"
+        "relock_failed": "主机已解锁，但无法重新锁定：请立即锁定（安全与应用 › 立即启用）",
+        "not_applied": "主机未接受更改，已恢复之前的设置"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -249,12 +250,23 @@
         "profile_action_edit": "编辑限制…",
         "profile_action_rename": "重命名…",
         "profile_edit_title": "配置：{}",
-        "section_bedtime": "就寝时间（只读）",
+        "section_bedtime": "就寝时间",
         "bedtime": "就寝提醒",
         "bedtime_value_on": "{}（开启）",
         "bedtime_value_off": "{}（关闭）",
-        "bedtime_reset": "提醒重置时间",
-        "bedtime_note": "目前就寝提醒只能通过手机应用更改。",
+        "bedtime_reset": "可再次游玩的时间",
+        "bedtime_note": "适用于每一天。到就寝时间时，主机会显示提醒（如手机应用中如此设置，则会中断软件），直到可以再次游玩。PlayGuard 会检查主机是否报告新的时间，否则会恢复之前的设置。",
+        "bedtime_title": "就寝提醒（每天）",
+        "bedtime_end_title": "可再次游玩的时间（每天）",
+        "bedtime_summary": "{}，{} 起可再次游玩",
+        "bedtime_varies": "每天不同",
+        "bedtime_confirm": "将就寝提醒设为每天 {}？\n\n{} 起可再次游玩。",
+        "bedtime_confirm_off": "关闭每一天的就寝提醒？",
+        "bedtime_end_confirm": "在设有就寝提醒的日子，{} 起允许再次游玩？",
+        "bedtime_written": "已更改就寝提醒。",
+        "bedtime_err": "无法更改就寝提醒",
+        "bedtime_unknown": "PlayGuard 未能在游玩时间设置中预期的位置找到本主机的就寝提醒，因此不会更改它。请使用手机应用，或发送诊断报告（工具），以便提供支持。",
+        "bedtime_end_needs_alarm": "请先开启就寝提醒。",
         "section_advanced": "高级",
         "alarm": "“时间到”提醒",
         "alarm_on_body": "重新开启“时间到”提醒？\n\n达到游戏时间限制时，主机将像默认设置一样再次显示提醒。",
@@ -824,7 +836,8 @@
             "clock": "已设置网络时钟",
             "restore": "已恢复备份",
             "rescue": "已使用恢复",
-            "console_lock": "主机锁"
+            "console_lock": "主机锁",
+            "bedtime": "就寝提醒"
         },
         "sources": {
             "uniform": "每天相同的限制",

@@ -68,4 +68,21 @@ enum class Restore
 };
 Restore restore_action(const ExtraRecord& rec, const std::string& today, const PtState& pt, bool read_only);
 
+// Bedtime. Its place in the block is inferred (core/pure.h): it can be
+// changed only while what the block holds for today, or for the day before
+// (after midnight), is what the console reports (1954/1956/1957).
+bool bedtime_layout_ok(const PtState& pt, int weekday);
+
+// The seven bedtimes when they are all the same.
+bool bedtime_uniform(const PtState& pt, PtBedtime* out);
+
+// Every day's alarm at hour:minute (`on`), or off. A day keeps its
+// allowed-again time when it is in range (05:00 to 09:00), else gets 06:00,
+// the companion app's default.
+void bedtime_every_day(const PtState& pt, bool on, uint8_t hour, uint8_t minute, PtBedtime out[7]);
+
+// Play allowed again at hour:minute on every day whose bedtime is on. False
+// (out untouched) when none is.
+bool bedtime_end_every_day(const PtState& pt, uint8_t hour, uint8_t minute, PtBedtime out[7]);
+
 }   // namespace pt_logic

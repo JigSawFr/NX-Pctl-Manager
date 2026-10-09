@@ -90,7 +90,8 @@
         "session_closed": "시스템이 자녀 보호 기능 세션을 닫았습니다. 다시 시도하세요",
         "bad_pin_format": "시스템이 PIN 형식을 거부했습니다",
         "pctl_refused": "자녀 보호 기능 서비스가 거부했습니다",
-        "relock_failed": "본체 잠금이 해제되었지만 다시 잠그지 못했습니다. 지금 잠그세요(보안 및 앱 › 지금 잠그기)"
+        "relock_failed": "본체 잠금이 해제되었지만 다시 잠그지 못했습니다. 지금 잠그세요(보안 및 앱 › 지금 잠그기)",
+        "not_applied": "본체가 변경을 반영하지 않아 이전 설정으로 되돌렸습니다"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -249,12 +250,23 @@
         "profile_action_edit": "제한 편집...",
         "profile_action_rename": "이름 변경...",
         "profile_edit_title": "프로필: {}",
-        "section_bedtime": "취침 시간 (읽기 전용)",
+        "section_bedtime": "취침 시간",
         "bedtime": "취침 알람",
         "bedtime_value_on": "{} (ON)",
         "bedtime_value_off": "{} (OFF)",
-        "bedtime_reset": "알람 초기화 시각",
-        "bedtime_note": "취침 알람은 현재 스마트폰 앱에서만 변경할 수 있습니다.",
+        "bedtime_reset": "다시 플레이 가능 시각",
+        "bedtime_note": "매일 적용됩니다. 취침 시간이 되면 본체가 알람을 표시하거나, 앱 설정에 따라 소프트웨어를 일시 정지하며, 다시 플레이할 수 있을 때까지 유지됩니다. PlayGuard는 본체가 새 시각을 알려 주는지 확인하고, 그렇지 않으면 이전 설정으로 되돌립니다.",
+        "bedtime_title": "취침 알람 (매일)",
+        "bedtime_end_title": "다시 플레이 가능 시각 (매일)",
+        "bedtime_summary": "{}, {}부터 다시 플레이 가능",
+        "bedtime_varies": "요일마다 다름",
+        "bedtime_confirm": "취침 알람을 매일 {}(으)로 설정할까요?\n\n{}부터 다시 플레이할 수 있습니다.",
+        "bedtime_confirm_off": "모든 요일의 취침 알람을 끌까요?",
+        "bedtime_end_confirm": "취침 알람이 있는 날에는 {}부터 다시 플레이할 수 있게 할까요?",
+        "bedtime_written": "취침 알람을 변경했습니다.",
+        "bedtime_err": "취침 알람을 변경할 수 없습니다",
+        "bedtime_unknown": "PlayGuard가 이 본체의 취침 알람을 플레이 타이머 설정의 예상 위치에서 찾지 못해 변경하지 않습니다. 앱을 사용하거나 진단 보고서(도구)를 보내 지원에 도움을 주세요.",
+        "bedtime_end_needs_alarm": "먼저 취침 알람을 켜 주세요.",
         "section_advanced": "고급",
         "alarm": "\"시간 종료\" 알람",
         "alarm_on_body": "\"시간 종료\" 알람을 다시 켤까요?\n\n플레이 시간 제한에 도달하면 기본 설정대로 본체가 다시 알람을 표시합니다.",
@@ -824,7 +836,8 @@
             "clock": "네트워크 시계 설정",
             "restore": "백업 복원",
             "rescue": "복구 사용",
-            "console_lock": "본체 잠금"
+            "console_lock": "본체 잠금",
+            "bedtime": "취침 알람"
         },
         "sources": {
             "uniform": "매일 같은 제한",

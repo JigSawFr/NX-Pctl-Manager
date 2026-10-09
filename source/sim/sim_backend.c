@@ -24,7 +24,8 @@
 //                               (1201 fine, 1006 still false), write (every
 //                               setting write), relock (1007), timer (145601
 //                               read), clock (network clock write), pin (1208),
-//                               pin_entry (the PIN screen is cancelled)
+//                               pin_entry (the PIN screen is cancelled),
+//                               bedtime (the console does not take the bedtime)
 // The play-timer limits are kept as the real 0x44 block (core/pure.c encodes
 // and decodes it, as on the console); the read-only switch is core/write_guard.c.
 // Game patches are read from ./playguard_data/sd/ (the simulated SD card root).
@@ -115,6 +116,17 @@ static void sim_init(void)
     u16 days[7];
     for (int i = 0; i < 7; i++) days[i] = off ? PT_DAY_NOLIMIT : ((i == 0 || i == 6) ? 180 : 120);
     pt_encode(S.block, days);
+    if (!off) {   // a bedtime at 21:00, play allowed again at 06:00
+        PtBedtime bed[7];
+        for (int i = 0; i < 7; i++) bed[i] = (PtBedtime){ true, 21, 0, 6, 0 };
+        pt_bedtime_encode(S.block, bed);
+    }
+}
+
+static int sim_weekday(void)
+{
+    LocalTime today;
+    return time_local_now(NULL, &today) ? today.wday : 0;
 }
 
 // The header is non-zero while any day has a limit (pure.h).
@@ -254,13 +266,13 @@ void pctl_play_timer_query(PtState *o)
     } else {
         o->valid = true;
         pt_decode(S.block, o->day_min);
+        pt_bedtime_decode(S.block, o->bed);
         memcpy(o->block, S.block, sizeof(o->block));
     }
     o->enabled_valid = true;  o->enabled = timer_enabled();
     o->temporary_unlocked_valid = true; o->temporary_unlocked = S.temp_unlocked;
     // Today's limit against what the made-up log says was played today.
-    LocalTime today;
-    const int wd = time_local_now(NULL, &today) ? today.wday : 0;
+    const int wd = sim_weekday();
     u16 days[7];
     pt_decode(S.block, days);
     const u16 limit = days[wd];
@@ -270,8 +282,15 @@ void pctl_play_timer_query(PtState *o)
                           ? (u64)(limit - SIM_PLAYED_TODAY_MIN) * 60 * 1000000000ULL : 0;
     o->restricted_valid = true; o->restricted = reached;
     o->alarm_disabled_valid = true; o->alarm_disabled = S.alarm_disabled;
-    o->bedtime_valid = true; o->bedtime_enabled = true; o->bedtime_hour = 21; o->bedtime_minute = 0;
-    o->bedtime_reset_valid = true; o->bedtime_reset_hour = 6; o->bedtime_reset_minute = 0;
+    // 1954..1959 answer today's bedtime from the block, as the console is
+    // taken to (pure.h).
+    PtBedtime bed[7];
+    pt_bedtime_decode(S.block, bed);
+    o->bedtime_valid = true; o->bedtime_enabled = bed[wd].on;
+    o->bedtime_hour = bed[wd].hour; o->bedtime_minute = bed[wd].minute;
+    o->bedtime_reset_valid = true;
+    o->bedtime_reset_hour = bed[wd].on ? bed[wd].end_hour : 6;
+    o->bedtime_reset_minute = bed[wd].on ? bed[wd].end_minute : 0;
 }
 
 Result pctl_play_timer_set_days(const u16 d[7])
@@ -286,6 +305,23 @@ Result pctl_play_timer_set_days(const u16 d[7])
     S.limit_reached = false;
     return 0;
 }
+// PLAYGUARD_SIM_FAIL=bedtime: the console does not take the bedtime (the
+// layout guess is wrong), so the block stays as it was (NXM_RC_NOT_APPLIED).
+Result pctl_play_timer_set_bedtime(const PtBedtime bed[7], int today)
+{
+    RO_GUARD();
+    sim_init();
+    if (S.hos < PCTL_FW_MIN_PLAYTIMER) return NXM_RC_FW_UNSUPPORTED;
+    if (today < 0 || today > 6) return NXM_RC_INVALID_ARGUMENT;
+    for (int i = 0; i < 7; i++) if (!pt_bedtime_ok(&bed[i])) return NXM_RC_INVALID_ARGUMENT;
+    if ((timer_enabled() || S.limit_reached) && !S.temp_unlocked) return NXM_RC_WRITE_GATED;
+    FAIL_IF("write");
+    if (fails("timer")) return NXM_RC_STATE_UNKNOWN;
+    if (fails("bedtime")) return NXM_RC_NOT_APPLIED;
+    pt_bedtime_encode(S.block, bed);
+    return 0;
+}
+
 Result pctl_play_timer_set_uniform(u16 m) { u16 d[7]; for (int i = 0; i < 7; i++) d[i] = m; return pctl_play_timer_set_days(d); }
 Result pctl_play_timer_clear(void)        { u16 d[7]; for (int i = 0; i < 7; i++) d[i] = PT_DAY_NOLIMIT; return pctl_play_timer_set_days(d); }
 

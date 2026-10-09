@@ -90,7 +90,8 @@
         "session_closed": "le système a fermé la session du contrôle parental ; réessayez",
         "bad_pin_format": "le système a refusé le format du code PIN",
         "pctl_refused": "refusé par le service du contrôle parental",
-        "relock_failed": "la console a été déverrouillée mais n'a pas pu être reverrouillée : verrouillez-la maintenant (Sécurité et appli › Verrouiller maintenant)"
+        "relock_failed": "la console a été déverrouillée mais n'a pas pu être reverrouillée : verrouillez-la maintenant (Sécurité et appli › Verrouiller maintenant)",
+        "not_applied": "la console n'a pas pris en compte la modification : les réglages précédents ont été remis"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -249,12 +250,23 @@
         "profile_action_edit": "Modifier les limites...",
         "profile_action_rename": "Renommer...",
         "profile_edit_title": "Profil : {}",
-        "section_bedtime": "Coucher (lecture seule)",
+        "section_bedtime": "Coucher",
         "bedtime": "Alarme du coucher",
         "bedtime_value_on": "{} (activée)",
         "bedtime_value_off": "{} (désactivée)",
-        "bedtime_reset": "L'alarme se réinitialise à",
-        "bedtime_note": "L'alarme du coucher ne peut être modifiée que depuis l'application mobile pour l'instant.",
+        "bedtime_reset": "Jeu de nouveau permis à",
+        "bedtime_note": "S'applique à tous les jours. À l'heure du coucher, la console affiche l'alarme, ou suspend le logiciel si l'application mobile est réglée ainsi, jusqu'à ce que le jeu soit de nouveau permis. PlayGuard vérifie que la console indique la nouvelle heure, et remet les réglages précédents sinon.",
+        "bedtime_title": "Alarme du coucher, tous les jours",
+        "bedtime_end_title": "Jeu de nouveau permis à (tous les jours)",
+        "bedtime_summary": "{}, jeu de nouveau permis à {}",
+        "bedtime_varies": "Varie selon le jour",
+        "bedtime_confirm": "Régler l'alarme du coucher à {} tous les jours ?\n\nLe jeu est de nouveau permis à {}.",
+        "bedtime_confirm_off": "Désactiver l'alarme du coucher pour tous les jours ?",
+        "bedtime_end_confirm": "Permettre de nouveau le jeu à {} les jours avec une alarme du coucher ?",
+        "bedtime_written": "Alarme du coucher modifiée.",
+        "bedtime_err": "Impossible de modifier l'alarme du coucher",
+        "bedtime_unknown": "PlayGuard ne trouve pas l'alarme du coucher de cette console là où il l'attend dans les réglages du temps de jeu : il ne la modifie donc pas. Utilisez l'application mobile, ou envoyez un rapport de diagnostic (Outils) pour qu'elle soit prise en charge.",
+        "bedtime_end_needs_alarm": "Activez d'abord l'alarme du coucher.",
         "section_advanced": "Avancé",
         "alarm": "Alarme « temps écoulé »",
         "alarm_on_body": "Réactiver l'alarme « temps écoulé » ?\n\nQuand la limite de temps de jeu sera atteinte, la console affichera de nouveau l'alarme, comme elle le fait par défaut.",
@@ -824,7 +836,8 @@
             "clock": "Horloge réseau réglée",
             "restore": "Sauvegarde restaurée",
             "rescue": "Récupération utilisée",
-            "console_lock": "Verrou de console"
+            "console_lock": "Verrou de console",
+            "bedtime": "Alarme du coucher"
         },
         "sources": {
             "uniform": "Même limite tous les jours",

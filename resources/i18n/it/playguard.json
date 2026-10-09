@@ -90,7 +90,8 @@
         "session_closed": "il sistema ha chiuso la sessione del filtro famiglia; riprova",
         "bad_pin_format": "il sistema ha rifiutato il formato del PIN",
         "pctl_refused": "rifiutato dal servizio del filtro famiglia",
-        "relock_failed": "la console è stata sbloccata ma non è stato possibile bloccarla di nuovo: bloccala ora (Sicurezza e app › Blocca ora)"
+        "relock_failed": "la console è stata sbloccata ma non è stato possibile bloccarla di nuovo: bloccala ora (Sicurezza e app › Blocca ora)",
+        "not_applied": "la console non ha accettato la modifica, quindi sono state ripristinate le impostazioni precedenti"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -249,12 +250,23 @@
         "profile_action_edit": "Modifica i limiti...",
         "profile_action_rename": "Rinomina...",
         "profile_edit_title": "Profilo: {}",
-        "section_bedtime": "Sogni d'oro (sola lettura)",
+        "section_bedtime": "Sogni d'oro",
         "bedtime": "Sogni d'oro",
         "bedtime_value_on": "{} (attivato)",
         "bedtime_value_off": "{} (disattivato)",
-        "bedtime_reset": "L'avviso termina alle",
-        "bedtime_note": "Per ora Sogni d'oro può essere modificato solo dall'app Filtro famiglia.",
+        "bedtime_reset": "Si può giocare di nuovo dalle",
+        "bedtime_note": "Vale per ogni giorno. All'ora di andare a letto la console mostra l'avviso, o sospende il software se l'app è impostata così, finché non si può giocare di nuovo. PlayGuard verifica che la console indichi il nuovo orario e, in caso contrario, ripristina le impostazioni precedenti.",
+        "bedtime_title": "Sogni d'oro, ogni giorno",
+        "bedtime_end_title": "Si può giocare di nuovo dalle (ogni giorno)",
+        "bedtime_summary": "{}, si può giocare di nuovo dalle {}",
+        "bedtime_varies": "Varia a seconda del giorno",
+        "bedtime_confirm": "Impostare Sogni d'oro alle {} ogni giorno?\n\nSi può giocare di nuovo dalle {}.",
+        "bedtime_confirm_off": "Disattivare Sogni d'oro per ogni giorno?",
+        "bedtime_end_confirm": "Permettere di giocare di nuovo dalle {} nei giorni con Sogni d'oro?",
+        "bedtime_written": "Sogni d'oro modificato.",
+        "bedtime_err": "Impossibile modificare Sogni d'oro",
+        "bedtime_unknown": "PlayGuard non trova l'avviso Sogni d'oro di questa console dove se lo aspetta nelle impostazioni del timer, quindi non lo modifica. Usa l'app o invia un rapporto di diagnostica (Strumenti) perché possa essere supportato.",
+        "bedtime_end_needs_alarm": "Attiva prima Sogni d'oro.",
         "section_advanced": "Avanzate",
         "alarm": "Avviso \"Tempo scaduto\"",
         "alarm_on_body": "Riattivare l'avviso \"Tempo scaduto\"?\n\nQuando verrà raggiunto il limite di tempo di gioco, la console mostrerà di nuovo l'avviso, come fa in modo predefinito.",
@@ -824,7 +836,8 @@
             "clock": "Orologio di rete impostato",
             "restore": "Backup ripristinato",
             "rescue": "Recupero usato",
-            "console_lock": "Blocco della console"
+            "console_lock": "Blocco della console",
+            "bedtime": "Sogni d'oro"
         },
         "sources": {
             "uniform": "Stesso limite ogni giorno",

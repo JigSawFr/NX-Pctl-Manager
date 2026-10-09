@@ -108,6 +108,7 @@ typedef struct {
     bool   valid;                 Result config_rc;    // 145601 GetPlayTimerSettings
     u16    day_min[7];            // Sun..Sat minutes or PT_DAY_NOLIMIT; meaningful only when valid
     u16    block[PT_U16_COUNT];   // the 0x44 block as read (backups keep it; pure.h)
+    PtBedtime bed[7];             // Sun..Sat bedtimes decoded from it; meaningful only when valid
     bool   enabled_valid;         Result enabled_rc;     bool enabled;     // 1453
     bool   restricted_valid;      Result restricted_rc;  bool restricted;  // 1455
     bool   temporary_unlocked_valid; Result temporary_unlocked_rc; bool temporary_unlocked; // 1006
@@ -139,6 +140,17 @@ void pctl_overview_fetch(PctlStatus *status, PtState *pt);
 Result pctl_play_timer_set_days(const u16 days_min[7]);
 Result pctl_play_timer_set_uniform(u16 minutes);
 Result pctl_play_timer_clear(void);
+
+// Bedtime, Sun..Sat (pure.h): written into the block read with 145601 (only
+// the bedtime bytes change), behind the same gate. The block layout is
+// inferred, so the write is checked: right after it, 1954/1956/1957 must
+// report the bedtime of `today` (0 = Sunday) or of the day before (after
+// midnight the console may still be on the evening's). Otherwise the block
+// read before is written back and NXM_RC_NOT_APPLIED returned (or the error
+// of that write back). Refuses (NXM_RC_STATE_UNKNOWN) when the block cannot
+// be read, NXM_RC_INVALID_ARGUMENT outside pt_bedtime_ok. Nothing is written
+// when the bedtimes already are these.
+Result pctl_play_timer_set_bedtime(const PtBedtime bed[7], int today);
 
 // Advanced (debug-class commands; exposed behind the "advanced" switch). Gated
 // as above.

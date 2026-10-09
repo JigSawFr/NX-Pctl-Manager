@@ -1,5 +1,5 @@
 // PlayTimerTab — daily limit (same for every day / extra time today / per day /
-// remove), saved profiles, read-only bedtime info and the advanced
+// remove), saved profiles, the bedtime alarm and the advanced
 // (debug-class) actions.
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once

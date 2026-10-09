@@ -68,4 +68,66 @@ Restore restore_action(const ExtraRecord& rec, const std::string& today, const P
     return Restore::Offer;
 }
 
+static bool reported(const PtState& pt, const PtBedtime& b)
+{
+    return b.on == pt.bedtime_enabled && (!b.on || (b.hour == pt.bedtime_hour && b.minute == pt.bedtime_minute));
+}
+
+bool bedtime_layout_ok(const PtState& pt, int weekday)
+{
+    if (weekday < 0 || weekday > 6 || !pt.fw_supported || !pt.valid || !pt.bedtime_valid) return false;
+    return reported(pt, pt.bed[weekday]) || reported(pt, pt.bed[(weekday + 6) % 7]);
+}
+
+static bool same(const PtBedtime& a, const PtBedtime& b)
+{
+    return a.on == b.on && (!a.on || (a.hour == b.hour && a.minute == b.minute && a.end_hour == b.end_hour &&
+                                      a.end_minute == b.end_minute));
+}
+
+bool bedtime_uniform(const PtState& pt, PtBedtime* out)
+{
+    if (!pt.valid) return false;
+    for (int n = 1; n < 7; n++)
+        if (!same(pt.bed[n], pt.bed[0])) return false;
+    if (out) *out = pt.bed[0];
+    return true;
+}
+
+static bool end_in_range(uint8_t hour, uint8_t minute)
+{
+    const int t = hour * 60 + minute;
+    return minute < 60 && t >= 5 * 60 && t <= 9 * 60;
+}
+
+void bedtime_every_day(const PtState& pt, bool on, uint8_t hour, uint8_t minute, PtBedtime out[7])
+{
+    for (int n = 0; n < 7; n++) {
+        PtBedtime b = pt.bed[n];
+        b.on = on;
+        b.hour = on ? hour : 0;
+        b.minute = on ? minute : 0;
+        if (on && !end_in_range(b.end_hour, b.end_minute)) {
+            b.end_hour = 6;
+            b.end_minute = 0;
+        }
+        out[n] = b;
+    }
+}
+
+bool bedtime_end_every_day(const PtState& pt, uint8_t hour, uint8_t minute, PtBedtime out[7])
+{
+    bool any = false;
+    for (int n = 0; n < 7; n++) any = any || pt.bed[n].on;
+    if (!any) return false;
+    for (int n = 0; n < 7; n++) {
+        out[n] = pt.bed[n];
+        if (out[n].on) {
+            out[n].end_hour = hour;
+            out[n].end_minute = minute;
+        }
+    }
+    return true;
+}
+
 }   // namespace pt_logic

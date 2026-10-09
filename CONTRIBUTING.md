@@ -31,7 +31,7 @@ Clone with submodules (`git clone --recursive`, or `git submodule update --init`
 | `PLAYGUARD_SIM_ALARM_OFF=1` | The "time's up" alarm off |
 | `PLAYGUARD_SIM_ACCURATE=1` | An accurate network clock |
 | `PLAYGUARD_SIM_AUTOSYNC_OFF=1` | *Synchronise Clock via Internet* off |
-| `PLAYGUARD_SIM_FAIL=timer,clock,unverified` | Failures: the play-timer write, setting the clock, an unlock the system does not confirm |
+| `PLAYGUARD_SIM_FAIL=timer,clock,unverified,bedtime` | Failures: the play-timer write, setting the clock, an unlock the system does not confirm, a bedtime the console does not take |
 | `PLAYGUARD_SIM_EMUMMC=1` | Running on emuMMC |
 | `PLAYGUARD_SIM_BLANK=1` | Atmosphère blanking the serial number |
 | `PLAYGUARD_SIM_APPLET=1` | Applet (album) mode |

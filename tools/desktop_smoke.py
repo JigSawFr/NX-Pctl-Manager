@@ -3,7 +3,7 @@
 
 Starts build-desktop/playguard on an X display (Xvfb), opens every tab, the
 extra-time picker, the per-day editor (the week chart's day picker and the
-number pad), the settings backup, a game's screen in the Activity tab and its
+number pad), a bedtime alarm change, the settings backup, a game's screen in the Activity tab and its
 PDF export, and fails if the app dies on the way (borealis throws on unknown
 XML attributes, missing views, …) or the export is missing. Screenshots of
 each screen are written to the output folder.
@@ -392,6 +392,20 @@ shot("23_discard")
 key("Right")               # Discard
 key("Return")
 shot("23_back")
+
+# Bedtime: the alarm picker (on 21:00), 21:30, confirmed with the unlock the
+# running timer needs; the tab must then show it.
+key("Down", 3)             # past Remove and Profiles…: Bedtime alarm
+key("Return")
+shot("23_bedtime_picker")
+key("Down", 2)             # 21:30
+key("Return")
+shot("23_bedtime_confirm")
+key("Right")               # Unlock and apply
+key("Return")
+shot("23_bedtime_done")
+if not any(m.startswith("Bedtime alarm changed.") for m in messages()):
+    fail("the bedtime alarm was not changed: " + repr(messages()[-3:]))
 
 # Settings backup: save one, open the list and the restore summary (cancelled).
 key("Left")                # back to the sidebar

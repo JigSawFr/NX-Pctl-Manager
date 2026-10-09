@@ -451,6 +451,7 @@ static void pt_read_core(Service *srv, PtState *out)
     if (R_SUCCEEDED(out->config_rc)) {
         out->valid = true;
         pt_decode(c, out->day_min);
+        pt_bedtime_decode(c, out->bed);
         memcpy(out->block, c, sizeof(out->block));
     }
 
@@ -574,6 +575,63 @@ Result pctl_play_timer_clear(void)
     u16 d[7];
     for (int i = 0; i < 7; i++) d[i] = PT_DAY_NOLIMIT;
     return pctl_play_timer_set_days(d);
+}
+
+// What 1954/1956/1957 report is `b` (the time only matters while it is on).
+static bool bedtime_reported(const PtBedtime *b, bool on, u8 h, u8 m)
+{
+    return on == b->on && (!on || (h == b->hour && m == b->minute));
+}
+
+Result pctl_play_timer_set_bedtime(const PtBedtime bed[7], int today)
+{
+    pctl_ops_exit();   // nothing held while the PIN check may show its applet
+    Result gate = core_change_allowed();
+    if (R_FAILED(gate)) return gate;
+    if (!pt_fw_supported()) return NXM_RC_FW_UNSUPPORTED;
+    if (today < 0 || today > 6) return NXM_RC_INVALID_ARGUMENT;
+    for (int n = 0; n < 7; n++)
+        if (!pt_bedtime_ok(&bed[n])) return NXM_RC_INVALID_ARGUMENT;
+
+    Result rc = pctl_ops_reinit();
+    if (R_FAILED(rc)) return rc;
+    Service *srv = pctlGetServiceSession_Service();
+    rc = pt_write_gate(srv, NULL);
+    if (R_FAILED(rc)) {
+        pctl_ops_exit();
+        return rc;
+    }
+
+    // Only ever from the block as it is: a zeroed one would wipe the limits.
+    u16 before[PT_U16_COUNT], c[PT_U16_COUNT];
+    memset(before, 0, sizeof(before));
+    if (R_FAILED(serviceDispatchOut(srv, 145601, before))) {
+        pctl_ops_exit();
+        return NXM_RC_STATE_UNKNOWN;
+    }
+    memcpy(c, before, sizeof(c));
+    pt_bedtime_encode(c, bed);
+    if (memcmp(c, before, sizeof(c)) == 0) {
+        pctl_ops_exit();
+        return 0;
+    }
+    rc = serviceDispatchIn(srv, 195101, c);
+    if (R_FAILED(rc)) {
+        pctl_ops_exit();
+        return rc;
+    }
+
+    bool on = false;
+    u8 h = 0, m = 0;
+    const bool read = R_SUCCEEDED(rd_bool(srv, 1954, &on)) && R_SUCCEEDED(rd_u8(srv, 1956, &h)) &&
+                      R_SUCCEEDED(rd_u8(srv, 1957, &m));
+    if (read && (bedtime_reported(&bed[today], on, h, m) || bedtime_reported(&bed[(today + 6) % 7], on, h, m))) {
+        pctl_ops_exit();
+        return 0;
+    }
+    rc = serviceDispatchIn(srv, 195101, before);
+    pctl_ops_exit();
+    return R_FAILED(rc) ? rc : NXM_RC_NOT_APPLIED;
 }
 
 Result pctl_play_timer_set_alarm_disabled(bool disabled)
@@ -764,6 +822,13 @@ void pctl_dump(char *buf, size_t bufsz)
               else rep(&p, e, " -");
           }
           rep(&p, e, "   header=%04X %04X\n", c[0], c[1]);
+          PtBedtime bt[7];
+          pt_bedtime_decode(c, bt);
+          rep(&p, e, "decoded bedtime Sun..Sat (alarm/allowed again):");
+          for (int n = 0; n < 7; n++)
+              rep(&p, e, " %s%02u:%02u/%02u:%02u", bt[n].on ? "" : "off ", bt[n].hour, bt[n].minute,
+                  bt[n].end_hour, bt[n].end_minute);
+          rep(&p, e, "\n");
       } }
 
     if (hosversionAtLeast(20, 0, 0)) {

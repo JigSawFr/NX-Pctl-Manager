@@ -90,7 +90,8 @@
         "session_closed": "the system closed the parental-control session; try again",
         "bad_pin_format": "the system rejected the PIN format",
         "pctl_refused": "refused by the parental-control service",
-        "relock_failed": "the console was unlocked but could not be locked again: lock it now (Security & app › Lock now)"
+        "relock_failed": "the console was unlocked but could not be locked again: lock it now (Security & app › Lock now)",
+        "not_applied": "the console did not take the change, so the previous settings were put back"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -249,12 +250,23 @@
         "profile_action_edit": "Edit the limits...",
         "profile_action_rename": "Rename...",
         "profile_edit_title": "Profile: {}",
-        "section_bedtime": "Bedtime (read-only)",
+        "section_bedtime": "Bedtime",
         "bedtime": "Bedtime alarm",
         "bedtime_value_on": "{} (on)",
         "bedtime_value_off": "{} (off)",
-        "bedtime_reset": "Alarm resets at",
-        "bedtime_note": "The bedtime alarm can only be changed from the companion app for now.",
+        "bedtime_reset": "Play allowed again at",
+        "bedtime_note": "Applies to every day. At bedtime the console shows the alarm, or suspends the software if the companion app is set to, until play is allowed again. PlayGuard checks that the console reports the new time, and puts the previous settings back if it does not.",
+        "bedtime_title": "Bedtime alarm, every day",
+        "bedtime_end_title": "Play allowed again at (every day)",
+        "bedtime_summary": "{}, play allowed again at {}",
+        "bedtime_varies": "Varies by day",
+        "bedtime_confirm": "Set the bedtime alarm to {} every day?\n\nPlay is allowed again at {}.",
+        "bedtime_confirm_off": "Turn off the bedtime alarm for every day?",
+        "bedtime_end_confirm": "Allow play again at {} on every day with a bedtime alarm?",
+        "bedtime_written": "Bedtime alarm changed.",
+        "bedtime_err": "Could not change the bedtime alarm",
+        "bedtime_unknown": "PlayGuard does not find this console's bedtime alarm where it expects it in the play-timer settings, so it does not change it. Use the companion app, or send a diagnostic report (Tools) so it can be supported.",
+        "bedtime_end_needs_alarm": "Turn on the bedtime alarm first.",
         "section_advanced": "Advanced",
         "alarm": "\"Time's up\" alarm",
         "alarm_on_body": "Turn the \"Time's up\" alarm back on?\n\nWhen the play-time limit is reached, the console will show the alarm again, as it does by default.",
@@ -824,7 +836,8 @@
             "clock": "Network clock set",
             "restore": "Backup restored",
             "rescue": "Recovery used",
-            "console_lock": "Console lock"
+            "console_lock": "Console lock",
+            "bedtime": "Bedtime alarm"
         },
         "sources": {
             "uniform": "Same limit every day",

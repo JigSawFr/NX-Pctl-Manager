@@ -163,6 +163,56 @@ static void test_restore()
     assert(pt_logic::restore_action(rec, "2026-10-08", pt, false) == Restore::None);
 }
 
+static PtBedtime bed(bool on, uint8_t h, uint8_t m, uint8_t eh, uint8_t em)
+{
+    PtBedtime b;
+    b.on = on; b.hour = h; b.minute = m; b.end_hour = eh; b.end_minute = em;
+    return b;
+}
+
+static void test_bedtime()
+{
+    // The block says 21:00 on Wednesday (3), off on Tuesday; the console reports 21:00.
+    PtState pt = counting();
+    for (auto& b : pt.bed) b = bed(false, 0, 0, 0, 0);
+    pt.bed[3] = bed(true, 21, 0, 7, 0);
+    pt.bedtime_valid = pt.bedtime_enabled = true;
+    pt.bedtime_hour = 21;
+    assert(pt_logic::bedtime_layout_ok(pt, 3));
+    assert(pt_logic::bedtime_layout_ok(pt, 4));    // after midnight: the evening before
+    assert(!pt_logic::bedtime_layout_ok(pt, 5));
+    assert(!pt_logic::bedtime_layout_ok(pt, 7));
+    pt.bedtime_minute = 30;                        // reported 21:30: not what the block holds
+    assert(!pt_logic::bedtime_layout_ok(pt, 3));
+    pt.bedtime_enabled = false;                    // off everywhere it is checked: the time does not matter
+    assert(pt_logic::bedtime_layout_ok(pt, 1));
+    pt.bedtime_valid = false;
+    assert(!pt_logic::bedtime_layout_ok(pt, 1));
+    pt.bedtime_valid = true;
+    pt.valid = false;
+    assert(!pt_logic::bedtime_layout_ok(pt, 1));
+    pt.valid = true;
+
+    PtBedtime u;
+    assert(!pt_logic::bedtime_uniform(pt, &u));
+    PtBedtime out[7];
+    pt_logic::bedtime_every_day(pt, true, 20, 45, out);
+    for (int n = 0; n < 7; n++) assert(out[n].on && out[n].hour == 20 && out[n].minute == 45);
+    assert(out[3].end_hour == 7 && out[0].end_hour == 6 && out[0].end_minute == 0);   // 00:00 out of range: 06:00
+    for (int n = 0; n < 7; n++) pt.bed[n] = out[n];
+    assert(!pt_logic::bedtime_uniform(pt, &u));    // Wednesday still ends at 07:00
+    assert(pt_logic::bedtime_end_every_day(pt, 8, 15, out));
+    for (int n = 0; n < 7; n++) assert(out[n].end_hour == 8 && out[n].end_minute == 15 && out[n].hour == 20);
+    for (int n = 0; n < 7; n++) pt.bed[n] = out[n];
+    assert(pt_logic::bedtime_uniform(pt, &u) && u.on && u.end_hour == 8);
+
+    pt_logic::bedtime_every_day(pt, false, 22, 0, out);
+    for (int n = 0; n < 7; n++) assert(!out[n].on && out[n].hour == 0 && out[n].end_hour == 8);
+    for (int n = 0; n < 7; n++) pt.bed[n] = out[n];
+    assert(pt_logic::bedtime_uniform(pt, &u) && !u.on);
+    assert(!pt_logic::bedtime_end_every_day(pt, 7, 0, out));   // no bedtime on
+}
+
 int main()
 {
     test_gate();
@@ -171,6 +221,7 @@ int main()
     test_extra();
     test_stop();
     test_restore();
-    std::puts("pt_logic gate, played time, suspend warning, extra time and no-more-play assertions passed");
+    test_bedtime();
+    std::puts("pt_logic gate, played time, suspend warning, extra time, no-more-play and bedtime assertions passed");
     return 0;
 }

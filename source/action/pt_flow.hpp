@@ -102,6 +102,19 @@ Result write_alarm_disabled(bool disabled, const std::string& source);
 // through confirm_write.
 void set_countdown(bool running, std::function<void()> refresh);
 
+// Bedtime, for every day. choose_bedtime: the alarm (16:00 to 23:45, or
+// off); choose_bedtime_end: when play is allowed again (05:00 to 09:00), on
+// the days whose alarm is on. Both refuse while the block's bedtime is not
+// what the console reports (pt_logic::bedtime_layout_ok), then go through
+// confirm_write and write_bedtime.
+void choose_bedtime(const PtState& pt, std::function<void()> refresh);
+void choose_bedtime_end(const PtState& pt, std::function<void()> refresh);
+// Writes the bedtimes (pctl_play_timer_set_bedtime, checked by the console's
+// answer) and records the change in the history with `source`.
+Result write_bedtime(const PtBedtime bed[7], const std::string& source);
+// "21:00, allowed again at 06:00", "Off", or "Varies by day".
+std::string bedtime_text(const PtState& pt);
+
 // At start-up: the app stopped between an unlock made for a change and the
 // lock that follows it (config relock_pending) -> lock again now, with a toast.
 // The record stays until the console reads back as locked. Also called when

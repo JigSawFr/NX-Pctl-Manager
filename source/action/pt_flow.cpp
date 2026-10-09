@@ -3,6 +3,7 @@
 
 #include <array>
 #include <borealis.hpp>
+#include <fmt/format.h>
 
 #include "action/console_lock.hpp"
 #include "action/history_flow.hpp"
@@ -207,6 +208,123 @@ void finish_write(Result rc, bool did_unlock, const std::string& ok_text,
     ui::notify_result(rc, ok_text, error_prefix);
     if (refresh) refresh();
     offer_relock(refresh);
+}
+
+static std::string hm(int hour, int minute)
+{
+    return fmt::format("{:02d}:{:02d}", hour, minute);
+}
+
+static std::string bed_text(const PtBedtime& b)
+{
+    return b.on ? brls::getStr("playguard/play_timer/bedtime_summary", hm(b.hour, b.minute), hm(b.end_hour, b.end_minute))
+                : "playguard/common/off"_i18n;
+}
+
+std::string bedtime_text(const PtState& pt)
+{
+    PtBedtime b;
+    if (!pt_logic::bedtime_uniform(pt, &b)) return "playguard/play_timer/bedtime_varies"_i18n;
+    return bed_text(b);
+}
+
+Result write_bedtime(const PtBedtime bed[7], const std::string& source)
+{
+    PtState before;
+    pctl_play_timer_query(&before);
+    const Result rc = pctl_play_timer_set_bedtime(bed, ui::today_weekday());
+    if (R_SUCCEEDED(rc) && before.valid) {
+        PtState after = before;
+        for (int n = 0; n < 7; n++) after.bed[n] = bed[n];
+        const std::string from = bedtime_text(before), to = bedtime_text(after);
+        if (from != to) history_flow::record_event("bedtime", source, from + " → " + to);
+    }
+    return rc;
+}
+
+// The bedtime can be changed from this state; says why not otherwise.
+static bool bedtime_editable(const PtState& pt)
+{
+    if (ui::refuse_read_only()) return false;
+    if (!pt.fw_supported) {
+        ui::notify(ui::rc_text(NXM_RC_FW_UNSUPPORTED));
+        return false;
+    }
+    if (!pt_logic::bedtime_layout_ok(pt, ui::today_weekday())) {
+        ui::info("playguard/play_timer/bedtime_unknown"_i18n);
+        return false;
+    }
+    return true;
+}
+
+static void apply_bedtime(const std::array<PtBedtime, 7>& bed, const std::string& body, std::function<void()> refresh)
+{
+    confirm_write(body, "playguard/play_timer/confirm_set"_i18n, [bed, refresh](bool did_unlock) {
+        Result rc = write_bedtime(bed.data(), "");
+        finish_write(rc, did_unlock, "playguard/play_timer/bedtime_written"_i18n,
+                     "playguard/play_timer/bedtime_err"_i18n, refresh);
+    });
+}
+
+void choose_bedtime(const PtState& pt, std::function<void()> refresh)
+{
+    if (!bedtime_editable(pt)) return;
+    // Off, then 16:00 to 23:45 every quarter of an hour.
+    std::vector<std::string> labels = { "playguard/common/off"_i18n };
+    std::vector<int> times = { -1 };
+    for (int t = 16 * 60; t < 24 * 60; t += 15) {
+        labels.push_back(hm(t / 60, t % 60));
+        times.push_back(t);
+    }
+    PtBedtime now;
+    int selected = 0;
+    if (pt_logic::bedtime_uniform(pt, &now) && now.on) {
+        selected = -1;
+        for (size_t i = 1; i < times.size(); i++)
+            if (times[i] == now.hour * 60 + now.minute) selected = (int)i;
+        if (selected < 0) selected = 0;
+    } else if (!pt_logic::bedtime_uniform(pt, nullptr)) {
+        selected = 21 * 4 - 16 * 4 + 1;   // days differ: start on 21:00
+    }
+    const PtState copy = pt;
+    ui::pick("playguard/play_timer/bedtime_title"_i18n, labels, selected, [copy, times, refresh](int index) {
+        const int t = times[(size_t)index];
+        std::array<PtBedtime, 7> bed;
+        pt_logic::bedtime_every_day(copy, t >= 0, (uint8_t)(t >= 0 ? t / 60 : 0), (uint8_t)(t >= 0 ? t % 60 : 0), bed.data());
+        const std::string body = t < 0 ? "playguard/play_timer/bedtime_confirm_off"_i18n
+                                       : brls::getStr("playguard/play_timer/bedtime_confirm", hm(t / 60, t % 60),
+                                                      hm(bed[0].end_hour, bed[0].end_minute));
+        apply_bedtime(bed, body, refresh);
+    });
+}
+
+void choose_bedtime_end(const PtState& pt, std::function<void()> refresh)
+{
+    if (!bedtime_editable(pt)) return;
+    std::array<PtBedtime, 7> probe;
+    if (!pt_logic::bedtime_end_every_day(pt, 6, 0, probe.data())) {
+        ui::info("playguard/play_timer/bedtime_end_needs_alarm"_i18n);
+        return;
+    }
+    // 05:00 to 09:00 every quarter of an hour.
+    std::vector<std::string> labels;
+    std::vector<int> times;
+    for (int t = 5 * 60; t <= 9 * 60; t += 15) {
+        labels.push_back(hm(t / 60, t % 60));
+        times.push_back(t);
+    }
+    PtBedtime now;
+    int selected = 4;   // 06:00
+    if (pt_logic::bedtime_uniform(pt, &now))
+        for (size_t i = 0; i < times.size(); i++)
+            if (times[i] == now.end_hour * 60 + now.end_minute) selected = (int)i;
+    const PtState copy = pt;
+    ui::pick("playguard/play_timer/bedtime_end_title"_i18n, labels, selected, [copy, times, refresh](int index) {
+        const int t = times[(size_t)index];
+        std::array<PtBedtime, 7> bed;
+        pt_logic::bedtime_end_every_day(copy, (uint8_t)(t / 60), (uint8_t)(t % 60), bed.data());
+        apply_bedtime(bed, brls::getStr("playguard/play_timer/bedtime_end_confirm", hm(t / 60, t % 60)), refresh);
+    });
 }
 
 static void apply_uniform(uint16_t minutes, std::function<void()> refresh)
