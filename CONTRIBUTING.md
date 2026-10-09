@@ -1,0 +1,99 @@
+# Contributing to PlayGuard
+
+Thanks for helping! This file covers building, testing, the code layout, releases and translations. For what the app does, see the [README](README.md).
+
+## Build from source
+
+| Command | What it does | Needs |
+|---|---|---|
+| `make test` | Unit tests of the C service layer, with ASan + UBSan (`SAN=` to turn them off) | Any gcc — no devkitPro |
+| `make desktop` | The real UI on Linux, against a simulated console | GLFW / X11 / D-Bus dev packages |
+| `make` | `./playguard.nro` — drawn with deko3d (`GL=1` for OpenGL) | devkitPro `switch-dev`, `DEVKITPRO` set |
+| `make dist` | `./playguard.zip` (SD-card layout) | as above |
+| `make dist-rescue` | `./playguard-rescue.zip`, the optional recovery sysmodule | as above |
+| `./run.sh [ip]` | Builds in the `devkitpro/devkita64` Docker image, optionally `nxlink`s to a console | Docker |
+
+Clone with submodules (`git clone --recursive`, or `git submodule update --init`): borealis is pinned at `extern/borealis/`.
+
+## The desktop simulator
+
+`make desktop` runs the real borealis UI against `source/sim/`, a simulated console. Environment knobs:
+
+| Variable | Simulates |
+|---|---|
+| `PLAYGUARD_SIM_FW=20.5.0` | Another firmware (default 23.0.1) |
+| `PLAYGUARD_SIM_NO_CFW=1` | No Atmosphère |
+| `PLAYGUARD_SIM_NOT_SET_UP=1` | Parental controls never set up (no PIN) |
+| `PLAYGUARD_SIM_TIMER_OFF=1` | No play-time limit |
+| `PLAYGUARD_SIM_RESTRICTED=1` | Today's limit reached |
+| `PLAYGUARD_SIM_UNLOCKED=1` | Parental controls temporarily unlocked |
+| `PLAYGUARD_SIM_UNPAIRED=1` | No companion app linked |
+| `PLAYGUARD_SIM_ALARM_OFF=1` | The "time's up" alarm off |
+| `PLAYGUARD_SIM_ACCURATE=1` | An accurate network clock |
+| `PLAYGUARD_SIM_AUTOSYNC_OFF=1` | *Synchronise Clock via Internet* off |
+| `PLAYGUARD_SIM_FAIL=timer,clock,unverified` | Failures: the play-timer write, setting the clock, an unlock the system does not confirm |
+| `PLAYGUARD_SIM_EMUMMC=1` | Running on emuMMC |
+| `PLAYGUARD_SIM_BLANK=1` | Atmosphère blanking the serial number |
+| `PLAYGUARD_SIM_APPLET=1` | Applet (album) mode |
+| `PLAYGUARD_SIM_NO_PDM=1` | No activity log |
+| `PLAYGUARD_SIM_IDLE=1` | No game running |
+| `PLAYGUARD_SIM_BACKGROUND=1` | PlayGuard out of focus |
+| `PLAYGUARD_SIM_REGION=2` | The console region |
+| `PLAYGUARD_SIM_LATEST=1.1.0:24.0.0` | The latest release and the newest firmware it supports, for the update check (`offline` for no network) |
+| `PLAYGUARD_SIM_HBLOADER=1` | A homebrew loader that can hand an update over to a store |
+| `PLAYGUARD_SIM_NUMPAD=1:30` | What the system number pad returns |
+| `PLAYGUARD_SIM_NOW=<POSIX seconds>` | A frozen console time (with `TZ=` for its time zone) |
+
+Game patches are read from `./playguard_data/sd/`, the simulated SD card root.
+
+## Tests and CI
+
+- `make test` — host unit tests (`tests/`, see [`tests/README.md`](tests/README.md)), including the recovery sysmodule logic (`tests/rescue/`).
+- `tools/desktop_smoke.py <out-dir> [gate|errors]` — clicks through every screen of the desktop build headlessly (needs `DISPLAY`, `xdotool`, ImageMagick) and saves screenshots. The `gate` scenario covers the firmware screen and developer mode on a simulated 24.0.0; `errors` covers a failed unlock and an unsettable clock.
+- `tools/visual_check.py` — compares those screenshots with the references in `tests/visual/`. A difference is reported as a warning, not a failure; see [`tests/visual/README.md`](tests/visual/README.md) to update them.
+- `python3 tools/check_resources.py .` — checks the XML layouts and translation catalogs.
+
+CI runs all of the above plus the Switch build.
+
+## Code layout
+
+| Path | Content |
+|---|---|
+| `source/core/` | C, libnx: `pctl_ops`, `time_ops`, `sysinfo`, `playstats`, `rescue` |
+| `source/tab/` | One class per tab |
+| `source/action/` | Flows: play-timer write, clock, settings restore, firmware screen, updates |
+| `source/activity/` | Screens: per-day editor, profiles, a game, first steps, change history, firmware |
+| `source/view/` | Widgets: the week chart, the gauge, the day bars, the game cell |
+| `source/ui/` | Dialogs, formatting, theme colours |
+| `source/util/` | NTP, config, profiles, settings backups, change history, play-log folding, table export, diagnostics, update check, store launcher |
+| `source/sim/` | The simulated console for the desktop build |
+| `resources/` | XML layouts and `i18n/<language>/playguard.json` |
+| `sysmodule/` | The optional recovery boot sysmodule; shares `source/core/rescue.c` with the app. See [`sysmodule/README.md`](sysmodule/README.md) |
+| `packaging/` | Store and sphaira entries. See [`packaging/README.md`](packaging/README.md) |
+| `branding/` | SVG sources of the icon and banners |
+
+**Branding:** `branding/*.svg` are rendered to `icon.jpg` and `images/store/*.png` by `node tools/render_branding.mjs` (Node + Playwright).
+
+## Pull requests and releases
+
+Releases are automated with [release-please](https://github.com/googleapis/release-please), which reads [conventional commits](https://www.conventionalcommits.org/):
+
+- Give each pull request a conventional title (`feat: …`, `fix: …`, `docs: …`, `feat!: …` for a breaking change); CI checks it.
+- **Squash-merge** pull requests, so each one lands as a single commit carrying that title. A plain merge commit makes release-please apply a PR's `BEGIN_COMMIT_OVERRIDE` block to every commit of the PR.
+- release-please keeps a `chore(main): release X.Y.Z` PR open; merging it tags the release and attaches the `.nro` / `.zip`.
+
+Each release also publishes `compat.json` (`tools/gen_compat.py`: the version and the newest checked firmware), which the app's update check reads, plus `build-info.txt` and `SHA256SUMS.txt`. Details in [`packaging/README.md`](packaging/README.md). The `.nro`, both `.zip` and `compat.json` also carry a [build provenance attestation](https://docs.github.com/actions/security-for-github-actions/using-artifact-attestations): `gh attestation verify playguard.nro -R JigSawFr/PlayGuard` checks that a download was built by this repository's CI.
+
+When a change is visible to users, update **both** [README.md](README.md) and [README.fr.md](README.fr.md).
+
+## Translating PlayGuard
+
+PlayGuard is translated into every language the console offers: English, French (France and Canada), German, Spanish (Spain and Latin America), Italian, Dutch, Portuguese (Portugal and Brazil), Russian, Japanese, Korean and Chinese (simplified and traditional). It follows the console's language unless *Preferences › Language* picks another one. British English consoles get the English strings, already in British spelling (`CMakeLists.txt` copies them under `en-GB`). Fixes from native speakers are welcome.
+
+To add a language:
+
+1. Copy `resources/i18n/en-US/playguard.json` to `resources/i18n/<code>/playguard.json` (`<code>` as the console names its language, see `brls::LOCALE_*`) and translate the values. Keep every key, and as many `{}` placeholders as the English text, in the same order.
+2. Add `<code>` to `config::LANGUAGES` in `source/util/config.hpp` (the language picker and the saved preference use that list).
+3. Add the language's own name under `"tools" › "languages"` in **every** `playguard.json` (`"ru": "Русский"`). A regional variant (`fr-CA`, `es-419`, `pt-BR`) is a full catalog of its own: borealis falls back to English, not to the base language.
+4. Optionally add `resources/i18n/<code>/hints.json` for borealis' button hints when borealis has none for that language (see `resources/i18n/fr/hints.json`); missing strings fall back to English.
+5. Run `python3 tools/check_resources.py .`: it reports missing or extra keys, placeholder mismatches and a language missing from the picker. CI runs the same check.

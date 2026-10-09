@@ -1,0 +1,51 @@
+name: New firmware
+description: PlayGuard opens read-only, or misbehaves, on a firmware it does not support yet.
+labels: [firmware]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        On a firmware newer than the ones it was checked against, PlayGuard opens
+        **read-only** on purpose: it will not write the play timer until the layout is
+        confirmed. Developer mode (press *Tools & about › Version* seven times) adds
+        **Compare the play-timer block**, which shows what changed — attach its file below.
+
+  - type: input
+    id: firmware
+    attributes:
+      label: Firmware
+      placeholder: 24.0.0
+    validations:
+      required: true
+
+  - type: input
+    id: atmosphere
+    attributes:
+      label: Atmosphère version
+      placeholder: 1.13.0
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: PlayGuard version
+      placeholder: 1.0.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: observed
+    attributes:
+      label: What you see
+      description: The firmware screen's message, and whatever works or does not with read-only off (if you tried).
+    validations:
+      required: true
+
+  - type: textarea
+    id: files
+    attributes:
+      label: Diagnostic report and play-timer comparison
+      description: Drag the files from `sd:/switch/playguard/logs/` here.
+    validations:
+      required: true

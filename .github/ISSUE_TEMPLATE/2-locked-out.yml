@@ -1,0 +1,48 @@
+name: Locked out
+description: A second-hand console with a PIN you do not know, or a PIN you forgot.
+labels: [locked-out]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing: the [Locked out?](https://github.com/JigSawFr/PlayGuard#locked-out-second-hand-console-forgotten-pin)
+        section of the README covers the usual cases, including the optional recovery
+        sysmodule for a limit that blocks every program.
+
+        **Never post the PIN or the console's serial number here.** This issue is public.
+
+  - type: dropdown
+    id: situation
+    attributes:
+      label: Situation
+      options:
+        - Second-hand console, the previous owner's PIN or companion app
+        - I forgot the PIN, PlayGuard still opens
+        - I forgot the PIN and the limit blocks everything (HOME menu, Album)
+        - Something else (describe below)
+    validations:
+      required: true
+
+  - type: textarea
+    id: tried
+    attributes:
+      label: What you tried
+      description: The README steps you followed, and where they stopped working.
+    validations:
+      required: true
+
+  - type: input
+    id: firmware
+    attributes:
+      label: Firmware and Atmosphère version
+      placeholder: 23.0.1, Atmosphère 1.12.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: report
+    attributes:
+      label: Diagnostic report or rescue report
+      description: |
+        If PlayGuard opens: the diagnostic report from `sd:/switch/playguard/logs/`. If the
+        recovery sysmodule ran: `sd:/switch/playguard/rescue_report.txt`.
