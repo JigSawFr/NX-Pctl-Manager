@@ -12,6 +12,7 @@
 /*
  * Command IDs for IParentalControlService.
  * Reference: https://switchbrew.org/wiki/Parental_Control_services
+ * What was found on hardware is gathered in docs/parental-controls.md.
  * Checked against the command table up to 23.0.1 (no ID used here changed
  * between 21.0.0 and 23.0.1; 23.0.0 only *added* 1023/1412/1460/2025-2027/9407).
  *
@@ -44,7 +45,8 @@
  *   1451 StartPlayTimer / 1452 StopPlayTimer (no args)
  *   1453 IsPlayTimerEnabled -> bool  1454 GetPlayTimerRemainingTime -> TimeSpan(ns)
  *   1455 IsRestrictedByPlayTimer -> bool   1458 IsPlayTimerAlarmDisabled -> bool [4.0.0+]
- *   1459 GetPlayTimerRemainingTimeDisplayInfo [20.0.0+] (0x20 bytes, layout unknown)
+ *   1459 GetPlayTimerRemainingTimeDisplayInfo [20.0.0+] (0x20 bytes: u8 at 0, 2 with a limit
+ *        today; the remaining ns at 0x10, as 1454 — docs/parental-controls.md)
  *   1460 GetWatcherStatusDisplayInfo [23.0.0+] (in 1 byte, out 0x18 bytes, layout unknown)
  *   1941 DeletePairing (no args) privileged
  *   1952 GetPlayTimerSpentTimeForTest -> TimeSpan   1953 SetPlayTimerAlarmDisabledForDebug <- bool
