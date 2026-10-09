@@ -1,6 +1,6 @@
 # Contributing to PlayGuard
 
-Thanks for helping! This file covers building, testing, the code layout, releases and translations. For what the app does, see the [README](README.md).
+Thanks for helping! This file covers building, testing, the code layout, releases and translations. For what the app does, see the [README](README.md); for what to work on, the [roadmap](ROADMAP.md).
 
 ## Build from source
 

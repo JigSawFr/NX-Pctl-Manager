@@ -260,7 +260,7 @@ Press *About › Version* seven times; the developer tools appear at the end of 
 
 ## Contributing
 
-Build instructions, the desktop simulator, the code layout, the release process and how to translate PlayGuard are in **[CONTRIBUTING.md](CONTRIBUTING.md)**.
+Build instructions, the desktop simulator, the code layout, the release process and how to translate PlayGuard are in **[CONTRIBUTING.md](CONTRIBUTING.md)**. What comes next, and the ideas waiting for a decision: **[ROADMAP.md](ROADMAP.md)**.
 
 Quick taste:
 
