@@ -118,9 +118,18 @@ jobs:
   # toolchain; to move to a newer devkitPro, replace the digest (from
   # `docker buildx imagetools inspect devkitpro/devkita64:latest`) here and in
   # "Build identity" below.
+  # The image is pulled before any step runs, and Docker Hub's anonymous limit
+  # (per runner IP, shared with every other job on it) can refuse it. With the
+  # DOCKERHUB_USERNAME and DOCKERHUB_TOKEN secrets (a read-only access token)
+  # the pull is made logged in; where secrets are missing (a fork's pull request,
+  # Dependabot) the runner skips the login and pulls anonymously as before.
   switch:
     runs-on: ubuntu-latest
-    container: devkitpro/devkita64@sha256:1fc388c3a0d34bd2045a6dadcb1020e069d5f876a187fd705de14b4440c00282
+    container:
+      image: devkitpro/devkita64@sha256:1fc388c3a0d34bd2045a6dadcb1020e069d5f876a187fd705de14b4440c00282
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     env:
       CMAKE_C_COMPILER_LAUNCHER: ccache
       CMAKE_CXX_COMPILER_LAUNCHER: ccache
