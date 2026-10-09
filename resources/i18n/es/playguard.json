@@ -90,7 +90,8 @@
         "session_closed": "el sistema ha cerrado la sesión del control parental; inténtelo de nuevo",
         "bad_pin_format": "el sistema ha rechazado el formato del PIN",
         "pctl_refused": "rechazado por el servicio de control parental",
-        "relock_failed": "la consola se desbloqueó pero no se pudo volver a bloquear: bloquéala ahora (Seguridad y app › Bloquear ahora)"
+        "relock_failed": "la consola se desbloqueó pero no se pudo volver a bloquear: bloquéala ahora (Seguridad y app › Bloquear ahora)",
+        "not_applied": "la consola no ha aceptado el cambio, así que se ha restablecido la configuración anterior"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -249,12 +250,23 @@
         "profile_action_edit": "Editar los límites...",
         "profile_action_rename": "Cambiar nombre...",
         "profile_edit_title": "Perfil: {}",
-        "section_bedtime": "Hora de dormir (solo lectura)",
+        "section_bedtime": "Hora de dormir",
         "bedtime": "Alarma de hora de dormir",
         "bedtime_value_on": "{} (activada)",
         "bedtime_value_off": "{} (desactivada)",
-        "bedtime_reset": "La alarma se restablece a las",
-        "bedtime_note": "Por ahora, la alarma de hora de dormir solo se puede cambiar desde la app para móvil.",
+        "bedtime_reset": "Se puede volver a jugar a las",
+        "bedtime_note": "Se aplica a todos los días. A la hora de dormir, la consola muestra la alarma, o suspende el programa si la aplicación está configurada así, hasta que se pueda volver a jugar. PlayGuard comprueba que la consola indica la nueva hora y, si no, restablece la configuración anterior.",
+        "bedtime_title": "Alarma de hora de dormir, todos los días",
+        "bedtime_end_title": "Se puede volver a jugar a las (todos los días)",
+        "bedtime_summary": "{}, se puede volver a jugar a las {}",
+        "bedtime_varies": "Varía según el día",
+        "bedtime_confirm": "¿Poner la alarma de hora de dormir a las {} todos los días?\n\nSe puede volver a jugar a las {}.",
+        "bedtime_confirm_off": "¿Desactivar la alarma de hora de dormir para todos los días?",
+        "bedtime_end_confirm": "¿Permitir volver a jugar a las {} los días con alarma de hora de dormir?",
+        "bedtime_written": "Alarma de hora de dormir cambiada.",
+        "bedtime_err": "No se ha podido cambiar la alarma de hora de dormir",
+        "bedtime_unknown": "PlayGuard no encuentra la alarma de hora de dormir de esta consola donde la espera en la configuración del temporizador, así que no la cambia. Usa la aplicación o envía un informe de diagnóstico (Herramientas) para que se pueda admitir.",
+        "bedtime_end_needs_alarm": "Activa primero la alarma de hora de dormir.",
         "section_advanced": "Avanzado",
         "alarm": "Alarma de «Se acabó el tiempo»",
         "alarm_on_body": "¿Volver a activar la alarma de «Se acabó el tiempo»?\n\nCuando se alcance el límite de tiempo de juego, la consola volverá a mostrar la alarma, como hace de forma predeterminada.",
@@ -824,7 +836,8 @@
             "clock": "Reloj de red ajustado",
             "restore": "Copia restaurada",
             "rescue": "Recuperación usada",
-            "console_lock": "Bloqueo de la consola"
+            "console_lock": "Bloqueo de la consola",
+            "bedtime": "Alarma de hora de dormir"
         },
         "sources": {
             "uniform": "Mismo límite todos los días",

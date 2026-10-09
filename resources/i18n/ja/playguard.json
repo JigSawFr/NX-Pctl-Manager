@@ -90,7 +90,8 @@
         "session_closed": "本体がみまもり設定のセッションを閉じました。もう一度お試しください",
         "bad_pin_format": "本体が暗証番号の形式を受け付けませんでした",
         "pctl_refused": "みまもり設定サービスに拒否されました",
-        "relock_failed": "本体のロックは解除されましたが、再ロックできませんでした。今すぐロックしてください（セキュリティ › 今すぐロック）"
+        "relock_failed": "本体のロックは解除されましたが、再ロックできませんでした。今すぐロックしてください（セキュリティ › 今すぐロック）",
+        "not_applied": "本体が変更を反映しなかったため、元の設定に戻しました"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -249,12 +250,23 @@
         "profile_action_edit": "上限を編集…",
         "profile_action_rename": "名前を変更…",
         "profile_edit_title": "プリセット：{}",
-        "section_bedtime": "おやすみアラーム（閲覧のみ）",
+        "section_bedtime": "おやすみアラーム",
         "bedtime": "おやすみアラーム",
         "bedtime_value_on": "{}（ON）",
         "bedtime_value_off": "{}（OFF）",
-        "bedtime_reset": "アラームのリセット時刻",
-        "bedtime_note": "おやすみアラームは、現在スマホアプリからのみ変更できます。",
+        "bedtime_reset": "再び遊べる時刻",
+        "bedtime_note": "毎日に適用されます。おやすみ時刻になると、本体はアラームを表示します（スマホアプリの設定によってはソフトを中断します）。再び遊べる時刻まで続きます。PlayGuardは本体が新しい時刻を返すことを確認し、返さない場合は元の設定に戻します。",
+        "bedtime_title": "おやすみアラーム（毎日）",
+        "bedtime_end_title": "再び遊べる時刻（毎日）",
+        "bedtime_summary": "{}、{}から再び遊べます",
+        "bedtime_varies": "曜日によって異なる",
+        "bedtime_confirm": "おやすみアラームを毎日{}に設定しますか？\n\n{}から再び遊べます。",
+        "bedtime_confirm_off": "すべての曜日のおやすみアラームをOFFにしますか？",
+        "bedtime_end_confirm": "おやすみアラームがある日は{}から再び遊べるようにしますか？",
+        "bedtime_written": "おやすみアラームを変更しました。",
+        "bedtime_err": "おやすみアラームを変更できませんでした",
+        "bedtime_unknown": "PlayGuardは、この本体のおやすみアラームを想定した位置で見つけられないため、変更しません。スマホアプリを使うか、診断レポート（ツール）を送ってください。対応の参考になります。",
+        "bedtime_end_needs_alarm": "先におやすみアラームをONにしてください。",
         "section_advanced": "詳細",
         "alarm": "「時間です」アラーム",
         "alarm_on_body": "「時間です」アラームをオンに戻しますか？\n\nプレイ時間の上限に達すると、本体の初期設定どおり、再びアラームが表示されます。",
@@ -824,7 +836,8 @@
             "clock": "ネットワーク時計を設定",
             "restore": "バックアップを復元",
             "rescue": "復旧を使用",
-            "console_lock": "本体ロック"
+            "console_lock": "本体ロック",
+            "bedtime": "おやすみアラーム"
         },
         "sources": {
             "uniform": "毎日同じ上限",

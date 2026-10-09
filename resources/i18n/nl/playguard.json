@@ -90,7 +90,8 @@
         "session_closed": "het systeem heeft de sessie van ouderlijk toezicht gesloten; probeer het opnieuw",
         "bad_pin_format": "het systeem heeft de opmaak van de pincode geweigerd",
         "pctl_refused": "geweigerd door de dienst voor ouderlijk toezicht",
-        "relock_failed": "de console is ontgrendeld maar kon niet opnieuw worden vergrendeld: vergrendel hem nu (Beveiliging & app › Nu vergrendelen)"
+        "relock_failed": "de console is ontgrendeld maar kon niet opnieuw worden vergrendeld: vergrendel hem nu (Beveiliging & app › Nu vergrendelen)",
+        "not_applied": "de console heeft de wijziging niet overgenomen, dus de vorige instellingen zijn teruggezet"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -249,12 +250,23 @@
         "profile_action_edit": "Limieten bewerken...",
         "profile_action_rename": "Hernoemen...",
         "profile_edit_title": "Profiel: {}",
-        "section_bedtime": "Bedtijd (alleen-lezen)",
+        "section_bedtime": "Bedtijd",
         "bedtime": "Bedtijdalarm",
         "bedtime_value_on": "{} (aan)",
         "bedtime_value_off": "{} (uit)",
-        "bedtime_reset": "Alarm wordt gereset om",
-        "bedtime_note": "Het bedtijdalarm kan voorlopig alleen via de smartphone-app worden gewijzigd.",
+        "bedtime_reset": "Weer spelen vanaf",
+        "bedtime_note": "Geldt voor elke dag. Op bedtijd toont de console het alarm, of onderbreekt hij de software als de app zo is ingesteld, totdat er weer gespeeld mag worden. PlayGuard controleert of de console de nieuwe tijd meldt, en zet anders de vorige instellingen terug.",
+        "bedtime_title": "Bedtijdalarm, elke dag",
+        "bedtime_end_title": "Weer spelen vanaf (elke dag)",
+        "bedtime_summary": "{}, weer spelen vanaf {}",
+        "bedtime_varies": "Verschilt per dag",
+        "bedtime_confirm": "Bedtijdalarm elke dag op {} zetten?\n\nEr mag weer gespeeld worden vanaf {}.",
+        "bedtime_confirm_off": "Bedtijdalarm voor elke dag uitzetten?",
+        "bedtime_end_confirm": "Weer spelen toestaan vanaf {} op elke dag met een bedtijdalarm?",
+        "bedtime_written": "Bedtijdalarm gewijzigd.",
+        "bedtime_err": "Kan het bedtijdalarm niet wijzigen",
+        "bedtime_unknown": "PlayGuard vindt het bedtijdalarm van deze console niet waar het dat verwacht in de speeltijdinstellingen, dus wijzigt het dit niet. Gebruik de app, of stuur een diagnoserapport (Hulpmiddelen) zodat het ondersteund kan worden.",
+        "bedtime_end_needs_alarm": "Zet eerst het bedtijdalarm aan.",
         "section_advanced": "Geavanceerd",
         "alarm": "Alarm \"Tijd is om\"",
         "alarm_on_body": "Alarm \"Tijd is om\" weer inschakelen?\n\nAls de speeltijdlimiet is bereikt, toont de console het alarm weer, zoals standaard.",
@@ -824,7 +836,8 @@
             "clock": "Netwerkklok ingesteld",
             "restore": "Back-up teruggezet",
             "rescue": "Herstel gebruikt",
-            "console_lock": "Consolevergrendeling"
+            "console_lock": "Consolevergrendeling",
+            "bedtime": "Bedtijdalarm"
         },
         "sources": {
             "uniform": "Elke dag dezelfde limiet",

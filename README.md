@@ -135,7 +135,7 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 - **Remove the limit**, **extra time today**, **no more play today** (as on the Overview).
 - **Profiles** saved on the SD card: apply, edit, rename or delete one; save the current limits or make a new one. Any name, accents included — two names that would map to the same file are caught.
 - Every confirmation draws the week as it will be, with the days that change in amber.
-- Bedtime alarm (read-only). Advanced, opt-in: "time's up" alarm on/off, pause / resume the countdown.
+- **Bedtime alarm**: the alarm time (16:00 to 23:45, or off) and when play is allowed again (05:00 to 09:00), the same every day. Its place in the play-timer settings was worked out from the companion app's settings, not read on a console with a bedtime set: PlayGuard changes it only once the console reports what PlayGuard reads there, checks the console's answer after the change and puts the previous settings back if it differs. Advanced, opt-in: "time's up" alarm on/off, pause / resume the countdown.
 - `0` minutes means *no play that day*; *Remove the play-time limit* turns the timer off.
 </details>
 
@@ -254,7 +254,7 @@ Press *About › Version* seven times; the developer tools appear at the end of 
 - a **read-only** switch — with it on, the app cannot change anything: the safe way to investigate a new firmware (the firmware screen offers it directly);
 - the diagnostic report on screen (Ⓨ saves it, Ⓧ sends it online), and a shortcut to export it from the Play timer tab;
 - **Install another build** in place, to test a fix before it is released: the latest release, one of the last 20 commits of `main`, or the newest build of an open pull request (forks included). The release needs nothing; the others are the build workflow's artifacts, which GitHub hands to signed-in users only: **GitHub account** signs in with a code and a QR code to scan with a phone (no permission asked: the token can only read what is public; it is kept in `github_token`, never sent with a report, and *GitHub account* signs out). PlayGuard downloads the build, checks it (size, the SHA-256 GitHub records, the NRO header), puts it in place of its own `.nro` and restarts on it (behind *Ask for the PIN* when that is on). The same list goes back to the release at any time; *About › Version* shows the commit in developer mode. Artifacts expire after 90 days;
-- **Compare the play-timer block**, to decode settings PlayGuard does not show yet: save the raw block as a reference, change one setting in the phone app, come back — PlayGuard lists the values that changed (saved in `logs/` on request). Bedtime and "alarm only" vs "suspend the software" could be found this way. Attach that file to an issue, or send it with the report (*Send a report online*).
+- **Compare the play-timer block**, to decode settings PlayGuard does not show yet: save the raw block as a reference, change one setting in the phone app, come back — PlayGuard lists the values that changed (saved in `logs/` on request). "Alarm only" vs "suspend the software" could be found this way, and the bedtime fields confirmed. Attach that file to an issue, or send it with the report (*Send a report online*).
 </details>
 
 ## Contributing

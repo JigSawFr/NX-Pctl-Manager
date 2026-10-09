@@ -32,6 +32,9 @@ static struct {
     u32 rating_org;           /* what SetDefaultRatingOrganization (1038) received */
     u32 exempt;               /* what GetExemptApplicationListCountForDebug (1903) returns */
     bool saw_1904;
+    bool bed_live;            /* 1954/1956/1957 answer bed_day of pt_block, which 195101 replaces */
+    bool bed_ignored;         /* ... except that 195101 leaves the bedtime they report as it was */
+    int bed_day;
 } model;
 
 static void reset_with(u32 hos)
@@ -126,7 +129,10 @@ Result mock_dispatch(Service *srv, u32 command, void *out, size_t out_size,
         memcpy(model.last_write, in, in_size);
         model.last_write_size = in_size;
         switch (command) {
-            case 195101: assert(in_size == 0x44); break;
+            case 195101:
+                assert(in_size == 0x44);
+                if (model.bed_live) memcpy(model.pt_block, in, in_size);
+                break;
             case 1033:   assert(in_size == 4); model.safety_level = *(const u32 *)in; break;
             case 1036:   assert(in_size == 3); break;
             case 1063: case 1953: assert(in_size == 1); break;
@@ -153,10 +159,19 @@ Result mock_dispatch(Service *srv, u32 command, void *out, size_t out_size,
         case 1453: b = model.enabled;    return put(out, out_size, &b, 1);
         case 1455: b = model.restricted; return put(out, out_size, &b, 1);
         case 1006: b = model.unlocked;   return put(out, out_size, &b, 1);
-        case 1031: case 1403: case 1458: case 1954: case 1062:
+        case 1954: case 1956: case 1957:
+            if (model.bed_live) {
+                PtBedtime bt[7];
+                pt_bedtime_decode(model.pt_block, bt);
+                if (model.bed_ignored) memset(bt, 0, sizeof(bt));
+                const PtBedtime *d = &bt[model.bed_day];
+                b = command == 1954 ? d->on : command == 1956 ? d->hour : d->minute;
+            } else {
+                b = command == 1954 ? 1 : command == 1956 ? 21 : 30;
+            }
+            return put(out, out_size, &b, 1);
+        case 1031: case 1403: case 1458: case 1062:
             b = 1; return put(out, out_size, &b, 1);
-        case 1956: b = 21; return put(out, out_size, &b, 1);
-        case 1957: b = 30; return put(out, out_size, &b, 1);
         case 1958: b = 7;  return put(out, out_size, &b, 1);
         case 1959: b = 0;  return put(out, out_size, &b, 1);
         case 1032: w = model.safety_level; return put(out, out_size, &w, 4);
@@ -551,8 +566,10 @@ static void test_block_preserved(void)
 {
     u16 c[34], expect[34];
 
-    /* Fields this app does not decode: an odd header, [2..6], [+0] and [+3]
-     * of every group, and a day (Monday) without a limit whose [+0] is set. */
+    /* Fields the limits do not use: an odd header, [2..6], [+0] and [+3] of
+     * every group, and a day (Monday) without a limit whose [+0] is set. The
+     * [+3] (the next day's bedtime switch, low byte) stay off: pt_encode
+     * keeps a day's times while its bedtime is on (test_bedtime). */
     reset();
     for (int i = 0; i < 34; i++) model.pt_block[i] = 0;
     model.pt_block[0] = 0x0103; model.pt_block[1] = 0x0002;
@@ -561,7 +578,7 @@ static void test_block_preserved(void)
         u16 *g = &model.pt_block[7 + 4 * n];
         g[0] = (u16)(0x0700 + n);
         if (n != 1) { g[1] = 0x0100; g[2] = (u16)(60 + n); }
-        if (n < 6) g[3] = (u16)(0xB000 + n);
+        if (n < 6) g[3] = (u16)(0xB000 + (n << 8));
     }
     memcpy(expect, model.pt_block, sizeof(expect));
 
@@ -597,6 +614,124 @@ static void test_block_preserved(void)
     assert(pctl_play_timer_clear() == 0);
     for (unsigned i = 0; i < 0x44; ++i) assert(model.last_write[i] == 0);
     assert(model.refs == 0);
+}
+
+static PtBedtime bed(bool on, u8 h, u8 m, u8 eh, u8 em)
+{
+    PtBedtime b = { on, h, m, eh, em };
+    return b;
+}
+
+/* Bedtime: only its bytes change, the console's answer is checked, and the
+ * block is put back when the console does not report it. */
+static void test_bedtime(void)
+{
+    PtBedtime bt[7];
+    u16 orig[34];
+
+    /* The observed layout (limits, no bedtime): 21:00, allowed again at 07:30. */
+    reset();
+    model.bed_live = true;
+    model.bed_day = 2;
+    memcpy(orig, model.pt_block, sizeof(orig));
+    for (int n = 0; n < 7; n++) bt[n] = bed(true, 21, 0, 7, 30);
+    assert(pctl_play_timer_set_bedtime(bt, 2) == 0 && model.refs == 0 && model.writes == 1);
+    for (int n = 0; n < 7; n++) {
+        assert(model.pt_block[6 + 4 * n] == 0x1501);   /* on, 21 h */
+        assert(model.pt_block[7 + 4 * n] == 0x0700);   /* :00, 07 h */
+        assert(model.pt_block[8 + 4 * n] == 0x011E);   /* :30, the limit flag kept */
+        assert(model.pt_block[9 + 4 * n] == 30 * n);   /* the limit kept */
+    }
+    assert(model.pt_block[0] == 0x0101 && model.pt_block[1] == 1);
+    PtState st;
+    pctl_play_timer_query(&st);
+    assert(st.valid && st.bed[4].on && st.bed[4].hour == 21 && st.bed[4].end_minute == 30);
+    assert(st.day_min[3] == 90 && st.bedtime_enabled && st.bedtime_hour == 21 && st.bedtime_minute == 0);
+
+    /* The same bedtimes again: nothing written. */
+    assert(pctl_play_timer_set_bedtime(bt, 2) == 0 && model.writes == 1);
+
+    /* A limit changed meanwhile keeps the times; one removed too. */
+    u16 days[7] = {10, PT_DAY_NOLIMIT, 20, 30, 40, 50, 60};
+    assert(pctl_play_timer_set_days(days) == 0);
+    assert(model.pt_block[7 + 4] == 0x0700 && model.pt_block[8 + 4] == 0x001E && model.pt_block[9 + 4] == 0);
+    pctl_play_timer_query(&st);
+    assert(st.day_min[1] == PT_DAY_NOLIMIT && st.day_min[0] == 10 && st.bed[1].on && st.bed[1].end_hour == 7);
+    /* Every limit removed: the block stays while a bedtime is on. */
+    assert(pctl_play_timer_clear() == 0);
+    pctl_play_timer_query(&st);
+    for (int n = 0; n < 7; n++) assert(st.day_min[n] == PT_DAY_NOLIMIT && st.bed[n].on);
+    assert(model.pt_block[0] == 0x0101);
+    /* A limit back on a day whose bedtime is on: its times stay. */
+    u16 sat[7] = {PT_DAY_NOLIMIT, PT_DAY_NOLIMIT, PT_DAY_NOLIMIT, PT_DAY_NOLIMIT, PT_DAY_NOLIMIT, PT_DAY_NOLIMIT, 45};
+    assert(pctl_play_timer_set_days(sat) == 0);
+    assert(model.pt_block[31] == 0x0700 && model.pt_block[32] == 0x011E && model.pt_block[33] == 45);
+
+    /* Off everywhere but the limit kept: switch and alarm cleared, the
+     * allowed-again time kept (as the companion app does). */
+    for (int n = 0; n < 7; n++) bt[n] = bed(false, 0, 0, 0, 0);
+    assert(pctl_play_timer_set_bedtime(bt, 2) == 0);
+    pctl_play_timer_query(&st);
+    assert(st.day_min[6] == 45 && !st.bed[6].on && st.bed[6].hour == 0 && st.bed[6].end_hour == 7);
+    /* Then no limit either: all zeros, as for the limits. */
+    assert(pctl_play_timer_clear() == 0);
+    for (int i = 0; i < 34; i++) assert(model.pt_block[i] == 0);
+
+    /* Timer off: one evening on, the observed header added. */
+    for (int n = 0; n < 7; n++) bt[n] = bed(false, 0, 0, 0, 0);
+    bt[2] = bed(true, 20, 45, 6, 0);
+    assert(pctl_play_timer_set_bedtime(bt, 2) == 0);
+    assert(model.pt_block[0] == 0x0101 && model.pt_block[1] == 1);
+    assert(model.pt_block[14] == 0x1401 && model.pt_block[15] == 0x062D && model.pt_block[16] == 0);
+    for (int i = 2; i < 34; i++) if (i < 14 || i > 16) assert(model.pt_block[i] == 0);
+
+    /* After midnight the console may still report the evening before. */
+    model.bed_day = 2;
+    bt[2] = bed(true, 22, 0, 6, 0);
+    assert(pctl_play_timer_set_bedtime(bt, 3) == 0);
+    model.bed_day = 4;
+    bt[4] = bed(true, 23, 0, 6, 0);
+    assert(pctl_play_timer_set_bedtime(bt, 3) == NXM_RC_NOT_APPLIED);   /* 23:00 is neither day 3's nor day 2's */
+
+    /* Not reported: the block read before is written back. */
+    reset();
+    model.bed_live = true;
+    model.bed_ignored = true;
+    memcpy(orig, model.pt_block, sizeof(orig));
+    for (int n = 0; n < 7; n++) bt[n] = bed(true, 21, 0, 7, 0);
+    assert(pctl_play_timer_set_bedtime(bt, 0) == NXM_RC_NOT_APPLIED && model.refs == 0);
+    assert(model.writes == 2 && memcmp(model.pt_block, orig, sizeof(orig)) == 0);
+    /* ... and when the bedtime cannot be read back. */
+    model.writes = 0;
+    model.fail_command = 1957;
+    assert(pctl_play_timer_set_bedtime(bt, 0) == NXM_RC_NOT_APPLIED && model.writes == 2);
+    assert(memcmp(model.pt_block, orig, sizeof(orig)) == 0);
+
+    /* Refused before writing: out of range, today out of range, the block
+     * unreadable, the timer counting down. */
+    reset();
+    for (int n = 0; n < 7; n++) bt[n] = bed(true, 21, 0, 7, 0);
+    bt[3] = bed(true, 15, 59, 7, 0);
+    assert(pctl_play_timer_set_bedtime(bt, 0) == NXM_RC_INVALID_ARGUMENT);
+    bt[3] = bed(true, 21, 0, 9, 1);
+    assert(pctl_play_timer_set_bedtime(bt, 0) == NXM_RC_INVALID_ARGUMENT);
+    bt[3] = bed(true, 21, 0, 4, 59);
+    assert(pctl_play_timer_set_bedtime(bt, 0) == NXM_RC_INVALID_ARGUMENT);
+    bt[3] = bed(false, 99, 99, 99, 99);   /* off: the times do not matter */
+    assert(pctl_play_timer_set_bedtime(bt, 7) == NXM_RC_INVALID_ARGUMENT);
+    assert(model.ipc_calls == 0);
+    model.fail_command = 145601;
+    assert(pctl_play_timer_set_bedtime(bt, 0) == NXM_RC_STATE_UNKNOWN && model.writes == 0 && model.refs == 0);
+    model.fail_command = 0;
+    model.enabled = true;
+    assert(pctl_play_timer_set_bedtime(bt, 0) == NXM_RC_WRITE_GATED && model.writes == 0 && model.refs == 0);
+    model.unlocked = true;
+    assert(pctl_play_timer_set_bedtime(bt, 0) == NXM_RC_NOT_APPLIED);   /* the mock's fixed 21:30 */
+    assert(model.writes == 2 && model.refs == 0);
+
+    /* Below 21.0.0: nothing sent. */
+    reset_with(MAKEHOSVERSION(20, 5, 0));
+    assert(pctl_play_timer_set_bedtime(bt, 0) == NXM_RC_FW_UNSUPPORTED && model.ipc_calls == 0);
 }
 
 static void test_unlock_and_relock(void)
@@ -866,6 +1001,7 @@ int main(void)
     test_write_gate();
     test_command_gate();
     test_block_preserved();
+    test_bedtime();
     test_unlock_and_relock();
     test_lock_state();
     test_get_pin();

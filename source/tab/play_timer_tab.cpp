@@ -69,6 +69,14 @@ PlayTimerTab::PlayTimerTab()
         brls::Application::pushActivity(new ProfilesActivity());
         return true;
     });
+    bedtime->registerClickAction([this](brls::View*) {
+        pt_flow::choose_bedtime(this->pt, [this]() { this->refresh(); });
+        return true;
+    });
+    bedtime_reset->registerClickAction([this](brls::View*) {
+        pt_flow::choose_bedtime_end(this->pt, [this]() { this->refresh(); });
+        return true;
+    });
 
     ui::guard_switch(alarm);
     alarm->init("playguard/play_timer/alarm"_i18n, true, [this](bool on) {
@@ -116,7 +124,8 @@ void PlayTimerTab::refresh()
     ui::set_visible(stop.getView(), pt_logic::can_stop_today(this->pt, wd, false));
     for (brls::DetailCell* c : { (brls::DetailCell*)quick.getView(), (brls::DetailCell*)extra.getView(),
                                  (brls::DetailCell*)stop.getView(), (brls::DetailCell*)remove.getView(),
-                                 (brls::DetailCell*)pause.getView(), (brls::DetailCell*)resume.getView() })
+                                 (brls::DetailCell*)pause.getView(), (brls::DetailCell*)resume.getView(),
+                                 (brls::DetailCell*)bedtime.getView(), (brls::DetailCell*)bedtime_reset.getView() })
         ui::show_writable(c, writable);
     extra->setDetailText(pt_flow::extra_today_text(this->pt));
     for (brls::View* v : { (brls::View*)bedtime_header.getView(), (brls::View*)bedtime.getView(),
@@ -148,16 +157,29 @@ void PlayTimerTab::refresh()
     for (int i = 1; i < 7 && uniform; i++) uniform = this->pt.day_min[i] == this->pt.day_min[0];
     quick->setDetailText(uniform ? ui::fmt_minutes(this->pt.day_min[0]) : ui::days_summary(this->pt.day_min));
 
+    // The bedtime as the block holds it, every day, once the console's answer
+    // confirms where it is (pt_logic::bedtime_layout_ok); else what the
+    // console reports for today.
     const std::string na = "playguard/common/unavailable"_i18n;
-    if (this->pt.bedtime_valid) {
-        std::string hm = fmt::format("{:02d}:{:02d}", this->pt.bedtime_hour, this->pt.bedtime_minute);
-        bedtime->setDetailText(brls::getStr(this->pt.bedtime_enabled ? "playguard/play_timer/bedtime_value_on"
-                                                                     : "playguard/play_timer/bedtime_value_off", hm));
+    PtBedtime same;
+    if (pt_logic::bedtime_layout_ok(this->pt, wd)) {
+        const bool uniform = pt_logic::bedtime_uniform(this->pt, &same);
+        bedtime->setDetailText(!uniform ? "playguard/play_timer/bedtime_varies"_i18n
+                               : same.on ? fmt::format("{:02d}:{:02d}", same.hour, same.minute)
+                                         : "playguard/common/off"_i18n);
+        bedtime_reset->setDetailText(uniform && same.on ? fmt::format("{:02d}:{:02d}", same.end_hour, same.end_minute)
+                                     : uniform ? "—" : "playguard/play_timer/bedtime_varies"_i18n);
     } else {
-        bedtime->setDetailText(na);
+        if (this->pt.bedtime_valid) {
+            std::string hm = fmt::format("{:02d}:{:02d}", this->pt.bedtime_hour, this->pt.bedtime_minute);
+            bedtime->setDetailText(brls::getStr(this->pt.bedtime_enabled ? "playguard/play_timer/bedtime_value_on"
+                                                                         : "playguard/play_timer/bedtime_value_off", hm));
+        } else {
+            bedtime->setDetailText(na);
+        }
+        bedtime_reset->setDetailText(this->pt.bedtime_reset_valid
+            ? fmt::format("{:02d}:{:02d}", this->pt.bedtime_reset_hour, this->pt.bedtime_reset_minute) : na);
     }
-    bedtime_reset->setDetailText(this->pt.bedtime_reset_valid
-        ? fmt::format("{:02d}:{:02d}", this->pt.bedtime_reset_hour, this->pt.bedtime_reset_minute) : na);
 
     if (this->pt.alarm_disabled_valid) alarm->setOn(!this->pt.alarm_disabled, false);
     ui::show_writable(alarm, writable);

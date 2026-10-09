@@ -90,7 +90,8 @@
         "session_closed": "系統已關閉家長監護工作階段，請再試一次",
         "bad_pin_format": "系統不接受此PIN碼格式",
         "pctl_refused": "家長監護服務拒絕了此操作",
-        "relock_failed": "主機已解鎖，但無法重新鎖定：請立即鎖定（安全與應用程式 › 立即鎖定）"
+        "relock_failed": "主機已解鎖，但無法重新鎖定：請立即鎖定（安全與應用程式 › 立即鎖定）",
+        "not_applied": "主機未接受變更，已還原先前的設定"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -249,12 +250,23 @@
         "profile_action_edit": "編輯上限…",
         "profile_action_rename": "重新命名…",
         "profile_edit_title": "設定檔：{}",
-        "section_bedtime": "就寢時間（唯讀）",
+        "section_bedtime": "就寢時間",
         "bedtime": "就寢鬧鐘",
         "bedtime_value_on": "{}（開啟）",
         "bedtime_value_off": "{}（關閉）",
-        "bedtime_reset": "鬧鐘重設時間",
-        "bedtime_note": "目前僅能透過手機應用程式變更就寢鬧鐘。",
+        "bedtime_reset": "可再次遊玩的時間",
+        "bedtime_note": "適用於每一天。到就寢時間時，主機會顯示鬧鐘（若手機應用程式如此設定，則會中斷軟體），直到可以再次遊玩。PlayGuard 會檢查主機是否回報新的時間，否則會還原先前的設定。",
+        "bedtime_title": "就寢鬧鐘（每天）",
+        "bedtime_end_title": "可再次遊玩的時間（每天）",
+        "bedtime_summary": "{}，{} 起可再次遊玩",
+        "bedtime_varies": "每天不同",
+        "bedtime_confirm": "將就寢鬧鐘設為每天 {}？\n\n{} 起可再次遊玩。",
+        "bedtime_confirm_off": "關閉每一天的就寢鬧鐘？",
+        "bedtime_end_confirm": "在設有就寢鬧鐘的日子，{} 起允許再次遊玩？",
+        "bedtime_written": "已變更就寢鬧鐘。",
+        "bedtime_err": "無法變更就寢鬧鐘",
+        "bedtime_unknown": "PlayGuard 未能在遊玩時間設定中預期的位置找到這台主機的就寢鬧鐘，因此不會變更它。請使用手機應用程式，或傳送診斷報告（工具），以便提供支援。",
+        "bedtime_end_needs_alarm": "請先開啟就寢鬧鐘。",
         "section_advanced": "進階",
         "alarm": "「時間到」鬧鐘",
         "alarm_on_body": "要重新開啟「時間到」鬧鐘嗎？\n\n達到遊玩時間限制時，主機會像預設一樣再次顯示鬧鐘。",
@@ -824,7 +836,8 @@
             "clock": "已設定網路時鐘",
             "restore": "已還原備份",
             "rescue": "已使用復原",
-            "console_lock": "主機鎖定"
+            "console_lock": "主機鎖定",
+            "bedtime": "就寢鬧鐘"
         },
         "sources": {
             "uniform": "每天相同上限",

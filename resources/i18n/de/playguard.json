@@ -90,7 +90,8 @@
         "session_closed": "das System hat die Sitzung der Altersbeschränkungen beendet; versuchen Sie es erneut",
         "bad_pin_format": "das System hat das Format der Geheimzahl abgelehnt",
         "pctl_refused": "vom Dienst der Altersbeschränkungen abgelehnt",
-        "relock_failed": "die Konsole wurde entsperrt, konnte aber nicht wieder gesperrt werden: Sperre sie jetzt (Sicherheit & App › Jetzt aktivieren)"
+        "relock_failed": "die Konsole wurde entsperrt, konnte aber nicht wieder gesperrt werden: Sperre sie jetzt (Sicherheit & App › Jetzt aktivieren)",
+        "not_applied": "die Konsole hat die Änderung nicht übernommen, daher wurden die vorherigen Einstellungen wiederhergestellt"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -249,12 +250,23 @@
         "profile_action_edit": "Limits bearbeiten...",
         "profile_action_rename": "Umbenennen...",
         "profile_edit_title": "Profil: {}",
-        "section_bedtime": "Gute-Nacht-Alarm (schreibgeschützt)",
+        "section_bedtime": "Gute-Nacht-Alarm",
         "bedtime": "Gute-Nacht-Alarm",
         "bedtime_value_on": "{} (an)",
         "bedtime_value_off": "{} (aus)",
-        "bedtime_reset": "Alarm wird zurückgesetzt um",
-        "bedtime_note": "Der Gute-Nacht-Alarm kann derzeit nur über die Smart-Geräte-App geändert werden.",
+        "bedtime_reset": "Spielen wieder erlaubt ab",
+        "bedtime_note": "Gilt für jeden Tag. Zur Schlafenszeit zeigt die Konsole den Alarm an oder unterbricht die Software, falls die App so eingestellt ist, bis das Spielen wieder erlaubt ist. PlayGuard prüft, ob die Konsole die neue Uhrzeit meldet, und stellt sonst die vorherigen Einstellungen wieder her.",
+        "bedtime_title": "Gute-Nacht-Alarm, jeden Tag",
+        "bedtime_end_title": "Spielen wieder erlaubt ab (jeden Tag)",
+        "bedtime_summary": "{}, Spielen wieder erlaubt ab {}",
+        "bedtime_varies": "Je nach Tag verschieden",
+        "bedtime_confirm": "Gute-Nacht-Alarm jeden Tag auf {} stellen?\n\nSpielen ist ab {} wieder erlaubt.",
+        "bedtime_confirm_off": "Gute-Nacht-Alarm für jeden Tag ausschalten?",
+        "bedtime_end_confirm": "Spielen an jedem Tag mit Gute-Nacht-Alarm ab {} wieder erlauben?",
+        "bedtime_written": "Gute-Nacht-Alarm geändert.",
+        "bedtime_err": "Der Gute-Nacht-Alarm konnte nicht geändert werden",
+        "bedtime_unknown": "PlayGuard findet den Gute-Nacht-Alarm dieser Konsole nicht dort, wo er ihn in den Spielzeit-Einstellungen erwartet, und ändert ihn deshalb nicht. Nutze die App oder sende einen Diagnosebericht (Werkzeuge), damit er unterstützt werden kann.",
+        "bedtime_end_needs_alarm": "Schalte zuerst den Gute-Nacht-Alarm ein.",
         "section_advanced": "Erweitert",
         "alarm": "Alarm „Zeit ist um“",
         "alarm_on_body": "Alarm „Zeit ist um“ wieder einschalten?\n\nWenn die Spielzeitbegrenzung erreicht ist, zeigt die Konsole den Alarm wieder an, wie standardmäßig vorgesehen.",
@@ -824,7 +836,8 @@
             "clock": "Netzwerkuhr gestellt",
             "restore": "Sicherung wiederhergestellt",
             "rescue": "Wiederherstellung verwendet",
-            "console_lock": "Konsolensperre"
+            "console_lock": "Konsolensperre",
+            "bedtime": "Gute-Nacht-Alarm"
         },
         "sources": {
             "uniform": "Jeden Tag gleiches Limit",
