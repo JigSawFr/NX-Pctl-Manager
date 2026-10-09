@@ -5,7 +5,6 @@
 #include <cinttypes>
 #include <cstdio>
 #include <cstring>
-#include <sys/stat.h>
 
 #include "util/paths.hpp"
 
@@ -68,11 +67,6 @@ std::string changed(const std::string& now, std::string* before)
     return now;
 }
 
-off_t file_size(const std::string& p)
-{
-    struct stat st;
-    return stat(p.c_str(), &st) == 0 ? st.st_size : -1;
-}
 }   // namespace
 
 std::string path()     { return paths::logs_dir() + "/play_timer_log.csv"; }
@@ -134,17 +128,21 @@ bool append(const std::string& line, std::string* error)
         if (error) *error = std::string("cannot create the logs folder: ") + std::strerror(errno);
         return false;
     }
-    if (file_size(p) > (off_t)MAX_BYTES) {
+    // The size is read from the open file, not from the path beforehand.
+    FILE* f = std::fopen(p.c_str(), "ab");
+    long size = f && std::fseek(f, 0, SEEK_END) == 0 ? std::ftell(f) : -1;
+    if (f && size > (long)MAX_BYTES) {
+        std::fclose(f);
         std::remove(old_path().c_str());
         std::rename(p.c_str(), old_path().c_str());
+        f = std::fopen(p.c_str(), "ab");
+        size = f && std::fseek(f, 0, SEEK_END) == 0 ? std::ftell(f) : -1;
     }
-    const bool fresh = file_size(p) <= 0;
-    FILE* f = std::fopen(p.c_str(), "ab");
     if (!f) {
         if (error) *error = std::string("cannot open ") + p + ": " + std::strerror(errno);
         return false;
     }
-    const std::string text = fresh ? header() + line : line;
+    const std::string text = size <= 0 ? header() + line : line;
     const bool ok = std::fwrite(text.data(), 1, text.size(), f) == text.size();
     const bool closed = std::fclose(f) == 0;
     if (!(ok && closed) && error) *error = std::string("cannot write ") + p + ": " + std::strerror(errno);
