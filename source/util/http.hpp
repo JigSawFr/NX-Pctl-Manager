@@ -8,21 +8,31 @@
 #include <cstdint>
 #include <functional>
 #include <string>
+#include <vector>
 
 namespace http
 {
+
+// Extra request headers ("Authorization: Bearer …", "Accept: …").
+using Headers = std::vector<std::string>;
 
 // Follows redirects. False (and *error set, in English) on a network error,
 // an HTTP status >= 400, a timeout or a body larger than `max_bytes`.
 // Blocking: call it from brls::async.
 bool get(const std::string& url, std::string* body, std::string* error,
-         size_t max_bytes = 64 * 1024, long timeout_s = 10);
+         size_t max_bytes = 64 * 1024, long timeout_s = 10, const Headers& headers = {});
 
 // POSTs `data` as `content_type` (no redirects followed). Same failures as
 // get(); *status gets the HTTP status when the server answered (a 2xx other
 // than 200, such as 201 or 206, is a success the caller may tell apart).
 bool post(const std::string& url, const std::string& data, const char* content_type, std::string* body,
-          std::string* error, long* status = nullptr, size_t max_bytes = 4 * 1024, long timeout_s = 30);
+          std::string* error, long* status = nullptr, size_t max_bytes = 4 * 1024, long timeout_s = 30,
+          const Headers& headers = {});
+
+// Where `url` redirects to (an https:// URL), without following it: a
+// signed download link can then be fetched without the headers (a token)
+// sent to `url`. False when it does not redirect.
+bool redirect(const std::string& url, std::string* target, std::string* error, const Headers& headers = {});
 
 // GETs `url` (redirects followed) into the file `path`, created or
 // truncated. Fails beyond `max_bytes`, or when nothing arrives for 30 s;

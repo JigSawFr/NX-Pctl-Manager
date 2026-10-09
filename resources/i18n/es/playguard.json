@@ -774,7 +774,23 @@
         "downloading": "Descargando ({} MB)...",
         "failed": "No se pudo instalar la compilación: {}\n\nEl PlayGuard instalado no ha cambiado.",
         "done_manual": "{} está instalada. Cierra PlayGuard y vuelve a abrirlo para usarla.",
-        "no_path": "PlayGuard no sabe dónde está su archivo .nro (¿iniciado sin hbloader?), así que no puede sustituirlo. Instala la compilación a mano desde GitHub."
+        "no_path": "PlayGuard no sabe dónde está su archivo .nro (¿iniciado sin hbloader?), así que no puede sustituirlo. Instala la compilación a mano desde GitHub.",
+        "sign_in": "Iniciar sesión en GitHub para las compilaciones de main y de las pull requests"
+    },
+    "github": {
+        "account": "Cuenta de GitHub",
+        "not_signed_in": "Sin sesión",
+        "signed_in_short": "Sesión iniciada",
+        "starting": "Conectando con GitHub...",
+        "code_body": "En un teléfono u ordenador, abre {} (o escanea el código) e introduce:",
+        "code_note": "PlayGuard no pide ningún permiso: solo puede leer lo que es público en GitHub. Esperando tu aprobación...",
+        "signed_in": "Sesión iniciada en GitHub.",
+        "failed": "No se pudo iniciar sesión en GitHub: {}",
+        "denied": "Se rechazó el inicio de sesión en GitHub.",
+        "expired": "El código caducó antes de introducirse. Inténtalo de nuevo.",
+        "sign_out": "Cerrar sesión",
+        "sign_out_body": "¿Cerrar sesión en GitHub? PlayGuard olvida su token. Para revocarlo también: GitHub › Settings › Applications › Authorized OAuth Apps › PlayGuard.",
+        "signed_out": "Sesión de GitHub cerrada."
     },
     "toast": {
         "diag_saved": "Diagnóstico guardado: {}",

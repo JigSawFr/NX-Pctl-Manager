@@ -6,6 +6,7 @@
 #include <memory>
 #include <vector>
 
+#include "action/github_login_flow.hpp"
 #include "action/pin_lock.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
@@ -109,7 +110,7 @@ void install(const dev_builds::Build& b)
     });
 }
 
-void show(std::vector<dev_builds::Build> builds)
+void show(std::vector<dev_builds::Build> builds, bool needs_login)
 {
     std::vector<std::string> labels;
     int selected = 0;
@@ -117,8 +118,14 @@ void show(std::vector<dev_builds::Build> builds)
         labels.push_back(label(builds[i]));
         if (installed(builds[i])) selected = (int)i;
     }
+    // Without a token GitHub hands out the release only: the last line signs in.
+    if (needs_login) labels.push_back("playguard/dev_build/sign_in"_i18n);
     auto list = std::make_shared<std::vector<dev_builds::Build>>(std::move(builds));
     ui::pick("playguard/dev_build/pick"_i18n, labels, selected, [list](int i) {
+        if ((size_t)i >= list->size()) {
+            github_login_flow::sign_in([]() { open(); });
+            return;
+        }
         const dev_builds::Build b = (*list)[(size_t)i];
         std::string running = app::version();
         if (!app::commit().empty()) running += " (" + app::commit() + ")";
@@ -144,11 +151,12 @@ void open()
     brls::async([]() {
         std::vector<dev_builds::Build> builds;
         std::string err;
-        const bool ok = dev_builds::fetch(&builds, &err);
-        brls::sync([ok, builds, err]() {
+        bool needs_login = false;
+        const bool ok = dev_builds::fetch(&builds, &needs_login, &err);
+        brls::sync([ok, builds, needs_login, err]() {
             s_busy = false;
-            if (!ok) ui::info(brls::getStr("playguard/dev_build/list_failed", err));
-            else show(builds);
+            if (ok || needs_login) show(builds, needs_login);   // signing in may still list them
+            else ui::info(brls::getStr("playguard/dev_build/list_failed", err));
         });
     });
 }

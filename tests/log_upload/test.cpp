@@ -30,6 +30,11 @@ static void test_files()
     write(paths::history_file(), "[]");
     files = log_upload::debug_files();
     assert(files.size() == 3 && files[1].name == "history.json" && files[2].name == "config.json");
+    // The GitHub token (util/github_auth.hpp) is never sent.
+    write(paths::data_dir() + "/github_token", "gho_secret");
+    files = log_upload::debug_files();
+    assert(files.size() == 3);
+    for (const auto& f : files) assert(f.content.find("gho_secret") == std::string::npos);
 
     write(paths::logs_dir() + "/20261008_090000.txt", "a");
     write(paths::logs_dir() + "/20261009_141203.txt", "b");

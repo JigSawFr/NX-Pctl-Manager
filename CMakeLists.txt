@@ -82,7 +82,8 @@ if (PLATFORM_SWITCH)
     list(APPEND APP_PLATFORM_LIB curl z nx)
 else ()
     find_package(CURL REQUIRED)
-    list(APPEND APP_PLATFORM_LIB CURL::libcurl)
+    find_package(ZLIB REQUIRED)   # util/zip_read.cpp (the Switch links z above)
+    list(APPEND APP_PLATFORM_LIB CURL::libcurl ZLIB::ZLIB)
 endif ()
 
 # Sources: UI (C++) + service layer. The real service layer (source/core/*.c)
@@ -112,10 +113,13 @@ target_include_directories(${PROJECT_NAME} PRIVATE source extern/qrcodegen ${APP
 # --gc-sections from libnx's switch.specs.
 target_compile_options(${PROJECT_NAME} PRIVATE ${APP_PLATFORM_OPTION})
 # The commit built (at configure time): development builds are told apart by
-# it (util/dev_builds.hpp). Empty outside a git checkout.
+# it (util/dev_builds.hpp). PLAYGUARD_COMMIT (CI: a pull request's head)
+# wins over the checkout's. Empty outside a git checkout.
 find_package(Git QUIET)
 set(APP_COMMIT "")
-if (GIT_FOUND)
+if (DEFINED ENV{PLAYGUARD_COMMIT} AND NOT "$ENV{PLAYGUARD_COMMIT}" STREQUAL "")
+    string(SUBSTRING "$ENV{PLAYGUARD_COMMIT}" 0 7 APP_COMMIT)
+elseif (GIT_FOUND)
     execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short=7 HEAD
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                     OUTPUT_VARIABLE APP_COMMIT OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)

@@ -774,7 +774,23 @@
         "downloading": "正在下载（{} MB）…",
         "failed": "无法安装构建：{}\n\n已安装的 PlayGuard 未改变。",
         "done_manual": "{} 已安装。关闭 PlayGuard 并重新打开即可使用。",
-        "no_path": "PlayGuard 不知道自己的 .nro 文件位置（未通过 hbloader 启动？），因此无法替换。请从 GitHub 手动安装该构建。"
+        "no_path": "PlayGuard 不知道自己的 .nro 文件位置（未通过 hbloader 启动？），因此无法替换。请从 GitHub 手动安装该构建。",
+        "sign_in": "登录 GitHub 以获取 main 和拉取请求的构建"
+    },
+    "github": {
+        "account": "GitHub 账户",
+        "not_signed_in": "未登录",
+        "signed_in_short": "已登录",
+        "starting": "正在连接 GitHub…",
+        "code_body": "请在手机或电脑上打开 {}（或扫描二维码）并输入：",
+        "code_note": "PlayGuard 不请求任何权限：只能读取 GitHub 上的公开内容。正在等待你的授权…",
+        "signed_in": "已登录 GitHub。",
+        "failed": "无法登录 GitHub：{}",
+        "denied": "GitHub 登录被拒绝。",
+        "expired": "代码在输入前已过期，请重试。",
+        "sign_out": "退出登录",
+        "sign_out_body": "退出 GitHub 登录？PlayGuard 将删除其令牌。如需同时撤销：GitHub › Settings › Applications › Authorized OAuth Apps › PlayGuard。",
+        "signed_out": "已退出 GitHub 登录。"
     },
     "toast": {
         "diag_saved": "已保存诊断报告：{}",

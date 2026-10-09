@@ -774,7 +774,23 @@
         "downloading": "Downloading ({} MB)...",
         "failed": "Could not install the build: {}\n\nThe installed PlayGuard is unchanged.",
         "done_manual": "{} is installed. Close PlayGuard and open it again to use it.",
-        "no_path": "PlayGuard does not know where its .nro file is (started without hbloader?), so it cannot replace it. Install the build by hand from GitHub."
+        "no_path": "PlayGuard does not know where its .nro file is (started without hbloader?), so it cannot replace it. Install the build by hand from GitHub.",
+        "sign_in": "Sign in to GitHub for the builds of main and pull requests"
+    },
+    "github": {
+        "account": "GitHub account",
+        "not_signed_in": "Not signed in",
+        "signed_in_short": "Signed in",
+        "starting": "Connecting to GitHub...",
+        "code_body": "On a phone or a computer, open {} (or scan the code) and enter:",
+        "code_note": "PlayGuard asks for no permission: it can only read what is public on GitHub. Waiting for your approval...",
+        "signed_in": "Signed in to GitHub.",
+        "failed": "Could not sign in to GitHub: {}",
+        "denied": "Signing in to GitHub was refused.",
+        "expired": "The code expired before it was entered. Try again.",
+        "sign_out": "Sign out",
+        "sign_out_body": "Sign out of GitHub? PlayGuard forgets its token. To revoke it as well: GitHub › Settings › Applications › Authorized OAuth Apps › PlayGuard.",
+        "signed_out": "Signed out of GitHub."
     },
     "toast": {
         "diag_saved": "Diagnostic saved: {}",

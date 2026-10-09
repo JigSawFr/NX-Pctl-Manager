@@ -14,8 +14,9 @@ seven presses on About › Version for the developer mode, its report, a play-ti
 block reference, the firmware screen again and the hand-over of the update
 to sphaira (simulated hbloader).
 
-The "devbuild" scenario turns the developer mode on and installs a pull
-request's build from a simulated list (PLAYGUARD_SIM_DEV_BUILDS): the file
+The "devbuild" scenario turns the developer mode on, signs in to a simulated
+GitHub (PLAYGUARD_SIM_GITHUB_LOGIN) from the build list, then installs a pull
+request's build out of its artifact zip (PLAYGUARD_SIM_DEV_BUILDS): the file
 must replace the simulated playguard.nro and be handed to hbloader.
 
 The "errors" scenario starts with today's limit reached, the temporary unlock
@@ -67,36 +68,47 @@ if GATE:
     os.makedirs(os.path.dirname(sphaira), exist_ok=True)
     open(sphaira, "w").write("NRO0")
 if DEVBUILD:
-    # Developer tools › Install another build, against a simulated list: the
-    # latest release, two commits of main (the second is this build, so
-    # "installed"), and a pull request whose .nro is a local file.
+    # Developer tools › Install another build, against a simulated GitHub: the
+    # latest release, then (once signed in, simulated device flow) two commits
+    # of main and an open pull request whose artifact is a local zip holding
+    # playguard.nro.
     import hashlib
+    import zipfile
     env.setdefault("PLAYGUARD_SIM_HBLOADER", "1")
-    sim = os.path.join(run_dir, "sim_builds")
+    env.setdefault("PLAYGUARD_SIM_GITHUB_LOGIN", "ok")
+    sim = os.path.join(run_dir, "sim_github")
     os.makedirs(sim, exist_ok=True)
-    pr_nro = os.path.join(sim, "playguard-ccccccc.nro")
+    token_file = os.path.join(run_dir, "playguard_data", "github_token")
+    if os.path.exists(token_file):
+        os.remove(token_file)   # starts signed out
     pr_content = b"\0" * 16 + b"NRO0" + b"pull request build" * 100
-    open(pr_nro, "wb").write(pr_content)
-    head = subprocess.run(["git", "-C", ROOT, "rev-parse", "--short=7", "HEAD"], capture_output=True,
-                          text=True).stdout.strip() or "0000000"
-    def asset(name, path, size, date, digest=None):
-        a = {"name": name, "size": size, "updated_at": date, "browser_download_url": "https://" + path}
+    pr_zip = os.path.join(sim, "pr.zip")
+    with zipfile.ZipFile(pr_zip, "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr("playguard.nro", pr_content)
+        z.writestr("build-info.txt", "commit: ccccccc\n")
+    zip_bytes = open(pr_zip, "rb").read()
+    def artifact(branch, sha, date, path, size, digest=None, head_repo=1):
+        a = {"name": "playguard_release", "size_in_bytes": size, "expired": False, "created_at": date,
+             "archive_download_url": "https://" + path,
+             "workflow_run": {"id": 1, "repository_id": 1, "head_repository_id": head_repo,
+                              "head_branch": branch, "head_sha": sha}}
         if digest:
             a["digest"] = "sha256:" + digest
         return a
-    releases = [
-        {"tag_name": "pr-38", "name": "feat: send a report online", "prerelease": True,
-         "assets": [asset("playguard-ccccccc.nro", pr_nro, len(pr_content), "2026-10-09T09:00:00Z",
-                          hashlib.sha256(pr_content).hexdigest())]},
-        {"tag_name": "dev", "name": "Development builds", "prerelease": True,
-         "assets": [asset("playguard-aaaaaaa.nro", "/missing", 10, "2026-10-09T12:00:00Z"),
-                    asset("playguard-%s.nro" % head, "/missing", 10, "2026-10-08T12:00:00Z")]},
-        {"tag_name": "v1.0.0", "name": "1.0.0", "prerelease": False,
-         "assets": [asset("playguard.nro", "/missing", 10, "2026-10-01T00:00:00Z")]},
-    ]
-    sim_json = os.path.join(sim, "releases.json")
-    json.dump(releases, open(sim_json, "w"))
-    env.setdefault("PLAYGUARD_SIM_DEV_BUILDS", sim_json)
+    json.dump({"tag_name": "v1.0.0", "prerelease": False, "draft": False,
+               "assets": [{"name": "playguard.nro", "size": 10, "updated_at": "2026-10-01T00:00:00Z",
+                           "browser_download_url": "https:///missing"}]},
+              open(os.path.join(sim, "latest.json"), "w"))
+    json.dump({"artifacts": [
+        artifact("main", "a" * 40, "2026-10-09T12:00:00Z", "/missing", 10),
+        artifact("main", "b" * 40, "2026-10-08T12:00:00Z", "/missing", 10),
+        artifact("feat/report", "c" * 40, "2026-10-09T09:00:00Z", pr_zip, len(zip_bytes),
+                 hashlib.sha256(zip_bytes).hexdigest()),
+    ]}, open(os.path.join(sim, "artifacts.json"), "w"))
+    json.dump([{"number": 38, "title": "feat: send a report online",
+                "head": {"ref": "feat/report", "repo": {"id": 1}}}],
+              open(os.path.join(sim, "pulls.json"), "w"))
+    env.setdefault("PLAYGUARD_SIM_DEV_BUILDS", sim)
     installed_nro = os.path.join(run_dir, "playguard_data", "sd", "switch", "playguard", "playguard.nro")
     os.makedirs(os.path.dirname(installed_nro), exist_ok=True)
     open(installed_nro, "wb").write(b"the build before")
@@ -222,7 +234,7 @@ if GATE:
     key("Right")
     key("Down", 50, hold=0.15) # the Developer section, down to its last cell
     shot("05_dev_tools")
-    key("Up", 4)               # past Install another build: Show the diagnostic report
+    key("Up", 5)               # past GitHub account, Install another build: Show the diagnostic report
     key("Return")
     shot("06_dev_report")
     key("Escape")
@@ -267,11 +279,18 @@ if DEVBUILD:
     key("Up", steps("tools", "about"))
     key("Right")
     key("Down", 50, hold=0.15) # the Developer section, down to its last cell
-    key("Return")              # Install another build: the list (this build selected)
-    shot("01_dev_builds")
-    key("Down")                # the pull request
+    key("Return")              # Install another build: signed out, the release and "Sign in"
+    shot("01_dev_builds_signed_out")
+    key("Down")                # Sign in to GitHub
     key("Return")
-    shot("02_dev_build_confirm")
+    shot("02_github_code")     # the code and its QR code (the simulated GitHub approves at once)
+    time.sleep(3)
+    if not os.path.exists(token_file):
+        fail("no GitHub token saved in " + token_file)
+    shot("03_dev_builds")      # the list again: release, main ×2, the pull request
+    key("Down", 3)             # the pull request
+    key("Return")
+    shot("04_dev_build_confirm")
     key("Right")               # Install
     key("Return")
     for _ in range(20):
@@ -285,8 +304,9 @@ if DEVBUILD:
         fail("the new build was not set as the next homebrew")
     if open(installed_nro, "rb").read() != pr_content:
         fail("the pull request's build did not replace " + installed_nro)
-    if os.path.exists(installed_nro + ".old") or os.path.exists(installed_nro + ".new"):
-        fail("a .old or .new file was left next to " + installed_nro)
+    for leftover in (".old", ".new", ".new.zip"):
+        if os.path.exists(installed_nro + leftover):
+            fail("a %s file was left next to %s" % (leftover, installed_nro))
     finish()
 if ERRORS:
     shot("01_limit_reached")   # Overview: today's limit reached
