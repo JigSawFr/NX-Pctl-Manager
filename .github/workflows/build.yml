@@ -173,16 +173,25 @@ jobs:
           cat build-info.txt
           unzip -l playguard.zip
           unzip -l playguard-rescue.zip
+      # Two artifacts so the .nro is not in the same one twice (raw, and again
+      # inside playguard.zip): playguard_release is what Developer tools ›
+      # Install another build downloads on the console (source/util/dev_builds.hpp),
+      # so it holds the raw .nro and the small text files only; the zips the
+      # release attaches are in playguard_packages.
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: playguard_release
           path: |
             playguard.nro
-            playguard.zip
-            playguard-rescue.zip
             compat.json
             build-info.txt
             SHA256SUMS.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: playguard_packages
+          path: |
+            playguard.zip
+            playguard-rescue.zip
       - name: Linker map (what makes the .nro big)
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
@@ -219,6 +228,10 @@ jobs:
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: playguard_release
+          path: dist
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: playguard_packages
           path: dist
       # Anyone can then check that a download came from this repository's CI, unchanged:
       #   gh attestation verify playguard.nro -R JigSawFr/PlayGuard
