@@ -4,6 +4,7 @@
 // state / activity / event documents. Writes the discovery and a state to
 // files that `make check` validates as JSON (tools/check_sync_json.py).
 #include <assert.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,7 +29,10 @@ static void save(const char *name, const char *text)
 {
     char path[512];
     snprintf(path, sizeof(path), "%s/%s", out_dir, name);
-    FILE *f = fopen(path, "wb");
+    // Owner-writable only (fopen would create it 0666 under the umask).
+    const int fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    assert(fd >= 0);
+    FILE *f = fdopen(fd, "wb");
     assert(f);
     fputs(text, f);
     fclose(f);
