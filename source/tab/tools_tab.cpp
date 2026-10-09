@@ -6,6 +6,7 @@
 #include "action/backup_flow.hpp"
 #include "action/fw_gate.hpp"
 #include "action/pt_block_flow.hpp"
+#include "action/pt_flow.hpp"
 #include "action/update_flow.hpp"
 #include "activity/diagnostic_activity.hpp"
 #include "activity/firmware_gate_activity.hpp"
@@ -139,6 +140,7 @@ ToolsTab::ToolsTab()
         if (on || !fw_gate::needed()) {
             app::set_read_only(on);
             ui::on_mode_changed();
+            if (!on) pt_flow::relock_if_interrupted();   // kept while read-only
             return;
         }
         // Untested firmware: same warning as "Continue at my own risk".
@@ -147,6 +149,7 @@ ToolsTab::ToolsTab()
                            "playguard/fw_gate/risk_confirm"_i18n, []() {
                                app::set_read_only(false);
                                ui::on_mode_changed();
+                               pt_flow::relock_if_interrupted();
                            });
     });
     dev_report->registerClickAction([](brls::View*) {

@@ -257,6 +257,8 @@
         "alarm_on_body": "重新开启“时间到”提醒？\n\n达到游戏时间限制时，主机将像默认设置一样再次显示提醒。",
         "alarm_on_confirm": "开启",
         "alarm_on_done": "已开启“时间到”提醒。",
+        "alarm_off_body": "关闭“时间到”提醒？\n\n达到游戏时间限制时，主机将不再提示：游戏只会在下次锁定时暂停。",
+        "alarm_off_confirm": "关闭",
         "pause": "暂停计时",
         "resume": "继续计时",
         "pause_body": "要暂停今天的计时吗？\n\n此操作使用系统的测试命令。请仅在明确需要时使用。",
@@ -525,7 +527,8 @@
         "on_done": "已锁定主机。",
         "off_body": "要解除主机锁定吗？将恢复之前的游戏时间限制。",
         "off_confirm": "解除锁定",
-        "off_done": "已解除主机锁定。"
+        "off_done": "已解除主机锁定。",
+        "blocks_change": "主机锁已开启：每天的限制保持为 0。请先在“安全与应用”中关闭它。"
     },
     "rescue": {
         "title": "恢复",
@@ -759,7 +762,8 @@
             "undo": "从历史记录恢复",
             "first_steps": "入门",
             "overview": "概览",
-            "profile": "配置“{}”"
+            "profile": "配置“{}”",
+            "console_lock": "主机锁"
         },
         "when": "时间",
         "how": "来源",

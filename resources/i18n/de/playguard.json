@@ -257,6 +257,8 @@
         "alarm_on_body": "Alarm „Zeit ist um“ wieder einschalten?\n\nWenn die Spielzeitbegrenzung erreicht ist, zeigt die Konsole den Alarm wieder an, wie standardmäßig vorgesehen.",
         "alarm_on_confirm": "Einschalten",
         "alarm_on_done": "Alarm „Zeit ist um“ eingeschaltet.",
+        "alarm_off_body": "Den „Zeit ist um“-Alarm ausschalten?\n\nWenn das Spielzeitlimit erreicht ist, meldet die Konsole das nicht mehr: Das Spiel wird erst bei der nächsten Sperre unterbrochen.",
+        "alarm_off_confirm": "Ausschalten",
         "pause": "Countdown pausieren",
         "resume": "Countdown fortsetzen",
         "pause_body": "Heutigen Countdown pausieren?\n\nDies nutzt einen Testbefehl des Systems. Verwenden Sie ihn nur, wenn Sie wissen, wozu Sie ihn brauchen.",
@@ -525,7 +527,8 @@
         "on_done": "Konsole gesperrt.",
         "off_body": "Konsole entsperren? Die vorherigen Spielzeitlimits werden wiederhergestellt.",
         "off_confirm": "Konsole entsperren",
-        "off_done": "Konsole entsperrt."
+        "off_done": "Konsole entsperrt.",
+        "blocks_change": "Die Konsolensperre ist aktiv: Das Limit jedes Tages bleibt bei 0. Deaktiviere sie zuerst unter Sicherheit & App."
     },
     "rescue": {
         "title": "Wiederherstellung",
@@ -759,7 +762,8 @@
             "undo": "Aus dem Verlauf wiederhergestellt",
             "first_steps": "Erste Schritte",
             "overview": "Übersicht",
-            "profile": "Profil „{}“"
+            "profile": "Profil „{}“",
+            "console_lock": "Konsolensperre"
         },
         "when": "Wann",
         "how": "Quelle",

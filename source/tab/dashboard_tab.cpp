@@ -272,6 +272,9 @@ void DashboardTab::refresh()
     if (pending) extra_pending->setText(pt_flow::restore_label());
     ui::show_writable(extra, !app::read_only());
     ui::show_writable(stop, !app::read_only());
+    // As ui::show_unlock_banner: no "Lock now" in read-only mode (the banner's
+    // own visibility goes in the batch below).
+    unlocked_banner->detail->setVisibility(app::read_only() ? brls::Visibility::GONE : brls::Visibility::VISIBLE);
     ui::set_visible_all({ { extra.getView(), pt_logic::can_add_extra_time(pt, today, false) },
                           { stop.getView(), pt_logic::can_stop_today(pt, today, false) },
                           { extra_pending.getView(), pending },

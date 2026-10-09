@@ -257,6 +257,8 @@
         "alarm_on_body": "¿Volver a activar la alarma de «Se acabó el tiempo»?\n\nCuando se alcance el límite de tiempo de juego, la consola volverá a mostrar la alarma, como hace de forma predeterminada.",
         "alarm_on_confirm": "Activar",
         "alarm_on_done": "Alarma de «Se acabó el tiempo» activada.",
+        "alarm_off_body": "¿Desactivar la alarma de «tiempo agotado»?\n\nCuando se alcance el límite de tiempo de juego, la consola ya no lo indicará: el juego solo se suspenderá en el siguiente bloqueo.",
+        "alarm_off_confirm": "Desactivar",
         "pause": "Pausar la cuenta atrás",
         "resume": "Reanudar la cuenta atrás",
         "pause_body": "¿Pausar la cuenta atrás de hoy?\n\nEsto usa un comando de prueba del sistema. Úselo solo si sabe por qué lo necesita.",
@@ -525,7 +527,8 @@
         "on_done": "Consola bloqueada.",
         "off_body": "¿Desbloquear la consola? Se vuelven a poner los límites de tiempo de juego anteriores.",
         "off_confirm": "Desbloquear la consola",
-        "off_done": "Consola desbloqueada."
+        "off_done": "Consola desbloqueada.",
+        "blocks_change": "El bloqueo de la consola está activado: el límite de cada día se queda en 0. Desactívalo primero en Seguridad y app."
     },
     "rescue": {
         "title": "Recuperación",
@@ -759,7 +762,8 @@
             "undo": "Restablecido desde el historial",
             "first_steps": "Primeros pasos",
             "overview": "Resumen",
-            "profile": "Perfil «{}»"
+            "profile": "Perfil «{}»",
+            "console_lock": "Bloqueo de la consola"
         },
         "when": "Cuándo",
         "how": "Origen",

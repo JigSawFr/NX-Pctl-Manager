@@ -257,6 +257,8 @@
         "alarm_on_body": "Réactiver l'alarme « temps écoulé » ?\n\nQuand la limite de temps de jeu sera atteinte, la console affichera de nouveau l'alarme, comme elle le fait par défaut.",
         "alarm_on_confirm": "Réactiver",
         "alarm_on_done": "Alarme « temps écoulé » réactivée.",
+        "alarm_off_body": "Désactiver l'alarme « temps écoulé » ?\n\nQuand la limite de temps de jeu sera atteinte, la console ne le signalera plus : le jeu ne sera suspendu qu'au prochain verrouillage.",
+        "alarm_off_confirm": "Désactiver",
         "pause": "Mettre le décompte en pause",
         "resume": "Reprendre le décompte",
         "pause_body": "Mettre le décompte du jour en pause ?\n\nCette action utilise une commande de test du système. Ne l'utilisez que si vous savez pourquoi.",
@@ -525,7 +527,8 @@
         "on_done": "Console verrouillée.",
         "off_body": "Déverrouiller la console ? Les limites de temps de jeu précédentes sont remises.",
         "off_confirm": "Déverrouiller la console",
-        "off_done": "Console déverrouillée."
+        "off_done": "Console déverrouillée.",
+        "blocks_change": "Le verrou de console est activé : la limite de chaque jour reste à 0. Désactivez-le d'abord dans Sécurité et appli."
     },
     "rescue": {
         "title": "Récupération",
@@ -759,7 +762,8 @@
             "undo": "Remis depuis l'historique",
             "first_steps": "Premiers pas",
             "overview": "Vue d'ensemble",
-            "profile": "Profil « {} »"
+            "profile": "Profil « {} »",
+            "console_lock": "Verrou de console"
         },
         "when": "Quand",
         "how": "Origine",

@@ -18,9 +18,15 @@ class ProfilesActivity : public brls::Activity
     CONTENT_FROM_XML_RES("activity/profiles.xml");
 
     void onContentAvailable() override;
+    void onResume() override;
 
   private:
     PtState live = {};
+    // A profile saved from the limits editor pushed above this screen: the
+    // list is rebuilt once this screen is back on top. Rebuilding sooner
+    // would delete the cell borealis gives the focus back to on its return.
+    bool relist_pending = false;
+    std::string relist_focus;
 
     void rebuild(const std::string& focus_file = "");
     void actions(const profiles::Profile& p);

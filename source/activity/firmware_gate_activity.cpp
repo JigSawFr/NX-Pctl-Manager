@@ -74,6 +74,10 @@ void FirmwareGateActivity::choose(fw_gate::Choice choice)
     fw_gate::apply(choice, this->remember->isOn());
     brls::Application::popActivity(brls::TransitionAnimation::FADE, [choice]() {
         ui::on_mode_changed();
-        if (choice == fw_gate::Choice::Risk) pt_flow::offer_extra_time_restore();
+        if (choice == fw_gate::Choice::Risk) {
+            // Writable now: what start-up skipped in read-only mode.
+            pt_flow::relock_if_interrupted();
+            pt_flow::offer_extra_time_restore();
+        }
     });
 }

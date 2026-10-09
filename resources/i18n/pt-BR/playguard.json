@@ -257,6 +257,8 @@
         "alarm_on_body": "Reativar o alarme \"Tempo esgotado\"?\n\nQuando o limite de tempo de jogo for atingido, o console voltará a mostrar o alarme, como faz por padrão.",
         "alarm_on_confirm": "Ativar",
         "alarm_on_done": "Alarme \"Tempo esgotado\" ativado.",
+        "alarm_off_body": "Desativar o alarme \"tempo esgotado\"?\n\nQuando o limite de tempo de jogo for atingido, o console não vai mais avisar: o jogo só será suspenso no próximo bloqueio.",
+        "alarm_off_confirm": "Desativar",
         "pause": "Pausar a contagem",
         "resume": "Retomar a contagem",
         "pause_body": "Pausar a contagem de hoje?\n\nIsso usa um comando de teste do sistema. Use apenas se você souber por que precisa dele.",
@@ -525,7 +527,8 @@
         "on_done": "Console bloqueado.",
         "off_body": "Desbloquear o console? Os limites de tempo de jogo anteriores voltam.",
         "off_confirm": "Desbloquear o console",
-        "off_done": "Console desbloqueado."
+        "off_done": "Console desbloqueado.",
+        "blocks_change": "O bloqueio do console está ativado: o limite de cada dia fica em 0. Desative-o primeiro em Segurança e app."
     },
     "rescue": {
         "title": "Recuperação",
@@ -759,7 +762,8 @@
             "undo": "Restaurado pelo histórico",
             "first_steps": "Primeiros passos",
             "overview": "Visão geral",
-            "profile": "Perfil \"{}\""
+            "profile": "Perfil \"{}\"",
+            "console_lock": "Bloqueio do console"
         },
         "when": "Quando",
         "how": "Origem",

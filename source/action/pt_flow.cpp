@@ -4,6 +4,7 @@
 #include <array>
 #include <borealis.hpp>
 
+#include "action/console_lock.hpp"
 #include "action/history_flow.hpp"
 #include "action/pt_logic.hpp"
 #include "app.hpp"
@@ -40,12 +41,26 @@ void relock_if_interrupted()
     // Read-only refuses every write, the lock too: keep the record for a
     // start that can lock.
     if (!config::get().relock_pending || app::read_only()) return;
-    set_relock_pending(false);
     PctlStatus st;
     pctl_status_fetch(&st);
-    if (!st.temp_unlocked_ok || !st.temp_unlocked) return;
+    if (!st.temp_unlocked_ok) return;   // state unknown: keep the record, try again next time
+    if (!st.temp_unlocked) {
+        set_relock_pending(false);
+        return;
+    }
     Result rc = pctl_relock();
+    // The record goes only once the console is locked again.
+    if (R_SUCCEEDED(rc)) set_relock_pending(false);
     ui::notify_result(rc, "playguard/toast/relocked_after_stop"_i18n, "playguard/toast/relock_err"_i18n);
+}
+
+// After an unlock attempt that failed: drop the record only when the console
+// reads back as locked (the unlock may have gone through and its lock failed).
+static void settle_failed_unlock()
+{
+    PctlStatus st;
+    pctl_status_fetch(&st);
+    if (st.temp_unlocked_ok && !st.temp_unlocked) set_relock_pending(false);
 }
 
 void confirm_write(const std::string& body_in, const std::string& confirm_label,
@@ -99,7 +114,7 @@ void confirm_write(const std::string& body_in, const std::string& confirm_label,
         set_relock_pending(true);
         Result rc = pctl_unlock_restriction_temporarily();
         if (R_FAILED(rc)) {
-            set_relock_pending(false);   // not unlocked (or locked again by the service layer)
+            settle_failed_unlock();   // not unlocked, or locked again by the service layer
             ui::error("playguard/play_timer/gate/failed"_i18n + " — " + ui::rc_text(rc));
             return;
         }
@@ -109,11 +124,19 @@ void confirm_write(const std::string& body_in, const std::string& confirm_label,
     else ui::confirm(text, "playguard/play_timer/gate/confirm"_i18n, unlock_and_write, nullptr, danger);
 }
 
+// Limits written by anything but the console lock replace it: its record
+// would otherwise put older limits back when it is turned off.
+static void limits_replaced(const std::string& source)
+{
+    if (source != "console_lock") console_lock::forget();
+}
+
 Result write_days(const uint16_t days[7], const std::string& source, const std::string& detail)
 {
     PtState before;
     pctl_play_timer_query(&before);
     const Result rc = pctl_play_timer_set_days(days);
+    if (R_SUCCEEDED(rc)) limits_replaced(source);
     if (R_SUCCEEDED(rc) && before.valid)
         history_flow::record_values("limits", history_flow::days_values(before.day_min), history_flow::days_values(days),
                                     source, detail);
@@ -125,6 +148,7 @@ Result clear_days(const std::string& source)
     PtState before;
     pctl_play_timer_query(&before);
     const Result rc = pctl_play_timer_clear();
+    if (R_SUCCEEDED(rc)) limits_replaced(source);
     if (R_SUCCEEDED(rc) && before.valid) {
         uint16_t none[7];
         for (auto& d : none) d = PT_DAY_NOLIMIT;
@@ -136,13 +160,20 @@ Result clear_days(const std::string& source)
 static void offer_relock(std::function<void()> after)
 {
     auto* dialog = ui::dialog("playguard/play_timer/relock/body"_i18n);
-    dialog->addButton("playguard/play_timer/relock/later"_i18n, [after]() { if (after) after(); });
+    // "Later" is a choice to stay unlocked: the record goes. Closed before
+    // an answer, it stays, and the next start locks again.
+    auto later = [after]() {
+        set_relock_pending(false);
+        if (after) after();
+    };
+    dialog->addButton("playguard/play_timer/relock/later"_i18n, later);
     dialog->addButton("playguard/play_timer/relock/now"_i18n, [after]() {
         Result rc = pctl_relock();
+        if (R_SUCCEEDED(rc)) set_relock_pending(false);
         ui::notify_result(rc, "playguard/toast/relocked"_i18n, "playguard/toast/relock_err"_i18n);
         if (after) after();
     });
-    ui::on_cancel(dialog, after);   // B: "Later"
+    ui::on_cancel(dialog, later);   // B: "Later"
     dialog->open();
 }
 
@@ -155,10 +186,11 @@ void finish_write(Result rc, bool did_unlock, const std::string& ok_text,
         return;
     }
     // The unlock was only for this write: never leave the console unlocked
-    // behind the user's back, even when the write failed.
-    set_relock_pending(false);
+    // behind the user's back, even when the write failed. The record of the
+    // unlock stays until the console is locked again (or the user says later).
     if (config::get().auto_relock) {
         Result relock = pctl_relock();
+        if (R_SUCCEEDED(relock)) set_relock_pending(false);
         if (R_SUCCEEDED(rc) && R_SUCCEEDED(relock)) {
             ui::notify(ok_text + " " + "playguard/toast/relocked"_i18n);
         } else {
@@ -279,6 +311,15 @@ void change_day_limit(int day, uint16_t current, std::function<void()> refresh)
     });
 }
 
+// Extra time and "no more play" are for one day of the usual limits: with
+// every day at 0 they would open a hole in the console lock.
+static bool refuse_console_lock()
+{
+    if (!console_lock::active()) return false;
+    ui::info("playguard/console_lock/blocks_change"_i18n);
+    return true;
+}
+
 static void clear_extra_record()
 {
     auto& cfg = config::get();
@@ -300,6 +341,7 @@ static pt_logic::ExtraRecord extra_record()
 
 void add_extra_time(const PtState& pt, std::function<void()> refresh)
 {
+    if (refuse_console_lock()) return;
     const int wd = ui::today_weekday();
     if (!pt.valid || pt.day_min[wd] == PT_DAY_NOLIMIT) return;
     // Tools › Extra time amounts.
@@ -345,6 +387,7 @@ void add_extra_time(const PtState& pt, std::function<void()> refresh)
 
 void stop_today(const PtState& pt, std::function<void()> refresh)
 {
+    if (refuse_console_lock()) return;
     const int wd = ui::today_weekday();
     if (!pt.valid) return;
     const uint16_t base = pt.day_min[wd];
@@ -405,6 +448,7 @@ static void restore_extra(int wd, uint16_t base, uint16_t value, std::function<v
 
 bool restore_pending(const PtState& pt)
 {
+    if (console_lock::active()) return false;   // put back once the lock is off
     return pt_logic::restore_action(extra_record(), ui::today_date(), pt, app::read_only()) == pt_logic::Restore::Offer;
 }
 
@@ -429,6 +473,8 @@ void offer_extra_time_restore(std::function<void()> refresh)
 {
     const pt_logic::ExtraRecord rec = extra_record();
     if (app::read_only() || rec.weekday < 0 || rec.weekday > 6 || rec.date == ui::today_date()) return;
+    // The lock holds every day at 0; the record waits for its limits to come back.
+    if (console_lock::active()) return;
 
     PtState pt;
     pctl_play_timer_query(&pt);
@@ -466,16 +512,42 @@ bool alarm_off(const PtState& pt)
     return pt.fw_supported && pt.enabled_valid && pt.enabled && pt.alarm_disabled_valid && pt.alarm_disabled;
 }
 
-void turn_alarm_on(const std::string& source, std::function<void()> refresh)
+Result write_alarm_disabled(bool disabled, const std::string& source)
+{
+    PtState before;
+    pctl_play_timer_query(&before);
+    const Result rc = pctl_play_timer_set_alarm_disabled(disabled);
+    if (R_SUCCEEDED(rc) && before.alarm_disabled_valid)
+        history_flow::record_values("alarm", { before.alarm_disabled ? 1 : 0 }, { disabled ? 1 : 0 }, source);
+    return rc;
+}
+
+void set_alarm(bool on, const std::string& source, std::function<void()> refresh)
 {
     if (ui::refuse_read_only()) return;
-    ui::confirm("playguard/play_timer/alarm_on_body"_i18n, "playguard/play_timer/alarm_on_confirm"_i18n,
-                [source, refresh]() {
-        const Result rc = pctl_play_timer_set_alarm_disabled(false);
-        if (R_SUCCEEDED(rc)) history_flow::record_values("alarm", { 1 }, { 0 }, source);
-        ui::notify_result(rc, "playguard/play_timer/alarm_on_done"_i18n, "playguard/play_timer/write_err"_i18n);
-        if (refresh) refresh();
-    });
+    const std::string body = on ? "playguard/play_timer/alarm_on_body"_i18n : "playguard/play_timer/alarm_off_body"_i18n;
+    const std::string label = on ? "playguard/play_timer/alarm_on_confirm"_i18n : "playguard/play_timer/alarm_off_confirm"_i18n;
+    confirm_write(body, label, [on, source, refresh](bool did_unlock) {
+        const Result rc = write_alarm_disabled(!on, source);
+        finish_write(rc, did_unlock, on ? "playguard/play_timer/alarm_on_done"_i18n : "playguard/common/applied"_i18n,
+                     "playguard/play_timer/write_err"_i18n, refresh);
+    }, nullptr, !on);
+}
+
+void turn_alarm_on(const std::string& source, std::function<void()> refresh)
+{
+    set_alarm(true, source, refresh);
+}
+
+void set_countdown(bool running, std::function<void()> refresh)
+{
+    if (ui::refuse_read_only()) return;
+    const std::string body = running ? "playguard/play_timer/resume_body"_i18n : "playguard/play_timer/pause_body"_i18n;
+    const std::string label = running ? "playguard/play_timer/resume_confirm"_i18n : "playguard/play_timer/pause_confirm"_i18n;
+    confirm_write(body, label, [running, refresh](bool did_unlock) {
+        const Result rc = running ? pctl_play_timer_start() : pctl_play_timer_stop();
+        finish_write(rc, did_unlock, "playguard/common/applied"_i18n, "playguard/play_timer/write_err"_i18n, refresh);
+    }, nullptr, !running);
 }
 
 }   // namespace pt_flow

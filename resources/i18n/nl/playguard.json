@@ -257,6 +257,8 @@
         "alarm_on_body": "Alarm \"Tijd is om\" weer inschakelen?\n\nAls de speeltijdlimiet is bereikt, toont de console het alarm weer, zoals standaard.",
         "alarm_on_confirm": "Inschakelen",
         "alarm_on_done": "Alarm \"Tijd is om\" ingeschakeld.",
+        "alarm_off_body": "Het alarm 'Tijd is om' uitschakelen?\n\nAls de speeltijdlimiet is bereikt, meldt de console dat niet meer: het spel wordt pas bij de volgende vergrendeling onderbroken.",
+        "alarm_off_confirm": "Uitschakelen",
         "pause": "Aftellen pauzeren",
         "resume": "Aftellen hervatten",
         "pause_body": "Het aftellen van vandaag pauzeren?\n\nHiervoor wordt een testopdracht van het systeem gebruikt. Gebruik dit alleen als je weet waarom je het nodig hebt.",
@@ -525,7 +527,8 @@
         "on_done": "Console vergrendeld.",
         "off_body": "Console ontgrendelen? De vorige speeltijdlimieten worden teruggezet.",
         "off_confirm": "Console ontgrendelen",
-        "off_done": "Console ontgrendeld."
+        "off_done": "Console ontgrendeld.",
+        "blocks_change": "De consolevergrendeling staat aan: de limiet van elke dag blijft 0. Schakel deze eerst uit in Beveiliging & app."
     },
     "rescue": {
         "title": "Herstel",
@@ -759,7 +762,8 @@
             "undo": "Teruggezet vanuit de geschiedenis",
             "first_steps": "Eerste stappen",
             "overview": "Overzicht",
-            "profile": "Profiel \"{}\""
+            "profile": "Profiel \"{}\"",
+            "console_lock": "Consolevergrendeling"
         },
         "when": "Wanneer",
         "how": "Bron",

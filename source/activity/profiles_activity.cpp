@@ -95,15 +95,29 @@ bool ProfilesActivity::store(const profiles::Profile& p, const std::string& ok_t
         return false;
     }
     ui::notify(ok_text);
+    // The file kept its old case when only the case changed: find it again.
     const std::string file = profiles::file_stem(p.name);
-    brls::sync([this, file]() {
-        // The file kept its old case when only the case changed: find it again.
-        std::string focus = file;
-        for (const auto& q : profiles::list())
-            if (profiles::file_stem(q.name) == file) focus = q.file;
-        this->rebuild(focus);
-    });
+    std::string focus = file;
+    for (const auto& q : profiles::list())
+        if (profiles::file_stem(q.name) == file) focus = q.file;
+    const auto stack = brls::Application::getActivitiesStack();
+    if (!stack.empty() && stack.back() != this) {   // the limits editor is still open
+        this->relist_pending = true;
+        this->relist_focus   = focus;
+        return true;
+    }
+    brls::sync([this, focus]() { this->rebuild(focus); });
     return true;
+}
+
+void ProfilesActivity::onResume()
+{
+    if (!this->relist_pending) return;
+    this->relist_pending = false;
+    // Next frame: borealis first gives the focus back to the cell that opened
+    // the editor, which rebuild() then moves away before deleting it.
+    const std::string focus = this->relist_focus;
+    brls::sync([this, focus]() { this->rebuild(focus); });
 }
 
 void ProfilesActivity::edit_limits(const profiles::Profile& p)

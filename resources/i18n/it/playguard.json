@@ -257,6 +257,8 @@
         "alarm_on_body": "Riattivare l'avviso \"Tempo scaduto\"?\n\nQuando verrà raggiunto il limite di tempo di gioco, la console mostrerà di nuovo l'avviso, come fa in modo predefinito.",
         "alarm_on_confirm": "Attiva",
         "alarm_on_done": "Avviso \"Tempo scaduto\" attivato.",
+        "alarm_off_body": "Disattivare l'allarme «tempo scaduto»?\n\nQuando sarà raggiunto il limite di tempo di gioco, la console non lo segnalerà più: il gioco verrà sospeso solo al blocco successivo.",
+        "alarm_off_confirm": "Disattiva",
         "pause": "Metti in pausa il conteggio",
         "resume": "Riprendi il conteggio",
         "pause_body": "Vuoi mettere in pausa il conteggio di oggi?\n\nQuesta funzione usa un comando di test del sistema. Usala solo se sai perché ti serve.",
@@ -525,7 +527,8 @@
         "on_done": "Console bloccata.",
         "off_body": "Vuoi sbloccare la console? Vengono ripristinati i limiti di tempo di gioco precedenti.",
         "off_confirm": "Sblocca la console",
-        "off_done": "Console sbloccata."
+        "off_done": "Console sbloccata.",
+        "blocks_change": "Il blocco della console è attivo: il limite di ogni giorno resta a 0. Disattivalo prima in Sicurezza e app."
     },
     "rescue": {
         "title": "Recupero",
@@ -759,7 +762,8 @@
             "undo": "Ripristinato dalla cronologia",
             "first_steps": "Primi passi",
             "overview": "Panoramica",
-            "profile": "Profilo \"{}\""
+            "profile": "Profilo \"{}\"",
+            "console_lock": "Blocco della console"
         },
         "when": "Quando",
         "how": "Origine",

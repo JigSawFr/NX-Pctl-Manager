@@ -23,13 +23,22 @@ void set_flag(bool on)
 }
 
 // Turn the lock on: save the seven limits, set them all to 0.
-void lock(const PtState& pt, std::function<void()> refresh)
+void lock(std::function<void()> refresh)
 {
     uint16_t zero[7] = { 0, 0, 0, 0, 0, 0, 0 };
-    std::vector<int> prev(pt.day_min, pt.day_min + 7);   // what we put back later
 
     pt_flow::confirm_write("playguard/console_lock/on_body"_i18n, "playguard/console_lock/on_confirm"_i18n,
-                           [refresh, prev](bool did_unlock) {
+                           [refresh](bool did_unlock) {
+        // What we put back later, read now: a limit that could not be read
+        // would be saved as "no limit", and turning the lock off would then
+        // remove every limit.
+        PtState now;
+        pctl_play_timer_query(&now);
+        if (!now.valid) {
+            pt_flow::finish_write(NXM_RC_STATE_UNKNOWN, did_unlock, "", "playguard/play_timer/write_err"_i18n, refresh);
+            return;
+        }
+        const std::vector<int> prev(now.day_min, now.day_min + 7);
         const uint16_t zero[7] = { 0, 0, 0, 0, 0, 0, 0 };
         Result rc = pt_flow::write_days(zero, "console_lock");
         if (R_SUCCEEDED(rc)) {
@@ -76,8 +85,21 @@ bool active()
 
 void set(bool on, const PtState& pt, std::function<void()> refresh)
 {
-    if (on) lock(pt, refresh);
+    if (on && !pt.valid) {
+        ui::error(ui::rc_text(NXM_RC_STATE_UNKNOWN));
+        return;
+    }
+    if (on) lock(refresh);
     else unlock(refresh);
+}
+
+void forget()
+{
+    auto& cfg = config::get();
+    if (!cfg.console_lock && cfg.console_lock_prev.empty()) return;
+    cfg.console_lock = false;
+    cfg.console_lock_prev.clear();
+    ui::save_config();
 }
 
 }   // namespace console_lock
