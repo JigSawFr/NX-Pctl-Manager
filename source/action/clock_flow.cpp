@@ -148,7 +148,15 @@ void measure(const std::string& server, std::function<void(const Measurement&)> 
             }
             std::sort(estimates.begin(), estimates.end());
             m.ok           = true;
-            m.unix_seconds = (uint64_t)estimates[estimates.size() / 2];
+            // Median; an even count takes the mean of the two middle samples
+            // (the difference as unsigned: hi >= lo, so it cannot overflow).
+            const size_t mid = estimates.size() / 2;
+            int64_t median   = estimates[mid];
+            if (estimates.size() % 2 == 0) {
+                const int64_t lo = estimates[mid - 1];
+                median = lo + (int64_t)(((uint64_t)estimates[mid] - (uint64_t)lo) / 2);
+            }
+            m.unix_seconds = (uint64_t)median;
             m.spread       = estimates.back() - estimates.front();
             const std::string diff = R_SUCCEEDED(s.network_rc) ? signed_seconds((int64_t)m.unix_seconds - (int64_t)s.network_time) : "?";
             m.report += brls::getStr("playguard/clock/result_summary", ui::time_text(m.unix_seconds), diff);
