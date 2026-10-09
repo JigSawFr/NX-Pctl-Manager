@@ -111,7 +111,17 @@ target_include_directories(${PROJECT_NAME} PRIVATE source extern/qrcodegen ${APP
 # -ffunction-sections / -fdata-sections come from borealis (PUBLIC) and
 # --gc-sections from libnx's switch.specs.
 target_compile_options(${PROJECT_NAME} PRIVATE ${APP_PLATFORM_OPTION})
-target_compile_definitions(${PROJECT_NAME} PRIVATE APP_VERSION="${APP_VERSION}")
+# The commit built (at configure time): development builds are told apart by
+# it (util/dev_builds.hpp). Empty outside a git checkout.
+find_package(Git QUIET)
+set(APP_COMMIT "")
+if (GIT_FOUND)
+    execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short=7 HEAD
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                    OUTPUT_VARIABLE APP_COMMIT OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
+endif()
+message(STATUS "PlayGuard commit: ${APP_COMMIT}")
+target_compile_definitions(${PROJECT_NAME} PRIVATE APP_VERSION="${APP_VERSION}" APP_COMMIT="${APP_COMMIT}")
 target_link_libraries(${PROJECT_NAME} PRIVATE borealis ${APP_PLATFORM_LIB})
 # On the Switch: a linker map (build/borealis.map) to see what makes the .nro big.
 target_link_options(${PROJECT_NAME} PRIVATE ${APP_PLATFORM_LINK_OPTION})

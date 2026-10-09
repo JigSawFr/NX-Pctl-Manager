@@ -757,6 +757,24 @@
         "presses_left_one": "Encore 1 appui pour activer le mode développeur.",
         "report_upload": "Envoyer en ligne"
     },
+    "dev_build": {
+        "open": "Installer un autre build",
+        "pick": "Build à installer",
+        "release": "Version {}",
+        "main": "main · {} · {}",
+        "pr": "PR #{} · {} · {}",
+        "installed": "installé",
+        "confirm": "Remplacer PlayGuard {} par {} ?\n\nIl est téléchargé depuis GitHub, vérifié, mis à la place de celui-ci, et PlayGuard redémarre dessus. Les builds de développement ne sont pas testés comme les versions publiées ; cette liste permet de revenir à une version publiée à tout moment.",
+        "no_digest": "GitHub ne donne pas d'empreinte pour ce fichier : seuls sa taille et son type sont vérifiés.",
+        "install": "Installer",
+        "loading": "Recherche des builds...",
+        "busy": "Déjà en cours...",
+        "list_failed": "Impossible de lister les builds : {}",
+        "downloading": "Téléchargement ({} Mo)...",
+        "failed": "Impossible d'installer le build : {}\n\nLe PlayGuard installé n'a pas changé.",
+        "done_manual": "{} est installé. Fermez PlayGuard et rouvrez-le pour l'utiliser.",
+        "no_path": "PlayGuard ne sait pas où se trouve son fichier .nro (lancé sans hbloader ?) et ne peut donc pas le remplacer. Installez le build à la main depuis GitHub."
+    },
     "toast": {
         "diag_saved": "Diagnostic enregistré : {}",
         "diag_err": "Impossible d'enregistrer le diagnostic",

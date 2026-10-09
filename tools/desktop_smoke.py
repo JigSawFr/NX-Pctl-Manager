@@ -14,12 +14,16 @@ seven presses on About › Version for the developer mode, its report, a play-ti
 block reference, the firmware screen again and the hand-over of the update
 to sphaira (simulated hbloader).
 
+The "devbuild" scenario turns the developer mode on and installs a pull
+request's build from a simulated list (PLAYGUARD_SIM_DEV_BUILDS): the file
+must replace the simulated playguard.nro and be handed to hbloader.
+
 The "errors" scenario starts with today's limit reached, the temporary unlock
 failing and "Synchronise clock via Internet" off (PLAYGUARD_SIM_FAIL & co.):
 a limit change must end in the "could not unlock" dialog, with the app alive,
 and the clock tab must say why the network clock cannot be set.
 
-Usage: tools/desktop_smoke.py <out-dir> [gate|errors]   (needs DISPLAY, xdotool, ImageMagick)
+Usage: tools/desktop_smoke.py <out-dir> [gate|errors|rescue|devbuild]   (needs DISPLAY, xdotool, ImageMagick)
 Environment knobs of the simulated backend (PLAYGUARD_SIM_*) are passed through;
 the console time is fixed (PLAYGUARD_SIM_NOW, TZ) unless set.
 """
@@ -36,11 +40,12 @@ SCENARIO = sys.argv[2] if len(sys.argv) > 2 else ""
 GATE = SCENARIO == "gate"
 ERRORS = SCENARIO == "errors"
 RESCUE = SCENARIO == "rescue"
+DEVBUILD = SCENARIO == "devbuild"
 os.makedirs(OUT, exist_ok=True)
 run_dir = os.path.join(OUT, "run")
 os.makedirs(run_dir, exist_ok=True)
 config_file = os.path.join(run_dir, "playguard_data", "config.json")
-if (GATE or ERRORS) and os.path.exists(config_file):
+if (GATE or ERRORS or DEVBUILD) and os.path.exists(config_file):
     os.remove(config_file)   # no remembered choice, developer mode off
 block_ref = os.path.join(run_dir, "playguard_data", "logs", "play_timer_block.json")
 if GATE and os.path.exists(block_ref):
@@ -61,7 +66,41 @@ if GATE:
     sphaira = os.path.join(run_dir, "playguard_data", "sd", "switch", "sphaira", "sphaira.nro")
     os.makedirs(os.path.dirname(sphaira), exist_ok=True)
     open(sphaira, "w").write("NRO0")
-if not GATE and not ERRORS:
+if DEVBUILD:
+    # Developer tools › Install another build, against a simulated list: the
+    # latest release, two commits of main (the second is this build, so
+    # "installed"), and a pull request whose .nro is a local file.
+    import hashlib
+    env.setdefault("PLAYGUARD_SIM_HBLOADER", "1")
+    sim = os.path.join(run_dir, "sim_builds")
+    os.makedirs(sim, exist_ok=True)
+    pr_nro = os.path.join(sim, "playguard-ccccccc.nro")
+    pr_content = b"\0" * 16 + b"NRO0" + b"pull request build" * 100
+    open(pr_nro, "wb").write(pr_content)
+    head = subprocess.run(["git", "-C", ROOT, "rev-parse", "--short=7", "HEAD"], capture_output=True,
+                          text=True).stdout.strip() or "0000000"
+    def asset(name, path, size, date, digest=None):
+        a = {"name": name, "size": size, "updated_at": date, "browser_download_url": "https://" + path}
+        if digest:
+            a["digest"] = "sha256:" + digest
+        return a
+    releases = [
+        {"tag_name": "pr-38", "name": "feat: send a report online", "prerelease": True,
+         "assets": [asset("playguard-ccccccc.nro", pr_nro, len(pr_content), "2026-10-09T09:00:00Z",
+                          hashlib.sha256(pr_content).hexdigest())]},
+        {"tag_name": "dev", "name": "Development builds", "prerelease": True,
+         "assets": [asset("playguard-aaaaaaa.nro", "/missing", 10, "2026-10-09T12:00:00Z"),
+                    asset("playguard-%s.nro" % head, "/missing", 10, "2026-10-08T12:00:00Z")]},
+        {"tag_name": "v1.0.0", "name": "1.0.0", "prerelease": False,
+         "assets": [asset("playguard.nro", "/missing", 10, "2026-10-01T00:00:00Z")]},
+    ]
+    sim_json = os.path.join(sim, "releases.json")
+    json.dump(releases, open(sim_json, "w"))
+    env.setdefault("PLAYGUARD_SIM_DEV_BUILDS", sim_json)
+    installed_nro = os.path.join(run_dir, "playguard_data", "sd", "switch", "playguard", "playguard.nro")
+    os.makedirs(os.path.dirname(installed_nro), exist_ok=True)
+    open(installed_nro, "wb").write(b"the build before")
+if not GATE and not ERRORS and not DEVBUILD:
     env.setdefault("PLAYGUARD_SIM_NUMPAD", "1:30")   # what the system number pad returns
     env.setdefault("PLAYGUARD_SIM_PASTE", "https://dpaste.org/SmOkE1")   # what dpaste.org answers
 if ERRORS:
@@ -183,7 +222,7 @@ if GATE:
     key("Right")
     key("Down", 50, hold=0.15) # the Developer section, down to its last cell
     shot("05_dev_tools")
-    key("Up", 3)               # Show the diagnostic report
+    key("Up", 4)               # past Install another build: Show the diagnostic report
     key("Return")
     shot("06_dev_report")
     key("Escape")
@@ -218,6 +257,36 @@ if GATE:
         fail("developer mode was not saved")
     if cfg.get("fw_gate_choice"):
         fail("a firmware choice was remembered without the box ticked")
+    finish()
+if DEVBUILD:
+    # About: seven presses on Version turn the developer mode on.
+    key("Down", steps("dashboard", "about"))
+    key("Right")
+    key("Return", 7)
+    key("Left")
+    key("Up", steps("tools", "about"))
+    key("Right")
+    key("Down", 50, hold=0.15) # the Developer section, down to its last cell
+    key("Return")              # Install another build: the list (this build selected)
+    shot("01_dev_builds")
+    key("Down")                # the pull request
+    key("Return")
+    shot("02_dev_build_confirm")
+    key("Right")               # Install
+    key("Return")
+    for _ in range(20):
+        if not alive():
+            break
+        time.sleep(0.5)
+    else:
+        fail("still running after installing the build")
+    log.flush()
+    if "next load: sdmc:" not in open(os.path.join(OUT, "app.log"), errors="replace").read():
+        fail("the new build was not set as the next homebrew")
+    if open(installed_nro, "rb").read() != pr_content:
+        fail("the pull request's build did not replace " + installed_nro)
+    if os.path.exists(installed_nro + ".old") or os.path.exists(installed_nro + ".new"):
+        fail("a .old or .new file was left next to " + installed_nro)
     finish()
 if ERRORS:
     shot("01_limit_reached")   # Overview: today's limit reached

@@ -54,6 +54,7 @@
             <brls:DetailCell id="tl_dev_pt_block" title="@i18n/playguard/dev/pt_block"/>
             <brls:DetailCell id="tl_dev_gate" title="@i18n/playguard/dev/gate"/>
             <brls:DetailCell id="tl_dev_forget" title="@i18n/playguard/dev/forget"/>
+            <brls:DetailCell id="tl_dev_build" title="@i18n/playguard/dev_build/open"/>
 
         </brls:Box>
 

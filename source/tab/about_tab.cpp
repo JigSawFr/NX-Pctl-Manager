@@ -112,7 +112,9 @@ void AboutTab::refresh()
     std::string flags;
     if (app::read_only()) flags += " · " + "playguard/tools/flag_read_only"_i18n;
     if (app::dev_mode()) flags += " · " + "playguard/tools/flag_dev"_i18n;
-    version->setDetailText(app::version() + flags);
+    // Developer mode: the commit too, to tell development builds apart.
+    const std::string commit = app::dev_mode() && !app::commit().empty() ? " (" + app::commit() + ")" : "";
+    version->setDetailText(app::version() + commit + flags);
     mode->setDetailText(si.applet_mode ? "playguard/tools/mode_applet"_i18n : "playguard/tools/mode_app"_i18n);
     data->setDetailText(paths::data_dir());
 }

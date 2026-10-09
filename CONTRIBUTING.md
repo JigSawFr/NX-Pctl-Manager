@@ -41,6 +41,7 @@ Clone with submodules (`git clone --recursive`, or `git submodule update --init`
 | `PLAYGUARD_SIM_REGION=2` | The console region |
 | `PLAYGUARD_SIM_LATEST=1.1.0:24.0.0` | The latest release and the newest firmware it supports, for the update check (`offline` for no network) |
 | `PLAYGUARD_SIM_PASTE=https://dpaste.org/AbC1` | What dpaste.org answers to *Send a report online* (`offline` for no network) |
+| `PLAYGUARD_SIM_DEV_BUILDS=<file>` | The releases the GitHub API returns for *Install another build* (a JSON array; `https://<local path>` download URLs are copied from disk; `offline` for no network) |
 | `PLAYGUARD_SIM_HBLOADER=1` | A homebrew loader that can hand an update over to a store |
 | `PLAYGUARD_SIM_NUMPAD=1:30` | What the system number pad returns |
 | `PLAYGUARD_SIM_NOW=<POSIX seconds>` | A frozen console time (with `TZ=` for its time zone) |
@@ -50,7 +51,7 @@ Game patches are read from `./playguard_data/sd/`, the simulated SD card root.
 ## Tests and CI
 
 - `make test` — host unit tests (`tests/`, see [`tests/README.md`](tests/README.md)), including the recovery sysmodule logic (`tests/rescue/`).
-- `tools/desktop_smoke.py <out-dir> [gate|errors]` — clicks through every screen of the desktop build headlessly (needs `DISPLAY`, `xdotool`, ImageMagick) and saves screenshots. The `gate` scenario covers the firmware screen and developer mode on a simulated 24.0.0; `errors` covers a failed unlock and an unsettable clock.
+- `tools/desktop_smoke.py <out-dir> [gate|errors|rescue|devbuild]` — clicks through every screen of the desktop build headlessly (needs `DISPLAY`, `xdotool`, ImageMagick) and saves screenshots. The `gate` scenario covers the firmware screen and developer mode on a simulated 24.0.0; `errors` covers a failed unlock and an unsettable clock; `rescue` the recovery screen; `devbuild` installing a pull request's build in place from a simulated list.
 - `tools/visual_check.py` — compares those screenshots with the references in `tests/visual/`. A difference is reported as a warning, not a failure; see [`tests/visual/README.md`](tests/visual/README.md) to update them.
 - `python3 tools/check_resources.py .` — checks the XML layouts and translation catalogs.
 
@@ -82,6 +83,8 @@ Releases are automated with [release-please](https://github.com/googleapis/relea
 - Give each pull request a conventional title (`feat: …`, `fix: …`, `docs: …`, `feat!: …` for a breaking change); CI checks it.
 - **Squash-merge** pull requests, so each one lands as a single commit carrying that title. A plain merge commit makes release-please apply a PR's `BEGIN_COMMIT_OVERRIDE` block to every commit of the PR.
 - release-please keeps a `chore(main): release X.Y.Z` PR open; merging it tags the release and attaches the `.nro` / `.zip`.
+
+**Development builds:** CI also publishes the `.nro` of every push to `main` in the `dev` pre-release (`playguard-<commit>.nro`, the newest 20) and of every push to a pull request from this repository in a `pr-<n>` pre-release, removed when it closes (`dev-builds-cleanup.yml`). Pre-releases are never *latest*, so the update check and the stores ignore them; the developer tools install them in place (`source/util/dev_builds.hpp`). Pull requests from forks and Dependabot get no build there.
 
 Each release also publishes `compat.json` (`tools/gen_compat.py`: the version and the newest checked firmware), which the app's update check reads, plus `build-info.txt` and `SHA256SUMS.txt`. Details in [`packaging/README.md`](packaging/README.md). The `.nro`, both `.zip` and `compat.json` also carry a [build provenance attestation](https://docs.github.com/actions/security-for-github-actions/using-artifact-attestations): `gh attestation verify playguard.nro -R JigSawFr/PlayGuard` checks that a download was built by this repository's CI.
 

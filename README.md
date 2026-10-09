@@ -246,6 +246,7 @@ Press *About › Version* seven times; the developer tools appear at the end of 
 
 - a **read-only** switch — with it on, the app cannot change anything: the safe way to investigate a new firmware (the firmware screen offers it directly);
 - the diagnostic report on screen (Ⓨ saves it, Ⓧ sends it online), and a shortcut to export it from the Play timer tab;
+- **Install another build** in place, to test a fix before it is released: the latest release, one of the last 20 commits of `main`, or the build of an open pull request. PlayGuard downloads it from GitHub, checks it (size, the SHA-256 GitHub records, the NRO header), puts it in place of its own `.nro` and restarts on it (behind *Ask for the PIN* when that is on). The same list goes back to the release at any time; *About › Version* shows the commit in developer mode;
 - **Compare the play-timer block**, to decode settings PlayGuard does not show yet: save the raw block as a reference, change one setting in the phone app, come back — PlayGuard lists the values that changed (saved in `logs/` on request). Bedtime and "alarm only" vs "suspend the software" could be found this way. Attach that file to an issue, or send it with the report (*Send a report online*).
 </details>
 

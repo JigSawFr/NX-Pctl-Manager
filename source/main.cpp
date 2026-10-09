@@ -38,8 +38,7 @@ using namespace brls::literals;
 
 int main(int argc, char* argv[])
 {
-    (void)argc;
-    (void)argv;
+    app::set_self_path(argc > 0 ? argv[0] : nullptr);
 
     // Preferences first: the locale must be chosen before borealis loads i18n.
     config::load();

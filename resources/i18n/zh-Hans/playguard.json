@@ -757,6 +757,24 @@
         "presses_left_one": "再按1次即可开启开发者模式。",
         "report_upload": "在线发送"
     },
+    "dev_build": {
+        "open": "安装其他构建",
+        "pick": "要安装的构建",
+        "release": "版本 {}",
+        "main": "main · {} · {}",
+        "pr": "PR #{} · {} · {}",
+        "installed": "已安装",
+        "confirm": "将 PlayGuard {} 替换为 {}？\n\n它将从 GitHub 下载并校验，替换当前构建，然后 PlayGuard 会以它重新启动。开发构建未经过与正式版本相同的测试；随时可以在此列表中回到正式版本。",
+        "no_digest": "GitHub 未提供此文件的校验和：只检查其大小和类型。",
+        "install": "安装",
+        "loading": "正在查找构建…",
+        "busy": "已在进行中…",
+        "list_failed": "无法列出构建：{}",
+        "downloading": "正在下载（{} MB）…",
+        "failed": "无法安装构建：{}\n\n已安装的 PlayGuard 未改变。",
+        "done_manual": "{} 已安装。关闭 PlayGuard 并重新打开即可使用。",
+        "no_path": "PlayGuard 不知道自己的 .nro 文件位置（未通过 hbloader 启动？），因此无法替换。请从 GitHub 手动安装该构建。"
+    },
     "toast": {
         "diag_saved": "已保存诊断报告：{}",
         "diag_err": "无法保存诊断报告",

@@ -757,6 +757,24 @@
         "presses_left_one": "再按1次即可開啟開發者模式。",
         "report_upload": "線上傳送"
     },
+    "dev_build": {
+        "open": "安裝其他建置",
+        "pick": "要安裝的建置",
+        "release": "版本 {}",
+        "main": "main · {} · {}",
+        "pr": "PR #{} · {} · {}",
+        "installed": "已安裝",
+        "confirm": "將 PlayGuard {} 替換為 {}？\n\n它會從 GitHub 下載並驗證，取代目前的建置，然後 PlayGuard 會以它重新啟動。開發建置未經過與正式版本相同的測試；隨時可在此清單中回到正式版本。",
+        "no_digest": "GitHub 未提供此檔案的總和檢查碼：只檢查其大小與類型。",
+        "install": "安裝",
+        "loading": "正在尋找建置…",
+        "busy": "已在進行中…",
+        "list_failed": "無法列出建置：{}",
+        "downloading": "正在下載（{} MB）…",
+        "failed": "無法安裝建置：{}\n\n已安裝的 PlayGuard 未變更。",
+        "done_manual": "{} 已安裝。關閉 PlayGuard 後重新開啟即可使用。",
+        "no_path": "PlayGuard 不知道自己的 .nro 檔案位置（未透過 hbloader 啟動？），因此無法替換。請從 GitHub 手動安裝該建置。"
+    },
     "toast": {
         "diag_saved": "已儲存診斷報告：{}",
         "diag_err": "無法儲存診斷報告",
