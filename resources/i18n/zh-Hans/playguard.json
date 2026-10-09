@@ -783,11 +783,13 @@
         "loading": "正在查找构建…",
         "busy": "已在进行中…",
         "list_failed": "无法列出构建：{}",
+        "list_stale": "无法刷新列表（{}）：显示上次的列表。",
         "downloading": "正在下载（{} MB）…",
         "failed": "无法安装构建：{}\n\n已安装的 PlayGuard 未改变。",
         "done_manual": "{} 已安装。关闭 PlayGuard 并重新打开即可使用。",
         "no_path": "PlayGuard 不知道自己的 .nro 文件位置（未通过 hbloader 启动？），因此无法替换。请从 GitHub 手动安装该构建。",
-        "sign_in": "登录 GitHub 以获取 main 和拉取请求的构建"
+        "sign_in": "登录 GitHub 以获取 main 和拉取请求的构建",
+        "refresh": "刷新列表（{} 分钟前检查）"
     },
     "github": {
         "account": "GitHub 账户",

@@ -3,6 +3,7 @@
 
 #include <borealis.hpp>
 #include <cstdio>
+#include <ctime>
 #include <memory>
 #include <vector>
 
@@ -12,6 +13,7 @@
 #include "ui/ui.hpp"
 #include "util/config.hpp"
 #include "util/dev_builds.hpp"
+#include "util/github_auth.hpp"
 #include "util/launcher.hpp"
 #include "util/paths.hpp"
 
@@ -23,6 +25,31 @@ namespace dev_build_flow
 namespace
 {
 bool s_busy = false;   // one list or download at a time
+
+// The last list fetched (dev_builds::Cache), read from the SD card on the
+// first opening of this run.
+dev_builds::Cache s_cache;
+bool              s_cache_read = false;
+
+std::string cache_file() { return paths::data_dir() + "/cache/dev_builds.json"; }
+
+void read_cache()
+{
+    if (s_cache_read) return;
+    s_cache_read = true;
+    std::string text;
+    if (paths::read_file(cache_file(), text) && !dev_builds::decode_cache(text, &s_cache)) s_cache = {};
+}
+
+void keep(const dev_builds::Cache& cache)
+{
+    s_cache = cache;
+    std::string err;
+    // Only saves time on the next start: a write that fails is just logged.
+    if (!paths::ensure_dir(paths::data_dir() + "/cache") ||
+        !paths::atomic_write(cache_file(), dev_builds::encode_cache(cache), &err))
+        brls::Logger::warning("dev builds: cannot keep the list ({})", err);
+}
 
 // The .nro to replace, from the SD card root: the running one. On desktop,
 // where nothing runs from an SD card, the usual place on the simulated one.
@@ -111,22 +138,31 @@ void install(const dev_builds::Build& b)
     });
 }
 
-void show(std::vector<dev_builds::Build> builds, bool needs_login)
+void show(const dev_builds::Cache& cache)
 {
     std::vector<std::string> labels;
     int selected = 0;
-    for (size_t i = 0; i < builds.size(); i++) {
-        labels.push_back(label(builds[i]));
-        if (installed(builds[i])) selected = (int)i;
+    for (size_t i = 0; i < cache.builds.size(); i++) {
+        labels.push_back(label(cache.builds[i]));
+        if (installed(cache.builds[i])) selected = (int)i;
     }
-    // Without a token GitHub hands out the release only: the last line signs in.
-    if (needs_login) labels.push_back("playguard/dev_build/sign_in"_i18n);
-    auto list = std::make_shared<std::vector<dev_builds::Build>>(std::move(builds));
-    ui::pick("playguard/dev_build/pick"_i18n, labels, selected, [list](int i) {
-        if ((size_t)i >= list->size()) {
+    // Without a token GitHub hands out the release only: a line signs in.
+    const int sign_in = cache.needs_login ? (int)labels.size() : -1;
+    if (cache.needs_login) labels.push_back("playguard/dev_build/sign_in"_i18n);
+    const int refresh = (int)labels.size();
+    const int64_t age = (int64_t)std::time(nullptr) - cache.fetched_at;
+    labels.push_back(brls::getStr("playguard/dev_build/refresh", (int)(age > 0 ? age / 60 : 0)));
+    auto list = std::make_shared<std::vector<dev_builds::Build>>(cache.builds);
+    ui::pick("playguard/dev_build/pick"_i18n, labels, selected, [list, sign_in, refresh](int i) {
+        if (i == refresh) {
+            open(true);
+            return;
+        }
+        if (i == sign_in) {
             github_login_flow::sign_in([]() { open(); });
             return;
         }
+        if (i < 0 || (size_t)i >= list->size()) return;
         const dev_builds::Build b = (*list)[(size_t)i];
         std::string running = app::version();
         if (!app::commit().empty()) running += " (" + app::commit() + ")";
@@ -141,23 +177,42 @@ void show(std::vector<dev_builds::Build> builds, bool needs_login)
 }
 }   // namespace
 
-void open()
+void open(bool force)
 {
     if (s_busy) {
         ui::notify("playguard/dev_build/busy"_i18n);
         return;
     }
+    // A list fetched a few minutes ago, in the same sign-in state, is shown at
+    // once; an older one is fetched again (and still shown if GitHub cannot
+    // be reached).
+    read_cache();
+    const bool needs_login = github_auth::token().empty();
+    if (!force && dev_builds::cache_fresh(s_cache, (int64_t)std::time(nullptr), needs_login)) {
+        show(s_cache);
+        return;
+    }
     s_busy = true;
     ui::notify("playguard/dev_build/loading"_i18n);
+    // Not behind the play log or the game icons (ui::in_background).
     ui::in_background("dev build list", []() {
-        std::vector<dev_builds::Build> builds;
+        dev_builds::Cache fresh;
         std::string err;
-        bool needs_login = false;
-        const bool ok = dev_builds::fetch(&builds, &needs_login, &err);
-        brls::sync([ok, builds, needs_login, err]() {
+        const bool ok = dev_builds::fetch(&fresh.builds, &fresh.needs_login, &err);
+        fresh.fetched_at = (int64_t)std::time(nullptr);
+        brls::sync([ok, fresh, err]() {
             s_busy = false;
-            if (ok || needs_login) show(builds, needs_login);   // signing in may still list them
-            else ui::info(brls::getStr("playguard/dev_build/list_failed", err));
+            if (ok) {
+                keep(fresh);
+                show(fresh);
+            } else if (!s_cache.builds.empty()) {
+                ui::notify(brls::getStr("playguard/dev_build/list_stale", err));
+                show(s_cache);
+            } else if (fresh.needs_login) {
+                show(fresh);   // signing in may still list them
+            } else {
+                ui::info(brls::getStr("playguard/dev_build/list_failed", err));
+            }
         });
     });
 }

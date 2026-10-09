@@ -1,7 +1,7 @@
 // Host tests for source/util/sha256.cpp, dev_builds.cpp, zip_read.cpp and
 // github_auth.cpp: the SHA-256 test vectors, digests, the latest release, the
 // artifact and pull-request lists and how they combine (main's commits, each
-// open pull request's newest build, forks included), the download checks
+// open pull request's newest build, forks included), the cached list, the download checks
 // (size, SHA-256, NRO header), zip extraction (deflated, stored, a changed
 // byte, a cut archive), the replacement of the running file, and the
 // device-flow answers and the token file.
@@ -146,6 +146,53 @@ static void test_artifacts()
     assert(!dev_builds::parse_pulls("{}", &no_pulls) && no_pulls.empty());
 }
 
+static void test_cache()
+{
+    Build rel;
+    rel.kind = Kind::Release;
+    rel.version = "1.2.0";
+    rel.url = "https://github.com/o/r/releases/download/v1.2.0/playguard.nro";
+    rel.size = 5000;
+    rel.sha256 = std::string(64, 'a');
+    Build pr;
+    pr.kind = Kind::PullRequest;
+    pr.artifact = true;
+    pr.pr = 48;
+    pr.title = "fix: \"quoted\" title";
+    pr.commit = "abc1234";
+    pr.date = "2026-10-09T12:03:00Z";
+    pr.url = "https://api.github.com/repos/o/r/actions/artifacts/1/zip";
+    pr.size = 4000;
+    Build bad = pr;
+    bad.url = "http://x";   // not https: left out when read back
+    dev_builds::Cache c;
+    c.builds = { rel, pr, bad };
+    c.needs_login = false;
+    c.fetched_at = 1000000;
+
+    dev_builds::Cache back;
+    assert(dev_builds::decode_cache(dev_builds::encode_cache(c), &back));
+    assert(back.fetched_at == 1000000 && !back.needs_login && back.builds.size() == 2);
+    assert(back.builds[0].kind == Kind::Release && back.builds[0].version == "1.2.0" && !back.builds[0].artifact &&
+           back.builds[0].size == 5000 && back.builds[0].sha256 == rel.sha256 && back.builds[0].url == rel.url);
+    assert(back.builds[1].kind == Kind::PullRequest && back.builds[1].artifact && back.builds[1].pr == 48 &&
+           back.builds[1].title == pr.title && back.builds[1].commit == "abc1234" && back.builds[1].date == pr.date &&
+           back.builds[1].sha256.empty());
+
+    // Fresh: under ten minutes old, not from the future, same sign-in state, not empty.
+    assert(dev_builds::cache_fresh(back, 1000000 + 599, false));
+    assert(!dev_builds::cache_fresh(back, 1000000 + 600, false));
+    assert(!dev_builds::cache_fresh(back, 1000000 - 1, false));
+    assert(!dev_builds::cache_fresh(back, 1000000, true));
+    back.builds.clear();
+    assert(!dev_builds::cache_fresh(back, 1000000, false));
+
+    dev_builds::Cache none;
+    assert(!dev_builds::decode_cache("", &none) && !dev_builds::decode_cache("[]", &none) &&
+           !dev_builds::decode_cache(R"({"version": 2, "builds": []})", &none));
+    assert(!dev_builds::cache_fresh(none, 0, false));
+}
+
 static std::string nro(size_t size)
 {
     std::string s(size, 'z');
@@ -281,11 +328,12 @@ int main()
     test_names();
     test_release();
     test_artifacts();
+    test_cache();
     test_files();
     test_zip();
     test_auth();
 
     std::system((std::string("rm -rf '") + dir + "'").c_str());
-    std::puts("sha256, release and artifact lists, download checks, zip extraction, replacement and GitHub sign-in assertions passed");
+    std::puts("sha256, release and artifact lists, the cached list, download checks, zip extraction, replacement and GitHub sign-in assertions passed");
     return 0;
 }

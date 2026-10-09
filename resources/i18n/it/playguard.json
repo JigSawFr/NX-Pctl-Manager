@@ -783,11 +783,13 @@
         "loading": "Ricerca delle build...",
         "busy": "Già in corso...",
         "list_failed": "Impossibile elencare le build: {}",
+        "list_stale": "Impossibile aggiornare l'elenco ({}): viene mostrato l'ultimo.",
         "downloading": "Download in corso ({} MB)...",
         "failed": "Impossibile installare la build: {}\n\nIl PlayGuard installato non è cambiato.",
         "done_manual": "{} è installata. Chiudi PlayGuard e riaprilo per usarla.",
         "no_path": "PlayGuard non sa dove si trova il suo file .nro (avviato senza hbloader?), quindi non può sostituirlo. Installa la build a mano da GitHub.",
-        "sign_in": "Accedi a GitHub per le build di main e delle pull request"
+        "sign_in": "Accedi a GitHub per le build di main e delle pull request",
+        "refresh": "Aggiorna l'elenco (controllato {} min fa)"
     },
     "github": {
         "account": "Account GitHub",

@@ -17,7 +17,8 @@ to sphaira (simulated hbloader).
 The "devbuild" scenario turns the developer mode on, signs in to a simulated
 GitHub (PLAYGUARD_SIM_GITHUB_LOGIN) from the build list, then installs a pull
 request's build out of its artifact zip (PLAYGUARD_SIM_DEV_BUILDS): the file
-must replace the simulated playguard.nro and be handed to hbloader.
+must replace the simulated playguard.nro and be handed to hbloader. On the
+way, the list must be kept (opened again at once) and Refresh fetch it again.
 
 The "errors" scenario starts with today's limit reached, the temporary unlock
 failing and "Synchronise clock via Internet" off (PLAYGUARD_SIM_FAIL & co.):
@@ -81,6 +82,9 @@ if DEVBUILD:
     token_file = os.path.join(run_dir, "playguard_data", "github_token")
     if os.path.exists(token_file):
         os.remove(token_file)   # starts signed out
+    kept_list = os.path.join(run_dir, "playguard_data", "cache", "dev_builds.json")
+    if os.path.exists(kept_list):
+        os.remove(kept_list)    # and with no list kept from an earlier run
     pr_content = b"\0" * 16 + b"NRO0" + b"pull request build" * 100
     pr_zip = os.path.join(sim, "pr.zip")
     with zipfile.ZipFile(pr_zip, "w", zipfile.ZIP_DEFLATED) as z:
@@ -287,7 +291,22 @@ if DEVBUILD:
     time.sleep(3)
     if not os.path.exists(token_file):
         fail("no GitHub token saved in " + token_file)
-    shot("03_dev_builds")      # the list again: release, main ×2, the pull request
+    shot("03_dev_builds")      # the list again: release, main ×2, the pull request, Refresh
+    cache_file = os.path.join(run_dir, "playguard_data", "cache", "dev_builds.json")
+    if not os.path.exists(cache_file) or len(json.load(open(cache_file))["builds"]) != 4:
+        fail("the list was not kept in " + cache_file)
+    loading = "Looking for builds..."
+    fetched = messages().count(loading)
+    key("Escape")              # closed, then opened again: the list kept is shown at once
+    key("Return")
+    shot("03b_dev_builds_kept")
+    if messages().count(loading) != fetched:
+        fail("a list fetched a moment ago was fetched again")
+    key("Down", 4)             # Refresh the list: fetched again
+    key("Return")
+    time.sleep(2)
+    if messages().count(loading) != fetched + 1:
+        fail("Refresh the list did not fetch it again")
     key("Down", 3)             # the pull request
     key("Return")
     shot("04_dev_build_confirm")

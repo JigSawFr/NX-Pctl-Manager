@@ -783,11 +783,13 @@
         "loading": "正在尋找建置…",
         "busy": "已在進行中…",
         "list_failed": "無法列出建置：{}",
+        "list_stale": "無法重新整理清單（{}）：顯示上次的清單。",
         "downloading": "正在下載（{} MB）…",
         "failed": "無法安裝建置：{}\n\n已安裝的 PlayGuard 未變更。",
         "done_manual": "{} 已安裝。關閉 PlayGuard 後重新開啟即可使用。",
         "no_path": "PlayGuard 不知道自己的 .nro 檔案位置（未透過 hbloader 啟動？），因此無法替換。請從 GitHub 手動安裝該建置。",
-        "sign_in": "登入 GitHub 以取得 main 與提取要求的建置"
+        "sign_in": "登入 GitHub 以取得 main 與提取要求的建置",
+        "refresh": "重新整理清單（{} 分鐘前檢查）"
     },
     "github": {
         "account": "GitHub 帳戶",

@@ -783,11 +783,13 @@
         "loading": "Procurando compilações...",
         "busy": "Já em andamento...",
         "list_failed": "Não foi possível listar as compilações: {}",
+        "list_stale": "Não foi possível atualizar a lista ({}): mostrando a última.",
         "downloading": "Baixando ({} MB)...",
         "failed": "Não foi possível instalar a compilação: {}\n\nO PlayGuard instalado não mudou.",
         "done_manual": "{} está instalada. Feche o PlayGuard e abra-o de novo para usá-la.",
         "no_path": "O PlayGuard não sabe onde está seu arquivo .nro (iniciado sem hbloader?), então não pode substituí-lo. Instale a compilação manualmente pelo GitHub.",
-        "sign_in": "Entrar no GitHub para as compilações do main e dos pull requests"
+        "sign_in": "Entrar no GitHub para as compilações do main e dos pull requests",
+        "refresh": "Atualizar a lista (verificada há {} min)"
     },
     "github": {
         "account": "Conta do GitHub",

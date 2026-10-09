@@ -783,11 +783,13 @@
         "loading": "Builds zoeken...",
         "busy": "Al bezig...",
         "list_failed": "Kon de builds niet ophalen: {}",
+        "list_stale": "Kan de lijst niet vernieuwen ({}): de laatste wordt getoond.",
         "downloading": "Downloaden ({} MB)...",
         "failed": "Kon de build niet installeren: {}\n\nDe geïnstalleerde PlayGuard is ongewijzigd.",
         "done_manual": "{} is geïnstalleerd. Sluit PlayGuard en open het opnieuw om hem te gebruiken.",
         "no_path": "PlayGuard weet niet waar zijn .nro-bestand staat (gestart zonder hbloader?) en kan het dus niet vervangen. Installeer de build handmatig vanaf GitHub.",
-        "sign_in": "Aanmelden bij GitHub voor de builds van main en pull requests"
+        "sign_in": "Aanmelden bij GitHub voor de builds van main en pull requests",
+        "refresh": "Lijst vernieuwen ({} min geleden gecontroleerd)"
     },
     "github": {
         "account": "GitHub-account",
