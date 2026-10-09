@@ -4,10 +4,10 @@
 #include "action/update_flow.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
-#include "util/changelog.hpp"
 #include "util/config.hpp"
 #include "util/paths.hpp"
-#include "view/qr_view.hpp"
+#include "view/funding.hpp"
+#include "view/release_notes.hpp"
 
 using namespace brls::literals;
 
@@ -21,63 +21,6 @@ int index_of(const char* const (&list)[N], const std::string& value)
     for (size_t i = 0; i < N; i++)
         if (value == list[i]) return (int)i;
     return 0;
-}
-
-brls::Label* centered_label(const std::string& text, int font_size, NVGcolor color)
-{
-    auto* label = new brls::Label();
-    label->setFontSize(font_size);
-    label->setTextColor(color);
-    label->setHorizontalAlign(brls::HorizontalAlign::CENTER);
-    label->setText(text);
-    return label;
-}
-
-// "https://ko-fi.com/jigsawfr" → "ko-fi.com/jigsawfr": what to type by hand.
-std::string short_url(const std::string& url)
-{
-    const size_t scheme = url.find("://");
-    return scheme == std::string::npos ? url : url.substr(scheme + 3);
-}
-
-// A funding link: its QR code, its name and its address. Focusable, so the
-// D-pad reaches the end of the tab; Ⓐ shows the code larger.
-brls::Box* funding_card(const std::string& name, const std::string& url)
-{
-    auto* card = new brls::Box(brls::Axis::COLUMN);
-    card->setAlignItems(brls::AlignItems::CENTER);
-    card->setWidth(340);   // both cards alike, whatever their address
-    card->setPadding(12, 16, 12, 16);
-    card->setFocusable(true);
-    card->addView(new QrView(url, 180));
-    brls::Label* title = centered_label(name, 22, ui::color_text());
-    title->setMarginTop(8);
-    card->addView(title);
-    card->addView(centered_label(short_url(url), 18, ui::color_note()));
-    card->registerClickAction([name, url](brls::View*) {
-        auto* box = new brls::Box(brls::Axis::COLUMN);
-        box->setAlignItems(brls::AlignItems::CENTER);
-        box->setPadding(24, 24, 16, 24);
-        box->addView(new QrView(url, 340));
-        brls::Label* caption = centered_label(name + " — " + short_url(url), 22, ui::color_text());
-        caption->setMarginTop(12);
-        box->addView(caption);
-        auto* dialog = new brls::Dialog(box);
-        dialog->addButton("hints/ok"_i18n, []() {});
-        dialog->open();
-        return true;
-    });
-    return card;
-}
-
-brls::Label* note_label(const std::string& text, int font_size, NVGcolor color)
-{
-    auto* label = new brls::Label();
-    label->setSingleLine(false);
-    label->setFontSize(font_size);
-    label->setTextColor(color);
-    label->setText(text);
-    return label;
 }
 }   // namespace
 
@@ -117,54 +60,21 @@ AboutTab::AboutTab()
     ui_lib->setDetailText("borealis (Apache 2.0)");
     license->setDetailText("GPLv3");
     source->setDetailText(app::repo_url());
-    funding->addView(funding_card("GitHub Sponsors", app::SPONSORS_URL));
-    funding->addView(funding_card("Ko-fi", app::KOFI_URL));
+    funding->addView(funding::cards(180, true));
     this->fill_changelog();
 }
 
 void AboutTab::fill_changelog()
 {
     // This version's notes only: the earlier ones are on the releases page.
-    std::string md, date;
-    paths::read_file(BRLS_ASSET("CHANGELOG.md"), md);
-    const auto lines = changelog::release_notes(md, app::version(), &date);
+    std::string date;
+    const auto lines = release_notes::current(&date);
     changelog_header->setTitle(brls::getStr("playguard/about/section_changelog", app::version()));
     if (!date.empty()) changelog_header->setSubtitle(date);
     const std::string releases = std::string(app::repo_url()) + "/releases";
     changelog_note->setText(lines.empty() ? brls::getStr("playguard/about/changelog_none", releases)
                                           : brls::getStr("playguard/about/changelog_note", releases));
-    bool first = true;
-    for (const changelog::Line& l : lines) {
-        brls::View* view = nullptr;
-        switch (l.kind) {
-            case changelog::Line::Release:   // not under one version's heading
-            case changelog::Line::Section:
-                view = note_label(l.text, 22, ui::color_text());
-                view->setMarginTop(first ? 0 : 12);
-                view->setMarginBottom(4);
-                break;
-            case changelog::Line::Item: {
-                // The bullet in its own column: wrapped lines stay under the text.
-                auto* row = new brls::Box(brls::Axis::ROW);
-                row->setMarginLeft(8 + 24 * l.depth);
-                row->setMarginTop(4);
-                brls::Label* bullet = note_label("•", 20, ui::color_text());
-                bullet->setWidth(20);
-                brls::Label* text = note_label(l.text, 20, ui::color_text());
-                text->setGrow(1.0f);
-                row->addView(bullet);
-                row->addView(text);
-                view = row;
-                break;
-            }
-            case changelog::Line::Text:
-                view = note_label(l.text, 20, ui::color_note());
-                view->setMarginTop(6);
-                break;
-        }
-        changelog->addView(view);
-        first = false;
-    }
+    release_notes::fill(changelog, lines);
 }
 
 void AboutTab::count_version_press()

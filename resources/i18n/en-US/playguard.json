@@ -657,13 +657,19 @@
         "credit_ui": "Interface",
         "section_support": "Support PlayGuard",
         "support_note": "PlayGuard is free, open source and has no ads. If it helps your family, you can support its development: scan a code with your phone (select it to enlarge it).",
-        "made_in_france": "Made in France"
+        "made_in_france": "Made in France",
+        "support_body": "PlayGuard is free, open source and has no ads. If it helps your family, you can support its development: scan a code with your phone.",
+        "reminder_title": "Enjoying PlayGuard?",
+        "reminder_never": "Don't show again",
+        "reminder_off": "The monthly reminder is off. Preferences › At start-up turns it back on.",
+        "whats_new_close": "Continue"
     },
     "prefs": {
         "section_app": "App",
         "section_play_timer": "Play timer",
         "section_startup": "At start-up",
-        "note": "Backups, the diagnostic report and the console are in Tools; updates are in About."
+        "note": "Backups, the diagnostic report and the console are in Tools; updates are in About.",
+        "support_reminder": "Remind me once a month to support PlayGuard"
     },
     "backup": {
         "saved": "Settings backed up: {}",

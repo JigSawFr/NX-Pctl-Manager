@@ -657,13 +657,19 @@
         "credit_ui": "Oberfläche",
         "section_support": "PlayGuard unterstützen",
         "support_note": "PlayGuard ist kostenlos, quelloffen und werbefrei. Wenn es Ihrer Familie hilft, können Sie die Entwicklung unterstützen: Scannen Sie einen Code mit Ihrem Smartphone (auswählen zum Vergrößern).",
-        "made_in_france": "Made in France"
+        "made_in_france": "Made in France",
+        "support_body": "PlayGuard ist kostenlos, quelloffen und werbefrei. Wenn es Ihrer Familie hilft, können Sie die Entwicklung unterstützen: Scannen Sie einen Code mit Ihrem Smartphone.",
+        "reminder_title": "Gefällt Ihnen PlayGuard?",
+        "reminder_never": "Nicht mehr anzeigen",
+        "reminder_off": "Die monatliche Erinnerung ist aus. Unter Optionen › Beim Start lässt sie sich wieder einschalten.",
+        "whats_new_close": "Weiter"
     },
     "prefs": {
         "section_app": "App",
         "section_play_timer": "Spielzeit",
         "section_startup": "Beim Start",
-        "note": "Sicherungen, der Diagnosebericht und die Konsole befinden sich unter Tools, Updates unter Info."
+        "note": "Sicherungen, der Diagnosebericht und die Konsole befinden sich unter Tools, Updates unter Info.",
+        "support_reminder": "Einmal im Monat daran erinnern, PlayGuard zu unterstützen"
     },
     "backup": {
         "saved": "Einstellungen gesichert: {}",

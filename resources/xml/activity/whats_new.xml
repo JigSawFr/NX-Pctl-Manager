@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- What's new: shown once at start-up after an update (action/support_flow),
+     the running version's notes from the bundled CHANGELOG.md, then how to
+     support PlayGuard. Filled by whats_new_activity.cpp. -->
+
+<brls:AppletFrame
+    iconInterpolation="linear">
+
+    <brls:ScrollingFrame
+        icon="@res/img/app_icon.jpg"
+        width="auto"
+        height="auto"
+        axis="column"
+        alignItems="stretch"
+        scrollingBehavior="centered"
+        grow="1.0">
+
+        <brls:Box
+            width="auto"
+            height="auto"
+            axis="column"
+            alignItems="stretch"
+            paddingTop="@style/brls/sidebar/padding_top"
+            paddingRight="@style/brls/sidebar/padding_right"
+            paddingBottom="@style/brls/sidebar/padding_bottom"
+            paddingLeft="@style/brls/sidebar/padding_left">
+
+            <brls:Header id="wn_header" marginBottom="8"/>
+            <brls:Box id="wn_notes" width="auto" height="auto" axis="column" alignItems="stretch"/>
+            <brls:DetailCell id="wn_close" title="@i18n/playguard/about/whats_new_close" marginTop="24"/>
+            <brls:Header title="@i18n/playguard/about/section_support" marginTop="32" marginBottom="8"/>
+            <brls:Label text="@i18n/playguard/about/support_note" id="wn_support_note" fontSize="20" marginBottom="6" textColor="@theme/brand/note"/>
+            <brls:Box id="wn_funding" width="auto" height="auto" axis="column" alignItems="stretch"/>
+            <MadeInFrance marginTop="24"/>
+
+        </brls:Box>
+
+    </brls:ScrollingFrame>
+
+</brls:AppletFrame>

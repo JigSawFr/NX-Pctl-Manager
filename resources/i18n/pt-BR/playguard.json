@@ -657,13 +657,19 @@
         "credit_ui": "Interface",
         "section_support": "Apoiar o PlayGuard",
         "support_note": "O PlayGuard é gratuito, de código aberto e sem anúncios. Se ele ajuda a sua família, você pode apoiar o desenvolvimento: escaneie um código com o celular (selecione-o para ampliar).",
-        "made_in_france": "Made in France"
+        "made_in_france": "Made in France",
+        "support_body": "O PlayGuard é gratuito, de código aberto e sem anúncios. Se ele ajuda a sua família, você pode apoiar o desenvolvimento: escaneie um código com o celular.",
+        "reminder_title": "O PlayGuard está sendo útil?",
+        "reminder_never": "Não mostrar de novo",
+        "reminder_off": "O lembrete mensal está desativado. Você pode reativá-lo em Preferências › Ao iniciar.",
+        "whats_new_close": "Continuar"
     },
     "prefs": {
         "section_app": "App",
         "section_play_timer": "Tempo de jogo",
         "section_startup": "Ao iniciar",
-        "note": "Backups, o relatório de diagnóstico e o console estão em Ferramentas; as atualizações, em Sobre."
+        "note": "Backups, o relatório de diagnóstico e o console estão em Ferramentas; as atualizações, em Sobre.",
+        "support_reminder": "Lembrar uma vez por mês de apoiar o PlayGuard"
     },
     "backup": {
         "saved": "Backup das configurações feito: {}",

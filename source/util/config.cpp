@@ -63,6 +63,15 @@ void one_of(std::string& value, std::initializer_list<const char*> allowed, cons
         if (value == a) return;
     value = fallback;
 }
+
+// "YYYY-MM-DD", digits where they belong.
+bool is_date(const std::string& s)
+{
+    if (s.size() != 10 || s[4] != '-' || s[7] != '-') return false;
+    for (int i : { 0, 1, 2, 3, 5, 6, 8, 9 })
+        if (s[i] < '0' || s[i] > '9') return false;
+    return true;
+}
 }   // namespace
 
 void sanitize(Config& c)
@@ -89,6 +98,8 @@ void sanitize(Config& c)
     for (int k : BACKUP_KEEP) keep_ok |= c.backup_keep == k;
     if (!keep_ok) c.backup_keep = 0;
     if (!c.update_checked.empty() && c.update_checked.size() != 10) c.update_checked.clear();
+    if (!is_date(c.support_reminded)) c.support_reminded.clear();
+    if (c.seen_version.size() > 32) c.seen_version.clear();
 
     std::vector<std::string> servers;
     for (const auto& s : c.custom_servers)
@@ -144,6 +155,9 @@ void load()
     read_bool(j, "clock_check_at_start", c.clock_check_at_start);
     read_string(j, "pin_lock", c.pin_lock);
     read_bool(j, "onboarding_at_start", c.onboarding_at_start);
+    read_bool(j, "support_reminder", c.support_reminder);
+    read_string(j, "support_reminded", c.support_reminded);
+    read_string(j, "seen_version", c.seen_version);
     read_bool(j, "console_lock", c.console_lock);
     auto prev = j.find("console_lock_prev");
     if (prev != j.end() && prev->is_array()) {
@@ -201,6 +215,9 @@ bool save()
     j["clock_check_at_start"] = s_config.clock_check_at_start;
     j["pin_lock"]        = s_config.pin_lock;
     j["onboarding_at_start"] = s_config.onboarding_at_start;
+    j["support_reminder"] = s_config.support_reminder;
+    j["support_reminded"] = s_config.support_reminded;
+    j["seen_version"]    = s_config.seen_version;
     j["console_lock"]    = s_config.console_lock;
     j["console_lock_prev"] = s_config.console_lock_prev;
     j["fw_gate_fw"]      = s_config.fw_gate_fw;

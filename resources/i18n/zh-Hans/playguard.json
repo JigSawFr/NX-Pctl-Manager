@@ -657,13 +657,19 @@
         "credit_ui": "界面",
         "section_support": "支持 PlayGuard",
         "support_note": "PlayGuard 免费、开源且无广告。如果它对您的家庭有帮助，可以支持它的开发：用手机扫描二维码（选中可放大）。",
-        "made_in_france": "Made in France"
+        "made_in_france": "Made in France",
+        "support_body": "PlayGuard 免费、开源且无广告。如果它对您的家庭有帮助，可以支持它的开发：用手机扫描二维码。",
+        "reminder_title": "PlayGuard 对您有帮助吗？",
+        "reminder_never": "不再显示",
+        "reminder_off": "每月提醒已关闭。可在“偏好设置 › 启动时”重新开启。",
+        "whats_new_close": "继续"
     },
     "prefs": {
         "section_app": "应用",
         "section_play_timer": "游戏时间",
         "section_startup": "启动时",
-        "note": "备份、诊断报告和主机信息位于“工具”中，更新位于“关于”中。"
+        "note": "备份、诊断报告和主机信息位于“工具”中，更新位于“关于”中。",
+        "support_reminder": "每月提醒一次支持 PlayGuard"
     },
     "backup": {
         "saved": "已备份设置：{}",

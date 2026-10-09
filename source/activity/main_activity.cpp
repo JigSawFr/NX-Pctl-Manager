@@ -4,6 +4,7 @@
 #include "action/clock_check.hpp"
 #include "action/fw_gate.hpp"
 #include "action/pt_flow.hpp"
+#include "action/support_flow.hpp"
 #include "action/update_flow.hpp"
 #include "activity/onboarding_activity.hpp"
 #include "app.hpp"
@@ -79,6 +80,9 @@ void MainActivity::onContentAvailable()
     // Nothing set up yet (no PIN): the first steps, once per start.
     if (OnboardingActivity::wanted_at_start())
         brls::sync([]() { brls::Application::pushActivity(new OnboardingActivity()); });
+    // Then, with nothing else in front: "What's new" after an update, else the
+    // monthly "Support PlayGuard" reminder.
+    support_flow::at_start(this);
 
     this->day = ui::today_date();
     this->day_timer.setPeriod(30000);

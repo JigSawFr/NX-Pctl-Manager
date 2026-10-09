@@ -657,13 +657,19 @@
         "credit_ui": "인터페이스",
         "section_support": "PlayGuard 후원하기",
         "support_note": "PlayGuard는 무료 오픈 소스이며 광고가 없습니다. 가족에게 도움이 되었다면 개발을 후원할 수 있습니다: 휴대폰으로 코드를 스캔하세요(선택하면 크게 표시됩니다).",
-        "made_in_france": "Made in France"
+        "made_in_france": "Made in France",
+        "support_body": "PlayGuard는 무료 오픈 소스이며 광고가 없습니다. 가족에게 도움이 되었다면 개발을 후원할 수 있습니다: 휴대폰으로 코드를 스캔하세요.",
+        "reminder_title": "PlayGuard가 도움이 되나요?",
+        "reminder_never": "다시 표시하지 않음",
+        "reminder_off": "월간 알림을 껐습니다. 환경 설정 › 시작할 때에서 다시 켤 수 있습니다.",
+        "whats_new_close": "계속"
     },
     "prefs": {
         "section_app": "앱",
         "section_play_timer": "플레이 타이머",
         "section_startup": "시작할 때",
-        "note": "백업, 진단 보고서, 본체 정보는 도구에, 업데이트는 정보에 있습니다."
+        "note": "백업, 진단 보고서, 본체 정보는 도구에, 업데이트는 정보에 있습니다.",
+        "support_reminder": "한 달에 한 번 PlayGuard 후원 알림 표시"
     },
     "backup": {
         "saved": "설정을 백업했습니다: {}",

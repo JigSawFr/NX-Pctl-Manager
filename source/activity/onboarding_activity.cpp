@@ -9,6 +9,7 @@
 #include "ui/ui.hpp"
 #include "util/config.hpp"
 #include "util/pctl_ops_c.hpp"
+#include "view/funding.hpp"
 
 using namespace brls::literals;
 
@@ -70,6 +71,12 @@ void OnboardingActivity::onContentAvailable()
     });
     close->registerClickAction([](brls::View*) {
         brls::Application::popActivity();
+        return true;
+    });
+    // Not a step: below Close, for whoever wants it.
+    support->setDetailText("GitHub Sponsors · Ko-fi");
+    support->registerClickAction([](brls::View*) {
+        funding::open_dialog();
         return true;
     });
     this->refresh();

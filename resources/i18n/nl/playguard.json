@@ -657,13 +657,19 @@
         "credit_ui": "Interface",
         "section_support": "PlayGuard steunen",
         "support_note": "PlayGuard is gratis, open source en zonder advertenties. Helpt het je gezin, dan kun je de ontwikkeling steunen: scan een code met je telefoon (selecteer hem om te vergroten).",
-        "made_in_france": "Made in France"
+        "made_in_france": "Made in France",
+        "support_body": "PlayGuard is gratis, open source en zonder advertenties. Helpt het je gezin, dan kun je de ontwikkeling steunen: scan een code met je telefoon.",
+        "reminder_title": "Heb je iets aan PlayGuard?",
+        "reminder_never": "Niet meer tonen",
+        "reminder_off": "De maandelijkse herinnering staat uit. Zet hem weer aan via Voorkeuren › Bij het opstarten.",
+        "whats_new_close": "Doorgaan"
     },
     "prefs": {
         "section_app": "App",
         "section_play_timer": "Speeltijdtimer",
         "section_startup": "Bij het opstarten",
-        "note": "Back-ups, het diagnoserapport en de console staan onder Tools; updates onder Info."
+        "note": "Back-ups, het diagnoserapport en de console staan onder Tools; updates onder Info.",
+        "support_reminder": "Herinner me één keer per maand om PlayGuard te steunen"
     },
     "backup": {
         "saved": "Back-up van instellingen gemaakt: {}",

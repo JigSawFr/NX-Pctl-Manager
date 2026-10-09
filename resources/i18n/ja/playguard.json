@@ -657,13 +657,19 @@
         "credit_ui": "インターフェース",
         "section_support": "PlayGuardを応援する",
         "support_note": "PlayGuardは無料・オープンソースで、広告はありません。ご家族の役に立っていれば、開発を応援できます：スマートフォンでコードを読み取ってください（選ぶと拡大します）。",
-        "made_in_france": "Made in France"
+        "made_in_france": "Made in France",
+        "support_body": "PlayGuardは無料・オープンソースで、広告はありません。ご家族の役に立っていれば、開発を応援できます：スマートフォンでコードを読み取ってください。",
+        "reminder_title": "PlayGuardはお役に立っていますか？",
+        "reminder_never": "今後表示しない",
+        "reminder_off": "毎月のお知らせをOFFにしました。「オプション › 起動時」から再びONにできます。",
+        "whats_new_close": "続ける"
     },
     "prefs": {
         "section_app": "アプリ",
         "section_play_timer": "プレイ時間",
         "section_startup": "起動時",
-        "note": "バックアップ、診断レポート、本体の情報は「ツール」に、アップデートは「情報」にあります。"
+        "note": "バックアップ、診断レポート、本体の情報は「ツール」に、アップデートは「情報」にあります。",
+        "support_reminder": "月に一度、PlayGuardの応援についてお知らせする"
     },
     "backup": {
         "saved": "設定をバックアップしました：{}",

@@ -657,13 +657,19 @@
         "credit_ui": "介面",
         "section_support": "支持 PlayGuard",
         "support_note": "PlayGuard 免費、開源且無廣告。如果它對您的家庭有幫助，可以支持它的開發：用手機掃描 QR 碼（選取可放大）。",
-        "made_in_france": "Made in France"
+        "made_in_france": "Made in France",
+        "support_body": "PlayGuard 免費、開源且無廣告。如果它對您的家庭有幫助，可以支持它的開發：用手機掃描 QR 碼。",
+        "reminder_title": "PlayGuard 對您有幫助嗎？",
+        "reminder_never": "不再顯示",
+        "reminder_off": "每月提醒已關閉。可在「偏好設定 › 啟動時」重新開啟。",
+        "whats_new_close": "繼續"
     },
     "prefs": {
         "section_app": "應用程式",
         "section_play_timer": "遊玩時間限制",
         "section_startup": "啟動時",
-        "note": "備份、診斷報告及主機資訊位於「工具」，更新位於「關於」。"
+        "note": "備份、診斷報告及主機資訊位於「工具」，更新位於「關於」。",
+        "support_reminder": "每月提醒一次支持 PlayGuard"
     },
     "backup": {
         "saved": "已備份設定：{}",
