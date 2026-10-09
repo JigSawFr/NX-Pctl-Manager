@@ -4,6 +4,7 @@
 #include <fmt/format.h>
 
 #include "action/backup_flow.hpp"
+#include "action/dev_build_flow.hpp"
 #include "action/fw_gate.hpp"
 #include "action/pt_block_flow.hpp"
 #include "action/pt_flow.hpp"
@@ -134,6 +135,10 @@ ToolsTab::ToolsTab()
         pt_block_flow::open();
         return true;
     });
+    dev_build->registerClickAction([](brls::View*) {
+        dev_build_flow::open();
+        return true;
+    });
     dev_gate->registerClickAction([](brls::View*) {
         brls::Application::pushActivity(new FirmwareGateActivity());
         return true;
@@ -196,6 +201,7 @@ void ToolsTab::refresh()
                           { dev_read_only.getView(), dev },
                           { dev_report.getView(), dev },
                           { dev_pt_block.getView(), dev },
+                          { dev_build.getView(), dev },
                           { dev_gate.getView(), dev && fw_gate::needed() },
                           { dev_forget.getView(), dev } });
     // Read-only: restoring would write; it stays in sight, greyed.

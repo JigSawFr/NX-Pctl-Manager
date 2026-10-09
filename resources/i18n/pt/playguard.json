@@ -758,6 +758,24 @@
         "presses_left_one": "Prima mais 1 vez para ativar o modo de programador.",
         "report_upload": "Enviar online"
     },
+    "dev_build": {
+        "open": "Instalar outra compilação",
+        "pick": "Compilação a instalar",
+        "release": "Versão {}",
+        "main": "main · {} · {}",
+        "pr": "PR #{} · {} · {}",
+        "installed": "instalada",
+        "confirm": "Substituir o PlayGuard {} por {}?\n\nÉ transferida do GitHub, verificada, colocada no lugar desta, e o PlayGuard reinicia com ela. As compilações de desenvolvimento não são testadas como as versões; nesta lista pode voltar a uma versão a qualquer momento.",
+        "no_digest": "O GitHub não dá soma de verificação para este ficheiro: só o tamanho e o tipo são verificados.",
+        "install": "Instalar",
+        "loading": "A procurar compilações...",
+        "busy": "Já em curso...",
+        "list_failed": "Não foi possível listar as compilações: {}",
+        "downloading": "A transferir ({} MB)...",
+        "failed": "Não foi possível instalar a compilação: {}\n\nO PlayGuard instalado não mudou.",
+        "done_manual": "{} está instalada. Feche o PlayGuard e abra-o de novo para a usar.",
+        "no_path": "O PlayGuard não sabe onde está o seu ficheiro .nro (iniciado sem hbloader?), por isso não o pode substituir. Instale a compilação manualmente a partir do GitHub."
+    },
     "toast": {
         "diag_saved": "Diagnóstico guardado: {}",
         "diag_err": "Não foi possível guardar o diagnóstico",

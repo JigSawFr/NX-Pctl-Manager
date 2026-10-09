@@ -67,6 +67,10 @@ int main()
     const int calls = g_calls;
     assert(!launcher::launch(launcher::Target{}) && g_calls == calls);   // Store::None never reaches the loader
     assert(!launcher::launch(launcher::Target{ Store::Sphaira, "switch/x.nro" }) && g_calls == calls);
+    // PlayGuard itself, after a development build replaced it.
+    assert(launcher::launch_nro("/switch/playguard/playguard.nro") && g_next == "sdmc:/switch/playguard/playguard.nro");
+    const int nro_calls = g_calls;
+    assert(!launcher::launch_nro("") && !launcher::launch_nro("switch/playguard.nro") && g_calls == nro_calls);
 
     const std::string cleanup = std::string("rm -rf '") + dir + "'";
     assert(std::system(cleanup.c_str()) == 0);

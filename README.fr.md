@@ -246,6 +246,7 @@ Appuyez sept fois sur *À propos › Version* ; les outils développeur apparais
 
 - un interrupteur **lecture seule** — activé, l'application ne peut rien modifier : c'est la façon sûre d'examiner un nouveau firmware (l'écran firmware le propose directement) ;
 - le rapport de diagnostic à l'écran (Ⓨ l'enregistre, Ⓧ l'envoie en ligne), et un raccourci pour l'exporter depuis l'onglet Temps de jeu ;
+- **Installer un autre build** sur place, pour tester un correctif avant sa publication : la dernière version publiée, l'un des 20 derniers commits de `main`, ou le build d'une pull request ouverte. PlayGuard le télécharge depuis GitHub, le vérifie (taille, empreinte SHA-256 enregistrée par GitHub, en-tête NRO), le met à la place de son propre `.nro` et redémarre dessus (derrière *Demander le code PIN* quand il est activé). La même liste permet de revenir à la version publiée à tout moment ; *À propos › Version* affiche le commit en mode développeur ;
 - **Comparer le bloc du minuteur**, pour décoder les réglages que PlayGuard n'affiche pas encore : enregistrez le bloc brut comme référence, changez un réglage dans l'application mobile, revenez — PlayGuard liste les valeurs qui ont changé (enregistrées dans `logs/` sur demande). L'heure du coucher et « alarme seulement » / « suspendre le logiciel » ont pu être trouvés ainsi. Joignez ce fichier à un ticket, ou envoyez-le avec le rapport (*Envoyer un rapport en ligne*).
 </details>
 

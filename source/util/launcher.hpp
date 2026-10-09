@@ -33,4 +33,8 @@ bool can_launch();
 // Sets `target` as the next homebrew; the caller then quits the app.
 bool launch(const Target& target);
 
+// The same for any .nro, from the SD card root ("/switch/playguard/playguard.nro"):
+// PlayGuard itself after it was replaced (dev_build_flow).
+bool launch_nro(const std::string& path);
+
 }   // namespace launcher

@@ -18,6 +18,13 @@ bool        pctl_available();
 uint32_t    pctl_init_result();   // 0 if the probe succeeded
 
 std::string version();            // "1.0.0"
+// The commit this build comes from ("1a2b3c4"), empty when unknown (built
+// outside a git checkout). Tells which development build is installed.
+std::string commit();
+// Where the running .nro is, from the SD card root ("/switch/playguard/playguard.nro"),
+// as hbloader gave it in argv[0]; empty when unknown (nxlink, desktop).
+std::string self_path();
+void        set_self_path(const char* argv0);
 const char* repo_url();
 // Funding links (.github/FUNDING.yml), shown in About.
 constexpr const char* SPONSORS_URL = "https://github.com/sponsors/JigSawFr";

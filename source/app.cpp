@@ -34,6 +34,27 @@ void shutdown()
 bool        pctl_available()   { return s_ok; }
 uint32_t    pctl_init_result() { return s_init_result; }
 std::string version()          { return APP_VERSION; }
+std::string commit()           { return APP_COMMIT; }
+
+namespace
+{
+std::string s_self_path;
+}
+
+std::string self_path() { return s_self_path; }
+
+void set_self_path(const char* argv0)
+{
+    // hbloader passes "sdmc:/switch/…/x.nro"; anything else (nxlink's
+    // "sdmc:/switch/.overlays…", a missing argv) is not a file to replace.
+    s_self_path.clear();
+    if (!argv0) return;
+    const std::string path = argv0;
+    const std::string prefix = "sdmc:/", suffix = ".nro";
+    if (path.size() > prefix.size() + suffix.size() && path.compare(0, prefix.size(), prefix) == 0 &&
+        path.compare(path.size() - suffix.size(), suffix.size(), suffix) == 0)
+        s_self_path = path.substr(prefix.size() - 1);
+}
 const char* repo_url()         { return "https://github.com/JigSawFr/PlayGuard"; }
 
 bool in_focus()

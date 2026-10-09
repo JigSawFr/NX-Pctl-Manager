@@ -49,8 +49,14 @@ bool can_launch()
 
 bool launch(const Target& target)
 {
-    if (target.store == Store::None || target.path.empty() || target.path[0] != '/') return false;
-    return platform_set_next_load(("sdmc:" + target.path).c_str());
+    if (target.store == Store::None) return false;
+    return launch_nro(target.path);
+}
+
+bool launch_nro(const std::string& path)
+{
+    if (path.empty() || path[0] != '/') return false;
+    return platform_set_next_load(("sdmc:" + path).c_str());
 }
 
 }   // namespace launcher

@@ -1,7 +1,11 @@
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).
 #include "util/http.hpp"
 
+#include <algorithm>
+#include <cstdio>
 #include <curl/curl.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <mutex>
 
 #include "app.hpp"
@@ -16,20 +20,39 @@ namespace
 {
 struct Sink
 {
-    std::string* body;
+    std::string* body;             // the response in memory, or…
     size_t       max;
     bool         overflow = false;
+    FILE*        file = nullptr;   // … written to this file
+    size_t       written = 0;
+    bool         file_error = false;
+    std::function<void(uint64_t, uint64_t)> progress{};
+    CURL*        curl = nullptr;
 };
 
 size_t on_data(char* data, size_t size, size_t count, void* user)
 {
     auto* sink = static_cast<Sink*>(user);
     const size_t n = size * count;
-    if (sink->body->size() + n > sink->max) {
+    const size_t have = sink->file ? sink->written : sink->body->size();
+    if (have + n > sink->max) {
         sink->overflow = true;
         return 0;   // aborts the transfer (CURLE_WRITE_ERROR)
     }
-    sink->body->append(data, n);
+    if (!sink->file) {
+        sink->body->append(data, n);
+        return n;
+    }
+    if (std::fwrite(data, 1, n, sink->file) != n) {
+        sink->file_error = true;
+        return 0;
+    }
+    sink->written += n;
+    if (sink->progress) {
+        curl_off_t total = -1;
+        curl_easy_getinfo(sink->curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &total);
+        sink->progress(sink->written, total > 0 ? (uint64_t)total : 0);
+    }
     return n;
 }
 }   // namespace
@@ -37,8 +60,9 @@ size_t on_data(char* data, size_t size, size_t count, void* user)
 namespace
 {
 // One request: GET when `post` is null, else a POST of `*post` as `content_type`.
+// `to_file` replaces the in-memory sink for a download.
 bool perform(const std::string& url, const std::string* post, const char* content_type, std::string* body,
-             std::string* error, size_t max_bytes, long timeout_s, long* status_out)
+             std::string* error, size_t max_bytes, long timeout_s, long* status_out, Sink* to_file = nullptr)
 {
     std::lock_guard<std::mutex> guard(s_lock);
     body->clear();
@@ -57,7 +81,9 @@ bool perform(const std::string& url, const std::string* post, const char* conten
         return false;
     }
 
-    Sink sink{ body, max_bytes };
+    Sink  own{ body, max_bytes };
+    Sink& sink = to_file ? *to_file : own;
+    sink.curl = curl;
     const std::string agent = "PlayGuard/" + app::version();
     char message[CURL_ERROR_SIZE] = "";
     struct curl_slist* headers = nullptr;
@@ -72,8 +98,12 @@ bool perform(const std::string& url, const std::string* post, const char* conten
     curl_easy_setopt(curl, CURLOPT_PROTOCOLS, (long)CURLPROTO_HTTPS);
     curl_easy_setopt(curl, CURLOPT_REDIR_PROTOCOLS, (long)CURLPROTO_HTTPS);
 #endif
-    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, timeout_s);
+    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, std::min(timeout_s, 30L));
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout_s);
+    if (to_file) {   // a long transfer: give up on a stall rather than at the end
+        curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 1L);
+        curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 30L);
+    }
     curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
     curl_easy_setopt(curl, CURLOPT_USERAGENT, agent.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, on_data);
@@ -100,6 +130,10 @@ bool perform(const std::string& url, const std::string* post, const char* conten
         if (error) *error = "response too large";
         return false;
     }
+    if (sink.file_error) {
+        if (error) *error = "cannot write the file";
+        return false;
+    }
     if (rc != CURLE_OK) {
         if (error) *error = message[0] ? message : curl_easy_strerror(rc);
         return false;
@@ -121,6 +155,29 @@ bool post(const std::string& url, const std::string& data, const char* content_t
           std::string* error, long* status, size_t max_bytes, long timeout_s)
 {
     return perform(url, &data, content_type, body, error, max_bytes, timeout_s, status);
+}
+
+bool download(const std::string& url, const std::string& path, std::string* error, size_t max_bytes,
+              long timeout_s, std::function<void(uint64_t, uint64_t)> progress)
+{
+    // Owner-writable only (fopen would ask for 0666): an executable lands here.
+    const int fd = ::open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    FILE* file = fd >= 0 ? ::fdopen(fd, "wb") : nullptr;
+    if (!file) {
+        if (fd >= 0) ::close(fd);
+        if (error) *error = "cannot create " + path;
+        return false;
+    }
+    std::string unused;
+    Sink sink{ &unused, max_bytes };
+    sink.file = file;
+    sink.progress = std::move(progress);
+    bool ok = perform(url, nullptr, nullptr, &unused, error, max_bytes, timeout_s, nullptr, &sink);
+    if (std::fclose(file) != 0 && ok) {
+        if (error) *error = "cannot write the file";
+        ok = false;
+    }
+    return ok;
 }
 
 void cleanup()

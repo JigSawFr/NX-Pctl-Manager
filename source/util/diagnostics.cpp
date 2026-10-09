@@ -41,7 +41,7 @@ std::string current_report()
     const SysStorage storage = sysinfo_storage(&si);
     std::string out = fmt::format(
         "=== PlayGuard diagnostic ===\n"
-        "app version : {}\n"
+        "app version : {}{}\n"
         "modes       : read_only={} dev={} firmware_choice={} platform={}\n"
         "firmware    : {}\n"
         "atmosphere  : {} ({})\n"
@@ -50,7 +50,8 @@ std::string current_report()
         "prodinfo    : {}\n"
         "game patches: {}\n"
         "compat      : {}\n\n",
-        app::version(), app::read_only() ? 1 : 0, app::dev_mode() ? 1 : 0, fw_gate::summary(),
+        app::version(), app::commit().empty() ? std::string() : " (commit " + app::commit() + ")",
+        app::read_only() ? 1 : 0, app::dev_mode() ? 1 : 0, fw_gate::summary(),
 #ifdef __SWITCH__
         "switch",
 #else
