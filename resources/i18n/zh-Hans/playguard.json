@@ -656,7 +656,7 @@
         "credit_fixes": "fw 22.5 修复与 NTP",
         "credit_ui": "界面",
         "section_support": "支持 PlayGuard",
-        "support_note": "PlayGuard 免费、开源且无广告。如果它对您的家庭有帮助，可以在手机或电脑上支持它的开发：",
+        "support_note": "PlayGuard 免费、开源且无广告。如果它对您的家庭有帮助，可以支持它的开发：用手机扫描二维码（选中可放大）。",
         "made_in_france": "Made in France"
     },
     "prefs": {

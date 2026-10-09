@@ -656,7 +656,7 @@
         "credit_fixes": "Correcciones fw 22.5 y NTP",
         "credit_ui": "Interfaz",
         "section_support": "Apoyar PlayGuard",
-        "support_note": "PlayGuard es gratuito, de código abierto y sin anuncios. Si ayuda a tu familia, puedes apoyar su desarrollo desde tu teléfono o computadora:",
+        "support_note": "PlayGuard es gratuito, de código abierto y sin anuncios. Si ayuda a tu familia, puedes apoyar su desarrollo: escanea un código con tu teléfono (selecciónalo para ampliarlo).",
         "made_in_france": "Made in France"
     },
     "prefs": {

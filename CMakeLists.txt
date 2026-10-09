@@ -101,10 +101,13 @@ else ()
                               ${CMAKE_CURRENT_SOURCE_DIR}/source/core/write_guard.c)
 endif ()
 
+# QR codes of the funding links in About (MIT, vendored: extern/qrcodegen).
+list(APPEND PLAYGUARD_SRC ${CMAKE_CURRENT_SOURCE_DIR}/extern/qrcodegen/qrcodegen.cpp)
+
 program_target(${PROJECT_NAME} "${PLAYGUARD_SRC}")
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
 
-target_include_directories(${PROJECT_NAME} PRIVATE source ${APP_PLATFORM_INCLUDE})
+target_include_directories(${PROJECT_NAME} PRIVATE source extern/qrcodegen ${APP_PLATFORM_INCLUDE})
 # -ffunction-sections / -fdata-sections come from borealis (PUBLIC) and
 # --gc-sections from libnx's switch.specs.
 target_compile_options(${PROJECT_NAME} PRIVATE ${APP_PLATFORM_OPTION})

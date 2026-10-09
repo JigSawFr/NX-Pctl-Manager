@@ -3,7 +3,8 @@
 <!-- About: the app (version — seven presses turn the developer tools on, at
      the end of Tools —, launch mode, data folder), its updates, what changed
      in this version (the bundled CHANGELOG.md, filled in by AboutTab), the
-     credits, how to support it, and "Made in France". -->
+     credits, how to support it (QR codes of the funding links, Ⓐ shows one
+     larger), and "Made in France". -->
 
 <brls:Box
     width="auto"
@@ -44,8 +45,7 @@
             <brls:DetailCell id="ab_source" title="@i18n/playguard/tools/source"/>
             <brls:Header title="@i18n/playguard/about/section_support" marginTop="24" marginBottom="8"/>
             <brls:Label id="ab_support_note" text="@i18n/playguard/about/support_note" fontSize="20" marginBottom="6" textColor="@theme/brand/note"/>
-            <brls:DetailCell id="ab_sponsors" title="GitHub Sponsors"/>
-            <brls:DetailCell id="ab_kofi" title="Ko-fi"/>
+            <brls:Box id="ab_funding" width="auto" height="auto" axis="row" justifyContent="spaceEvenly" marginTop="8"/>
             <MadeInFrance marginTop="32" marginBottom="8"/>
 
         </brls:Box>

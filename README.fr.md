@@ -191,7 +191,7 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 - **Premiers pas** rouvre le guide (avec une étape *Dissocier l'application mobile* tant qu'elle est associée, une étape *Réactiver l'alarme « temps écoulé »* tant qu'elle est désactivée, et un interrupteur pour qu'il ne s'ouvre plus au lancement).
 - **Exporter un rapport de diagnostic** (voir [Signaler un bug](#signaler-un-bug)).
 - **Console :** firmware, Atmosphère, compatibilité, stockage (emuMMC ou sysMMC), **masquage du numéro de série** par Atmosphère (en partie caché jusqu'à Ⓐ ; avertissement en emuMMC s'il n'est pas masqué), **patchs de jeux** (sys-patch ou fichiers sigpatches, avec une recommandation de sys-patch quand seuls des fichiers sont utilisés).
-- **À propos** (son propre onglet) : version, mode de lancement et dossier des données ; **mises à jour** (recherche maintenant ou une fois par jour au lancement ; *Mettre à jour avec* sphaira, le Homebrew App Store ou à la main) ; les **nouveautés** de la version installée (son entrée du changelog intégré, en anglais) ; les crédits, comment **soutenir PlayGuard** ([GitHub Sponsors](https://github.com/sponsors/JigSawFr), [Ko-fi](https://ko-fi.com/jigsawfr)), et un petit *Made in France* 🇫🇷.
+- **À propos** (son propre onglet) : version, mode de lancement et dossier des données ; **mises à jour** (recherche maintenant ou une fois par jour au lancement ; *Mettre à jour avec* sphaira, le Homebrew App Store ou à la main) ; les **nouveautés** de la version installée (son entrée du changelog intégré, en anglais) ; les crédits, comment **soutenir PlayGuard** ([GitHub Sponsors](https://github.com/sponsors/JigSawFr), [Ko-fi](https://ko-fi.com/jigsawfr), affichés en QR codes à scanner avec un téléphone), et un petit *Made in France* 🇫🇷.
 </details>
 
 ## Sûr par conception
@@ -266,6 +266,7 @@ GPLv3 — voir [`LICENSE`](LICENSE). Maintenu par **[JigSawFr](https://github.co
 
 - Fork de **Pctl Manager** de **Taylor** ([tailiang2008](https://github.com/tailiang2008)) (v2–v3) : couche de service pctl, garde-fou d'écriture du minuteur et interface borealis d'origine. Son historique est dans [CHANGELOG.md](CHANGELOG.md).
 - Interface : **[borealis](https://github.com/xfangfang/borealis)** (Apache 2.0), figé dans `extern/borealis/`.
+- QR codes : **[QR Code generator](https://github.com/nayuki/QR-Code-generator)** de Project Nayuki (MIT), dans `extern/qrcodegen/`.
 - Diagnostic fw 22.5, libération de session et synchronisation NTP adaptés de **[anbingxi/NX-Pctl-Manager](https://github.com/anbingxi/NX-Pctl-Manager/tree/diag/fw22-5-readonly)**.
 - Référence des commandes : [switchbrew — Parental Control services](https://switchbrew.org/wiki/Parental_Control_services).
 

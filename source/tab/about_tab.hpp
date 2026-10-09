@@ -1,7 +1,8 @@
 // AboutTab — the app: version (seven presses on it turn the developer tools
 // on, at the end of Tools), launch mode and data folder; its updates (check
 // now, once a day, with which store); what changed in this version (the
-// bundled CHANGELOG.md); the credits; how to support it; "Made in France".
+// bundled CHANGELOG.md); the credits; how to support it (the funding links
+// as QR codes, to scan with a phone); "Made in France".
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
@@ -39,6 +40,5 @@ class AboutTab : public TabBase
     BRLS_BIND(brls::DetailCell,  license,          "ab_license");
     BRLS_BIND(brls::DetailCell,  source,           "ab_source");
     BRLS_BIND(brls::Label,       support_note,     "ab_support_note");
-    BRLS_BIND(brls::DetailCell,  sponsors,         "ab_sponsors");
-    BRLS_BIND(brls::DetailCell,  kofi,             "ab_kofi");
+    BRLS_BIND(brls::Box,         funding,          "ab_funding");
 };
