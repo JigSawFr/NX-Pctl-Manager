@@ -21,6 +21,7 @@ constexpr auto GRACE = std::chrono::minutes(5);
 // next ones are refused too instead of asking once per change.
 constexpr auto REFUSAL_HOLDS = std::chrono::seconds(3);
 std::chrono::steady_clock::time_point s_confirmed_until, s_refused_until;
+bool s_remote_bypass = false;
 const char* MODES[] = { "off", "changes", "open" };
 
 int rank(const std::string& mode)
@@ -34,7 +35,7 @@ int rank(const std::string& mode)
 // with no pctl session open.
 bool check()
 {
-    if (config::get().pin_lock != "changes") return true;
+    if (config::get().pin_lock != "changes" || s_remote_bypass) return true;
     const auto now = std::chrono::steady_clock::now();
     if (now < s_confirmed_until) return true;
     if (now < s_refused_until) return false;
@@ -47,6 +48,16 @@ bool check()
 void install()
 {
     core_set_change_check(check);
+}
+
+void remote_bypass(bool on)
+{
+    s_remote_bypass = on;
+}
+
+bool allow_change()
+{
+    return check();
 }
 
 bool at_start()

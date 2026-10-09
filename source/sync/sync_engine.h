@@ -59,7 +59,8 @@ typedef struct {
     bool (*order)(void *ctx, uint32_t id, const SyncIntent *intent, const char *entity, const char *payload,
                   bool retained, SyncOutcome *out);
     // Export a diagnostic report: saves it and returns its text (published
-    // when publish_report is on). 0: failed. May be NULL.
+    // when publish_report is on). 0: failed. NULL: the order goes to
+    // `order` instead (the host writes the report and publishes it itself).
     size_t (*report)(void *ctx, char *out, size_t cap);
     // The saved profiles, for the discovery's select. May be NULL.
     size_t (*profiles)(void *ctx, char (*names)[SYNC_PROFILE_MAX], size_t max);
@@ -123,6 +124,7 @@ int  sync_engine_step(SyncEngine *e, int max_wait_ms);
 // Publish everything again at the next turn (Sync now, Home Assistant restarted).
 void sync_engine_sync_now(SyncEngine *e);
 void sync_engine_state_changed(SyncEngine *e);       // the state, at the next turn
+void sync_engine_activity_changed(SyncEngine *e);    // today's activity, at the next turn
 void sync_engine_discovery_changed(SyncEngine *e);   // the profiles changed
 // The outcome of an order the host took (SyncHost.order returned false).
 void sync_engine_order_done(SyncEngine *e, uint32_t id, const SyncOutcome *out);

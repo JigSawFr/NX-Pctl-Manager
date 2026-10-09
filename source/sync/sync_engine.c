@@ -79,6 +79,11 @@ void sync_engine_state_changed(SyncEngine *e)
     e->want_state = true;
 }
 
+void sync_engine_activity_changed(SyncEngine *e)
+{
+    e->want_activity = true;
+}
+
 void sync_engine_discovery_changed(SyncEngine *e)
 {
     e->want_discovery = true;
@@ -346,11 +351,7 @@ static void handle_engine_order(SyncEngine *e, SyncQueued *q, const SyncIntent *
         accept(e, q);
         return;
     }
-    // ExportReport
-    if (!e->host.report) {
-        reject(e, q, SyncReason_Unsupported);
-        return;
-    }
+    // ExportReport (a host without SyncHost.report gets it as an order)
     const size_t n = e->host.report(e->host.ctx, e->scratch, sizeof(e->scratch));
     if (!n) {
         reject(e, q, SyncReason_Busy);
@@ -383,7 +384,10 @@ static void process_orders(SyncEngine *e)
             reject(e, q, parsed);
             continue;
         }
-        if (!sync_intent_on_console(in.kind)) {
+        // A report the host cannot write here (it reads the console on
+        // another thread) goes to it like an order.
+        const bool host_report = in.kind == SyncIntent_ExportReport && !e->host.report;
+        if (!sync_intent_on_console(in.kind) && !host_report) {
             if (e->conf.policy == SyncPolicy_Off && !sync_intent_harmless(in.kind) && in.kind != SyncIntent_Discovery) {
                 reject(e, q, SyncReason_PolicyOff);
                 continue;
@@ -391,17 +395,19 @@ static void process_orders(SyncEngine *e)
             handle_engine_order(e, q, &in);
             continue;
         }
-        if (e->conf.policy == SyncPolicy_Off) {
-            reject(e, q, SyncReason_PolicyOff);
-            continue;
-        }
-        if (sync_intent_needs_timer_writes(in.kind) && !e->conf.remote_timer_writes) {
-            reject(e, q, SyncReason_TimerWritesDisabled);
-            continue;
-        }
-        if (read_only(e)) {
-            reject(e, q, SyncReason_ReadOnly);
-            continue;
+        if (!host_report) {
+            if (e->conf.policy == SyncPolicy_Off) {
+                reject(e, q, SyncReason_PolicyOff);
+                continue;
+            }
+            if (sync_intent_needs_timer_writes(in.kind) && !e->conf.remote_timer_writes) {
+                reject(e, q, SyncReason_TimerWritesDisabled);
+                continue;
+            }
+            if (read_only(e)) {
+                reject(e, q, SyncReason_ReadOnly);
+                continue;
+            }
         }
         if (is_limit(in.kind)) {
             if (!limits_settled) return;   // the next turn

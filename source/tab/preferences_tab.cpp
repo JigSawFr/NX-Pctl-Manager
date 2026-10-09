@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include "action/sync_flow.hpp"
+#include "activity/sync_activity.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
 #include "util/config.hpp"
@@ -113,6 +115,10 @@ PreferencesTab::PreferencesTab()
         config::get().clock_check_at_start = on;
         ui::save_config();
     });
+    remote->registerClickAction([](brls::View*) {
+        brls::Application::pushActivity(new SyncActivity());
+        return true;
+    });
 }
 
 void PreferencesTab::refresh()
@@ -127,6 +133,10 @@ void PreferencesTab::refresh()
     advanced->setOn(cfg.advanced, false);
     clock_check->setOn(cfg.clock_check_at_start, false);
     support_reminder->setOn(cfg.support_reminder, false);
+    const sync_flow::Status link = sync_flow::status();
+    remote->setDetailText(!link.enabled ? "playguard/sync/state_off"_i18n
+                          : link.running && link.link.state == SyncLink_Online ? "playguard/sync/state_online"_i18n
+                                                                              : "playguard/sync/state_offline"_i18n);
     // Read-only: the play-timer preferences would change nothing; they stay
     // in sight, greyed (A says why).
     const bool writable = !app::read_only();

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Preferences › Remote access: the remote link's settings (sync.conf), its
+     status, "Sync now" and its log. Filled by
+     source/activity/sync_activity.cpp. -->
+
+<brls:AppletFrame
+    iconInterpolation="linear">
+
+    <ScrollView
+        title="@i18n/playguard/sync/title"
+        icon="@res/img/app_icon.jpg"
+        width="auto"
+        height="auto"
+        axis="column"
+        alignItems="stretch"
+        grow="1.0">
+
+        <brls:Box
+            width="auto"
+            height="auto"
+            axis="column"
+            alignItems="stretch"
+            paddingTop="@style/brls/sidebar/padding_top"
+            paddingRight="@style/brls/sidebar/padding_right"
+            paddingBottom="@style/brls/sidebar/padding_bottom"
+            paddingLeft="@style/brls/sidebar/padding_left">
+
+            <brls:Label id="sy_intro" text="" fontSize="20" marginBottom="16" textColor="@theme/brand/note"/>
+
+            <brls:Header title="@i18n/playguard/sync/section_status" marginBottom="8"/>
+            <brls:DetailCell id="sy_status" title="@i18n/playguard/sync/status"/>
+            <brls:DetailCell id="sy_sync_now" title="@i18n/playguard/sync/sync_now"/>
+            <brls:DetailCell id="sy_log" title="@i18n/playguard/sync/log"/>
+
+            <brls:Header title="@i18n/playguard/sync/section_broker" marginTop="24" marginBottom="8"/>
+            <brls:BooleanCell id="sy_enabled"/>
+            <brls:DetailCell id="sy_host" title="@i18n/playguard/sync/host"/>
+            <brls:DetailCell id="sy_port" title="@i18n/playguard/sync/port"/>
+            <brls:BooleanCell id="sy_tls"/>
+            <brls:DetailCell id="sy_user" title="@i18n/playguard/sync/user"/>
+            <brls:DetailCell id="sy_password" title="@i18n/playguard/sync/password"/>
+
+            <brls:Header title="@i18n/playguard/sync/section_console" marginTop="24" marginBottom="8"/>
+            <brls:DetailCell id="sy_name" title="@i18n/playguard/sync/name"/>
+            <brls:DetailCell id="sy_id" title="@i18n/playguard/sync/id"/>
+            <brls:DetailCell id="sy_policy" title="@i18n/playguard/sync/policy"/>
+            <brls:BooleanCell id="sy_timer"/>
+
+            <brls:Header title="@i18n/playguard/sync/section_ha" marginTop="24" marginBottom="8"/>
+            <brls:BooleanCell id="sy_discovery"/>
+            <brls:BooleanCell id="sy_report"/>
+
+            <brls:Label id="sy_note" text="" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
+
+        </brls:Box>
+
+    </ScrollView>
+
+</brls:AppletFrame>

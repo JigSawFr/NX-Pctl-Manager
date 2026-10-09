@@ -93,6 +93,9 @@ constexpr size_t MAX_CUSTOM_SERVERS = 10;
 Config& get();
 void    load();          // never throws; missing / broken file => defaults, per field
 bool    save();          // atomic write; false on failure
+// Runs after every successful save() (the remote link mirrors what the agent
+// must know into sync/nro_state.txt). nullptr: nothing.
+void    set_saved_hook(void (*hook)());
 // Puts every out-of-range value back to its default (load() calls it).
 void    sanitize(Config& c);
 

@@ -207,6 +207,13 @@ void load()
     sanitize(c);
 }
 
+static void (*s_saved_hook)() = nullptr;
+
+void set_saved_hook(void (*hook)())
+{
+    s_saved_hook = hook;
+}
+
 bool save()
 {
     nlohmann::json j;
@@ -244,8 +251,10 @@ bool save()
     j["extra_base"]      = s_config.extra_base;
     j["extra_value"]     = s_config.extra_value;
     j["relock_pending"]  = s_config.relock_pending;
-    return paths::atomic_write(paths::config_file(),
-                               j.dump(2, ' ', false, nlohmann::json::error_handler_t::replace) + "\n");
+    const bool ok = paths::atomic_write(paths::config_file(),
+                                        j.dump(2, ' ', false, nlohmann::json::error_handler_t::replace) + "\n");
+    if (ok && s_saved_hook) s_saved_hook();
+    return ok;
 }
 
 }   // namespace config

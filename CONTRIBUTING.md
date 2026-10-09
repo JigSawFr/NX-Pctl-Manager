@@ -65,7 +65,7 @@ CI runs all of the above plus the Switch build.
 |---|---|
 | `source/core/` | C, libnx: `pctl_ops`, `time_ops`, `sysinfo`, `playstats`, `rescue` |
 | `source/tab/` | One class per tab |
-| `source/action/` | Flows: play-timer write, clock, settings restore, firmware screen, updates |
+| `source/action/` | Flows: play-timer write, clock, settings restore, firmware screen, updates, the remote link (`sync_flow`, `sync_orders`) |
 | `source/activity/` | Screens: per-day editor, profiles, a game, first steps, change history, firmware |
 | `source/view/` | Widgets: the week chart, the gauge, the day bars, the game cell |
 | `source/ui/` | Dialogs, formatting, theme colours |
@@ -76,7 +76,7 @@ CI runs all of the above plus the Switch build.
 | `sysmodule/` | The optional recovery boot sysmodule; shares `source/core/rescue.c` with the app. See [`sysmodule/README.md`](sysmodule/README.md) |
 | `packaging/` | Store and sphaira entries. See [`packaging/README.md`](packaging/README.md) |
 | `branding/` | SVG sources of the icon and banners |
-| `docs/` | [`parental-controls.md`](docs/parental-controls.md): what is known of the parental-control service, the play-timer block and the clocks, and how sure each fact is; [`companion-app.md`](docs/companion-app.md): what PlayGuard covers of Nintendo's phone app, and the gaps still to close; [`sync-design.md`](docs/sync-design.md) and [`sync-protocol.md`](docs/sync-protocol.md): the design and the wire contract of the optional MQTT agent and Home Assistant link (not implemented yet) |
+| `docs/` | [`parental-controls.md`](docs/parental-controls.md): what is known of the parental-control service, the play-timer block and the clocks, and how sure each fact is; [`companion-app.md`](docs/companion-app.md): what PlayGuard covers of Nintendo's phone app, and the gaps still to close; [`sync-design.md`](docs/sync-design.md) and [`sync-protocol.md`](docs/sync-protocol.md): the design and the wire contract of the optional remote link (MQTT, Home Assistant): PlayGuard's side is implemented, the agent sysmodule is not yet |
 
 **Branding:** `branding/*.svg` are rendered to `icon.jpg` and `images/store/*.png` by `node tools/render_branding.mjs` (Node + Playwright).
 

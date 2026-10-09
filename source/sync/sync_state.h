@@ -7,14 +7,15 @@
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).
 #pragma once
 
-#include "../core/pctl_ops.h"
-#include "../core/sysinfo.h"
 #include "sync_conf.h"
 #include "sync_exec.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include "../core/pctl_ops.h"
+#include "../core/sysinfo.h"
 
 #define SYNC_SCHEMA 1
 

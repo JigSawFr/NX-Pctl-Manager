@@ -477,6 +477,14 @@ static void test_connect_and_publish(void)
     now += 25000;
     turns(1);
     assert(host.states == states + 1);
+
+    // Today's activity: every minute, or at once when the host says it changed.
+    const size_t acts = count_on("playguard/a1b2c3d4/activity");
+    turns(1);
+    assert(count_on("playguard/a1b2c3d4/activity") == acts);
+    sync_engine_activity_changed(&engine);
+    turns(1);
+    assert(count_on("playguard/a1b2c3d4/activity") == acts + 1);
 }
 
 static void test_orders_applied_and_refused(void)

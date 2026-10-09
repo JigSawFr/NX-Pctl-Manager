@@ -11,6 +11,7 @@
 #include "action/pin_lock.hpp"
 #include "action/pt_log_flow.hpp"
 #include "action/rescue.hpp"
+#include "action/sync_flow.hpp"
 #include "activity/init_error_activity.hpp"
 #include "activity/lock_activity.hpp"
 #include "activity/main_activity.hpp"
@@ -29,6 +30,7 @@
 #include "util/config.hpp"
 #include "util/http.hpp"
 #include "util/own_time.hpp"
+#include "util/sync_files.hpp"
 #include "view/made_in_france.hpp"
 #include "view/scroll_view.hpp"
 #include "view/play_days.hpp"
@@ -44,6 +46,9 @@ int main(int argc, char* argv[])
 
     // Preferences first: the locale must be chosen before borealis loads i18n.
     config::load();
+    // Remote link: what the agent sysmodule needs of config.json follows
+    // every save (sync/nro_state.txt, only once the link was set up).
+    config::set_saved_hook(sync_files::export_nro_state);
     const auto& cfg = config::get();
     // config::sanitize() keeps the language to config::LANGUAGES.
     if (cfg.language != "system")
@@ -108,6 +113,8 @@ int main(int argc, char* argv[])
             brls::Application::pushActivity(new LockActivity());
         else
             brls::Application::pushActivity(new MainActivity());
+        // The remote link (MQTT, Home Assistant), when sync.conf turns it on.
+        sync_flow::start();
     } else {
         brls::Logger::error("pctl probe failed (0x{:08X}) — showing InitErrorActivity", app::pctl_init_result());
         brls::Application::pushActivity(new InitErrorActivity());
@@ -125,6 +132,7 @@ int main(int argc, char* argv[])
     while (brls::Application::mainLoop())
         ;
 
+    sync_flow::stop();   // "offline" while the network is still up
     pt_log_flow::stop();
     own_time::stop();
     app::shutdown();

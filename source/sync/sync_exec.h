@@ -12,12 +12,15 @@
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).
 #pragma once
 
-#include "../core/pctl_ops.h"
 #include "sync_apply.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+// The service layer has no linkage block of its own (C++ includes it
+// through util/pctl_ops_c.hpp): included inside this one.
+#include "../core/pctl_ops.h"
 
 typedef struct {
     // Extra time / no more play today: weekday `extra_weekday` (-1: none)
