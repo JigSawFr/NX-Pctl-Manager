@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <cctype>
 
+#include <borealis/extern/nlohmann/json.hpp>
+
 #include "util/paths.hpp"
 
 namespace log_upload
@@ -56,18 +58,73 @@ std::string bundle(const std::vector<Part>& parts, size_t max_bytes, bool* trunc
     return out + NOTICE.substr(0, max_bytes - keep);
 }
 
-bool parse_reply(const std::string& body, std::string* url)
+namespace
 {
-    static const std::string PREFIX = "https://dpaste.org/";
-    size_t b = 0, e = body.size();
-    while (b < e && std::isspace((unsigned char)body[b])) b++;
-    while (e > b && std::isspace((unsigned char)body[e - 1])) e--;
-    const std::string text = body.substr(b, e - b);
-    if (text.compare(0, PREFIX.size(), PREFIX) != 0) return false;
-    const std::string id = text.substr(PREFIX.size());
-    if (id.empty() || id.size() > 32 || !std::all_of(id.begin(), id.end(), ::isalnum)) return false;
-    *url = text;
+// "https://<host>/<id>" with the id made only of the given characters.
+bool link_with_id(const std::string& text, const std::string& prefix, bool (*ok)(unsigned char))
+{
+    if (text.compare(0, prefix.size(), prefix) != 0) return false;
+    const std::string id = text.substr(prefix.size());
+    return !id.empty() && id.size() <= 64 &&
+           std::all_of(id.begin(), id.end(), [ok](char c) { return ok((unsigned char)c); });
+}
+
+bool alnum(unsigned char c)
+{
+    return std::isalnum(c) != 0;
+}
+
+std::string trimmed(const std::string& s)
+{
+    size_t b = 0, e = s.size();
+    while (b < e && std::isspace((unsigned char)s[b])) b++;
+    while (e > b && std::isspace((unsigned char)s[e - 1])) e--;
+    return s.substr(b, e - b);
+}
+
+// The value after "<label>:" on its own line of `body`, trimmed.
+std::string field(const std::string& body, const std::string& label)
+{
+    size_t at = 0;
+    while (at < body.size()) {
+        size_t end = body.find('\n', at);
+        if (end == std::string::npos) end = body.size();
+        const std::string line = body.substr(at, end - at);
+        if (line.compare(0, label.size() + 1, label + ":") == 0) return trimmed(line.substr(label.size() + 1));
+        at = end + 1;
+    }
+    return "";
+}
+}   // namespace
+
+bool parse_bpaste(const std::string& body, std::string* url, std::string* removal)
+{
+    const std::string link = field(body, "Paste URL");
+    const std::string remove = field(body, "Removal URL");
+    if (!link_with_id(link, "https://bpa.st/", alnum) || !link_with_id(remove, "https://bpa.st/remove/", alnum))
+        return false;
+    *url = link;
+    *removal = remove;
     return true;
+}
+
+bool parse_gist(const std::string& body, std::string* url)
+{
+    try {
+        const auto j = nlohmann::json::parse(body);
+        const auto it = j.is_object() ? j.find("html_url") : j.end();
+        if (it == j.end() || !it->is_string()) return false;
+        // "https://gist.github.com/<id>", or ".../<user>/<id>".
+        const std::string link = it->get<std::string>();
+        if (!link_with_id(link, "https://gist.github.com/", [](unsigned char c) {
+                return std::isalnum(c) || c == '-' || c == '/';
+            }) || link.find("//", 8) != std::string::npos || link.back() == '/')
+            return false;
+        *url = link;
+        return true;
+    } catch (const std::exception&) {
+        return false;
+    }
 }
 
 std::string url_encode(const std::string& text)
@@ -103,14 +160,23 @@ std::string form(const std::string& text, std::string* content_type)
     for (int n = 0; text.find(boundary) != std::string::npos; n++) boundary = "PlayGuardBoundary" + std::to_string(n);
     *content_type = "multipart/form-data; boundary=" + boundary;
     std::string out;
-    auto field = [&](const char* name, const std::string& value) {
+    auto add = [&](const char* name, const std::string& value) {
         out += "--" + boundary + "\r\nContent-Disposition: form-data; name=\"" + name + "\"\r\n\r\n" + value + "\r\n";
     };
-    field("content", text);
-    field("format", "url");
-    field("lexer", "_text");   // shown as plain text, never highlighted as code
-    field("expires", std::to_string(EXPIRES_S));
+    add("raw", text);
+    add("lexer", "text");   // shown as plain text, never highlighted as code
+    add("expiry", BPASTE_EXPIRY);
     return out + "--" + boundary + "--\r\n";
+}
+
+std::string gist_body(const std::string& text, const std::string& version)
+{
+    nlohmann::json j;
+    j["description"] = "PlayGuard " + version + " diagnostic report";
+    j["public"] = false;
+    j["files"]["playguard-report.txt"]["content"] = text;
+    // A cut can never split a character (bundle()); anything else invalid is replaced.
+    return j.dump(-1, ' ', false, nlohmann::json::error_handler_t::replace);
 }
 
 std::string short_url(const std::string& url)
