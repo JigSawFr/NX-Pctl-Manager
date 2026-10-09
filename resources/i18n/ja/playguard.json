@@ -651,7 +651,9 @@
         "update_daily": "毎日アップデートを確認",
         "update_last": "最終確認：{}",
         "flag_read_only": "閲覧のみ",
-        "flag_dev": "開発者"
+        "flag_dev": "開発者",
+        "upload": "レポートをオンラインで送信",
+        "upload_note": "レポートを dpaste.org に送信し、そのリンクを QR コードで表示します。サポートしてくれる人に渡すか、バグ報告に使ってください。"
     },
     "about": {
         "section_changelog": "{}の更新内容",
@@ -713,6 +715,22 @@
         "update_manual": "アップデートの方法",
         "appstore": "Homebrew App Store"
     },
+    "upload": {
+        "pick": "送信する内容",
+        "current": "このレポートとデバッグファイル",
+        "saved": "保存したレポート {}",
+        "part_report": "診断レポート",
+        "confirm": "dpaste.org に送信しますか？（{} KB）",
+        "confirm_public": "リンクを知っている人は誰でも 30 日間閲覧でき、その後削除されます。PIN やシリアル番号は含まれません。",
+        "send": "送信",
+        "sending": "送信しています…",
+        "failed": "レポートを送信できませんでした: {}",
+        "done": "送信しました: {}\nこのリンクをサポートしてくれる人に渡すか、バグ報告に使ってください。",
+        "partial": "サイズが大きすぎるため、先頭部分のみ送信されます。",
+        "qr_report": "レポート",
+        "qr_issue": "バグを報告",
+        "qr_issue_note": "GitHub（リンク付き）"
+    },
     "dev": {
         "section": "開発者",
         "mode": "開発者モード",
@@ -737,7 +755,8 @@
         "already_on": "開発者モードはすでにONです。",
         "enabled": "開発者モードをONにしました。「ツール」の最後を見てください。",
         "presses_left": "あと{}回押すと開発者モードになります。",
-        "presses_left_one": "あと1回押すと開発者モードになります。"
+        "presses_left_one": "あと1回押すと開発者モードになります。",
+        "report_upload": "オンラインで送信"
     },
     "toast": {
         "diag_saved": "診断レポートを保存しました：{}",

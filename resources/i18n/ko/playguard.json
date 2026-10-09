@@ -651,7 +651,9 @@
         "update_daily": "매일 업데이트 확인",
         "update_last": "마지막 확인: {}",
         "flag_read_only": "읽기 전용",
-        "flag_dev": "개발자"
+        "flag_dev": "개발자",
+        "upload": "보고서 온라인으로 보내기",
+        "upload_note": "보고서를 dpaste.org에 보내고 링크를 QR 코드와 함께 표시합니다. 도와주는 사람에게 전달하거나 버그 신고에 사용하세요."
     },
     "about": {
         "section_changelog": "{}의 새로운 기능",
@@ -713,6 +715,22 @@
         "update_manual": "업데이트 방법",
         "appstore": "Homebrew App Store"
     },
+    "upload": {
+        "pick": "보낼 내용",
+        "current": "이 보고서와 디버그 파일",
+        "saved": "저장된 보고서 {}",
+        "part_report": "진단 보고서",
+        "confirm": "dpaste.org로 보낼까요? ({} KB)",
+        "confirm_public": "링크가 있는 사람은 누구나 30일 동안 읽을 수 있으며, 그 후 삭제됩니다. PIN이나 일련번호는 포함되지 않습니다.",
+        "send": "보내기",
+        "sending": "보내는 중...",
+        "failed": "보고서를 보낼 수 없습니다: {}",
+        "done": "보냈습니다: {}\n이 링크를 도와주는 사람에게 전달하거나 버그 신고에 사용하세요.",
+        "partial": "너무 커서 앞부분만 보냅니다.",
+        "qr_report": "보고서",
+        "qr_issue": "버그 신고",
+        "qr_issue_note": "GitHub, 링크 포함"
+    },
     "dev": {
         "section": "개발자",
         "mode": "개발자 모드",
@@ -737,7 +755,8 @@
         "already_on": "개발자 모드가 이미 켜져 있습니다.",
         "enabled": "개발자 모드를 켰습니다: 도구 탭 맨 아래를 확인하세요.",
         "presses_left": "{}번 더 누르면 개발자 모드가 켜집니다.",
-        "presses_left_one": "1번 더 누르면 개발자 모드가 켜집니다."
+        "presses_left_one": "1번 더 누르면 개발자 모드가 켜집니다.",
+        "report_upload": "온라인으로 보내기"
     },
     "toast": {
         "diag_saved": "진단 정보를 저장했습니다: {}",

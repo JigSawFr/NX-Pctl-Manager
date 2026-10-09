@@ -651,7 +651,9 @@
         "update_daily": "Procurar atualizações todos os dias",
         "update_last": "Última verificação: {}",
         "flag_read_only": "só de leitura",
-        "flag_dev": "programador"
+        "flag_dev": "programador",
+        "upload": "Enviar um relatório online",
+        "upload_note": "Envia um relatório para o dpaste.org e mostra a ligação com um código QR: dê-a a quem o ajuda, ou abra com ela um relatório de erro."
     },
     "about": {
         "section_changelog": "Novidades da {}",
@@ -713,6 +715,22 @@
         "update_manual": "Como atualizar",
         "appstore": "Homebrew App Store"
     },
+    "upload": {
+        "pick": "O que enviar",
+        "current": "Este relatório e os ficheiros de depuração",
+        "saved": "Relatório guardado {}",
+        "part_report": "Relatório de diagnóstico",
+        "confirm": "Enviar para o dpaste.org ({} KB)?",
+        "confirm_public": "Qualquer pessoa com a ligação pode lê-lo durante 30 dias; depois é apagado. Nunca contém o PIN nem o número de série.",
+        "send": "Enviar",
+        "sending": "A enviar...",
+        "failed": "Não foi possível enviar o relatório: {}",
+        "done": "Enviado: {}\nDê esta ligação a quem o ajuda, ou abra com ela um relatório de erro.",
+        "partial": "Demasiado grande: só o início será enviado.",
+        "qr_report": "O relatório",
+        "qr_issue": "Comunicar um erro",
+        "qr_issue_note": "no GitHub, com a ligação"
+    },
     "dev": {
         "section": "Programador",
         "mode": "Modo de programador",
@@ -737,7 +755,8 @@
         "already_on": "O modo de programador já está ativo.",
         "enabled": "Modo de programador ativo: veja o fim de Ferramentas.",
         "presses_left": "Prima mais {} vezes para ativar o modo de programador.",
-        "presses_left_one": "Prima mais 1 vez para ativar o modo de programador."
+        "presses_left_one": "Prima mais 1 vez para ativar o modo de programador.",
+        "report_upload": "Enviar online"
     },
     "toast": {
         "diag_saved": "Diagnóstico guardado: {}",

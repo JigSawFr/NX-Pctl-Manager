@@ -651,7 +651,9 @@
         "update_daily": "Elke dag op updates controleren",
         "update_last": "Laatst gecontroleerd op {}",
         "flag_read_only": "alleen-lezen",
-        "flag_dev": "ontwikkelaar"
+        "flag_dev": "ontwikkelaar",
+        "upload": "Rapport online versturen",
+        "upload_note": "Verstuurt een rapport naar dpaste.org en toont de link met een QR-code: geef hem aan wie je helpt, of open er een bugmelding mee."
     },
     "about": {
         "section_changelog": "Nieuw in {}",
@@ -713,6 +715,22 @@
         "update_manual": "Zo werk je bij",
         "appstore": "Homebrew App Store"
     },
+    "upload": {
+        "pick": "Wat versturen",
+        "current": "Dit rapport en de debugbestanden",
+        "saved": "Opgeslagen rapport {}",
+        "part_report": "Diagnoserapport",
+        "confirm": "Naar dpaste.org versturen ({} KB)?",
+        "confirm_public": "Iedereen met de link kan het 30 dagen lezen, daarna wordt het verwijderd. Het bevat nooit de pincode of het serienummer.",
+        "send": "Versturen",
+        "sending": "Versturen...",
+        "failed": "Kon het rapport niet versturen: {}",
+        "done": "Verstuurd: {}\nGeef deze link aan wie je helpt, of open er een bugmelding mee.",
+        "partial": "Te groot: alleen het begin wordt verstuurd.",
+        "qr_report": "Het rapport",
+        "qr_issue": "Bug melden",
+        "qr_issue_note": "op GitHub, met de link"
+    },
     "dev": {
         "section": "Ontwikkelaar",
         "mode": "Ontwikkelaarsmodus",
@@ -737,7 +755,8 @@
         "already_on": "De ontwikkelaarsmodus staat al aan.",
         "enabled": "De ontwikkelaarsmodus staat aan: zie het einde van Tools.",
         "presses_left": "Nog {} keer drukken om de ontwikkelaarsmodus aan te zetten.",
-        "presses_left_one": "Nog 1 keer drukken om de ontwikkelaarsmodus aan te zetten."
+        "presses_left_one": "Nog 1 keer drukken om de ontwikkelaarsmodus aan te zetten.",
+        "report_upload": "Online versturen"
     },
     "toast": {
         "diag_saved": "Diagnose opgeslagen: {}",

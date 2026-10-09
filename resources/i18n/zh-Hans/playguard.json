@@ -651,7 +651,9 @@
         "update_daily": "每天检查更新",
         "update_last": "上次检查：{}",
         "flag_read_only": "只读",
-        "flag_dev": "开发者"
+        "flag_dev": "开发者",
+        "upload": "在线发送报告",
+        "upload_note": "将报告发送到 dpaste.org，并以二维码显示其链接：交给帮助你的人，或用它提交错误报告。"
     },
     "about": {
         "section_changelog": "{} 更新内容",
@@ -713,6 +715,22 @@
         "update_manual": "更新方法",
         "appstore": "Homebrew App Store"
     },
+    "upload": {
+        "pick": "发送内容",
+        "current": "此报告和调试文件",
+        "saved": "已保存的报告 {}",
+        "part_report": "诊断报告",
+        "confirm": "发送到 dpaste.org（{} KB）？",
+        "confirm_public": "任何拥有链接的人都可以在 30 天内查看，之后将被删除。报告中从不包含 PIN 或序列号。",
+        "send": "发送",
+        "sending": "正在发送…",
+        "failed": "无法发送报告：{}",
+        "done": "已发送：{}\n将此链接交给帮助你的人，或用它提交错误报告。",
+        "partial": "内容过大：只会发送开头部分。",
+        "qr_report": "报告",
+        "qr_issue": "报告错误",
+        "qr_issue_note": "GitHub，含链接"
+    },
     "dev": {
         "section": "开发者",
         "mode": "开发者模式",
@@ -737,7 +755,8 @@
         "already_on": "开发者模式已开启。",
         "enabled": "开发者模式已开启：请查看“工具”末尾。",
         "presses_left": "再按{}次即可开启开发者模式。",
-        "presses_left_one": "再按1次即可开启开发者模式。"
+        "presses_left_one": "再按1次即可开启开发者模式。",
+        "report_upload": "在线发送"
     },
     "toast": {
         "diag_saved": "已保存诊断报告：{}",

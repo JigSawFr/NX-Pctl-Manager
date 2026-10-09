@@ -86,7 +86,7 @@ Tous dans `sd:/switch/playguard/` :
 | `profiles/` | Profils de limites enregistrés |
 | `backups/` | Sauvegardes des réglages (jamais le code PIN) |
 | `exports/` | Exports de l'activité |
-| `logs/` | Rapports de diagnostic (jamais le code PIN ni le numéro de série) |
+| `logs/` | Rapports de diagnostic (jamais le code PIN ni le numéro de série), les fichiers des outils développeur, et `uploads.txt` (les liens des rapports envoyés en ligne) |
 
 Plus de détails dans [packaging/README.md](packaging/README.md) (en anglais).
 </details>
@@ -190,7 +190,7 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 - **Historique des modifications :** ce que PlayGuard a changé (limites, niveau de restriction, code PIN, déverrouillages, dissociation, horloge, restaurations…), quand et depuis où. Ⓐ sur une modification l'affiche et, pour une valeur, **remet la précédente** — avec le même déverrouillage et le même code PIN que toute modification, en signalant si elle a changé depuis.
 - **Sauvegarder / restaurer les réglages** sur la carte SD : niveau de restriction, réglages personnalisés, mode VR, organisme de classification, limites quotidiennes, alarme « temps écoulé » (avec les actions avancées activées), et pour mémoire le bloc brut du minuteur — jamais le code PIN. La restauration ne liste que ce qui changerait. Nombre de sauvegardes conservées au choix.
 - **Premiers pas** rouvre le guide (avec une étape *Dissocier l'application mobile* tant qu'elle est associée, une étape *Réactiver l'alarme « temps écoulé »* tant qu'elle est désactivée, et un interrupteur pour qu'il ne s'ouvre plus au lancement). Sous *Fermer*, *Soutenir PlayGuard* affiche les QR codes de soutien.
-- **Exporter un rapport de diagnostic** (voir [Signaler un bug](#signaler-un-bug)).
+- **Exporter un rapport de diagnostic**, ou **l'envoyer en ligne** (voir [Signaler un bug](#signaler-un-bug)).
 - **Console :** firmware, Atmosphère, compatibilité, stockage (emuMMC ou sysMMC), **masquage du numéro de série** par Atmosphère (en partie caché jusqu'à Ⓐ ; avertissement en emuMMC s'il n'est pas masqué), **patchs de jeux** (sys-patch ou fichiers sigpatches, avec une recommandation de sys-patch quand seuls des fichiers sont utilisés).
 - **À propos** (son propre onglet) : version, mode de lancement et dossier des données ; **mises à jour** (recherche maintenant ou une fois par jour au lancement ; *Mettre à jour avec* sphaira, le Homebrew App Store ou à la main) ; les **nouveautés** de la version installée (son entrée du changelog intégré, en anglais) ; les crédits, comment **soutenir PlayGuard** ([GitHub Sponsors](https://github.com/sponsors/JigSawFr), [Ko-fi](https://ko-fi.com/jigsawfr), affichés en QR codes à scanner avec un téléphone), et un petit *Made in France* 🇫🇷. Après une mise à jour, PlayGuard s'ouvre une fois sur **Nouveautés de la X.Y.Z** (les mêmes notes, puis les QR codes).
 </details>
@@ -237,14 +237,16 @@ PlayGuard pilote le contrôle parental intégré à la console (le service `pctl
 1. *Outils › Exporter un rapport de diagnostic* enregistre un fichier texte dans `sd:/switch/playguard/logs/` : firmware, version d'Atmosphère, horloges, stockage, masquage du numéro de série, état des patchs de jeux, et le résultat brut de chaque requête au contrôle parental. **Il ne contient jamais le code PIN ni le numéro de série.**
 2. [Ouvrez un ticket](https://github.com/JigSawFr/PlayGuard/issues/new) (en anglais ou en français) et joignez-le.
 
+Ou, console connectée, *Outils › Envoyer un rapport en ligne* (Ⓧ sur le rapport de diagnostic en mode développeur) l'envoie, avec les fichiers de débogage (la référence du bloc du minuteur, l'historique des modifications et les réglages de PlayGuard), sur [dpaste.org](https://dpaste.org), après avoir indiqué exactement ce qui part. PlayGuard affiche le lien et deux QR codes : le rapport, et le formulaire de signalement de bug avec le lien et vos versions déjà remplis. Toute personne qui a le lien peut lire le rapport pendant 30 jours, puis dpaste.org le supprime ; les liens sont conservés dans `logs/uploads.txt`. Un rapport enregistré plus tôt dans `logs/` peut être envoyé de la même façon.
+
 <details>
 <summary>Mode développeur (examiner un nouveau firmware)</summary>
 
 Appuyez sept fois sur *À propos › Version* ; les outils développeur apparaissent à la fin d'*Outils*. Il ajoute :
 
 - un interrupteur **lecture seule** — activé, l'application ne peut rien modifier : c'est la façon sûre d'examiner un nouveau firmware (l'écran firmware le propose directement) ;
-- le rapport de diagnostic à l'écran, et un raccourci pour l'exporter depuis l'onglet Temps de jeu ;
-- **Comparer le bloc du minuteur**, pour décoder les réglages que PlayGuard n'affiche pas encore : enregistrez le bloc brut comme référence, changez un réglage dans l'application mobile, revenez — PlayGuard liste les valeurs qui ont changé (enregistrées dans `logs/` sur demande). L'heure du coucher et « alarme seulement » / « suspendre le logiciel » ont pu être trouvés ainsi. Joignez ce fichier à un ticket.
+- le rapport de diagnostic à l'écran (Ⓨ l'enregistre, Ⓧ l'envoie en ligne), et un raccourci pour l'exporter depuis l'onglet Temps de jeu ;
+- **Comparer le bloc du minuteur**, pour décoder les réglages que PlayGuard n'affiche pas encore : enregistrez le bloc brut comme référence, changez un réglage dans l'application mobile, revenez — PlayGuard liste les valeurs qui ont changé (enregistrées dans `logs/` sur demande). L'heure du coucher et « alarme seulement » / « suspendre le logiciel » ont pu être trouvés ainsi. Joignez ce fichier à un ticket, ou envoyez-le avec le rapport (*Envoyer un rapport en ligne*).
 </details>
 
 ## Contribuer

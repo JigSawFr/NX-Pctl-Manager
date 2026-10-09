@@ -651,7 +651,9 @@
         "update_daily": "Procurar atualizações todos os dias",
         "update_last": "Última verificação: {}",
         "flag_read_only": "somente leitura",
-        "flag_dev": "desenvolvedor"
+        "flag_dev": "desenvolvedor",
+        "upload": "Enviar um relatório online",
+        "upload_note": "Envia um relatório para o dpaste.org e mostra o link com um código QR: passe-o para quem está ajudando você, ou abra um relatório de bug com ele."
     },
     "about": {
         "section_changelog": "Novidades da {}",
@@ -713,6 +715,22 @@
         "update_manual": "Como atualizar",
         "appstore": "Homebrew App Store"
     },
+    "upload": {
+        "pick": "O que enviar",
+        "current": "Este relatório e os arquivos de depuração",
+        "saved": "Relatório salvo {}",
+        "part_report": "Relatório de diagnóstico",
+        "confirm": "Enviar para o dpaste.org ({} KB)?",
+        "confirm_public": "Qualquer pessoa com o link pode lê-lo por 30 dias; depois ele é apagado. Ele nunca contém o PIN nem o número de série.",
+        "send": "Enviar",
+        "sending": "Enviando...",
+        "failed": "Não foi possível enviar o relatório: {}",
+        "done": "Enviado: {}\nPasse este link para quem está ajudando você, ou abra um relatório de bug com ele.",
+        "partial": "Grande demais: só o início será enviado.",
+        "qr_report": "O relatório",
+        "qr_issue": "Relatar um bug",
+        "qr_issue_note": "no GitHub, com o link"
+    },
     "dev": {
         "section": "Desenvolvedor",
         "mode": "Modo de desenvolvedor",
@@ -737,7 +755,8 @@
         "already_on": "O modo de desenvolvedor já está ativado.",
         "enabled": "Modo de desenvolvedor ativado: veja o final de Ferramentas.",
         "presses_left": "Pressione mais {} vezes para ativar o modo de desenvolvedor.",
-        "presses_left_one": "Pressione mais 1 vez para ativar o modo de desenvolvedor."
+        "presses_left_one": "Pressione mais 1 vez para ativar o modo de desenvolvedor.",
+        "report_upload": "Enviar online"
     },
     "toast": {
         "diag_saved": "Diagnóstico salvo: {}",

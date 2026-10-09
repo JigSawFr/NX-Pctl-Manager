@@ -40,6 +40,7 @@ Clone with submodules (`git clone --recursive`, or `git submodule update --init`
 | `PLAYGUARD_SIM_BACKGROUND=1` | PlayGuard out of focus |
 | `PLAYGUARD_SIM_REGION=2` | The console region |
 | `PLAYGUARD_SIM_LATEST=1.1.0:24.0.0` | The latest release and the newest firmware it supports, for the update check (`offline` for no network) |
+| `PLAYGUARD_SIM_PASTE=https://dpaste.org/AbC1` | What dpaste.org answers to *Send a report online* (`offline` for no network) |
 | `PLAYGUARD_SIM_HBLOADER=1` | A homebrew loader that can hand an update over to a store |
 | `PLAYGUARD_SIM_NUMPAD=1:30` | What the system number pad returns |
 | `PLAYGUARD_SIM_NOW=<POSIX seconds>` | A frozen console time (with `TZ=` for its time zone) |
@@ -65,7 +66,7 @@ CI runs all of the above plus the Switch build.
 | `source/activity/` | Screens: per-day editor, profiles, a game, first steps, change history, firmware |
 | `source/view/` | Widgets: the week chart, the gauge, the day bars, the game cell |
 | `source/ui/` | Dialogs, formatting, theme colours |
-| `source/util/` | NTP, config, profiles, settings backups, change history, play-log folding, table export, diagnostics, update check, store launcher |
+| `source/util/` | NTP, config, profiles, settings backups, change history, play-log folding, table export, diagnostics, sending reports online, update check, store launcher |
 | `source/sim/` | The simulated console for the desktop build |
 | `resources/` | XML layouts and `i18n/<language>/playguard.json` |
 | `sysmodule/` | The optional recovery boot sysmodule; shares `source/core/rescue.c` with the app. See [`sysmodule/README.md`](sysmodule/README.md) |

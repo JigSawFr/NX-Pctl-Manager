@@ -63,6 +63,7 @@ if GATE:
     open(sphaira, "w").write("NRO0")
 if not GATE and not ERRORS:
     env.setdefault("PLAYGUARD_SIM_NUMPAD", "1:30")   # what the system number pad returns
+    env.setdefault("PLAYGUARD_SIM_PASTE", "https://dpaste.org/SmOkE1")   # what dpaste.org answers
 if ERRORS:
     env.setdefault("PLAYGUARD_SIM_FAIL", "unlock")
     env.setdefault("PLAYGUARD_SIM_RESTRICTED", "1")
@@ -321,6 +322,25 @@ key("Return")
 shot("26_backup_restore")
 key("Escape")
 shot("27_back")
+
+# Send a report online: the confirmation, then the link and its QR codes.
+uploads = os.path.join(run_dir, "playguard_data", "logs", "uploads.txt")
+def upload_count():
+    return open(uploads).read().count("https://dpaste.org/SmOkE1") if os.path.exists(uploads) else 0
+uploads_before = upload_count()
+logs = os.path.join(run_dir, "playguard_data", "logs")
+saved = [f for f in (os.listdir(logs) if os.path.isdir(logs) else []) if f[:8].isdigit() and f.endswith(".txt")]
+key("Down", 3)             # past Keep, Export: Send a report online
+key("Return")
+if saved:                  # reports saved by an earlier local run: this report is the first choice
+    key("Return")
+shot("27_upload_confirm")
+key("Right")               # Send
+key("Return")
+shot("27_upload_link")
+if upload_count() != uploads_before + 1:
+    fail("the report link was not recorded in " + uploads)
+key("Return")              # OK
 
 # Activity: one game's screen, then a PDF export to the (simulated) SD card.
 exports = os.path.join(run_dir, "playguard_data", "exports")

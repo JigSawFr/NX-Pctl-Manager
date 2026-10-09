@@ -651,7 +651,9 @@
         "update_daily": "Cerca aggiornamenti ogni giorno",
         "update_last": "Ultima ricerca: {}",
         "flag_read_only": "sola lettura",
-        "flag_dev": "sviluppatore"
+        "flag_dev": "sviluppatore",
+        "upload": "Invia un rapporto online",
+        "upload_note": "Invia un rapporto a dpaste.org e ne mostra il link con un codice QR: dallo a chi ti aiuta o apri con esso una segnalazione di bug."
     },
     "about": {
         "section_changelog": "Novità della {}",
@@ -713,6 +715,22 @@
         "update_manual": "Come aggiornare",
         "appstore": "Homebrew App Store"
     },
+    "upload": {
+        "pick": "Cosa inviare",
+        "current": "Questo rapporto e i file di debug",
+        "saved": "Rapporto salvato {}",
+        "part_report": "Rapporto diagnostico",
+        "confirm": "Inviare a dpaste.org ({} KB)?",
+        "confirm_public": "Chiunque abbia il link può leggerlo per 30 giorni, poi viene eliminato. Non contiene mai il PIN né il numero di serie.",
+        "send": "Invia",
+        "sending": "Invio in corso...",
+        "failed": "Impossibile inviare il rapporto: {}",
+        "done": "Inviato: {}\nDai questo link a chi ti aiuta o apri con esso una segnalazione di bug.",
+        "partial": "Troppo grande: verrà inviato solo l'inizio.",
+        "qr_report": "Il rapporto",
+        "qr_issue": "Segnala un bug",
+        "qr_issue_note": "su GitHub, link incluso"
+    },
     "dev": {
         "section": "Sviluppatore",
         "mode": "Modalità sviluppatore",
@@ -737,7 +755,8 @@
         "already_on": "La modalità sviluppatore è già attiva.",
         "enabled": "Modalità sviluppatore attiva: vedi la fine della scheda Strumenti.",
         "presses_left": "Premi ancora {} volte per attivare la modalità sviluppatore.",
-        "presses_left_one": "Premi ancora una volta per attivare la modalità sviluppatore."
+        "presses_left_one": "Premi ancora una volta per attivare la modalità sviluppatore.",
+        "report_upload": "Invia online"
     },
     "toast": {
         "diag_saved": "Diagnostica salvata: {}",

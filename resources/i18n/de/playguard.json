@@ -651,7 +651,9 @@
         "update_daily": "Täglich nach Updates suchen",
         "update_last": "Zuletzt geprüft: {}",
         "flag_read_only": "schreibgeschützt",
-        "flag_dev": "Entwickler"
+        "flag_dev": "Entwickler",
+        "upload": "Bericht online senden",
+        "upload_note": "Sendet einen Bericht an dpaste.org und zeigt seinen Link mit einem QR-Code: Gib ihn der Person, die dir hilft, oder eröffne damit einen Fehlerbericht."
     },
     "about": {
         "section_changelog": "Neu in {}",
@@ -713,6 +715,22 @@
         "update_manual": "Anleitung zum Update",
         "appstore": "Homebrew App Store"
     },
+    "upload": {
+        "pick": "Was senden?",
+        "current": "Dieser Bericht und die Debug-Dateien",
+        "saved": "Gespeicherter Bericht {}",
+        "part_report": "Diagnosebericht",
+        "confirm": "An dpaste.org senden ({} KB)?",
+        "confirm_public": "Jeder mit dem Link kann ihn 30 Tage lang lesen, danach wird er gelöscht. Er enthält nie die PIN oder die Seriennummer.",
+        "send": "Senden",
+        "sending": "Wird gesendet...",
+        "failed": "Bericht konnte nicht gesendet werden: {}",
+        "done": "Gesendet: {}\nGib diesen Link der Person, die dir hilft, oder eröffne damit einen Fehlerbericht.",
+        "partial": "Zu groß: Nur der Anfang wird gesendet.",
+        "qr_report": "Der Bericht",
+        "qr_issue": "Fehler melden",
+        "qr_issue_note": "auf GitHub, mit Link"
+    },
     "dev": {
         "section": "Entwickler",
         "mode": "Entwicklermodus",
@@ -737,7 +755,8 @@
         "already_on": "Der Entwicklermodus ist bereits aktiv.",
         "enabled": "Entwicklermodus aktiv: siehe Ende des Tabs Tools.",
         "presses_left": "Noch {} Mal drücken, um den Entwicklermodus zu aktivieren.",
-        "presses_left_one": "Noch 1 Mal drücken, um den Entwicklermodus zu aktivieren."
+        "presses_left_one": "Noch 1 Mal drücken, um den Entwicklermodus zu aktivieren.",
+        "report_upload": "Online senden"
     },
     "toast": {
         "diag_saved": "Diagnose gespeichert: {}",
