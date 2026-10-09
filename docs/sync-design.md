@@ -5,9 +5,11 @@ behind an optional link between PlayGuard and a home-automation setup, so that
 a parent can see the console's state and play time, and change the limits,
 from a phone, through [Home Assistant](https://www.home-assistant.io/) (HA).
 The wire contract (topics, payloads, files, IPC) is in
-[`sync-protocol.md`](sync-protocol.md). Both are meant to be edited as the
-implementation lands; a fact that turns out wrong on hardware should be fixed
-here first.
+[`sync-protocol.md`](sync-protocol.md). This is the design behind the
+[roadmap's horizon](../ROADMAP.md#horizon); the orders it carries are the
+companion-app features listed in [`companion-app.md`](companion-app.md). Both
+documents are meant to be edited as the implementation lands; a fact that
+turns out wrong on hardware should be fixed here first.
 
 Nothing here changes what PlayGuard does **by default**: without the link
 switched on and the agent installed, PlayGuard stays offline and nothing runs
