@@ -514,6 +514,42 @@
         "locked_body": "请输入家长控制PIN以打开。",
         "enter": "输入PIN"
     },
+    "console_lock": {
+        "section": "主机锁",
+        "title": "主机锁",
+        "note_off": "将每天的限制设为0，启动游戏就需要PIN——一种简单的锁定，不会开启年龄分级或交流限制。它阻止的是启动游戏，而不是HOME菜单或系统设置。主机上需要设置PIN。",
+        "note_on": "每天的限制为0：需要PIN才能游玩。关闭后会恢复之前的限制。",
+        "needs_pin": "请先设置家长控制PIN：没有PIN，就无法阻止启动游戏。",
+        "on_body": "要锁定主机吗？每天的游戏时间限制将变为0，启动游戏需要PIN。当前的限制会被保存，关闭时恢复。",
+        "on_confirm": "锁定主机",
+        "on_done": "已锁定主机。",
+        "off_body": "要解除主机锁定吗？将恢复之前的游戏时间限制。",
+        "off_confirm": "解除锁定",
+        "off_done": "已解除主机锁定。"
+    },
+    "rescue": {
+        "title": "恢复",
+        "section_actions": "要做什么？",
+        "section_done": "完成",
+        "reset_pin": "设置新PIN",
+        "continue": "打开PlayGuard",
+        "note": "您是通过RESCUE文件进入此画面的，因此这里不会要求输入PIN。请设置新PIN或删除家长控制，然后打开PlayGuard。",
+        "note_failed": "恢复未能自动完成。您可以在这里重试，或取出SD卡在电脑上修改设置。",
+        "note_deleted": "所有家长控制（包括PIN）都已删除。打开PlayGuard，随时可以重新设置。",
+        "note_no_pin": "未设置家长控制PIN，因此没有需要解除的内容。您可以在这里设置PIN，然后打开PlayGuard。",
+        "failed_code": "主机返回：{}",
+        "outcome": {
+            "unlocked": "已解除家长控制，因此PlayGuard得以打开。",
+            "deleted": "已删除所有家长控制。",
+            "no_pin": "没有可恢复的PIN：未设置家长控制PIN。",
+            "failed": "未能完成恢复。"
+        },
+        "hint": {
+            "show_pin": "忘记时",
+            "reset_pin": "重新设置",
+            "delete": "全部删除"
+        }
+    },
     "tools": {
         "section_diag": "诊断",
         "export": "导出诊断报告",
@@ -707,7 +743,9 @@
             "unlink": "已解除手机应用的关联",
             "delete": "已删除所有家长控制",
             "clock": "已设置网络时钟",
-            "restore": "已恢复备份"
+            "restore": "已恢复备份",
+            "rescue": "已使用恢复",
+            "console_lock": "主机锁"
         },
         "sources": {
             "uniform": "每天相同的限制",

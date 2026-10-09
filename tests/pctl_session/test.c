@@ -568,6 +568,33 @@ static void test_unlock_and_relock(void)
     assert(model.last_write_cmd == 1201);
 }
 
+/* The rescue sysmodule's light read: 1206 and 1006 in one session, nothing written. */
+static void test_lock_state(void)
+{
+    u32 len = 99;
+    bool unlocked = true;
+
+    reset();
+    assert(pctl_lock_state(&len, &unlocked) == 0);
+    assert(len == 6 && !unlocked && model.ipc_calls == 2 && model.writes == 0);
+    assert(model.refs == 0 && model.init_calls == 1 && model.exit_calls == 1);
+
+    reset();
+    model.no_pin = true;
+    model.unlocked = true;
+    assert(pctl_lock_state(&len, NULL) == 0 && len == 0 && model.ipc_calls == 1);
+    assert(pctl_lock_state(NULL, &unlocked) == 0 && unlocked);
+    assert(model.refs == 0);
+
+    reset();
+    model.fail_command = 1206;
+    assert(pctl_lock_state(&len, &unlocked) == MOCK_ERROR && model.ipc_calls == 1 && model.refs == 0);
+
+    reset();
+    model.fail_init_call = 1;
+    assert(pctl_lock_state(&len, &unlocked) == MOCK_ERROR && model.refs == 0);
+}
+
 static void test_get_pin(void)
 {
     char pin[16];
@@ -758,6 +785,7 @@ int main(void)
     test_write_gate();
     test_block_preserved();
     test_unlock_and_relock();
+    test_lock_state();
     test_get_pin();
     test_other_writes();
     test_read_only();

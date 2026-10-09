@@ -514,6 +514,42 @@
         "locked_body": "열려면 자녀 보호 기능 PIN을 입력하세요.",
         "enter": "PIN 입력"
     },
+    "console_lock": {
+        "section": "본체 잠금",
+        "title": "본체 잠금",
+        "note_off": "매일의 제한을 0으로 설정해 소프트웨어를 시작하려면 PIN이 필요하게 합니다. 연령 등급이나 커뮤니케이션 제한은 켜지 않는 간단한 잠금입니다. 소프트웨어 시작을 막을 뿐 HOME 메뉴나 설정은 막지 않습니다. 본체에 PIN이 필요합니다.",
+        "note_on": "매일의 제한이 0입니다. 플레이하려면 PIN이 필요합니다. 끄면 이전 제한으로 돌아갑니다.",
+        "needs_pin": "먼저 자녀 보호 기능 PIN을 설정하세요. PIN이 없으면 소프트웨어 시작을 막을 수 없습니다.",
+        "on_body": "본체를 잠그시겠습니까? 매일의 플레이 시간 제한이 0이 되어 소프트웨어를 시작하려면 PIN이 필요합니다. 현재 제한은 저장되며 끄면 다시 돌아옵니다.",
+        "on_confirm": "본체 잠금",
+        "on_done": "본체를 잠갔습니다.",
+        "off_body": "본체 잠금을 해제하시겠습니까? 이전 플레이 시간 제한으로 돌아갑니다.",
+        "off_confirm": "잠금 해제",
+        "off_done": "본체 잠금을 해제했습니다."
+    },
+    "rescue": {
+        "title": "복구",
+        "section_actions": "무엇을 하시겠습니까?",
+        "section_done": "완료",
+        "reset_pin": "새 PIN 설정",
+        "continue": "PlayGuard 열기",
+        "note": "RESCUE 파일로 이 화면에 왔으므로 여기서는 PIN을 묻지 않습니다. 새 PIN을 설정하거나 자녀 보호 기능을 삭제한 후 PlayGuard를 여세요.",
+        "note_failed": "복구가 자동으로 끝나지 않았습니다. 여기서 다시 시도하거나 SD 카드를 꺼내 컴퓨터에서 설정을 바꿀 수 있습니다.",
+        "note_deleted": "PIN을 포함해 자녀 보호 기능이 모두 삭제되었습니다. PlayGuard를 열면 언제든 다시 설정할 수 있습니다.",
+        "note_no_pin": "자녀 보호 기능 PIN이 설정되어 있지 않아 해제할 것이 없었습니다. 여기서 PIN을 설정한 후 PlayGuard를 열 수 있습니다.",
+        "failed_code": "본체 응답: {}",
+        "outcome": {
+            "unlocked": "자녀 보호 기능을 해제해 PlayGuard를 열 수 있었습니다.",
+            "deleted": "자녀 보호 기능이 모두 삭제되었습니다.",
+            "no_pin": "복구할 PIN이 없습니다: 자녀 보호 기능 PIN이 설정되어 있지 않습니다.",
+            "failed": "복구를 완료하지 못했습니다."
+        },
+        "hint": {
+            "show_pin": "잊었을 때",
+            "reset_pin": "새로 정하기",
+            "delete": "모두 지우기"
+        }
+    },
     "tools": {
         "section_diag": "진단",
         "export": "진단 보고서 내보내기",
@@ -707,7 +743,9 @@
             "unlink": "스마트폰 앱 연동 해제",
             "delete": "자녀 보호 기능 모두 삭제",
             "clock": "네트워크 시계 설정",
-            "restore": "백업 복원"
+            "restore": "백업 복원",
+            "rescue": "복구 사용",
+            "console_lock": "본체 잠금"
         },
         "sources": {
             "uniform": "매일 같은 제한",

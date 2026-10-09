@@ -33,6 +33,9 @@
             <brls:DetailCell id="sc_unlock" title="@i18n/playguard/security/unlock"/>
             <brls:DetailCell id="sc_relock" title="@i18n/playguard/security/relock"/>
             <brls:Label id="sc_pin_lock_note" text="" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
+            <brls:Header id="sc_lock_header" title="@i18n/playguard/console_lock/section" marginTop="24" marginBottom="8"/>
+            <brls:DetailCell id="sc_console_lock" title="@i18n/playguard/console_lock/title"/>
+            <brls:Label id="sc_console_lock_note" text="" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
             <brls:Header title="@i18n/playguard/pairing/section" marginTop="24" marginBottom="8"/>
             <brls:DetailCell id="pr_active" focusable="false" title="@i18n/playguard/pairing/active"/>
             <brls:DetailCell id="pr_updated" focusable="false" title="@i18n/playguard/pairing/updated"/>

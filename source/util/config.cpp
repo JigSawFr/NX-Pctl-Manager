@@ -103,6 +103,14 @@ void sanitize(Config& c)
     const bool base_ok    = (c.extra_base >= 0 && c.extra_base <= 1440) || c.extra_base == 0xFFFF;
     const bool values_ok  = base_ok && c.extra_value >= 0 && c.extra_value <= 1440 && c.extra_date.size() == 10;
     if (!weekday_ok || !values_ok) clear_extra(c);
+
+    // The limits console lock saved to put back: exactly seven, each a real
+    // limit (0..1440 min) or "no limit" (0xFFFF). Otherwise drop them (turning
+    // the lock off then clears the limit rather than restoring nonsense).
+    bool prev_ok = c.console_lock_prev.size() == 7;
+    for (int v : c.console_lock_prev)
+        prev_ok = prev_ok && ((v >= 0 && v <= 1440) || v == 0xFFFF);
+    if (!prev_ok) c.console_lock_prev.clear();
 }
 
 void load()
@@ -136,6 +144,14 @@ void load()
     read_bool(j, "clock_check_at_start", c.clock_check_at_start);
     read_string(j, "pin_lock", c.pin_lock);
     read_bool(j, "onboarding_at_start", c.onboarding_at_start);
+    read_bool(j, "console_lock", c.console_lock);
+    auto prev = j.find("console_lock_prev");
+    if (prev != j.end() && prev->is_array()) {
+        std::vector<int> v;
+        for (const auto& a : *prev)
+            if (a.is_number_integer()) v.push_back(a.get<int>());
+        c.console_lock_prev = v;   // sanitize() keeps it only when it is seven valid limits
+    }
     auto amounts = j.find("extra_amounts");
     if (amounts != j.end() && amounts->is_array()) {
         std::vector<int> v;
@@ -185,6 +201,8 @@ bool save()
     j["clock_check_at_start"] = s_config.clock_check_at_start;
     j["pin_lock"]        = s_config.pin_lock;
     j["onboarding_at_start"] = s_config.onboarding_at_start;
+    j["console_lock"]    = s_config.console_lock;
+    j["console_lock_prev"] = s_config.console_lock_prev;
     j["fw_gate_fw"]      = s_config.fw_gate_fw;
     j["fw_gate_app"]     = s_config.fw_gate_app;
     j["fw_gate_choice"]  = s_config.fw_gate_choice;

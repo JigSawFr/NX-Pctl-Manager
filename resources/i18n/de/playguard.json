@@ -514,6 +514,42 @@
         "locked_body": "Geben Sie die Geheimzahl für die Altersbeschränkungen ein, um die App zu öffnen.",
         "enter": "Geheimzahl eingeben"
     },
+    "console_lock": {
+        "section": "Konsolensperre",
+        "title": "Konsolensperre",
+        "note_off": "Setzt das Limit jedes Tages auf 0, sodass zum Starten eines Spiels die Geheimzahl nötig ist – eine einfache Sperre, ohne Altersfreigaben oder Kommunikationsbeschränkungen einzuschalten. Sie verhindert das Starten von Spielen, nicht das HOME-Menü oder die Systemeinstellungen. Erfordert eine Geheimzahl auf der Konsole.",
+        "note_on": "Das Limit jedes Tages ist 0: Zum Spielen wird die Geheimzahl benötigt. Beim Ausschalten werden die vorherigen Limits wiederhergestellt.",
+        "needs_pin": "Legen Sie zuerst eine Geheimzahl für die Altersbeschränkungen fest: Ohne sie verhindert nichts das Starten eines Spiels.",
+        "on_body": "Konsole sperren? Das Spielzeitlimit jedes Tages wird auf 0 gesetzt, sodass zum Starten eines Spiels die Geheimzahl nötig ist. Die aktuellen Limits werden gespeichert und beim Ausschalten wiederhergestellt.",
+        "on_confirm": "Konsole sperren",
+        "on_done": "Konsole gesperrt.",
+        "off_body": "Konsole entsperren? Die vorherigen Spielzeitlimits werden wiederhergestellt.",
+        "off_confirm": "Konsole entsperren",
+        "off_done": "Konsole entsperrt."
+    },
+    "rescue": {
+        "title": "Wiederherstellung",
+        "section_actions": "Was möchten Sie tun?",
+        "section_done": "Fertig",
+        "reset_pin": "Neue Geheimzahl festlegen",
+        "continue": "PlayGuard öffnen",
+        "note": "Sie sind über die RESCUE-Datei hierher gelangt, daher wird hier keine Geheimzahl abgefragt. Legen Sie eine neue Geheimzahl fest oder entfernen Sie die Altersbeschränkungen und öffnen Sie dann PlayGuard.",
+        "note_failed": "Die Wiederherstellung wurde nicht von selbst abgeschlossen. Sie können es hier noch einmal versuchen oder die SD-Karte entnehmen und die Einstellungen an einem Computer ändern.",
+        "note_deleted": "Alle Altersbeschränkungen wurden entfernt, einschließlich der Geheimzahl. Öffnen Sie PlayGuard – dort können Sie sie jederzeit neu einrichten.",
+        "note_no_pin": "Es war keine Geheimzahl für die Altersbeschränkungen festgelegt, daher gab es nichts aufzuheben. Sie können hier eine festlegen und dann PlayGuard öffnen.",
+        "failed_code": "Meldung der Konsole: {}.",
+        "outcome": {
+            "unlocked": "Die Altersbeschränkungen wurden aufgehoben, sodass PlayGuard geöffnet werden konnte.",
+            "deleted": "Alle Altersbeschränkungen wurden gelöscht.",
+            "no_pin": "Es gab keine Geheimzahl wiederherzustellen: Es ist keine Geheimzahl festgelegt.",
+            "failed": "Die Wiederherstellung konnte nicht abgeschlossen werden."
+        },
+        "hint": {
+            "show_pin": "falls vergessen",
+            "reset_pin": "eine neue wählen",
+            "delete": "alles entfernen"
+        }
+    },
     "tools": {
         "section_diag": "Diagnose",
         "export": "Diagnosebericht exportieren",
@@ -707,7 +743,9 @@
             "unlink": "Smart-Geräte-App getrennt",
             "delete": "Alle Altersbeschränkungen gelöscht",
             "clock": "Netzwerkuhr gestellt",
-            "restore": "Sicherung wiederhergestellt"
+            "restore": "Sicherung wiederhergestellt",
+            "rescue": "Wiederherstellung verwendet",
+            "console_lock": "Konsolensperre"
         },
         "sources": {
             "uniform": "Jeden Tag gleiches Limit",

@@ -4,7 +4,8 @@ What `tools/desktop_smoke.py` shows on screens that come out the same in every
 run (console time fixed, footer clock masked), one folder per scenario:
 `smoke/`, `errors/`, `gate/`. CI compares each new run with them
 (`tools/visual_check.py`) and uploads the side-by-side images of any screen
-that changed.
+that changed. A changed screen does not fail the build: it is a warning on
+the pull request and in the job summary, to look at before merging.
 
 A UI change that is meant:
 

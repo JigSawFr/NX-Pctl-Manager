@@ -514,6 +514,42 @@
         "locked_body": "Digite o PIN do controle dos pais para abri-lo.",
         "enter": "Digitar o PIN"
     },
+    "console_lock": {
+        "section": "Bloqueio do console",
+        "title": "Bloqueio do console",
+        "note_off": "Coloca em 0 o limite de cada dia, então o PIN passa a ser necessário para iniciar um jogo: um bloqueio simples, sem ativar restrições por idade nem de comunicação. Bloqueia o início de jogos, não o menu HOME nem as configurações do console. Requer um PIN no console.",
+        "note_on": "O limite de cada dia é 0: o PIN é necessário para jogar. Ao desativar, os limites anteriores voltam.",
+        "needs_pin": "Defina primeiro um PIN do controle dos pais: sem ele, nada impede que um jogo seja iniciado.",
+        "on_body": "Bloquear o console? O limite de tempo de jogo de cada dia passa a 0, então o PIN será necessário para iniciar um jogo. Os limites atuais são salvos e voltam quando você desativar o bloqueio.",
+        "on_confirm": "Bloquear o console",
+        "on_done": "Console bloqueado.",
+        "off_body": "Desbloquear o console? Os limites de tempo de jogo anteriores voltam.",
+        "off_confirm": "Desbloquear o console",
+        "off_done": "Console desbloqueado."
+    },
+    "rescue": {
+        "title": "Recuperação",
+        "section_actions": "O que você quer fazer?",
+        "section_done": "Concluir",
+        "reset_pin": "Definir um PIN novo",
+        "continue": "Abrir o PlayGuard",
+        "note": "Você chegou a esta tela com o arquivo RESCUE, então aqui o PIN não é pedido. Defina um PIN novo ou exclua o controle dos pais e, depois, abra o PlayGuard.",
+        "note_failed": "A recuperação não terminou sozinha. Você pode tentar de novo por aqui, ou remover o cartão SD e alterar as configurações em um computador.",
+        "note_deleted": "Todo o controle dos pais foi excluído, inclusive o PIN. Abra o PlayGuard: você pode configurá-lo de novo por lá quando quiser.",
+        "note_no_pin": "Nenhum PIN do controle dos pais estava definido, então não havia nada para desbloquear. Você pode definir um aqui e, depois, abrir o PlayGuard.",
+        "failed_code": "Resposta do console: {}.",
+        "outcome": {
+            "unlocked": "O controle dos pais foi desbloqueado para que o PlayGuard pudesse abrir.",
+            "deleted": "Todo o controle dos pais foi excluído.",
+            "no_pin": "Não havia PIN para recuperar: nenhum PIN do controle dos pais está definido.",
+            "failed": "Não foi possível concluir a recuperação."
+        },
+        "hint": {
+            "show_pin": "se você esqueceu",
+            "reset_pin": "escolher um novo",
+            "delete": "excluir tudo"
+        }
+    },
     "tools": {
         "section_diag": "Diagnóstico",
         "export": "Exportar relatório de diagnóstico",
@@ -707,7 +743,9 @@
             "unlink": "App do celular desvinculado",
             "delete": "Todo o controle dos pais excluído",
             "clock": "Relógio de rede ajustado",
-            "restore": "Backup restaurado"
+            "restore": "Backup restaurado",
+            "rescue": "Recuperação usada",
+            "console_lock": "Bloqueio do console"
         },
         "sources": {
             "uniform": "Mesmo limite todos os dias",

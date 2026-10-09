@@ -119,6 +119,41 @@ static void test_round_trip()
     assert(c.language == "fr" && c.theme == "light" && c.ntp_server == "fr.pool.ntp.org");
     assert(c.custom_servers.size() == 1 && c.dev_mode && c.relock_pending);
     assert(c.extra_weekday == 0 && c.extra_base == 120 && c.extra_value == 150 && c.extra_auto_restore);
+
+    // Console lock: the flag and the seven saved limits round-trip.
+    c = config::Config{};
+    c.console_lock = true;
+    c.console_lock_prev = { 180, 120, 120, 120, 120, 120, 0xFFFF };
+    assert(config::save());
+    c = config::Config{};
+    config::load();
+    assert(c.console_lock && c.console_lock_prev == std::vector<int>({ 180, 120, 120, 120, 120, 120, 0xFFFF }));
+}
+
+static void test_console_lock()
+{
+    // Saved limits must be exactly seven, each a real limit or 0xFFFF.
+    const char* bad[] = {
+        R"({"console_lock": true, "console_lock_prev": [0, 0, 0, 0, 0, 0]})",       // six
+        R"({"console_lock": true, "console_lock_prev": [0, 0, 0, 0, 0, 0, 0, 0]})", // eight
+        R"({"console_lock": true, "console_lock_prev": [0, 0, 0, 0, 0, 0, 1441]})", // out of range
+        R"({"console_lock": true, "console_lock_prev": [0, 0, 0, 0, 0, 0, -1]})",
+        R"({"console_lock": true, "console_lock_prev": "all"})",
+    };
+    for (const char* b : bad) {
+        write_config(b);
+        config::load();
+        // The flag is kept (it is a plain bool), but the nonsense limits are dropped,
+        // so turning the lock off clears the limit rather than restoring garbage.
+        assert(config::get().console_lock_prev.empty());
+    }
+    // 0 every day (a real "locked" record) is kept.
+    write_config(R"({"console_lock": true, "console_lock_prev": [0, 0, 0, 0, 0, 0, 0]})");
+    config::load();
+    assert(config::get().console_lock && config::get().console_lock_prev.size() == 7);
+    // Default: off, nothing saved.
+    config::Config d;
+    assert(!d.console_lock && d.console_lock_prev.empty());
 }
 
 static void test_preferences()
@@ -207,6 +242,7 @@ int main()
     test_defaults();
     test_fields();
     test_round_trip();
+    test_console_lock();
     test_preferences();
     test_tmp_recovery();
 

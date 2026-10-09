@@ -97,6 +97,7 @@ else ()
     # The console-free parts are shared with the simulator: one implementation.
     list(APPEND PLAYGUARD_SRC ${CMAKE_CURRENT_SOURCE_DIR}/source/core/pure.c
                               ${CMAKE_CURRENT_SOURCE_DIR}/source/core/calendar.c
+                              ${CMAKE_CURRENT_SOURCE_DIR}/source/core/rescue.c
                               ${CMAKE_CURRENT_SOURCE_DIR}/source/core/write_guard.c)
 endif ()
 

@@ -35,6 +35,7 @@ OUT = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else "smoke")
 SCENARIO = sys.argv[2] if len(sys.argv) > 2 else ""
 GATE = SCENARIO == "gate"
 ERRORS = SCENARIO == "errors"
+RESCUE = SCENARIO == "rescue"
 os.makedirs(OUT, exist_ok=True)
 run_dir = os.path.join(OUT, "run")
 os.makedirs(run_dir, exist_ok=True)
@@ -66,6 +67,15 @@ if ERRORS:
     env.setdefault("PLAYGUARD_SIM_FAIL", "unlock")
     env.setdefault("PLAYGUARD_SIM_RESTRICTED", "1")
     env.setdefault("PLAYGUARD_SIM_AUTOSYNC_OFF", "1")
+if RESCUE:
+    # The playguard-rescue sysmodule left a report: PlayGuard must show the
+    # recovery screen at start-up and open the app when it is dismissed.
+    report = os.path.join(run_dir, "playguard_data", "rescue_report.txt")
+    os.makedirs(os.path.dirname(report), exist_ok=True)
+    open(report, "w").write("mode=unlock\nresult=ok\nrc=0x00000000\nunlocks=1\n")
+    history = os.path.join(run_dir, "playguard_data", "history.json")
+    if os.path.exists(history):
+        os.remove(history)   # a clean history: the rescue entry must be the only one
 log = open(os.path.join(OUT, "app.log"), "w")
 def have(tool):
     return subprocess.run(["which", tool], capture_output=True).returncode == 0
@@ -226,6 +236,26 @@ if ERRORS:
         if not any(t.startswith("Could not unlock parental controls") for t in messages()):
             fail("no 'could not unlock' dialog; messages: " + repr(messages()))
     finish(told_unlock_failed)
+if RESCUE:
+    shot("01_recovery")        # the recovery screen, in place of the usual first screen
+    key("Down", 3)             # past Show the PIN / Set a new PIN / Delete: Open PlayGuard
+    key("Return")              # proceed to the app
+    shot("02_opened")          # the Overview: the app opened after the rescue
+    if not alive():
+        fail("app exited instead of opening after recovery")
+    report_path = os.path.join(run_dir, "playguard_data", "rescue_report.txt")
+    if os.path.exists(report_path):
+        fail("the rescue report was not removed after it was read")
+
+    def recorded():
+        history = os.path.join(run_dir, "playguard_data", "history.json")
+        try:
+            entries = json.load(open(history)).get("entries", [])
+        except (OSError, ValueError) as e:
+            fail(f"no history written: {e}")
+        if not any(e.get("kind") == "rescue" for e in entries):
+            fail("recovery was not recorded in the change history")
+    finish(recorded)
 
 shot("01_dashboard")
 # Left (not Escape) goes back to the sidebar: Escape there asks to quit, so a

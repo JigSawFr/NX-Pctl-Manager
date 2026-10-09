@@ -78,3 +78,10 @@ HB_APPSTORE_SUBMISSION.md
 /compat.json
 toolchain.txt
 /node_modules
+/out-rescue
+/smoke-rescue
+/sysmodule/build
+/sysmodule/out
+*.nsp
+*.npdm
+*.nso

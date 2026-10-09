@@ -514,6 +514,42 @@
         "locked_body": "Ingrese el PIN de control parental para abrirlo.",
         "enter": "Ingresar el PIN"
     },
+    "console_lock": {
+        "section": "Bloqueo de la consola",
+        "title": "Bloqueo de la consola",
+        "note_off": "Pone en 0 el límite de cada día, así que se necesita el PIN para iniciar un juego: un bloqueo sencillo, sin activar las restricciones por edad ni de comunicación. Bloquea el inicio de juegos, no el menú HOME ni la configuración de la consola. Requiere un PIN en la consola.",
+        "note_on": "El límite de cada día es 0: se necesita el PIN para jugar. Al desactivarlo se restauran los límites anteriores.",
+        "needs_pin": "Defina primero un PIN de control parental: sin él, nada impide iniciar un juego.",
+        "on_body": "¿Bloquear la consola? El límite de tiempo de juego de cada día pasa a 0, así que se necesitará el PIN para iniciar un juego. Los límites actuales se guardan y se restauran cuando lo desactive.",
+        "on_confirm": "Bloquear la consola",
+        "on_done": "Consola bloqueada.",
+        "off_body": "¿Desbloquear la consola? Se restauran los límites de tiempo de juego anteriores.",
+        "off_confirm": "Desbloquear la consola",
+        "off_done": "Consola desbloqueada."
+    },
+    "rescue": {
+        "title": "Recuperación",
+        "section_actions": "¿Qué desea hacer?",
+        "section_done": "Terminar",
+        "reset_pin": "Definir un PIN nuevo",
+        "continue": "Abrir PlayGuard",
+        "note": "Llegó a esta pantalla con el archivo RESCUE, así que aquí no se pide el PIN. Defina un PIN nuevo o elimine el control parental y luego abra PlayGuard.",
+        "note_failed": "La recuperación no terminó por sí sola. Puede volver a intentarlo desde aquí, o sacar la tarjeta SD y cambiar la configuración en una computadora.",
+        "note_deleted": "Se eliminó todo el control parental, incluido el PIN. Abra PlayGuard: desde ahí puede volver a configurarlo cuando quiera.",
+        "note_no_pin": "No había ningún PIN de control parental, así que no había nada que desbloquear. Puede definir uno aquí y luego abrir PlayGuard.",
+        "failed_code": "Respuesta de la consola: {}.",
+        "outcome": {
+            "unlocked": "Se desbloqueó el control parental para que PlayGuard pudiera abrirse.",
+            "deleted": "Se eliminó todo el control parental.",
+            "no_pin": "No había ningún PIN que recuperar: no hay un PIN de control parental definido.",
+            "failed": "La recuperación no pudo terminar."
+        },
+        "hint": {
+            "show_pin": "si lo olvidó",
+            "reset_pin": "elegir uno nuevo",
+            "delete": "borrar todo"
+        }
+    },
     "tools": {
         "section_diag": "Diagnóstico",
         "export": "Exportar un informe de diagnóstico",
@@ -707,7 +743,9 @@
             "unlink": "App para celular desvinculada",
             "delete": "Todo el control parental eliminado",
             "clock": "Reloj de red ajustado",
-            "restore": "Respaldo restaurado"
+            "restore": "Respaldo restaurado",
+            "rescue": "Recuperación usada",
+            "console_lock": "Bloqueo de la consola"
         },
         "sources": {
             "uniform": "Mismo límite todos los días",

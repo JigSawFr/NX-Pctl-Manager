@@ -514,6 +514,42 @@
         "locked_body": "Inserisci il PIN del filtro famiglia per aprirlo.",
         "enter": "Inserisci il PIN"
     },
+    "console_lock": {
+        "section": "Blocco della console",
+        "title": "Blocco della console",
+        "note_off": "Imposta a 0 il limite di ogni giorno, così serve il PIN per avviare un gioco: un blocco leggero, senza attivare le limitazioni per età o di comunicazione. Blocca l'avvio dei giochi, non il menu HOME né le impostazioni di sistema. Richiede un PIN sulla console.",
+        "note_on": "Il limite di ogni giorno è 0: serve il PIN per giocare. Disattivandolo vengono ripristinati i limiti precedenti.",
+        "needs_pin": "Prima imposta un PIN del filtro famiglia: senza, nulla impedisce di avviare un gioco.",
+        "on_body": "Vuoi bloccare la console? Il limite di tempo di gioco di ogni giorno passa a 0, quindi servirà il PIN per avviare un gioco. I limiti attuali vengono salvati e ripristinati quando lo disattivi.",
+        "on_confirm": "Blocca la console",
+        "on_done": "Console bloccata.",
+        "off_body": "Vuoi sbloccare la console? Vengono ripristinati i limiti di tempo di gioco precedenti.",
+        "off_confirm": "Sblocca la console",
+        "off_done": "Console sbloccata."
+    },
+    "rescue": {
+        "title": "Recupero",
+        "section_actions": "Cosa vuoi fare?",
+        "section_done": "Fine",
+        "reset_pin": "Imposta un nuovo PIN",
+        "continue": "Apri PlayGuard",
+        "note": "Sei arrivato a questa schermata con il file RESCUE, quindi qui il PIN non viene richiesto. Imposta un nuovo PIN o elimina il filtro famiglia, poi apri PlayGuard.",
+        "note_failed": "Il recupero non si è concluso da solo. Puoi riprovare da qui, oppure estrarre la scheda SD e modificare le impostazioni da un computer.",
+        "note_deleted": "Il filtro famiglia è stato eliminato, PIN compreso. Apri PlayGuard: da lì potrai configurarlo di nuovo quando vuoi.",
+        "note_no_pin": "Non era impostato alcun PIN del filtro famiglia, quindi non c'era nulla da sbloccare. Puoi impostarne uno qui, poi aprire PlayGuard.",
+        "failed_code": "Risposta della console: {}.",
+        "outcome": {
+            "unlocked": "Il filtro famiglia è stato sbloccato, così PlayGuard ha potuto aprirsi.",
+            "deleted": "Il filtro famiglia è stato eliminato.",
+            "no_pin": "Non c'era alcun PIN da recuperare: nessun PIN del filtro famiglia è impostato.",
+            "failed": "Il recupero non è riuscito a concludersi."
+        },
+        "hint": {
+            "show_pin": "se l'hai dimenticato",
+            "reset_pin": "scegline uno nuovo",
+            "delete": "rimuovi tutto"
+        }
+    },
     "tools": {
         "section_diag": "Diagnostica",
         "export": "Esporta un rapporto di diagnostica",
@@ -707,7 +743,9 @@
             "unlink": "App Filtro famiglia scollegata",
             "delete": "Filtro famiglia eliminato",
             "clock": "Orologio di rete impostato",
-            "restore": "Backup ripristinato"
+            "restore": "Backup ripristinato",
+            "rescue": "Recupero usato",
+            "console_lock": "Blocco della console"
         },
         "sources": {
             "uniform": "Stesso limite ogni giorno",
