@@ -92,9 +92,20 @@ bool alarm_off(const PtState& pt);
 // change, read-only mode: as for any change), recorded with `source`.
 // Not an advanced action: it puts back what the console does by default.
 void turn_alarm_on(const std::string& source, std::function<void()> refresh);
+// Turns the alarm on or off after a confirmation, through confirm_write (the
+// service layer refuses it while the timer counts down and nothing unlocked).
+void set_alarm(bool on, const std::string& source, std::function<void()> refresh);
+// Writes the alarm flag and records it in the history (callers already went
+// through confirm_write).
+Result write_alarm_disabled(bool disabled, const std::string& source);
+// Advanced: pauses (StopPlayTimer) or resumes (StartPlayTimer) the countdown,
+// through confirm_write.
+void set_countdown(bool running, std::function<void()> refresh);
 
 // At start-up: the app stopped between an unlock made for a change and the
 // lock that follows it (config relock_pending) -> lock again now, with a toast.
+// The record stays until the console reads back as locked. Also called when
+// the app leaves read-only mode, which keeps the record.
 void relock_if_interrupted();
 
 }   // namespace pt_flow

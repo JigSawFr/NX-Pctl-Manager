@@ -5,7 +5,6 @@
 #include <fmt/format.h>
 #include <vector>
 
-#include "action/history_flow.hpp"
 #include "action/pt_flow.hpp"
 #include "action/pt_logic.hpp"
 #include "activity/play_timer_perday_activity.hpp"
@@ -73,25 +72,17 @@ PlayTimerTab::PlayTimerTab()
 
     ui::guard_switch(alarm);
     alarm->init("playguard/play_timer/alarm"_i18n, true, [this](bool on) {
-        Result rc = pctl_play_timer_set_alarm_disabled(!on);
-        if (R_FAILED(rc)) this->alarm->setOn(!on, false);
-        else history_flow::record_values("alarm", { on ? 1 : 0 }, { on ? 0 : 1 });
-        ui::notify_result(rc, "playguard/common/applied"_i18n, "playguard/play_timer/write_err"_i18n);
+        // The switch shows the console's value until the change is made
+        // (after a confirmation, and the unlock when the timer counts down).
+        this->alarm->setOn(!on, false);
+        pt_flow::set_alarm(on, "", [this]() { this->refresh(); });
     });
     pause->registerClickAction([this](brls::View*) {
-        if (ui::refuse_read_only()) return true;
-        ui::confirm_danger("playguard/play_timer/pause_body"_i18n, "playguard/play_timer/pause_confirm"_i18n, [this]() {
-            ui::notify_result(pctl_play_timer_stop(), "playguard/common/applied"_i18n, "playguard/play_timer/write_err"_i18n);
-            this->refresh();
-        });
+        pt_flow::set_countdown(false, [this]() { this->refresh(); });
         return true;
     });
     resume->registerClickAction([this](brls::View*) {
-        if (ui::refuse_read_only()) return true;
-        ui::confirm("playguard/play_timer/resume_body"_i18n, "playguard/play_timer/resume_confirm"_i18n, [this]() {
-            ui::notify_result(pctl_play_timer_start(), "playguard/common/applied"_i18n, "playguard/play_timer/write_err"_i18n);
-            this->refresh();
-        });
+        pt_flow::set_countdown(true, [this]() { this->refresh(); });
         return true;
     });
     // Diagnostic shortcut in developer mode; everyone else uses Tools.

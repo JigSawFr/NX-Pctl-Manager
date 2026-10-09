@@ -88,7 +88,8 @@
         "no_pin": "não está definido nenhum PIN de controlo parental",
         "session_closed": "o sistema fechou a sessão do controlo parental; tente novamente",
         "bad_pin_format": "o sistema recusou o formato do PIN",
-        "pctl_refused": "recusado pelo serviço de controlo parental"
+        "pctl_refused": "recusado pelo serviço de controlo parental",
+        "relock_failed": "a consola foi desbloqueada mas não foi possível bloqueá-la de novo: bloqueie-a agora (Segurança e aplicação › Bloquear agora)"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -257,6 +258,8 @@
         "alarm_on_body": "Reativar o alarme \"Tempo esgotado\"?\n\nQuando o limite de tempo de jogo for atingido, a consola voltará a mostrar o alarme, como faz por predefinição.",
         "alarm_on_confirm": "Ativar",
         "alarm_on_done": "Alarme \"Tempo esgotado\" ativado.",
+        "alarm_off_body": "Desativar o alarme «tempo esgotado»?\n\nQuando o limite de tempo de jogo for atingido, a consola deixará de o indicar: o jogo só será suspenso no bloqueio seguinte.",
+        "alarm_off_confirm": "Desativar",
         "pause": "Pausar a contagem",
         "resume": "Retomar a contagem",
         "pause_body": "Pausar a contagem de hoje?\n\nIsto usa um comando de teste do sistema. Use-o apenas se souber porque precisa dele.",
@@ -525,7 +528,8 @@
         "on_done": "Consola bloqueada.",
         "off_body": "Desbloquear a consola? Os limites de tempo de jogo anteriores são repostos.",
         "off_confirm": "Desbloquear a consola",
-        "off_done": "Consola desbloqueada."
+        "off_done": "Consola desbloqueada.",
+        "blocks_change": "O bloqueio da consola está ativo: o limite de cada dia fica em 0. Desative-o primeiro em Segurança e aplicação."
     },
     "rescue": {
         "title": "Recuperação",
@@ -535,6 +539,8 @@
         "continue": "Abrir o PlayGuard",
         "note": "Chegou a este ecrã com o ficheiro RESCUE, por isso aqui não é pedido o PIN. Defina um PIN novo ou elimine o controlo parental e, depois, abra o PlayGuard.",
         "note_failed": "A recuperação não terminou por si só. Pode tentar novamente a partir daqui, ou retirar o cartão SD e alterar as definições num computador.",
+        "note_refused": "Todo o controlo parental teria sido eliminado, mas não foi possível remover o ficheiro de pedido do cartão SD, que seria repetido em cada arranque. Remova-o num computador e tente de novo, ou use as ações abaixo.",
+        "request_kept": "Não foi possível remover o ficheiro {} do cartão SD: enquanto lá estiver, a consola é desbloqueada de novo em cada arranque. Remova-o num computador.",
         "note_deleted": "Todo o controlo parental foi eliminado, incluindo o PIN. Abra o PlayGuard: pode voltar a configurá-lo a partir daí sempre que quiser.",
         "note_no_pin": "Não estava definido nenhum PIN do controlo parental, por isso não havia nada para desbloquear. Pode definir um aqui e, depois, abrir o PlayGuard.",
         "failed_code": "Resposta da consola: {}.",
@@ -542,7 +548,8 @@
             "unlocked": "O controlo parental foi desbloqueado para que o PlayGuard pudesse abrir.",
             "deleted": "Todo o controlo parental foi eliminado.",
             "no_pin": "Não havia nenhum PIN para recuperar: não está definido nenhum PIN do controlo parental.",
-            "failed": "Não foi possível concluir a recuperação."
+            "failed": "Não foi possível concluir a recuperação.",
+            "refused": "Nada foi eliminado: não foi possível remover o ficheiro RESCUE do cartão SD."
         },
         "hint": {
             "show_pin": "se o esqueceu",
@@ -759,7 +766,8 @@
             "undo": "Reposto a partir do histórico",
             "first_steps": "Primeiros passos",
             "overview": "Visão geral",
-            "profile": "Perfil \"{}\""
+            "profile": "Perfil \"{}\"",
+            "console_lock": "Bloqueio da consola"
         },
         "when": "Quando",
         "how": "Origem",

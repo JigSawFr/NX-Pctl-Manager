@@ -88,7 +88,8 @@
         "no_pin": "er is geen pincode voor ouderlijk toezicht ingesteld",
         "session_closed": "het systeem heeft de sessie van ouderlijk toezicht gesloten; probeer het opnieuw",
         "bad_pin_format": "het systeem heeft de opmaak van de pincode geweigerd",
-        "pctl_refused": "geweigerd door de dienst voor ouderlijk toezicht"
+        "pctl_refused": "geweigerd door de dienst voor ouderlijk toezicht",
+        "relock_failed": "de console is ontgrendeld maar kon niet opnieuw worden vergrendeld: vergrendel hem nu (Beveiliging & app › Nu vergrendelen)"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -257,6 +258,8 @@
         "alarm_on_body": "Alarm \"Tijd is om\" weer inschakelen?\n\nAls de speeltijdlimiet is bereikt, toont de console het alarm weer, zoals standaard.",
         "alarm_on_confirm": "Inschakelen",
         "alarm_on_done": "Alarm \"Tijd is om\" ingeschakeld.",
+        "alarm_off_body": "Het alarm 'Tijd is om' uitschakelen?\n\nAls de speeltijdlimiet is bereikt, meldt de console dat niet meer: het spel wordt pas bij de volgende vergrendeling onderbroken.",
+        "alarm_off_confirm": "Uitschakelen",
         "pause": "Aftellen pauzeren",
         "resume": "Aftellen hervatten",
         "pause_body": "Het aftellen van vandaag pauzeren?\n\nHiervoor wordt een testopdracht van het systeem gebruikt. Gebruik dit alleen als je weet waarom je het nodig hebt.",
@@ -525,7 +528,8 @@
         "on_done": "Console vergrendeld.",
         "off_body": "Console ontgrendelen? De vorige speeltijdlimieten worden teruggezet.",
         "off_confirm": "Console ontgrendelen",
-        "off_done": "Console ontgrendeld."
+        "off_done": "Console ontgrendeld.",
+        "blocks_change": "De consolevergrendeling staat aan: de limiet van elke dag blijft 0. Schakel deze eerst uit in Beveiliging & app."
     },
     "rescue": {
         "title": "Herstel",
@@ -535,6 +539,8 @@
         "continue": "PlayGuard openen",
         "note": "U bent hier gekomen via het RESCUE-bestand, dus hier wordt geen pincode gevraagd. Stel een nieuwe pincode in of verwijder het ouderlijk toezicht en open daarna PlayGuard.",
         "note_failed": "Het herstel is niet vanzelf voltooid. U kunt het hier opnieuw proberen, of de SD-kaart verwijderen en de instellingen op een computer aanpassen.",
+        "note_refused": "Alle ouderlijk toezicht zou zijn verwijderd, maar het verzoekbestand kon niet van de SD-kaart worden verwijderd en zou bij elke start opnieuw worden uitgevoerd. Verwijder het via een computer en probeer het opnieuw, of gebruik de acties hieronder.",
+        "request_kept": "Het bestand {} kon niet van de SD-kaart worden verwijderd: zolang het er staat, wordt de console bij elke start opnieuw ontgrendeld. Verwijder het via een computer.",
         "note_deleted": "Het ouderlijk toezicht is volledig verwijderd, inclusief de pincode. Open PlayGuard: daar kunt u het op elk moment opnieuw instellen.",
         "note_no_pin": "Er was geen pincode voor ouderlijk toezicht ingesteld, dus er was niets te ontgrendelen. U kunt er hier een instellen en daarna PlayGuard openen.",
         "failed_code": "Melding van de console: {}.",
@@ -542,7 +548,8 @@
             "unlocked": "Het ouderlijk toezicht is ontgrendeld, zodat PlayGuard kon openen.",
             "deleted": "Het ouderlijk toezicht is volledig verwijderd.",
             "no_pin": "Er was geen pincode om te herstellen: er is geen pincode voor ouderlijk toezicht ingesteld.",
-            "failed": "Het herstel kon niet worden voltooid."
+            "failed": "Het herstel kon niet worden voltooid.",
+            "refused": "Er is niets verwijderd: het RESCUE-bestand kon niet van de SD-kaart worden verwijderd."
         },
         "hint": {
             "show_pin": "als u hem vergeten bent",
@@ -759,7 +766,8 @@
             "undo": "Teruggezet vanuit de geschiedenis",
             "first_steps": "Eerste stappen",
             "overview": "Overzicht",
-            "profile": "Profiel \"{}\""
+            "profile": "Profiel \"{}\"",
+            "console_lock": "Consolevergrendeling"
         },
         "when": "Wanneer",
         "how": "Bron",

@@ -41,6 +41,11 @@ class ActivityTab : public TabBase
 
     std::vector<std::pair<u64, GameCell*>> cells;   // the list on screen, top first
     int listener = 0;                                 // play_data::listen id
+    // Data arrived while another screen (a game's own screen, a dialog) was
+    // on top: the list is rebuilt once this one is back. Deleting its cells
+    // sooner would free the one borealis gives the focus back to.
+    bool stale = false;
+    std::shared_ptr<bool> alive = std::make_shared<bool>(true);
 
     BRLS_BIND(PlayDaysView,     days,        "ac_days");
     BRLS_BIND(brls::DetailCell, today,       "ac_today");

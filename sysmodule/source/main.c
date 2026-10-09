@@ -3,10 +3,12 @@
 // (PlayGuard included) from starting.
 //
 // At boot it looks for sd:/switch/playguard/RESCUE (see core/rescue.h). If it
-// is there it removes it (used once), then, with the PIN the console stores:
+// is there it removes it (used once; renamed RESCUE.done should that fail),
+// then, with the PIN the console stores:
 //   - unlocks parental controls temporarily (1208 reads the PIN, 1201 unlocks)
 //     so the HOME menu and PlayGuard can start;
-//   - or, when the file asks to "delete", deletes every parental control (1043).
+//   - or, when a line of the file reads "delete", deletes every parental
+//     control (1043) — only once the request is gone, so it never repeats.
 // It leaves the outcome in rescue_report.txt for PlayGuard, then exits — it
 // holds no service and no memory for the rest of the session.
 //
@@ -26,6 +28,7 @@
 #define DATA_DIR    "sdmc:/switch/playguard"
 #define PATH_REQ    DATA_DIR "/" RESCUE_REQUEST_NAME
 #define PATH_REQTXT DATA_DIR "/" RESCUE_REQUEST_NAME_TXT
+#define PATH_DONE   DATA_DIR "/" RESCUE_REQUEST_NAME_DONE
 #define PATH_REPORT DATA_DIR "/" RESCUE_REPORT_NAME
 
 // A sysmodule, not an application: no applet, one fs session, a small heap.
@@ -117,17 +120,43 @@ static bool read_small(const char* path, char* buf, size_t size, size_t* out_len
     return true;
 }
 
-// The request, under either name. Returns true and fills *mode / *path when one
-// is there.
-static bool take_request(RescueMode* mode, const char** path)
+// The request, under either name. Returns true and fills *mode when one is
+// there.
+static bool take_request(RescueMode* mode)
 {
     static char buf[512];
     size_t n = 0;
-    if (read_small(PATH_REQ, buf, sizeof(buf), &n)) { *path = PATH_REQ; }
-    else if (read_small(PATH_REQTXT, buf, sizeof(buf), &n)) { *path = PATH_REQTXT; }
-    else return false;
+    if (!read_small(PATH_REQ, buf, sizeof(buf), &n) && !read_small(PATH_REQTXT, buf, sizeof(buf), &n))
+        return false;
     *mode = rescue_request_mode(buf, n);
     return true;
+}
+
+static bool exists(const char* path)
+{
+    FILE* f = fopen(path, "rb");
+    if (!f) return false;
+    fclose(f);
+    return true;
+}
+
+// Takes one request file away so it is acted on once: removed, or, should that
+// fail, renamed RESCUE.done (replacing an earlier one). Kept when it is still
+// there afterwards; Removed too when it was never there.
+static RescueRequest consume(const char* path)
+{
+    if (remove(path) == 0 || !exists(path)) return RescueRequest_Removed;
+    remove(PATH_DONE);
+    if (rename(path, PATH_DONE) == 0 && !exists(path)) return RescueRequest_Renamed;
+    return RescueRequest_Kept;
+}
+
+// Both names (either may be there, or both): the worst outcome of the two.
+static RescueRequest consume_requests(void)
+{
+    RescueRequest a = consume(PATH_REQ);
+    RescueRequest b = consume(PATH_REQTXT);
+    return a > b ? a : b;
 }
 
 static void write_report(const RescueReport* r)
@@ -187,15 +216,20 @@ int main(int argc, char* argv[])
     (void)argv;
 
     RescueMode mode;
-    const char* req_path = NULL;
-    if (take_request(&mode, &req_path)) {
-        // Remove the request first: it is acted on once, present or not next boot.
-        remove(req_path);
-        remove(PATH_REQ);
-        remove(PATH_REQTXT);
+    if (take_request(&mode)) {
+        // Take the request away first: it is acted on once, present or not next
+        // boot. A delete still there would run again at every boot, so it is
+        // not done; an unlock is (the parent needs PlayGuard to open), and the
+        // report says the file is still there.
+        const RescueRequest request = consume_requests();
 
         RescueReport report;
-        if (wait_for_pctl()) {
+        if (mode == RescueMode_Delete && request == RescueRequest_Kept) {
+            report.mode = mode;
+            report.result = RescueResult_Refused;
+            report.rc = 0;
+            report.unlocks = 0;
+        } else if (wait_for_pctl()) {
             do_rescue(mode, &report);
             pctlExit();
         } else {
@@ -204,6 +238,7 @@ int main(int argc, char* argv[])
             report.rc = MAKERESULT(Module_Libnx, LibnxError_InitFail_SM);
             report.unlocks = 0;
         }
+        report.request = request;
         write_report(&report);
     }
 

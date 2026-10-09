@@ -45,8 +45,11 @@ std::tm local_now()
 
 std::string csv_field(std::string s, bool numeric)
 {
-    // A text cell starting like a formula is shown as text by spreadsheets.
-    if (!numeric && !s.empty() && (s[0] == '=' || s[0] == '+' || s[0] == '-' || s[0] == '@')) s.insert(0, "'");
+    // A text cell starting like a formula is shown as text by spreadsheets
+    // (OWASP: = + - @, tab and carriage return). A numeric cell is written as
+    // is only when it is an integer (as in JSON and XLSX), else it is text.
+    const bool number = numeric && (s.empty() || is_integer(s));
+    if (!number && !s.empty() && std::string("=+-@\t\r").find(s[0]) != std::string::npos) s.insert(0, "'");
     if (s.find_first_of(",\"\r\n") == std::string::npos && (s.empty() || (s.front() != ' ' && s.back() != ' ')))
         return s;
     std::string out = "\"";
@@ -94,18 +97,56 @@ std::string render_json(const Table& t)
 
 // ---------------------------------------------------------------- XLSX
 
+// One UTF-8 character at s[i]: its code point in *cp and its length. A byte
+// that does not start a well-formed character (stray continuation, overlong
+// form, surrogate, beyond U+10FFFF, cut short) is U+FFFD, length 1.
+size_t utf8_next(const std::string& s, size_t i, uint32_t* cp)
+{
+    const unsigned char c = (unsigned char)s[i];
+    size_t len = 0;
+    uint32_t v = 0, min = 0;
+    if (c < 0x80) { *cp = c; return 1; }
+    if (c >= 0xC2 && c <= 0xDF) { len = 2; v = c & 0x1F; min = 0x80; }
+    else if (c >= 0xE0 && c <= 0xEF) { len = 3; v = c & 0x0F; min = 0x800; }
+    else if (c >= 0xF0 && c <= 0xF4) { len = 4; v = c & 0x07; min = 0x10000; }
+    bool ok = len > 0 && i + len <= s.size();
+    for (size_t k = 1; k < len && ok; k++) {
+        const unsigned char cc = (unsigned char)s[i + k];
+        ok = (cc & 0xC0) == 0x80;
+        v = (v << 6) | (cc & 0x3F);
+    }
+    if (!ok || v < min || v > 0x10FFFF || (v >= 0xD800 && v <= 0xDFFF)) {
+        *cp = 0xFFFD;
+        return 1;
+    }
+    *cp = v;
+    return len;
+}
+
+// Allowed in XML 1.0: no control character but tab and line ends, no U+FFFE / U+FFFF.
+bool xml_char(uint32_t cp)
+{
+    if (cp < 0x20) return cp == '\t' || cp == '\n' || cp == '\r';
+    return cp != 0xFFFE && cp != 0xFFFF;
+}
+
+// Badly encoded bytes become U+FFFD, characters XML does not allow are left out.
 std::string xml_escape(const std::string& s)
 {
     std::string out;
-    for (unsigned char c : s) {
-        switch (c) {
+    for (size_t i = 0; i < s.size();) {
+        uint32_t cp;
+        const size_t len = utf8_next(s, i, &cp);
+        const bool bad = cp == 0xFFFD && len == 1;
+        i += len;
+        if (bad) { out += "\xEF\xBF\xBD"; continue; }
+        if (!xml_char(cp)) continue;
+        switch (cp) {
             case '&': out += "&amp;"; break;
             case '<': out += "&lt;"; break;
             case '>': out += "&gt;"; break;
             case '"': out += "&quot;"; break;
-            default:
-                if (c < 0x20 && c != '\t' && c != '\n' && c != '\r') break;   // not allowed in XML
-                out += (char)c;
+            default: out += s.substr(i - len, len);
         }
     }
     return out;
@@ -118,22 +159,26 @@ std::string column_letters(size_t i)
     return s;
 }
 
-// Excel refuses []:*?/\ in a sheet name and more than 31 characters.
+// Excel refuses []:*?/\ in a sheet name, an apostrophe first or last, and
+// more than 31 characters (UTF-16 units). Cut on whole characters; badly
+// encoded bytes and characters XML does not allow are left out.
 std::string sheet_name(const std::string& in)
 {
     std::string out;
-    size_t chars = 0;
-    for (size_t i = 0; i < in.size() && chars < 31; chars++) {
-        size_t len = 1;
-        const unsigned char c = (unsigned char)in[i];
-        if (c >= 0xF0) len = 4;
-        else if (c >= 0xE0) len = 3;
-        else if (c >= 0xC0) len = 2;
-        const std::string ch = in.substr(i, len);
+    size_t units = 0;
+    for (size_t i = 0; i < in.size();) {
+        uint32_t cp;
+        const size_t len = utf8_next(in, i, &cp);
         i += len;
-        if (ch.size() == 1 && std::string("[]:*?/\\").find(ch[0]) != std::string::npos) continue;
-        out += ch;
+        if ((cp == 0xFFFD && len == 1) || !xml_char(cp) || cp < 0x20) continue;
+        if (cp < 0x80 && std::string("[]:*?/\\").find((char)cp) != std::string::npos) continue;
+        if (out.empty() && cp == '\'') continue;
+        const size_t w = cp >= 0x10000 ? 2 : 1;
+        if (units + w > 31) break;
+        units += w;
+        out += in.substr(i - len, len);
     }
+    while (!out.empty() && out.back() == '\'') out.pop_back();
     return out.empty() ? "Sheet1" : out;
 }
 

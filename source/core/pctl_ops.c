@@ -264,8 +264,8 @@ Result pctl_unlock_restriction_temporarily(void)
             // 1201 went through but the state cannot be read back: the caller
             // treats this as a failure and will not lock again, so do it here
             // rather than leave the console unlocked without anyone knowing.
-            (void)serviceDispatch(srv, 1007);
-            rc = vr;
+            // Should that fail too, say so: the console may still be unlocked.
+            rc = R_SUCCEEDED(serviceDispatch(srv, 1007)) ? vr : NXM_RC_RELOCK_FAILED;
         } else if (!unlocked) {
             rc = NXM_RC_UNLOCK_NOT_EFFECTIVE;
         }
@@ -311,8 +311,6 @@ Result pctl_get_pin(char *out, size_t out_size)
 Result pctl_relock(void)                     { return run_simple(1007, true); }
 Result pctl_delete_parental_controls(void)   { return run_simple(1043, false); }
 Result pctl_delete_pairing(void)             { return run_simple(1941, false); }
-Result pctl_play_timer_start(void)           { return run_simple(1451, false); }
-Result pctl_play_timer_stop(void)            { return run_simple(1452, false); }
 
 // ---------------------------------------------------------------- restrictions
 
@@ -396,6 +394,38 @@ Result pctl_set_stereo_vision_restricted(bool restricted)
 // PlayTimerSettings: layout and codec in pure.h. 1454 is in nanoseconds.
 
 static bool pt_fw_supported(void) { return hosversionAtLeast(21, 0, 0); }
+
+// Writing while the timer counts down destabilises Atmosphère. Every play-timer
+// write checks in its own session, right before writing, so no caller can skip
+// the gate: NXM_RC_WRITE_GATED while the timer is enabled (1453) or restricting
+// (1455) and not temporarily unlocked (1006). `active` (may be NULL) gets
+// whether the timer is enabled or restricting.
+static Result pt_write_gate(Service *srv, bool *active)
+{
+    bool enabled = false, restricted = false, unlocked = false;
+    Result rc = rd_bool(srv, 1453, &enabled);
+    if (R_SUCCEEDED(rc)) rc = rd_bool(srv, 1455, &restricted);
+    if (R_SUCCEEDED(rc)) rc = rd_bool(srv, 1006, &unlocked);
+    if (R_FAILED(rc)) return rc;
+    if (active) *active = enabled || restricted;
+    return ((enabled || restricted) && !unlocked) ? NXM_RC_WRITE_GATED : 0;
+}
+
+// A play-timer command (no argument, or the one byte `arg` points to) behind
+// the change check and the gate above, in one session.
+static Result pt_gated_command(u32 cmd, const u8 *arg)
+{
+    pctl_ops_exit();   // nothing held while the PIN check may show its applet
+    Result rc = core_change_allowed();
+    if (R_FAILED(rc)) return rc;
+    rc = pctl_ops_reinit();
+    if (R_FAILED(rc)) return rc;
+    Service *srv = pctlGetServiceSession_Service();
+    rc = pt_write_gate(srv, NULL);
+    if (R_SUCCEEDED(rc)) rc = arg ? serviceDispatchIn(srv, cmd, *arg) : serviceDispatch(srv, cmd);
+    pctl_ops_exit();
+    return rc;
+}
 
 static void pt_init(PtState *out)
 {
@@ -501,24 +531,31 @@ Result pctl_play_timer_set_days(const u16 days_min[7])
     if (R_FAILED(rc)) return rc;
     Service *srv = pctlGetServiceSession_Service();
 
-    // Writing while the timer counts down destabilises Atmosphère. Check in this
-    // very session, right before the write, so no caller can skip the gate.
-    bool enabled = false, restricted = false, unlocked = false;
-    rc = rd_bool(srv, 1453, &enabled);
-    if (R_SUCCEEDED(rc)) rc = rd_bool(srv, 1455, &restricted);
-    if (R_SUCCEEDED(rc)) rc = rd_bool(srv, 1006, &unlocked);
-    if (R_FAILED(rc) || ((enabled || restricted) && !unlocked)) {
+    bool active = false;
+    rc = pt_write_gate(srv, &active);
+    if (R_FAILED(rc)) {
         pctl_ops_exit();
-        return R_FAILED(rc) ? rc : NXM_RC_WRITE_GATED;
+        return rc;
     }
 
     // Start from the settings as they are, so the fields this app does not
-    // understand survive. Should the read fail, fall back to the layout
-    // observed on hardware (what earlier versions always wrote).
+    // understand survive. Should the read fail while the timer is off, fall
+    // back to the layout observed on hardware (what earlier versions always
+    // wrote): there is nothing set to lose. While it is on, the block holds
+    // what the companion app set, which a zeroed block would wipe: refuse,
+    // unless no day keeps a limit (pt_encode then writes all zeros anyway).
     u16 c[PT_U16_COUNT];
     memset(c, 0, sizeof(c));
     const bool have_current = R_SUCCEEDED(serviceDispatchOut(srv, 145601, c));
-    if (!have_current) memset(c, 0, sizeof(c));
+    if (!have_current) {
+        memset(c, 0, sizeof(c));
+        bool any = false;
+        for (int n = 0; n < 7; n++) if (days_min[n] != PT_DAY_NOLIMIT) any = true;
+        if (active && any) {
+            pctl_ops_exit();
+            return NXM_RC_STATE_UNKNOWN;
+        }
+    }
     pt_encode(c, days_min);
     rc = serviceDispatchIn(srv, 195101, c);
     pctl_ops_exit();
@@ -541,15 +578,12 @@ Result pctl_play_timer_clear(void)
 
 Result pctl_play_timer_set_alarm_disabled(bool disabled)
 {
-    Result gate = core_change_allowed();
-    if (R_FAILED(gate)) return gate;
-    Result rc = pctl_ops_init();
-    if (R_FAILED(rc)) return rc;
-    u8 v = disabled ? 1 : 0;
-    rc = serviceDispatchIn(pctlGetServiceSession_Service(), 1953, v);
-    pctl_ops_exit();
-    return rc;
+    const u8 v = disabled ? 1 : 0;
+    return pt_gated_command(1953, &v);
 }
+
+Result pctl_play_timer_start(void) { return pt_gated_command(1451, NULL); }
+Result pctl_play_timer_stop(void)  { return pt_gated_command(1452, NULL); }
 
 // ---------------------------------------------------------------- diagnostics
 

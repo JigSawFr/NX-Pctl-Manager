@@ -2,7 +2,9 @@
 #include "util/history.hpp"
 
 #include <borealis/extern/nlohmann/json.hpp>
+#include <climits>
 
+#include "util/backup.hpp"
 #include "util/paths.hpp"
 
 namespace history
@@ -25,8 +27,30 @@ bool read_values(const nlohmann::json& j, const char* key, std::vector<int>& out
     if (it == j.end()) return true;   // events have none
     if (!it->is_array()) return false;
     for (const auto& v : *it) {
+        // Read as 64-bit: a larger value is refused, never narrowed into a valid one.
         if (!v.is_number_integer()) return false;
-        out.push_back(v.get<int>());
+        if (v.is_number_unsigned() && v.get<unsigned long long>() > (unsigned long long)INT_MAX) return false;
+        const long long n = v.get<long long>();
+        if (n < INT_MIN || n > INT_MAX) return false;
+        out.push_back((int)n);
+    }
+    return true;
+}
+
+bool in(int v, int lo, int hi) { return v >= lo && v <= hi; }
+
+// Each value is one the console takes for `kind` (the ranges a backup restore
+// accepts), so an undo never writes a value from a damaged file.
+bool values_ok(const std::string& kind, const std::vector<int>& v)
+{
+    for (size_t i = 0; i < v.size(); i++) {
+        bool ok = false;
+        if (kind == "limits") ok = in(v[i], 0, backup::MAX_DAY_MINUTES) || v[i] == backup::DAY_NO_LIMIT;
+        else if (kind == "level") ok = in(v[i], 0, backup::MAX_LEVEL);
+        else if (kind == "org") ok = in(v[i], 0, backup::MAX_RATING_ORG);
+        else if (kind == "custom") ok = i == 0 ? in(v[i], 0, backup::MAX_RATING_AGE) : in(v[i], 0, 1);
+        else if (kind == "vr" || kind == "alarm") ok = in(v[i], 0, 1);
+        if (!ok) return false;
     }
     return true;
 }
@@ -94,7 +118,8 @@ std::vector<Entry> load()
 bool undoable(const Entry& e)
 {
     const size_t n = values_for(e.kind);
-    return n > 0 && e.before.size() == n && e.after.size() == n;
+    return n > 0 && e.before.size() == n && e.after.size() == n && values_ok(e.kind, e.before) &&
+           values_ok(e.kind, e.after);
 }
 
 }   // namespace history

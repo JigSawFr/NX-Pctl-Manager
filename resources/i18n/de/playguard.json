@@ -88,7 +88,8 @@
         "no_pin": "es ist keine Geheimzahl für die Altersbeschränkungen festgelegt",
         "session_closed": "das System hat die Sitzung der Altersbeschränkungen beendet; versuchen Sie es erneut",
         "bad_pin_format": "das System hat das Format der Geheimzahl abgelehnt",
-        "pctl_refused": "vom Dienst der Altersbeschränkungen abgelehnt"
+        "pctl_refused": "vom Dienst der Altersbeschränkungen abgelehnt",
+        "relock_failed": "die Konsole wurde entsperrt, konnte aber nicht wieder gesperrt werden: Sperre sie jetzt (Sicherheit & App › Jetzt aktivieren)"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -257,6 +258,8 @@
         "alarm_on_body": "Alarm „Zeit ist um“ wieder einschalten?\n\nWenn die Spielzeitbegrenzung erreicht ist, zeigt die Konsole den Alarm wieder an, wie standardmäßig vorgesehen.",
         "alarm_on_confirm": "Einschalten",
         "alarm_on_done": "Alarm „Zeit ist um“ eingeschaltet.",
+        "alarm_off_body": "Den „Zeit ist um“-Alarm ausschalten?\n\nWenn das Spielzeitlimit erreicht ist, meldet die Konsole das nicht mehr: Das Spiel wird erst bei der nächsten Sperre unterbrochen.",
+        "alarm_off_confirm": "Ausschalten",
         "pause": "Countdown pausieren",
         "resume": "Countdown fortsetzen",
         "pause_body": "Heutigen Countdown pausieren?\n\nDies nutzt einen Testbefehl des Systems. Verwenden Sie ihn nur, wenn Sie wissen, wozu Sie ihn brauchen.",
@@ -525,7 +528,8 @@
         "on_done": "Konsole gesperrt.",
         "off_body": "Konsole entsperren? Die vorherigen Spielzeitlimits werden wiederhergestellt.",
         "off_confirm": "Konsole entsperren",
-        "off_done": "Konsole entsperrt."
+        "off_done": "Konsole entsperrt.",
+        "blocks_change": "Die Konsolensperre ist aktiv: Das Limit jedes Tages bleibt bei 0. Deaktiviere sie zuerst unter Sicherheit & App."
     },
     "rescue": {
         "title": "Wiederherstellung",
@@ -535,6 +539,8 @@
         "continue": "PlayGuard öffnen",
         "note": "Sie sind über die RESCUE-Datei hierher gelangt, daher wird hier keine Geheimzahl abgefragt. Legen Sie eine neue Geheimzahl fest oder entfernen Sie die Altersbeschränkungen und öffnen Sie dann PlayGuard.",
         "note_failed": "Die Wiederherstellung wurde nicht von selbst abgeschlossen. Sie können es hier noch einmal versuchen oder die SD-Karte entnehmen und die Einstellungen an einem Computer ändern.",
+        "note_refused": "Alle Jugendschutzeinstellungen wären gelöscht worden, aber die Anforderungsdatei konnte nicht von der SD-Karte entfernt werden und wäre bei jedem Start erneut ausgeführt worden. Entferne sie an einem Computer und versuche es erneut, oder nutze die Aktionen unten.",
+        "request_kept": "Die Datei {} konnte nicht von der SD-Karte entfernt werden: Solange sie da ist, wird die Konsole bei jedem Start erneut entsperrt. Entferne sie an einem Computer.",
         "note_deleted": "Alle Altersbeschränkungen wurden entfernt, einschließlich der Geheimzahl. Öffnen Sie PlayGuard – dort können Sie sie jederzeit neu einrichten.",
         "note_no_pin": "Es war keine Geheimzahl für die Altersbeschränkungen festgelegt, daher gab es nichts aufzuheben. Sie können hier eine festlegen und dann PlayGuard öffnen.",
         "failed_code": "Meldung der Konsole: {}.",
@@ -542,7 +548,8 @@
             "unlocked": "Die Altersbeschränkungen wurden aufgehoben, sodass PlayGuard geöffnet werden konnte.",
             "deleted": "Alle Altersbeschränkungen wurden gelöscht.",
             "no_pin": "Es gab keine Geheimzahl wiederherzustellen: Es ist keine Geheimzahl festgelegt.",
-            "failed": "Die Wiederherstellung konnte nicht abgeschlossen werden."
+            "failed": "Die Wiederherstellung konnte nicht abgeschlossen werden.",
+            "refused": "Nichts wurde gelöscht: Die RESCUE-Datei konnte nicht von der SD-Karte entfernt werden."
         },
         "hint": {
             "show_pin": "falls vergessen",
@@ -759,7 +766,8 @@
             "undo": "Aus dem Verlauf wiederhergestellt",
             "first_steps": "Erste Schritte",
             "overview": "Übersicht",
-            "profile": "Profil „{}“"
+            "profile": "Profil „{}“",
+            "console_lock": "Konsolensperre"
         },
         "when": "Wann",
         "how": "Quelle",

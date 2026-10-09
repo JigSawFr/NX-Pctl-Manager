@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <string>
 #include <unistd.h>
+#include <vector>
 
 #include "util/backup.hpp"
 #include "util/paths.hpp"
@@ -152,6 +153,17 @@ static void test_files()
     const auto kept = backup::list();
     assert(kept.size() == 2 && kept == names);
     assert(backup::prune(5) == 0 && backup::prune(1) == 1 && backup::list().front() == names[0]);
+
+    // A backup made with the clock in the past sorts oldest: the one just
+    // written is still kept, and counts as one of the kept.
+    assert(paths::atomic_write(paths::backups_dir() + "/29990101_000000.json", backup::to_json(full())));
+    const std::string past = paths::backups_dir() + "/20000101_000000.json";
+    assert(paths::atomic_write(past, backup::to_json(full())));
+    assert(backup::list().size() == 3 && paths::backups_dir() + "/" + backup::list().back() == past);
+    assert(backup::prune(2, past) == 1);
+    const auto after = backup::list();
+    assert(after.size() == 2 && after[0] == "29990101_000000.json" && after[1] == "20000101_000000.json");
+    assert(backup::prune(1, past) == 1 && backup::list() == std::vector<std::string>{ "20000101_000000.json" });
 
     const std::string cleanup = std::string("rm -rf '") + dir + "'";
     assert(std::system(cleanup.c_str()) == 0);

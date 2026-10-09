@@ -40,7 +40,8 @@ bool append(const Entry& e, std::string* error = nullptr);
 std::vector<Entry> load();
 
 // Whether putting `before` back makes sense: a value change of a known kind
-// with as many values before as after, as the kind needs.
+// with as many values before as after, as the kind needs, each in the range
+// the console takes for that kind.
 bool undoable(const Entry& e);
 
 }   // namespace history

@@ -81,9 +81,16 @@ void PlayTimerPerDayActivity::onContentAvailable()
     // B with unsaved edits asks before leaving.
     // X re-reads the system state; edits that are not saved yet are kept.
     if (!this->profile_mode) this->getContentView()->registerAction("playguard/hints/refresh"_i18n, brls::BUTTON_X, [this](brls::View*) {
-        const bool had_state = this->live.valid;
-        if (had_state) pctl_play_timer_query(&this->live);
-        else this->reload_from_service();
+        if (this->live.valid) {
+            // A read that fails keeps the last one: the edits stay comparable
+            // with it (B still asks before dropping them).
+            PtState now;
+            pctl_play_timer_query(&now);
+            if (now.valid) this->live = now;
+            else ui::notify("playguard/play_timer/perday/unavailable"_i18n);
+        } else {
+            this->reload_from_service();
+        }
         this->rerender();
         return true;
     });

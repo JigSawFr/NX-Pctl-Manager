@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <string>
 #include <unistd.h>
+#include <vector>
 
 #include "util/history.hpp"
 #include "util/paths.hpp"
@@ -18,6 +19,11 @@ static history::Entry limits(int from, int to)
     e.before.assign(7, from);
     e.after.assign(7, to);
     return e;
+}
+
+static bool undoable_limits(int from, int to)
+{
+    return history::undoable(limits(from, to));
 }
 
 static void test_round_trip()
@@ -53,6 +59,35 @@ static void test_round_trip()
     assert(!history::undoable(odd));
 }
 
+static void test_value_ranges()
+{
+    // Each kind takes only what the console takes (the ranges of a restore).
+    auto one = [](const char* kind, std::vector<int> before, std::vector<int> after) {
+        history::Entry e;
+        e.kind = kind;
+        e.before = before;
+        e.after = after;
+        return history::undoable(e);
+    };
+    assert(one("level", { 0 }, { 4 }) && !one("level", { 5 }, { 4 }) && !one("level", { -1 }, { 4 }));
+    assert(one("org", { 12 }, { 0 }) && !one("org", { 13 }, { 0 }));
+    assert(one("vr", { 1 }, { 0 }) && !one("vr", { 2 }, { 0 }));
+    assert(one("alarm", { 0 }, { 1 }) && !one("alarm", { 0 }, { -1 }));
+    assert(one("custom", { 21, 1, 0 }, { 0, 0, 1 }) && !one("custom", { 22, 0, 0 }, { 0, 0, 0 }));
+    assert(!one("custom", { 12, 2, 0 }, { 0, 0, 0 }));
+    assert(undoable_limits(1440, 0xFFFF) && !undoable_limits(1441, 60) && !undoable_limits(60, -1));
+    assert(!undoable_limits(0x10000, 60));
+
+    // 64-bit values in the file are refused, not narrowed: 2^32 + 3 is not 3.
+    assert(paths::atomic_write(paths::history_file(),
+        R"({"entries": [{"kind": "level", "before": [4294967299], "after": [2]},
+                        {"kind": "level", "before": [18446744073709551615], "after": [2]},
+                        {"kind": "level", "before": [-4294967295], "after": [2]},
+                        {"kind": "org", "before": [3], "after": [2]}]})"));
+    auto all = history::load();
+    assert(all.size() == 1 && all[0].kind == "org" && history::undoable(all[0]));
+}
+
 static void test_trim_and_damage()
 {
     for (int i = 0; i < 210; i++) assert(history::append(limits(i, i + 1)));
@@ -80,9 +115,10 @@ int main()
 
     test_round_trip();
     test_trim_and_damage();
+    test_value_ranges();
 
     const std::string cleanup = std::string("rm -rf '") + dir + "'";
     assert(std::system(cleanup.c_str()) == 0);
-    std::puts("history round trip, order, trimming, damaged-file and undo assertions passed");
+    std::puts("history round trip, order, trimming, damaged-file, undo and value-range assertions passed");
     return 0;
 }

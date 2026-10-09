@@ -13,7 +13,7 @@ static struct {
     u32 hos;
     unsigned refs, init_calls, exit_calls, ipc_calls, failed_ipcs, writes, applets;
     unsigned fail_init_call;
-    u32 fail_command;
+    u32 fail_command, fail_command2;   /* commands that return MOCK_ERROR */
     bool enabled, restricted, unlocked, unlock_effective;
     u32 safety_level;
     u32 last_write_cmd;
@@ -117,7 +117,7 @@ Result mock_dispatch(Service *srv, u32 command, void *out, size_t out_size,
         model.writes++;
         model.last_write_cmd = command;
     }
-    if (command == model.fail_command) {
+    if (command == model.fail_command || command == model.fail_command2) {
         model.failed_ipcs++;
         return MOCK_ERROR;
     }
@@ -455,8 +455,9 @@ static void test_write_gate(void)
         assert(model.ipc_calls == 0 && model.writes == 0 && model.refs == 0);
     }
 
-    /* GetPlayTimerSettings failing does not block the write: the layout
-     * observed on hardware is written, as earlier versions always did. */
+    /* GetPlayTimerSettings failing while the timer is off does not block the
+     * write: the layout observed on hardware is written, as earlier versions
+     * always did. */
     reset();
     model.fail_command = 145601;
     assert(write_variant(0) == 0 && model.writes == 1 && model.refs == 0);
@@ -465,6 +466,26 @@ static void test_write_gate(void)
         memcpy(c, model.last_write, sizeof(c));
         assert(c[0] == 0x0101 && c[1] == 1 && c[7] == 0x0600 && c[8] == 0x0100 && c[9] == 0 && c[33] == 60);
     }
+    /* While it is active (unlocked, so past the gate), the block holds what the
+     * companion app set: a write built on zeros would wipe it, so refused —
+     * unless no day keeps a limit, which writes all zeros whatever was read. */
+    for (unsigned states = 1; states < 4; ++states) {
+        for (unsigned variant = 0; variant < 3; ++variant) {
+            reset();
+            model.enabled = (states & 1) != 0;
+            model.restricted = (states & 2) != 0;
+            model.unlocked = true;
+            model.fail_command = 145601;
+            const Result rc = write_variant(variant);
+            if (variant == 2) {
+                assert(rc == 0 && model.writes == 1);
+                for (unsigned i = 0; i < 0x44; ++i) assert(model.last_write[i] == 0);
+            } else {
+                assert(rc == NXM_RC_STATE_UNKNOWN && model.writes == 0);
+            }
+            assert(model.refs == 0 && model.init_calls == model.exit_calls);
+        }
+    }
 
     /* Out-of-range minutes and old firmware are refused before any IPC. */
     reset();
@@ -472,6 +493,57 @@ static void test_write_gate(void)
     assert(pctl_play_timer_set_days(bad) == NXM_RC_INVALID_ARGUMENT && model.init_calls == 0);
     reset_with(MAKEHOSVERSION(20, 5, 0));
     assert(pctl_play_timer_clear() == NXM_RC_FW_UNSUPPORTED && model.init_calls == 0);
+}
+
+/* The other play-timer writes (alarm, start, stop) go through the same gate. */
+static Result command_variant(unsigned variant)
+{
+    switch (variant) {
+        case 0: return pctl_play_timer_set_alarm_disabled(true);
+        case 1: return pctl_play_timer_start();
+        default: return pctl_play_timer_stop();
+    }
+}
+
+static void test_command_gate(void)
+{
+    static const u32 cmds[] = {1953, 1451, 1452};
+    /* states bit0 enabled, bit1 restricted, bit2 temporarily unlocked */
+    const bool permitted[8] = {true, false, false, false, true, true, true, true};
+    for (unsigned variant = 0; variant < 3; ++variant) {
+        for (unsigned states = 0; states < 8; ++states) {
+            reset();
+            model.enabled = (states & 1) != 0;
+            model.restricted = (states & 2) != 0;
+            model.unlocked = (states & 4) != 0;
+            Result rc = command_variant(variant);
+            assert(R_SUCCEEDED(rc) == permitted[states]);
+            if (!permitted[states]) assert(rc == NXM_RC_WRITE_GATED);
+            assert(model.writes == (permitted[states] ? 1u : 0u));
+            if (permitted[states]) assert(model.last_write_cmd == cmds[variant]);
+            assert(model.refs == 0 && model.init_calls == 1 && model.exit_calls == 1);
+        }
+        /* A gate read failing: refused with that error, nothing written. */
+        const u32 fails[] = {1453, 1455, 1006};
+        for (unsigned i = 0; i < 3; ++i) {
+            reset();
+            model.fail_command = fails[i];
+            assert(command_variant(variant) == MOCK_ERROR);
+            assert(model.writes == 0 && model.refs == 0 && model.init_calls == 1 && model.exit_calls == 1);
+        }
+        /* The session held by the caller is released first, then reopened. */
+        reset();
+        assert(pctl_ops_init() == 0);
+        assert(command_variant(variant) == 0 && model.refs == 0 && model.init_calls == model.exit_calls);
+        reset();
+        model.fail_init_call = 1;
+        assert(command_variant(variant) == MOCK_ERROR && model.ipc_calls == 0 && model.refs == 0);
+    }
+    /* The byte 1953 receives. */
+    reset();
+    assert(pctl_play_timer_set_alarm_disabled(false) == 0 && model.last_write_size == 1 && model.last_write[0] == 0);
+    assert(pctl_play_timer_set_alarm_disabled(true) == 0 && model.last_write[0] == 1);
+    assert(model.refs == 0);
 }
 
 /* The write starts from what 145601 returns and changes only flag + minutes. */
@@ -559,6 +631,15 @@ static void test_unlock_and_relock(void)
     model.fail_command = 1006;
     assert(pctl_unlock_restriction_temporarily() == MOCK_ERROR);
     assert(model.last_write_cmd == 1007 && !model.unlocked);
+    assert(model.refs == 0 && model.init_calls == model.exit_calls);
+
+    /* ... and when locking again fails too, the caller learns it may still be
+     * unlocked. */
+    reset();
+    model.fail_command = 1006;
+    model.fail_command2 = 1007;
+    assert(pctl_unlock_restriction_temporarily() == NXM_RC_RELOCK_FAILED);
+    assert(model.last_write_cmd == 1007 && model.unlocked);
     assert(model.refs == 0 && model.init_calls == model.exit_calls);
 
     /* Not effective: nothing to undo either. */
@@ -783,6 +864,7 @@ int main(void)
     test_reads();
     test_overview();
     test_write_gate();
+    test_command_gate();
     test_block_preserved();
     test_unlock_and_relock();
     test_lock_state();
