@@ -39,7 +39,7 @@ Les enfants aiment les jeux vidéo, et les jeux vidéo, ce sont des écrans : le
 
 Les rares outils existants ne faisaient pas l'affaire : un suivi d'activité peu maintenu et peu détaillé, un contrôle parental peu développé et inabouti. Je ne voulais pas non plus d'un remplacement maison, ni d'un sysmodule qui tourne en permanence en arrière-plan. L'objectif : **réutiliser au maximum le contrôle parental de la console**, avec tout ce qu'il sait déjà faire — la limite, le code PIN, les avertissements, la suspension — et ramener ses réglages sur la console. C'est PlayGuard.
 
-Piloter le contrôle parental de la console ouvre aussi la porte à bien plus : remonter le temps de jeu vers un serveur à la maison, recevoir des ordres, Home Assistant, des automatisations. Ce vers quoi cela pourrait aller est dans [l'horizon de la feuille de route](ROADMAP.md#horizon) (en anglais).
+Piloter le contrôle parental de la console ouvre aussi la porte à bien plus : remonter le temps de jeu vers un serveur à la maison, recevoir des ordres, Home Assistant, des automatisations. La première étape est là, un lien facultatif avec Home Assistant par MQTT ([guide](docs/home-assistant.fr.md)) ; la suite possible est dans [l'horizon de la feuille de route](ROADMAP.md#horizon) (en anglais).
 
 ## Points forts
 
@@ -49,6 +49,7 @@ Piloter le contrôle parental de la console ouvre aussi la porte à bien plus : 
 - 🕒 **Horloge réseau** — mesure sur des serveurs NTP publics et réglage, pour que le minuteur compte juste sur une console qui n'atteint jamais Nintendo.
 - 📱 **Application mobile** — voir si elle est associée et la **dissocier**, même sur une console d'occasion.
 - ↩️ **Historique, sauvegardes et retour arrière** — chaque modification faite par PlayGuard est consignée et peut être annulée ; les réglages peuvent être sauvegardés sur la carte SD.
+- 🏠 **Home Assistant (facultatif)** — par MQTT sur votre réseau local : l'état, les limites et le temps de jeu dans Home Assistant, des ordres depuis lui (temps en plus, limites, verrouillage), chacun demandé sur la console ou exécuté aussitôt. Désactivé par défaut ; fonctionne tant que PlayGuard est ouvert. [Guide](docs/home-assistant.fr.md).
 - 🌍 **Toutes les langues de la console** — 15 catalogues, thèmes clair et sombre.
 - 🛡️ **Écritures sûres** — le minuteur n'est jamais écrit pendant son décompte, et rien ne tourne en arrière-plan pendant que l'enfant joue.
 
@@ -101,6 +102,8 @@ Tous dans `sd:/switch/playguard/` :
 | `cache/` | La dernière activité de jeu lue (tous les comptes, et chaque compte consulté), affichée dès le lancement suivant pendant que le journal est relu |
 | `github_token` | Mode développeur uniquement : la connexion GitHub d'*Installer un autre build* (supprimé à la déconnexion) |
 | `rescue_report.txt` | Laissé par le sysmodule de secours après son intervention, jusqu'à ce que PlayGuard l'affiche au démarrage |
+| `sync.conf` | Seulement une fois l'*Accès à distance* configuré : les réglages du lien, mot de passe du broker compris (jamais dans un rapport ni un envoi) |
+| `sync/` | Seulement avec l'*Accès à distance* : ce dont un futur module en arrière-plan aura besoin (enregistrements, profils, noms des jeux) |
 | `logs/` | Rapports de diagnostic (jamais le code PIN ni le numéro de série), les fichiers des outils développeur, et `uploads.txt` (les liens des rapports envoyés en ligne) |
 
 Plus de détails dans [packaging/README.md](packaging/README.md) (en anglais).
@@ -198,6 +201,7 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 - Vérification de l'horloge réseau au lancement (une notification si elle a plus d'une minute d'écart ; elle ne règle jamais l'horloge).
 - Un **rappel mensuel pour soutenir PlayGuard** (activé par défaut, jamais le premier mois ni juste après une mise à jour ; *Ne plus afficher* sur le rappel ou cet interrupteur le désactive pour de bon, mises à jour comprises).
 - Actions avancées.
+- **Accès à distance (MQTT / Home Assistant) :** le broker, le nom de la console, que faire des ordres (demander sur la console, les exécuter, les refuser), s'ils peuvent changer le temps de jeu (désactivé par défaut), la découverte Home Assistant, l'état en direct, *Synchroniser maintenant* et le journal. Voir [docs/home-assistant.fr.md](docs/home-assistant.fr.md).
 </details>
 
 <details>
@@ -220,7 +224,7 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 
 **Plus de plantage en 22.5.** `pctl:a`, le service privilégié du contrôle parental, n'accepte **qu'une seule session**. Les anciennes versions de l'application d'origine la gardaient ouverte : l'écran PIN du menu HOME (ou l'applet PIN) ne pouvait pas l'obtenir et Atmosphère pouvait planter. PlayGuard ouvre la session pour chaque action et la libère aussitôt ; les rafraîchissements périodiques s'arrêtent quand l'application est en arrière-plan. *(Diagnostic du [fork d'anbingxi](https://github.com/anbingxi/NX-Pctl-Manager/tree/diag/fw22-5-readonly).)*
 
-**Rien ne tourne en arrière-plan.** La limite, le code PIN, les avertissements et la suspension sont ceux de la console ; PlayGuard ne change que leurs réglages.
+**Rien ne tourne en arrière-plan.** La limite, le code PIN, les avertissements et la suspension sont ceux de la console ; PlayGuard ne change que leurs réglages. Le lien à distance facultatif ne fonctionne que tant que PlayGuard est ouvert, et exécute un ordre exactement comme un changement fait sur la console (même déverrouillage, reverrouillage, mode lecture seule et historique) ; il ne peut jamais supprimer le contrôle parental, délier l'appli mobile ni toucher au code PIN.
 
 ## Console bloquée ? (console d'occasion, code PIN oublié)
 

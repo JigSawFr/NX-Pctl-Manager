@@ -1,10 +1,15 @@
 # Remote link protocol
 
-**Status: proposed, schema 1, nothing implemented.** The contract between the
-console (PlayGuard and its optional agent), the MQTT broker, Home Assistant
-and the `playguard` HA integration. The design and its reasons are in
-[`sync-design.md`](sync-design.md). Until phase A lands, everything here may
-change; once published, a change that breaks a consumer bumps `schema`.
+**Status: schema 1. PlayGuard's side (phase A) is implemented; the agent
+sysmodule, its IPC service and the files only it writes are not yet (marked
+*phase B* below).** The contract between the console (PlayGuard and its
+optional agent), the MQTT broker, Home Assistant and the `playguard` HA
+integration. The design and its reasons are in
+[`sync-design.md`](sync-design.md); the user guide is
+[`home-assistant.md`](home-assistant.md). The documents below are what
+`source/sync/` writes (its host tests save examples that
+`tools/check_sync_json.py` validates); a change that breaks a consumer bumps
+`schema`.
 
 Conventions: `<id>` is the console id (8 lowercase hex characters, random,
 generated once, never the serial number). Times are POSIX seconds from the
@@ -27,8 +32,8 @@ is `null`, never a default. JSON consumers ignore unknown fields.
 | `homeassistant/device/playguard_<id>/config` | yes | console → | HA native discovery. Only when `ha_discovery` is on; cleared when it is turned off. |
 | `homeassistant/status` | — | ← HA | Subscribed: on `online`, the console republishes discovery, state and activity. |
 
-Client ids: `playguard-<id>-agent` for the agent, `playguard-<id>-app` for
-PlayGuard running without the agent. Only one of them connects at a time.
+Client ids: `pg-<id>-agent` for the agent, `pg-<id>-app` for PlayGuard
+running without the agent (23 characters at most, as MQTT 3.1.1 promises). Only one of them connects at a time.
 Outbound publishes use QoS 0 (retained state heals itself at the next cycle);
 the subscription to `playguard/<id>/+/set` and `homeassistant/status` uses
 QoS 1. Keep-alive is 30 s, so a console that falls asleep is marked offline
@@ -39,70 +44,92 @@ within 45 s.
 ```json
 {
   "schema": 1,
-  "source": "agent",
-  "ts": 1760000000,
-  "local_date": "2026-10-09",
+  "source": "app",
+  "ts": 1791000000,
+  "local_date": "2026-10-05",
+  "weekday": 1,
   "clock_accurate": true,
   "console": {
     "id": "a1b2c3d4", "name": "Salon",
     "firmware": "23.0.1", "atmosphere": "1.12.0",
-    "app_version": "1.1.0", "agent_version": "1.1.0",
-    "emummc": true, "applet_mode": false, "read_only": false
+    "app_version": "1.1.0", "agent_version": null,
+    "emummc": true, "read_only": false
   },
   "controls": {
     "enabled": true, "temp_unlocked": false, "pin_set": true,
     "level": "child", "rating_age": 12,
-    "sns_post_restricted": true, "free_communication_restricted": true,
+    "sns_post_restricted": true, "free_communication_restricted": false,
     "vr_restricted": false, "rating_org": 6,
-    "companion_linked": false, "companion_last_sync": null
+    "companion_linked": false
   },
   "timer": {
-    "enabled": true, "running": true, "limit_reached": false,
-    "limits_min": [180, 120, 120, 120, 120, 120, 180],
+    "supported": true, "enabled": true, "limit_reached": false,
+    "limits": { "sun": 180, "mon": 120, "tue": 120, "wed": 120, "thu": 120, "fri": 120, "sat": 1440 },
+    "limits_min": [180, 120, 120, 120, 120, 120, 1440],
+    "uniform_min": null,
     "limit_today_min": 120, "remaining_min": 45, "used_min": 75,
     "spent_raw_min": 76,
-    "alarm_disabled": false,
-    "bedtime": { "enabled": true, "start": "21:00", "end": "06:00" },
-    "extended_today_min": 0, "console_locked": false
+    "alarm_on": true,
+    "bedtime": { "enabled": true, "start": "21:30:00", "end": "06:00:00" },
+    "extended_today_min": 30, "console_locked": false
   },
   "activity_today": {
     "used_min": 74,
-    "now_playing": { "app_id": "0100000000010000", "since": 1759996400 }
+    "now_playing": { "app_id": "0100000000010000", "name": "Super Mario Odyssey", "since": 1790990000 }
   },
   "link": {
-    "policy": "auto", "remote_timer_writes": false, "ha_discovery": true,
-    "pending_orders": 0,
-    "last_result": { "entity": "limit_mon", "applied": true, "rc": "0x00000000", "ts": 1759990000 }
+    "policy": "ask", "remote_timer_writes": false, "ha_discovery": true,
+    "agent": false, "last_result": "limit_mon: applied"
   }
 }
 ```
 
+Every object is always there; a value the console could not read is `null`
+(so a Home Assistant template never fails on a missing level).
+
 - `source`: `agent` or `app` (which process produced the snapshot).
+- `weekday`: 0 = Sunday, the console's local day; `local_date` the same day.
 - `clock_accurate`: the console reports its network clock as accurate (`time`
   command 200). `ts` is only trustworthy when it is true.
-- `limits_min` runs Sunday to Saturday. **1440 means no limit**, on every
-  topic and order, so that a plain number entity can express it.
+- `limits` and `limits_min` run Sunday to Saturday. **1440 means no limit**,
+  on every topic and order, so that a plain number entity can express it.
+  `uniform_min` is the limit when all seven days share it, else `null`.
 - `used_min` is the console timer's own figure (`limit_today_min −
-  remaining_min`); `spent_raw_min` is command 1952, unverified; both are `null`
-  without an active limit. `activity_today.used_min` comes from the play log
-  and exists even with no limit. See `parental-controls.md` for why they differ.
-- `extended_today_min`: extra time granted today by PlayGuard or by an order.
+  remaining_min`); `remaining_min` is the whole limit until a game has been
+  counted today (command 1454 reads 0 until then), 0 once the limit is
+  reached. `spent_raw_min` is command 1952, unverified. `activity_today.used_min` comes from the play
+  log and exists even with no limit. See `parental-controls.md` for why they
+  differ.
+- `alarm_on`: the "time's up" alarm sounds (command 1953 reads it off).
+- `bedtime.start` / `end`: `HH:MM:SS`, as Home Assistant's `time` entity
+  takes them. `start` is `null` when bedtime is off; `end` is the console's
+  own answer (20.0.0+), else what today's block holds.
+- `extended_today_min`: extra time granted today by PlayGuard or by an order
+  and still on today's limit.
+- `activity_today.now_playing`: `null` while PlayGuard publishes (it is in
+  front, so no game is being played); filled by the agent (phase B).
 - `console.read_only`: PlayGuard's runtime read-only mode (an untested
   firmware); every order is then refused.
+- `link.last_result`: the last order handled, `<entity>: applied` or
+  `<entity>: <reason>`.
 
 ## `activity`, `activity/<date>`, `names`, `week`
 
 ```json
-{ "schema": 1, "source": "agent", "ts": 1760000000, "local_date": "2026-10-09", "final": false,
-  "total_min": 74,
-  "per_app": [ { "app_id": "0100000000010000", "min": 60 }, { "app_id": "01000A10041EA000", "min": 14 } ],
+{ "schema": 1, "source": "agent", "ts": 1791000000, "local_date": "2026-10-05", "final": false,
+  "total_s": 4440, "total_min": 74,
+  "per_app": [ { "app_id": "0100000000010000", "s": 3600, "min": 60 },
+               { "app_id": "01000A10041EA000", "s": 840, "min": 14 } ],
   "per_account": null,
-  "now_playing": { "app_id": "0100000000010000", "since": 1759996400 } }
+  "now_playing": { "app_id": "0100000000010000", "since": 1790990000 } }
 ```
 
 `activity/<date>` is the same document with `"final": true` and no
-`now_playing`. `per_account` is filled by PlayGuard (the agent does not open
-the account service). Application ids are 16 uppercase hex characters, as the
+`now_playing`. PlayGuard publishes the six finished days its play-log window
+holds, once per run, and clears the days 15 to 30 days old. `per_account`
+(`[{ "uid": "<32 hex>", "s": …, "min": … }]`) is filled by PlayGuard only when
+it read every account's data in the last 15 minutes (the Activity tab's
+account filter), else `null`; the agent does not open the account service. Application ids are 16 uppercase hex characters, as the
 console prints them. PlayGuard's own time over a game is excluded, as in the
 Activity tab.
 
@@ -131,37 +158,45 @@ the usual confirmation on the console).
 
 | Entity | Payload | Bounds | Needs `remote_timer_writes` | Effect |
 |---|---|---|---|---|
-| `limit_sun` … `limit_sat` | integer | 0–1440, 1440 = no limit | yes | That weekday's limit. Several within 2 s are merged into one write. |
+| `limit_sun` … `limit_sat` | integer | 0–1440, 1440 = no limit | yes | That weekday's limit. Several within 1.5 s are merged into one write. |
 | `limit_uniform` | integer | 0–1440 | yes | The same limit every day. |
 | `limits_week` | `n,n,n,n,n,n,n` | Sunday first, each 0–1440 | yes | All seven days in one order. |
 | `max_screentime_today` | integer | 0–1440 | yes | Today's weekday limit only. |
-| `play_timer` | `ON` / `OFF` | | yes | `OFF` removes the limit (timer off); `ON` restores the last limits known to PlayGuard, or is rejected if none. |
-| `console_lock` | `ON` / `OFF` | | yes | 0 minutes every day (`ON`), saving the limits; `OFF` puts them back. |
-| `add_bonus_time` | integer | 5–180 | yes | Extra minutes today; put back at the next local day, as in PlayGuard. |
-| `stop_today` | `PRESS` | | yes | 0 minutes today. |
-| `locked` | `ON` / `OFF` | | yes | `OFF` unlocks parental controls temporarily with the stored PIN; `ON` locks again. |
-| `lock_now` | `PRESS` | | no | Locks again (1007), always allowed. |
-| `restriction_level` | `none` / `young_child` / `child` / `teen` / `custom` | | no | 1033. |
-| `vr_mode` | `ON` / `OFF` | | no | `ON` = restricted (1063). |
-| `sns_post_restriction`, `free_communication` | `ON` / `OFF` | custom level only | no | 1036; rejected at another level. |
-| `play_timer_alarm` | `ON` / `OFF` | | no | `OFF` = the "time's up" alarm disabled (1953). |
-| `play_timer_running` | `ON` / `OFF` | | yes | Resume / pause the countdown (1451 / 1452). |
-| `bedtime_enabled` | `ON` / `OFF` | | yes | Bedtime alarm on or off. |
-| `bedtime_alarm`, `bedtime_end_time` | `HH:MM` (`HH:MM:SS` accepted) | | yes | Bedtime and the "allowed again" time. |
+| `remove_limit` | `PRESS` | | yes | No limit on any day. |
+| `console_lock` | `ON` / `OFF` | | yes | 0 minutes every day (`ON`), saving the limits; `OFF` puts them back (or removes the limit when none were saved). |
+| `add_bonus_time` | integer | 5–180 | yes | Extra minutes today, 24 h at most; the usual limit comes back the next day, as in PlayGuard. Refused without a limit today or under the console lock. |
+| `add_bonus_time_15`, `_30`, `_60` | `PRESS` | | yes | The same, 15 / 30 / 60 minutes. |
+| `stop_today` | `PRESS` | | yes | 0 minutes today; the usual limit comes back the next day. |
+| `unlocked` | `ON` / `OFF` | | `ON` only | `ON` unlocks parental controls temporarily with the stored PIN; `OFF` locks again. |
+| `lock_now` | `PRESS` | | no | Locks again (1007), always allowed, never asked. |
+| `play_timer_alarm` | `ON` / `OFF` | | yes | `OFF` = the "time's up" alarm disabled (1953). |
+| `bedtime_enabled` | `ON` / `OFF` | | yes | The bedtime alarm on (at the time the days share, else 21:00) or off. |
+| `bedtime_alarm` | `HH:MM` (`HH:MM:SS` accepted) | 16:00–23:59 | yes | The bedtime alarm, every day. |
+| `bedtime_end_time` | `HH:MM` | 05:00–09:00 | yes | When play is allowed again, on the days with a bedtime. |
 | `profile` | a profile name | must exist on the SD card | yes | Applies the saved profile's limits. |
+| `restriction_level` | `none` / `young_child` / `child` / `teen` / `custom` | | no | 1033. |
+| `vr_restricted` | `ON` / `OFF` | | no | `ON` = VR mode restricted (1063). |
+| `sns_post_restricted`, `free_communication_restricted` | `ON` / `OFF` | custom level only | no | 1036; refused at another level. |
 | `sync_now` | `PRESS` | | no | Republish everything now. |
-| `export_report` | `PRESS` | | no | Save a diagnostic report on the SD card (and publish it if `publish_report`). |
-| `sync_network_clock` | `PRESS` | | no | Measure the configured NTP server and set the network clock, as the Clock tab does. |
-| `discovery` | `on` / `off` | | no | Native HA discovery. `off` clears the discovery payload; used by the HA integration when it takes over. |
+| `export_report` | `PRESS` | | no | Save a diagnostic report on the SD card (and publish it on `report` if `publish_report`). |
+| `discovery` | `ON` / `OFF` | | no | Native HA discovery, saved in `sync.conf`. `OFF` clears the discovery payload; used by the HA integration when it takes over. |
+
+`ON` / `OFF` are also accepted as `on` / `off`; `PRESS` as `press`, `1` or
+`ON`. A retained order the broker replays at reconnection is
+applied again only through the same checks, so an order already in effect
+changes nothing and is reported as applied.
 
 There is **no** order that deletes parental controls, unlinks the companion
 app, or reads, sets or changes the PIN.
 
 Rejection reasons (`event.reason`): `unknown_entity`, `invalid`,
 `out_of_range`, `policy_off` (policy is *off*), `timer_writes_disabled`,
-`read_only`, `not_confirmed` (declined on the console under *ask*), `gated`
-(the timer counts down and the unlock did not happen), `unlock_failed`,
-`not_custom`, `no_such_profile`, `pctl_error` (with `rc`).
+`read_only`, `not_confirmed` (declined on the console under *ask*, or the PIN
+was not entered), `gated` (the timer counts down and the unlock did not
+happen), `unlock_failed`, `not_custom`, `no_such_profile`, `no_limit_today`,
+`console_locked`, `unsupported` (firmware, or a bedtime the block does not
+hold as the console reports it), `bedtime_off`, `pctl_error` (with `rc`),
+`busy`.
 
 ## `event`
 
@@ -171,42 +206,46 @@ Rejection reasons (`event.reason`): `unknown_entity`, `invalid`,
   "reason": "out_of_range", "rc": null }
 ```
 
-`event_type`: `command_applied`, `command_rejected`, `unlocked`, `relocked`,
-`limit_reached`, `extra_restored`, `agent_started`, `agent_stopping`,
-`report_saved`. Not retained: a consumer that was away misses them on
-purpose; the state carries `link.last_result`.
+`event_type`: `command_applied`, `command_rejected`, `command_waiting` (the
+agent keeps an order for PlayGuard to confirm under *ask*, phase B). `rc` is
+`"0x…"` when the console answered, else `null`. Not retained: a consumer that
+was away misses them on purpose; the state carries `link.last_result`.
 
 ## Home Assistant native discovery
 
 One retained, device-based payload on
-`homeassistant/device/playguard_<id>/config`: `dev` (identifiers
-`playguard_<id>`, name, manufacturer `PlayGuard`, model `Nintendo Switch`,
-`sw_version`), `o` (origin: `playguard`, version, support URL),
-`availability_topic`, a default `state_topic` of `playguard/<id>/state`, and
-`cmps` keyed by object id. Every component uses a `value_template` over the
-shared state; writable ones have `command_topic` `playguard/<id>/<entity>/set`,
-`retain: true` and `optimistic: true`. The entities that need
-`remote_timer_writes` are not announced while it is off.
+`homeassistant/device/playguard_<id>/config` (about 13 KiB with every
+entity): `dev` (identifiers `playguard_<id>`, the console's name or
+`Nintendo Switch`, manufacturer `PlayGuard`, model `Nintendo Switch`,
+`sw`), `o` (origin `PlayGuard`, version, support URL), `avty_t`, a default
+`stat_t` of `playguard/<id>/state`, and `cmps` keyed by object id. Every
+component reads the shared state through a `val_tpl`; writable ones have
+`cmd_t` `playguard/<id>/<entity>/set` and `ret: true`. The entities that need
+`remote_timer_writes` are not announced while it is off, and none is writable
+in read-only mode. The discovery is published again when Home Assistant
+announces `online` on `homeassistant/status`, when the profiles change and
+when read-only mode changes.
 
 | Platform | Object ids |
 |---|---|
-| binary_sensor | `parental_controls_enabled`, `temp_unlocked`, `companion_linked`, `timer_enabled`, `limit_reached`, `pin_set`, `clock_accurate`, `alarm_disabled`, `console_locked`, `agent_running` |
-| sensor | `used_screen_time`, `used_screen_time_log`, `screen_time_remaining`, `max_screentime_today` (read), `extended_screen_time`, `spent_raw_1952`, `now_playing`, `restriction_level`, `rating_age`, `firmware`, `atmosphere`, `local_date`, `last_sync`, `companion_last_sync`, `last_result`, `pending_orders` |
-| number | `limit_sun` … `limit_sat`, `limit_uniform`, `max_screentime_today` (0–1440, step 5, `min`, `duration`) |
+| binary_sensor | `parental_controls_enabled`, `temp_unlocked`, `pin_set`, `companion_linked`, `timer_enabled`, `limit_reached`, `clock_accurate` |
+| sensor | `used_screen_time`, `used_screen_time_log`, `screen_time_remaining`, `extended_screen_time`, `now_playing`, `rating_age`, `firmware`, `atmosphere`, `spent_raw` (disabled by default), `last_order` |
+| number | `limit_sun` … `limit_sat`, `limit_uniform`, `max_screentime_today` (0–1440, step 5, minutes) |
 | time | `bedtime_alarm`, `bedtime_end_time` |
-| select | `restriction_level`, `profile` |
-| switch | `play_timer`, `console_lock`, `vr_mode`, `sns_post_restriction`, `free_communication`, `play_timer_alarm`, `play_timer_running`, `bedtime_enabled`, `locked` |
-| button | `sync_now`, `add_bonus_time_15`, `add_bonus_time_30`, `add_bonus_time_60`, `stop_today`, `lock_now`, `export_report`, `sync_network_clock` |
-| event | `events` |
+| select | `restriction_level`, `profile` (the saved profiles; only when there are some) |
+| switch | `bedtime_enabled`, `console_lock`, `play_timer_alarm`, `unlocked`, `vr_restricted`, `sns_post_restricted`, `free_communication_restricted` |
+| button | `sync_now`, `lock_now`, `export_report`, `add_bonus_time_15`, `add_bonus_time_30`, `add_bonus_time_60`, `stop_today`, `remove_limit` |
+| event | `events` (event types `command_applied`, `command_rejected`, `command_waiting`) |
 
 `used_screen_time` is the timer's figure, `used_screen_time_log` the play
-log's; both are `measurement`, in minutes, device class `duration`. Diagnostic
-entities (`firmware`, `atmosphere`, `last_sync`, `spent_raw_1952`,
-`local_date`) carry `entity_category: diagnostic`; numbers and switches
-`config`. Ids and names follow HA's `nintendo_parental_controls` integration
-where the meaning matches.
+log's; both are `measurement`, in minutes, device class `duration`.
+Diagnostic entities (`pin_set`, `clock_accurate`, `rating_age`, `firmware`,
+`atmosphere`, `spent_raw`, `last_order`, `export_report`) carry
+`ent_cat: diagnostic`; the limits, bedtime, alarm and restrictions `config`.
+Ids and names follow HA's `nintendo_parental_controls` integration where the
+meaning matches. The table is `source/sync/sync_entities.c`.
 
-The HA integration, when installed, publishes `discovery/set = off`, and
+The HA integration, when installed, publishes `discovery/set = OFF`, and
 creates its own entities with the same object ids.
 
 ## Files on the SD card
@@ -215,25 +254,32 @@ creates its own entities with the same object ids.
 |---|---|---|
 | `switch/playguard/sync.conf` | PlayGuard (Sync screen); hand-editable | The link's settings, `key=value`, one per line (below). |
 | `switch/playguard/sync/ca.pem` | the user | Optional CA certificate for a private broker. |
-| `switch/playguard/sync/nro_state.txt` | PlayGuard, from `config::save()` | `relock_pending`, the extra-time record, the console lock and its saved limits, `fw_gate_choice`, `pin_lock`: what the agent must know to act on PlayGuard's behalf. |
-| `switch/playguard/sync/agent_state.txt` | the agent | The same records, for what the agent did itself. PlayGuard adopts them at start-up. |
-| `switch/playguard/sync/agent_events.log` | the agent | One event per line; PlayGuard imports them into `history.json` (source `remote`) and truncates the file. |
-| `switch/playguard/sync/agent_status.txt` | the agent | Connected, last publish, last error, version: the Sync screen when the agent is not reachable over IPC. |
-| `switch/playguard/sync/agent.log` | the agent | Rolling log, 64 KiB. |
-| `atmosphere/contents/<tid>/{exefs.nsp, flags/boot2.flag, toolbox.json, version.txt}` | the Modules screen, or the user | The installed module. |
+| `switch/playguard/sync/nro_state.txt` | PlayGuard, after every `config.json` save once `sync.conf` exists | The extra-time record, the console lock and its saved limits, `relock_pending`, `extra_auto_restore`, the firmware choice (`fw_gate_*`), `pin_lock`: what the agent must know to act on PlayGuard's behalf. A line break in a value is written as a space. |
+| `switch/playguard/sync/profiles.txt` | PlayGuard, when the link starts and when the profiles change | `60,90,120,120,120,180,180=School week`: minutes Sunday first (65535 no limit), then the name. |
+| `switch/playguard/sync/names.txt` | PlayGuard, after a read of the play log | `0100000000010000=Super Mario Odyssey`: the agent's "now playing". |
+| `switch/playguard/sync/agent_state.txt` | the agent (phase B) | The same records, for what the agent did itself. PlayGuard adopts them at start-up. |
+| `switch/playguard/sync/agent_events.log` | the agent (phase B) | One event per line; PlayGuard imports them into `history.json` (source `remote`) and truncates the file. |
+| `switch/playguard/sync/agent_status.txt` | the agent (phase B) | Connected, last publish, last error, version: the Sync screen when the agent is not reachable over IPC. |
+| `switch/playguard/sync/agent.log` | the agent (phase B) | Rolling log, 64 KiB. |
+| `atmosphere/contents/<tid>/{exefs.nsp, flags/boot2.flag, toolbox.json, version.txt}` | the Modules screen, or the user (phase B0) | The installed module. |
 
 Each file has exactly one writer; the IPC service is the live channel, the
 files the cold one. `sync.conf` is never included in a diagnostic report or
-an online upload.
+an online upload; the report's *Remote link* section has the switches and the
+session's counters, never the broker's address, the user name or the
+password.
 
 `sync.conf` keys: `schema=1`, `enabled`, `host`, `port` (1883; 8883 turns
 `tls` on by default), `tls`, `ca_file`, `username`, `password`,
 `allow_anonymous`, `console_id`, `console_name`, `policy` (`ask` / `auto` /
 `off`; the agent alone only applies `auto`), `remote_timer_writes`,
 `publish_report`, `publish_activity`, `ha_discovery`, `poll_s` (30, 10–300),
-`log_level`. Unknown keys are kept.
+`topic_prefix` (`playguard`), `discovery_prefix` (`homeassistant`),
+`log_level`. A value out of range keeps its default; unknown keys are kept
+when PlayGuard writes the file again. Anonymous brokers need
+`allow_anonymous=1`; without a user name the link otherwise stays off.
 
-## IPC service `pg:agent` (PlayGuard ↔ agent)
+## IPC service `pg:agent` (PlayGuard ↔ agent, phase B)
 
 Hosted by the agent; PlayGuard connects at start-up. **An open session means
 PlayGuard is running**: the agent stops reading pctl while PlayGuard is in the

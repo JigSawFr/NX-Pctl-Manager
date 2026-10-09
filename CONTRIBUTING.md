@@ -53,7 +53,7 @@ Game patches are read from `./playguard_data/sd/`, the simulated SD card root.
 
 - `make test` — host unit tests (`tests/`, see [`tests/README.md`](tests/README.md)), including the recovery sysmodule logic (`tests/rescue/`) and the remote link (`tests/sync_*`).
 - `make check` — `make test`, then the resource check, the remote link's JSON documents (`tools/check_sync_json.py`) and `compat.json`.
-- `tools/desktop_smoke.py <out-dir> [gate|errors|rescue|devbuild]` — clicks through every screen of the desktop build headlessly (needs `DISPLAY`, `xdotool`, ImageMagick) and saves screenshots. The `gate` scenario covers the firmware screen and developer mode on a simulated 24.0.0; `errors` covers a failed unlock and an unsettable clock; `rescue` the recovery screen; `devbuild` signing in to a simulated GitHub and installing a pull request's build in place out of its artifact.
+- `tools/desktop_smoke.py <out-dir> [gate|errors|rescue|devbuild|sync]` — clicks through every screen of the desktop build headlessly (needs `DISPLAY`, `xdotool`, ImageMagick) and saves screenshots. The `gate` scenario covers the firmware screen and developer mode on a simulated 24.0.0; `errors` covers a failed unlock and an unsettable clock; `rescue` the recovery screen; `devbuild` signing in to a simulated GitHub and installing a pull request's build in place out of its artifact; `sync` the remote link against a local Mosquitto (needs `mosquitto` and `mosquitto-clients`): what it publishes, an order applied and one refused, Home Assistant restarting, and `offline` at exit.
 - `tools/visual_check.py` — compares those screenshots with the references in `tests/visual/`. A difference is reported as a warning, not a failure; see [`tests/visual/README.md`](tests/visual/README.md) to update them.
 - `python3 tools/check_resources.py .` — checks the XML layouts and translation catalogs.
 
@@ -76,7 +76,7 @@ CI runs all of the above plus the Switch build.
 | `sysmodule/` | The optional recovery boot sysmodule; shares `source/core/rescue.c` with the app. See [`sysmodule/README.md`](sysmodule/README.md) |
 | `packaging/` | Store and sphaira entries. See [`packaging/README.md`](packaging/README.md) |
 | `branding/` | SVG sources of the icon and banners |
-| `docs/` | [`parental-controls.md`](docs/parental-controls.md): what is known of the parental-control service, the play-timer block and the clocks, and how sure each fact is; [`companion-app.md`](docs/companion-app.md): what PlayGuard covers of Nintendo's phone app, and the gaps still to close; [`sync-design.md`](docs/sync-design.md) and [`sync-protocol.md`](docs/sync-protocol.md): the design and the wire contract of the optional remote link (MQTT, Home Assistant): PlayGuard's side is implemented, the agent sysmodule is not yet |
+| `docs/` | [`parental-controls.md`](docs/parental-controls.md): what is known of the parental-control service, the play-timer block and the clocks, and how sure each fact is; [`companion-app.md`](docs/companion-app.md): what PlayGuard covers of Nintendo's phone app, and the gaps still to close; [`sync-design.md`](docs/sync-design.md) and [`sync-protocol.md`](docs/sync-protocol.md): the design and the wire contract of the optional remote link (MQTT, Home Assistant): PlayGuard's side is implemented, the agent sysmodule is not yet; [`home-assistant.md`](docs/home-assistant.md) (and `.fr.md`): the user guide |
 
 **Branding:** `branding/*.svg` are rendered to `icon.jpg` and `images/store/*.png` by `node tools/render_branding.mjs` (Node + Playwright).
 

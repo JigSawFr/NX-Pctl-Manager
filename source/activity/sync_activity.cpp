@@ -40,7 +40,8 @@ std::string or_none(const char* value)
     return value[0] ? std::string(value) : "playguard/sync/none"_i18n;
 }
 
-// "14:03" for a time `ms` ago on the link's clock, "" when unknown.
+// When `then_ms` (the link's clock) was: "14:03" today, else the date and
+// time; "" when unknown.
 std::string since_text(uint64_t then_ms)
 {
     if (!then_ms) return "";
@@ -48,7 +49,11 @@ std::string since_text(uint64_t then_ms)
     const uint64_t ago_s = now > then_ms ? (now - then_ms) / 1000 : 0;
     u64 posix = 0;
     if (!time_local_now(&posix, nullptr) || !posix) return "";
-    return ui::time_text(posix - ago_s);
+    std::string text = ui::time_text(posix - ago_s);   // "2026-10-08 14:03:12"
+    const std::string today = ui::today_date() + " ";
+    if (text.size() >= today.size() + 5 && text.compare(0, today.size(), today) == 0)
+        text = text.substr(today.size(), 5);
+    return text;
 }
 
 // The settings' problem, worded ("" when ready).

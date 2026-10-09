@@ -1,6 +1,9 @@
 # Remote link design: the optional MQTT agent and Home Assistant
 
-**Status: design, nothing implemented.** This document records the decisions
+**Status: phase A implemented** (the C core in `source/sync/`, PlayGuard's
+autonomous mode and its *Remote access* screen, CI against a local
+Mosquitto; user guide in [`home-assistant.md`](home-assistant.md)); phases
+B0, B and C are not yet. This document records the decisions
 behind an optional link between PlayGuard and a home-automation setup, so that
 a parent can see the console's state and play time, and change the limits,
 from a phone, through [Home Assistant](https://www.home-assistant.io/) (HA).

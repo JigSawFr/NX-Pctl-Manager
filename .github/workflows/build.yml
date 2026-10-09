@@ -64,7 +64,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y cmake ccache libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev \
             libxcursor-dev libxi-dev libxkbcommon-dev libwayland-dev wayland-protocols libdbus-1-dev \
-            libcurl4-openssl-dev xvfb xdotool imagemagick dbus
+            libcurl4-openssl-dev xvfb xdotool imagemagick dbus mosquitto mosquitto-clients
       - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: .ccache
@@ -82,6 +82,8 @@ jobs:
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-rescue rescue
       - name: Smoke test (install a development build in place)
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-devbuild devbuild
+      - name: Smoke test (remote link against a local Mosquitto)
+        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-sync sync
       # The screens against tests/visual (reference | now | changes in
       # smoke*/visual_diff/ when one changed; tests/visual/README.md says how
       # to update the references after a change that is meant). Not blocking:
@@ -112,6 +114,8 @@ jobs:
             smoke-errors/*.png
             smoke-rescue/*.png
             smoke-devbuild/*.png
+            smoke-sync/*.png
+            smoke-sync/*.txt
             smoke*/visual_diff/*.png
 
   # The real .nro, built in the official devkitPro image (same as ./run.sh),
