@@ -122,14 +122,14 @@ jobs:
   # (per runner IP, shared with every other job on it) can refuse it. With the
   # DOCKERHUB_USERNAME and DOCKERHUB_TOKEN secrets (a read-only access token)
   # the pull is made logged in; where secrets are missing (a fork's pull request,
-  # Dependabot) the runner skips the login and pulls anonymously as before.
+  # Dependabot) it pulls anonymously as before. The workflow rejects an empty
+  # username or password, so without both secrets credentials is an empty
+  # mapping, and the runner skips the login when it has no username.
   switch:
     runs-on: ubuntu-latest
     container:
       image: devkitpro/devkita64@sha256:1fc388c3a0d34bd2045a6dadcb1020e069d5f876a187fd705de14b4440c00282
-      credentials:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      credentials: ${{ (secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '') && fromJSON(format('{{"username":{0},"password":{1}}}', toJSON(secrets.DOCKERHUB_USERNAME), toJSON(secrets.DOCKERHUB_TOKEN))) || fromJSON('{}') }}
     env:
       CMAKE_C_COMPILER_LAUNCHER: ccache
       CMAKE_CXX_COMPILER_LAUNCHER: ccache
