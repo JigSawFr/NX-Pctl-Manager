@@ -74,7 +74,7 @@ CI runs all of the above plus the Switch build.
 | `sysmodule/` | The optional recovery boot sysmodule; shares `source/core/rescue.c` with the app. See [`sysmodule/README.md`](sysmodule/README.md) |
 | `packaging/` | Store and sphaira entries. See [`packaging/README.md`](packaging/README.md) |
 | `branding/` | SVG sources of the icon and banners |
-| `docs/` | [`parental-controls.md`](docs/parental-controls.md): what is known of the parental-control service, the play-timer block and the clocks, and how sure each fact is |
+| `docs/` | [`parental-controls.md`](docs/parental-controls.md): what is known of the parental-control service, the play-timer block and the clocks, and how sure each fact is; [`companion-app.md`](docs/companion-app.md): what PlayGuard covers of Nintendo's phone app, and the gaps still to close |
 
 **Branding:** `branding/*.svg` are rendered to `icon.jpg` and `images/store/*.png` by `node tools/render_branding.mjs` (Node + Playwright).
 
