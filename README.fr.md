@@ -50,6 +50,8 @@ PlayGuard est un homebrew qui ramène sur la console, hors ligne, les réglages 
 | ![Activité](images/screenshots/activity.png) | ![Un jeu](images/screenshots/activity_game.png) |
 | **Restrictions** | **Horloge réseau** |
 | ![Restrictions](images/screenshots/restrictions.png) | ![Horloge réseau](images/screenshots/clock.png) |
+| **Sécurité et appli** | **Préférences** |
+| ![Sécurité et appli](images/screenshots/security.png) | ![Préférences](images/screenshots/preferences.png) |
 
 ## Compatibilité
 
@@ -86,6 +88,9 @@ Tous dans `sd:/switch/playguard/` :
 | `profiles/` | Profils de limites enregistrés |
 | `backups/` | Sauvegardes des réglages (jamais le code PIN) |
 | `exports/` | Exports de l'activité |
+| `own_time.txt` | Quand PlayGuard était ouvert par-dessus un jeu (8 derniers jours), exclu de l'onglet Activité |
+| `github_token` | Mode développeur uniquement : la connexion GitHub d'*Installer un autre build* (supprimé à la déconnexion) |
+| `rescue_report.txt` | Laissé par le sysmodule de secours après son intervention, jusqu'à ce que PlayGuard l'affiche au démarrage |
 | `logs/` | Rapports de diagnostic (jamais le code PIN ni le numéro de série), les fichiers des outils développeur, et `uploads.txt` (les liens des rapports envoyés en ligne) |
 
 Plus de détails dans [packaging/README.md](packaging/README.md) (en anglais).
