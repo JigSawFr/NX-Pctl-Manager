@@ -89,7 +89,8 @@
         "no_pin": "尚未設定家長監護的PIN碼",
         "session_closed": "系統已關閉家長監護工作階段，請再試一次",
         "bad_pin_format": "系統不接受此PIN碼格式",
-        "pctl_refused": "家長監護服務拒絕了此操作"
+        "pctl_refused": "家長監護服務拒絕了此操作",
+        "relock_failed": "主機已解鎖，但無法重新鎖定：請立即鎖定（安全與應用程式 › 立即鎖定）"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -258,6 +259,8 @@
         "alarm_on_body": "要重新開啟「時間到」鬧鐘嗎？\n\n達到遊玩時間限制時，主機會像預設一樣再次顯示鬧鐘。",
         "alarm_on_confirm": "開啟",
         "alarm_on_done": "已開啟「時間到」鬧鐘。",
+        "alarm_off_body": "關閉「時間到」提醒？\n\n達到遊戲時間限制時，主機將不再提示：遊戲只會在下次鎖定時暫停。",
+        "alarm_off_confirm": "關閉",
         "pause": "暫停倒數",
         "resume": "繼續倒數",
         "pause_body": "要暫停今天的倒數嗎？\n\n此操作會使用系統的測試指令。請僅在了解用途時使用。",
@@ -526,7 +529,8 @@
         "on_done": "已鎖定主機。",
         "off_body": "要解除主機鎖定嗎？將恢復先前的遊玩時間上限。",
         "off_confirm": "解除鎖定",
-        "off_done": "已解除主機鎖定。"
+        "off_done": "已解除主機鎖定。",
+        "blocks_change": "主機鎖已開啟：每天的限制維持為 0。請先在「安全與應用程式」中關閉。"
     },
     "rescue": {
         "title": "復原",
@@ -536,6 +540,8 @@
         "continue": "開啟PlayGuard",
         "note": "您是透過RESCUE檔案進入此畫面，因此這裡不會要求輸入PIN碼。請設定新PIN碼或刪除家長監護設定，然後開啟PlayGuard。",
         "note_failed": "復原未能自動完成。您可以在這裡重試，或取出SD卡在電腦上變更設定。",
+        "note_refused": "原本會刪除所有家長監護設定，但無法從 SD 卡移除請求檔案，它會在每次啟動時再次執行。請在電腦上刪除後再試，或使用下方的操作。",
+        "request_kept": "無法從 SD 卡移除 {} 檔案：在刪除之前，主機每次啟動都會再次解鎖。請在電腦上刪除它。",
         "note_deleted": "所有家長監護設定（包括PIN碼）都已刪除。開啟PlayGuard後隨時可以重新設定。",
         "note_no_pin": "未設定家長監護的PIN碼，因此沒有需要解除的內容。您可以在這裡設定PIN碼，然後開啟PlayGuard。",
         "failed_code": "主機回應：{}",
@@ -543,7 +549,8 @@
             "unlocked": "已解除家長監護，因此PlayGuard得以開啟。",
             "deleted": "已刪除所有家長監護設定。",
             "no_pin": "沒有可復原的PIN碼：未設定家長監護的PIN碼。",
-            "failed": "未能完成復原。"
+            "failed": "未能完成復原。",
+            "refused": "未刪除任何內容：無法從 SD 卡移除 RESCUE 檔案。"
         },
         "hint": {
             "show_pin": "忘記時",
@@ -777,7 +784,8 @@
             "undo": "從紀錄改回",
             "first_steps": "初始設定",
             "overview": "總覽",
-            "profile": "設定檔「{}」"
+            "profile": "設定檔「{}」",
+            "console_lock": "主機鎖定"
         },
         "when": "時間",
         "how": "來源",

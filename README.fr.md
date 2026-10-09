@@ -167,7 +167,7 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 
 - **Définir ou changer le code PIN** (écran système), **afficher le code PIN** (après un avertissement, en cas d'oubli), **déverrouiller temporairement**, **verrouiller maintenant**.
 - **Demander le code PIN** dans PlayGuard lui-même : *Jamais*, *Avant une modification* (tout le monde peut regarder, seul le parent modifie ; redemandé après 5 min) ou *Pour ouvrir PlayGuard*. Vérifié dans la couche service, donc aucune modification n'y échappe ; reverrouiller ne le demande jamais.
-- **Verrou de console :** un interrupteur qui met la limite de chaque jour à 0, donc un code PIN est nécessaire pour lancer un jeu — un verrou léger, sans classification par âge ni limite de communication. Il bloque le lancement des jeux, pas le menu HOME, et nécessite un code PIN. Les limites précédentes reviennent quand on le désactive.
+- **Verrou de console :** un interrupteur qui met la limite de chaque jour à 0, donc un code PIN est nécessaire pour lancer un jeu — un verrou léger, sans classification par âge ni limite de communication. Il bloque le lancement des jeux, pas le menu HOME, et nécessite un code PIN. Les limites précédentes reviennent quand on le désactive. Tant qu'il est activé, *temps en plus* et *plus de jeu aujourd'hui* sont refusés, et des limites réglées autrement (un profil, une sauvegarde, l'historique…) le remplacent.
 - **Application mobile :** association de l'application Contrôle parental Nintendo Switch, dernière synchronisation, et **dissociation** (sinon sa prochaine synchronisation écrase les limites réglées ici).
 - **Supprimer tout le contrôle parental :** deux confirmations, irréversible ; une sauvegarde des réglages est d'abord enregistrée.
 </details>

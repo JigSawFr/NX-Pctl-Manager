@@ -58,6 +58,14 @@ bool get(const std::string& url, std::string* body, std::string* error, size_t m
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
     curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 5L);
+    // HTTPS only, redirects included (no downgrade to http:// or other schemes).
+#if LIBCURL_VERSION_NUM >= 0x075500
+    curl_easy_setopt(curl, CURLOPT_PROTOCOLS_STR, "https");
+    curl_easy_setopt(curl, CURLOPT_REDIR_PROTOCOLS_STR, "https");
+#else
+    curl_easy_setopt(curl, CURLOPT_PROTOCOLS, (long)CURLPROTO_HTTPS);
+    curl_easy_setopt(curl, CURLOPT_REDIR_PROTOCOLS, (long)CURLPROTO_HTTPS);
+#endif
     curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, timeout_s);
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout_s);
     curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);

@@ -112,8 +112,6 @@ void write_all(const backup::Snapshot& s, bool did_unlock, std::function<void()>
 {
     PctlStatus was;   // for the history: what each value was before
     pctl_status_fetch(&was);
-    PtState pt_was;
-    pctl_play_timer_query(&pt_was);
     Result first = 0;
     std::vector<std::string> failed;
     auto check = [&](Result rc, const std::string& what) {
@@ -147,12 +145,8 @@ void write_all(const backup::Snapshot& s, bool did_unlock, std::function<void()>
             history_flow::record_values("org", { (int)was.rating_org }, { (int)s.rating_org }, "backup");
     }
     if (s.days_ok) check(pt_flow::write_days(s.days.data(), "backup"), "playguard/play_timer/section_limit"_i18n);
-    if (s.alarm_ok && config::get().advanced) {
-        const Result rc = pctl_play_timer_set_alarm_disabled(s.alarm_disabled);
-        check(rc, "playguard/play_timer/alarm"_i18n);
-        if (R_SUCCEEDED(rc) && pt_was.alarm_disabled_valid)
-            history_flow::record_values("alarm", { pt_was.alarm_disabled ? 1 : 0 }, { s.alarm_disabled ? 1 : 0 }, "backup");
-    }
+    if (s.alarm_ok && config::get().advanced)
+        check(pt_flow::write_alarm_disabled(s.alarm_disabled, "backup"), "playguard/play_timer/alarm"_i18n);
     history_flow::record_event("restore", "", s.created);
 
     std::string what;
@@ -169,7 +163,9 @@ void restore(const backup::Snapshot& s, std::function<void()> refresh)
     // timer is counting down). Restrictions only: a plain confirmation, as in
     // the Restrictions tab.
     // It overwrites the current settings: the confirm button says so by its colour.
-    if (s.days_ok) pt_flow::confirm_write(body, "playguard/backup/restore_confirm"_i18n, run, s.days.data(), true);
+    // The alarm is a play-timer write as well.
+    const bool timer = s.days_ok || (s.alarm_ok && config::get().advanced);
+    if (timer) pt_flow::confirm_write(body, "playguard/backup/restore_confirm"_i18n, run, s.days_ok ? s.days.data() : nullptr, true);
     else if (app::read_only()) ui::notify(ui::rc_text(NXM_RC_READ_ONLY));
     else ui::confirm(body, "playguard/backup/restore_confirm"_i18n, [run]() { run(false); }, nullptr, true);
 }
@@ -186,7 +182,7 @@ std::string save_snapshot(std::string* error)
     }
     const std::string path = backup::save(s, error);
     // Tools › Keep backups: the oldest beyond that number go (never the new one).
-    if (!path.empty()) backup::prune((size_t)config::get().backup_keep);
+    if (!path.empty()) backup::prune((size_t)config::get().backup_keep, path);
     return path;
 }
 }   // namespace

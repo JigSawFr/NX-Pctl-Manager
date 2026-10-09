@@ -167,7 +167,7 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 
 - **Set / change the PIN** (system PIN screen), **show the PIN** (after a warning, for when it is forgotten), **unlock temporarily**, **lock now**.
 - **Ask for the PIN** in PlayGuard itself: *Never*, *Before a change* (anyone can look, only the parent changes something; asked again after 5 min) or *To open PlayGuard*. Checked in the service layer, so no change skips it; locking again never asks.
-- **Console lock:** one switch that sets every day's limit to 0, so a PIN is needed to start a game — a light lock without age ratings or communication limits. It blocks starting games, not the HOME menu, and needs a PIN. The previous limits come back when it is turned off.
+- **Console lock:** one switch that sets every day's limit to 0, so a PIN is needed to start a game — a light lock without age ratings or communication limits. It blocks starting games, not the HOME menu, and needs a PIN. The previous limits come back when it is turned off. While it is on, *extra time* and *no more play today* are refused, and limits set another way (a profile, a backup, the history…) replace it.
 - **Companion app:** whether the Nintendo Switch Parental Controls app is linked, its last sync, and **unlink** (otherwise its next sync overwrites the limits set here).
 - **Delete all parental controls:** two confirmations, irreversible; a backup of the settings is saved first.
 </details>

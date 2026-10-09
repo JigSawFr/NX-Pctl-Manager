@@ -26,9 +26,13 @@ bool active();
 
 // Turn it on (all days to 0, saving what they were) or off (put the saved
 // limits back, or clear the limit when none were saved), through the same
-// confirm + temporary-unlock + relock as any limit change. `pt` is a fresh
-// read; `refresh` runs after the change. The caller checks there is a PIN and
+// confirm + temporary-unlock + relock as any limit change. The limits to save
+// are read again once confirmed (`pt` only says what to ask); `refresh` runs after the change. The caller checks there is a PIN and
 // that the firmware supports the play timer before offering this.
 void set(bool on, const PtState& pt, std::function<void()> refresh);
+
+// Limits written by anything else (same limit every day, a profile, a backup,
+// the history…) replace the lock: the flag and the saved limits go.
+void forget();
 
 }   // namespace console_lock

@@ -59,7 +59,7 @@ std::string kind_label(const std::string& kind)
 std::string source_label(const history::Entry& e)
 {
     static const char* known[] = { "uniform", "day", "per_day", "extra", "stop", "restore_extra",
-                                   "remove", "backup", "undo", "first_steps", "overview" };
+                                   "remove", "backup", "undo", "first_steps", "overview", "console_lock" };
     if (e.source == "profile") return brls::getStr("playguard/history/sources/profile", e.detail);
     for (const char* s : known)
         if (e.source == s) return brls::getStr(std::string("playguard/history/sources/") + s);
@@ -84,13 +84,13 @@ std::vector<int> current(const std::string& kind)
     return {};
 }
 
-// Writes `v` for `kind` (not the limits: they go through the play-timer gate).
+// Writes `v` for `kind` (not the limits or the alarm: they go through the
+// play-timer gate).
 Result write_value(const std::string& kind, const std::vector<int>& v)
 {
     if (kind == "level") return pctl_set_safety_level((uint32_t)v[0]);
     if (kind == "org") return pctl_set_rating_org((uint32_t)v[0]);
     if (kind == "vr") return pctl_set_stereo_vision_restricted(v[0] != 0);
-    if (kind == "alarm") return pctl_play_timer_set_alarm_disabled(v[0] != 0);
     if (kind == "custom") {
         PctlCustomSettings s = { (uint8_t)v[0], v[1] != 0, v[2] != 0 };
         return pctl_set_custom_settings(&s);
@@ -196,6 +196,15 @@ void open(const history::Entry& e, std::function<void()> refresh)
             const Result rc = pt_flow::write_days(back, "undo");
             pt_flow::finish_write(rc, did_unlock, "playguard/history/undone"_i18n, "playguard/history/undo_err"_i18n, refresh);
         }, days);
+        return;
+    }
+    if (e.kind == "alarm") {
+        // A play-timer write too: through the gate.
+        const bool disabled = e.before[0] != 0;
+        pt_flow::confirm_write(body, "playguard/history/undo_confirm"_i18n, [disabled, refresh](bool did_unlock) {
+            const Result rc = pt_flow::write_alarm_disabled(disabled, "undo");
+            pt_flow::finish_write(rc, did_unlock, "playguard/history/undone"_i18n, "playguard/history/undo_err"_i18n, refresh);
+        });
         return;
     }
     const history::Entry entry = e;

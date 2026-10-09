@@ -14,6 +14,14 @@
 namespace backup
 {
 
+// The values a restore accepts (also checked before a history undo, which
+// writes the same settings).
+constexpr int MAX_LEVEL       = 4;        // PctlSafetyLevel_Teen
+constexpr int MAX_RATING_AGE  = 21;
+constexpr int MAX_RATING_ORG  = 12;
+constexpr int MAX_DAY_MINUTES = 1440;
+constexpr int DAY_NO_LIMIT    = 0xFFFF;
+
 // Each *_ok flag says the value was read from the console when the backup was
 // made: a value that was not is neither saved nor restored.
 struct Snapshot
@@ -69,7 +77,8 @@ std::vector<std::string> list();
 bool load(const std::string& name, Snapshot& out);
 
 // Deletes all but the `keep` newest backups (keep 0: deletes nothing).
-// Returns how many were deleted.
-size_t prune(size_t keep);
+// `keep_path` (the path save() just returned) is never deleted and counts as
+// one of the `keep`. Returns how many were deleted.
+size_t prune(size_t keep, const std::string& keep_path = "");
 
 }   // namespace backup

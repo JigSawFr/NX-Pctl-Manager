@@ -84,6 +84,7 @@ void RescueActivity::refresh()
     const char* key = deleted                               ? "playguard/rescue/outcome/deleted"
                     : ok                                    ? "playguard/rescue/outcome/unlocked"
                     : report.result == RescueResult_NoPin   ? "playguard/rescue/outcome/no_pin"
+                    : report.result == RescueResult_Refused ? "playguard/rescue/outcome/refused"
                                                             : "playguard/rescue/outcome/failed";
     outcome->setText(brls::getStr(key));
     outcome->setTextColor(ok ? ui::color_ok()
@@ -92,9 +93,14 @@ void RescueActivity::refresh()
     std::string n = deleted                               ? "playguard/rescue/note_deleted"_i18n
                   : ok                                    ? "playguard/rescue/note"_i18n
                   : report.result == RescueResult_NoPin   ? "playguard/rescue/note_no_pin"_i18n
+                  : report.result == RescueResult_Refused ? "playguard/rescue/note_refused"_i18n
                                                           : "playguard/rescue/note_failed"_i18n;
     if (report.result == RescueResult_Failed)
         n += "\n" + brls::getStr("playguard/rescue/failed_code", ui::rc_text(report.rc));
+    // The request file is still on the card: an unlock request unlocks again
+    // at every start until it is removed from a computer.
+    if (report.request == RescueRequest_Kept && report.result != RescueResult_Refused)
+        n += "\n\n" + brls::getStr("playguard/rescue/request_kept", RESCUE_REQUEST_NAME);
     if (app::read_only()) n += "\n" + "playguard/common/read_only_note"_i18n;
     note->setText(n);
 

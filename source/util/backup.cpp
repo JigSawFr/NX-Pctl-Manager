@@ -80,7 +80,7 @@ bool from_json(const std::string& text, Snapshot& out)
             if (!r.is_object()) return false;
             if (r.contains("level")) {
                 int level = 0;
-                if (!int_in(r.at("level"), 0, 4, level)) return false;
+                if (!int_in(r.at("level"), 0, MAX_LEVEL, level)) return false;
                 s.level    = (uint32_t)level;
                 s.level_ok = true;
             }
@@ -90,7 +90,7 @@ bool from_json(const std::string& text, Snapshot& out)
                 if (!c.is_object() || !c.contains("rating_age") || !c.contains("sns_post_restricted") ||
                     !c.contains("free_communication_restricted"))
                     return false;
-                if (!int_in(c.at("rating_age"), 0, 21, age) ||
+                if (!int_in(c.at("rating_age"), 0, MAX_RATING_AGE, age) ||
                     !boolean(c.at("sns_post_restricted"), s.sns_restricted) ||
                     !boolean(c.at("free_communication_restricted"), s.comm_restricted))
                     return false;
@@ -103,7 +103,7 @@ bool from_json(const std::string& text, Snapshot& out)
             }
             if (r.contains("rating_organization")) {
                 int org = 0;
-                if (!int_in(r.at("rating_organization"), 0, 12, org)) return false;
+                if (!int_in(r.at("rating_organization"), 0, MAX_RATING_ORG, org)) return false;
                 s.rating_org = (uint32_t)org;
                 s.rating_org_ok = true;
             }
@@ -116,8 +116,8 @@ bool from_json(const std::string& text, Snapshot& out)
             if (!days.is_array() || days.size() != 7) return false;
             for (size_t i = 0; i < 7; i++) {
                 int v = 0;
-                if (days[i].is_null()) v = 0xFFFF;
-                else if (!int_in(days[i], 0, 1440, v)) return false;
+                if (days[i].is_null()) v = DAY_NO_LIMIT;
+                else if (!int_in(days[i], 0, MAX_DAY_MINUTES, v)) return false;
                 s.days[i] = (uint16_t)v;
             }
             s.days_ok = true;
@@ -180,13 +180,24 @@ bool load(const std::string& name, Snapshot& out)
     return paths::read_file(paths::backups_dir() + "/" + name, text) && from_json(text, out);
 }
 
-size_t prune(size_t keep)
+size_t prune(size_t keep, const std::string& keep_path)
 {
     if (keep == 0) return 0;
     const std::vector<std::string> names = list();
+    // `keep_path` is one of the kept, wherever its stamp sorts (made with the
+    // clock in the past, it would be the "oldest").
+    size_t kept = 0;
+    for (const auto& n : names) kept += paths::backups_dir() + "/" + n == keep_path;
     size_t removed = 0;
-    for (size_t i = keep; i < names.size(); i++)
-        if (std::remove((paths::backups_dir() + "/" + names[i]).c_str()) == 0) removed++;
+    for (const auto& n : names) {
+        const std::string path = paths::backups_dir() + "/" + n;
+        if (path == keep_path) continue;
+        if (kept < keep) {
+            kept++;
+            continue;
+        }
+        if (std::remove(path.c_str()) == 0) removed++;
+    }
     return removed;
 }
 

@@ -20,11 +20,18 @@ At boot the module looks for a file named `RESCUE` (or `RESCUE.txt`) in
   using the PIN the console already stores, exactly as the system PIN screen
   would. Everything can start again, so you can open PlayGuard and fix things
   properly (see or change the PIN, adjust the limit, or remove the controls).
-- **contains the word `delete`** → it deletes every parental control (PIN and
-  all restrictions). Irreversible; use it only if you are giving up on the PIN.
+- **a line that reads just `delete`** (any case; spaces around it and a
+  byte-order mark are ignored) → it deletes every parental control (PIN and all
+  restrictions). Irreversible; use it only if you are giving up on the PIN.
+  The word inside other text (`delete everything`, `don't delete`) is not
+  enough: that file only unlocks.
 
-The request file is **removed before anything is done** (it acts once), and the
-outcome is written to `rescue_report.txt`. The next time PlayGuard opens it
+The request file is **removed before anything is done** (it acts once). Should
+the card refuse that, it is renamed `RESCUE.done` instead; should that fail too,
+the file is still there, so a delete is **not done** (it would repeat at every
+boot) while an unlock still is — and PlayGuard's recovery screen tells you to
+remove the file from a computer. The outcome is written to
+`rescue_report.txt`. The next time PlayGuard opens it
 shows what happened, lets you finish, records it in the change history, and
 removes the report.
 
@@ -33,7 +40,8 @@ removes the report.
 1. Install the module once: extract `playguard-rescue.zip` to the SD-card root
    (it lands in `atmosphere/contents/4200000000505247/`). Reboot.
 2. When you are locked out: put the SD card in a computer, create an empty file
-   `switch/playguard/RESCUE` (or `RESCUE.txt`), put the card back, turn the
+   `switch/playguard/RESCUE` (or `RESCUE.txt`; to delete everything instead,
+   write `delete` on a line of its own), put the card back, turn the
    console on. Open PlayGuard and finish from the recovery screen.
 
 ## What it is not

@@ -65,6 +65,12 @@ bool atomic_write(const std::string& path, const std::string& content, std::stri
         return fail("Could not create the folder", errno);
 
     std::string tmp = path + ".tmp";
+    // A previous write stopped between removing the file and renaming the
+    // ".tmp": that ".tmp" is the only good copy. Promote it before reopening
+    // the ".tmp" for writing truncates it.
+    struct stat st;
+    if (stat(path.c_str(), &st) != 0 && stat(tmp.c_str(), &st) == 0)
+        std::rename(tmp.c_str(), path.c_str());
     FILE* f = std::fopen(tmp.c_str(), "wb");
     if (!f) return fail("Could not open the file", errno);
     bool ok = std::fwrite(content.data(), 1, content.size(), f) == content.size();

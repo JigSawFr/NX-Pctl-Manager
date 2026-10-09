@@ -30,6 +30,7 @@ void OnboardingActivity::onContentAvailable()
         ui::save_config();
     });
     unlink->registerClickAction([this](brls::View*) {
+        if (ui::refuse_read_only()) return true;
         ui::confirm_danger("playguard/pairing/unlink_body"_i18n, "playguard/pairing/unlink_confirm"_i18n, [this]() {
             Result rc = pctl_delete_pairing();
             if (R_SUCCEEDED(rc)) history_flow::record_event("unlink", "first_steps");
@@ -46,6 +47,7 @@ void OnboardingActivity::onContentAvailable()
     });
 
     pin->registerClickAction([this](brls::View*) {
+        if (ui::refuse_read_only()) return true;
         // Blocks while the system PIN screen is shown.
         Result rc = pctl_set_pin();
         brls::Logger::info("pctl_set_pin returned 0x{:08X}", (unsigned)rc);

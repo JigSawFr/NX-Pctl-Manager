@@ -39,15 +39,37 @@ bool read_bool(const nlohmann::json& j, const char* key, bool& out)
     return true;
 }
 
+// A JSON integer read as 64-bit (an unsigned one above INT64_MAX would wrap
+// to a negative) and kept only within +-1000000, so no value is narrowed.
+bool small_int(const nlohmann::json& v, int& out)
+{
+    if (!v.is_number_integer()) return false;
+    if (v.is_number_unsigned() && v.get<unsigned long long>() > 1000000ULL) return false;
+    const long long n = v.get<long long>();
+    if (n < -1000000 || n > 1000000) return false;
+    out = (int)n;
+    return true;
+}
+
 bool read_int(const nlohmann::json& j, const char* key, int& out)
 {
     auto it = j.find(key);
     if (it == j.end()) return true;
-    if (!it->is_number_integer()) return false;
-    const long long v = it->get<long long>();
-    if (v < -1000000 || v > 1000000) return false;
-    out = (int)v;
-    return true;
+    return small_int(*it, out);
+}
+
+// A list of integers; one value out of range refuses the whole list (left
+// empty, which sanitize() never keeps).
+std::vector<int> read_int_list(const nlohmann::json& list)
+{
+    std::vector<int> v;
+    for (const auto& a : list) {
+        int n;
+        if (!a.is_number_integer()) continue;
+        if (!small_int(a, n)) return {};
+        v.push_back(n);
+    }
+    return v;
 }
 
 void clear_extra(Config& c)
@@ -160,19 +182,11 @@ void load()
     read_string(j, "seen_version", c.seen_version);
     read_bool(j, "console_lock", c.console_lock);
     auto prev = j.find("console_lock_prev");
-    if (prev != j.end() && prev->is_array()) {
-        std::vector<int> v;
-        for (const auto& a : *prev)
-            if (a.is_number_integer()) v.push_back(a.get<int>());
-        c.console_lock_prev = v;   // sanitize() keeps it only when it is seven valid limits
-    }
+    if (prev != j.end() && prev->is_array())
+        c.console_lock_prev = read_int_list(*prev);   // sanitize() keeps it only when it is seven valid limits
     auto amounts = j.find("extra_amounts");
-    if (amounts != j.end() && amounts->is_array()) {
-        std::vector<int> v;
-        for (const auto& a : *amounts)
-            if (a.is_number_integer()) v.push_back(a.get<int>());
-        c.extra_amounts = v;   // sanitize() keeps it only when it is one of EXTRA_SETS
-    }
+    if (amounts != j.end() && amounts->is_array())
+        c.extra_amounts = read_int_list(*amounts);   // sanitize() keeps it only when it is one of EXTRA_SETS
     read_bool(j, "relock_pending", c.relock_pending);
 
     // The firmware choice and the extra-time record are all-or-nothing.

@@ -55,6 +55,17 @@ static void test_csv()
     assert(has(csv, "Pokémon <Écarlate> & co,0,,\r\n"));
     assert(has(csv, "'=cmd(),,30,"));   // a formula-looking name stays text
     assert(has(csv, "ゼルダの伝説,15,15,\r\n"));
+
+    // Tab and carriage return start a formula too; a numeric column holds an
+    // integer as is (a negative one included), anything else as guarded text.
+    table_export::Table t;
+    t.columns = { { "name", "Name", false }, { "n", "N", true } };
+    t.rows    = { { "\tcmd", "-5" }, { "\rcmd", "=1+1" }, { "-x", "12abc" }, { "@x", "-" } };
+    const std::string g = table_export::render(t, Format::Csv);
+    assert(has(g, "'\tcmd,-5\r\n"));
+    assert(has(g, "\"'\rcmd\",'=1+1\r\n"));
+    assert(has(g, "'-x,12abc\r\n"));
+    assert(has(g, "'@x,'-\r\n"));
 }
 
 static void test_json()
@@ -122,6 +133,25 @@ static void test_xlsx()
     assert(has(part(files, "xl/_rels/workbook.xml.rels"), "Target=\"worksheets/sheet1.xml\""));
     assert(has(part(files, "_rels/.rels"), "Target=\"xl/workbook.xml\""));
     assert(has(part(files, "xl/styles.xml"), "<b/>"));
+
+    // Invalid UTF-8 becomes U+FFFD, characters XML 1.0 refuses are left out.
+    table_export::Table t;
+    t.title   = std::string("a\x01" "b\x80" "c\xC3(d\xEF\xBF\xBE" "e\xED\xA0\x80" "f\xC0\xAF" "g\tok\xC3");
+    t.sheet   = "''" + std::string(29, 'x') + "é'";
+    t.columns = { { "n", "N", true } };
+    const auto bad = unzip(table_export::render(t, Format::Xlsx));
+    const std::string fffd = "\xEF\xBF\xBD";
+    assert(has(part(bad, "xl/worksheets/sheet1.xml"),
+               ">ab" + fffd + "c" + fffd + "(de" + fffd + fffd + fffd + "f" + fffd + fffd + "g\tok" + fffd + "</t>"));
+    // 31 characters, not 31 bytes, the é kept whole; no apostrophe at either end.
+    assert(has(part(bad, "xl/workbook.xml"), "<sheet name=\"" + std::string(29, 'x') + "é\""));
+    t.sheet = std::string(30, 'y') + "é";   // 31 characters, 32 bytes
+    assert(has(part(unzip(table_export::render(t, Format::Xlsx)), "xl/workbook.xml"), "name=\"" + t.sheet + "\""));
+    t.sheet = std::string(30, 'y') + "\xF0\x9F\x8E\xAE";   // a 2-unit emoji does not fit in the last unit
+    assert(has(part(unzip(table_export::render(t, Format::Xlsx)), "xl/workbook.xml"),
+               "name=\"" + std::string(30, 'y') + "\""));
+    t.sheet = std::string(3, '\'');
+    assert(has(part(unzip(table_export::render(t, Format::Xlsx)), "xl/workbook.xml"), "name=\"Sheet1\""));
 }
 
 static void test_pdf()

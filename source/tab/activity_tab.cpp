@@ -116,7 +116,14 @@ ActivityTab::ActivityTab()
     });
     this->period = config::get().activity_period;
     s_cache.shown = this;
-    this->listener = play_data::listen([this]() { this->rebuild(); });
+    this->listener = play_data::listen([this]() {
+        const auto stack = brls::Application::getActivitiesStack();
+        if (!stack.empty() && stack.back() != this->getParentActivity()) {
+            this->stale = true;
+            return;
+        }
+        this->rebuild();
+    });
     // No account to choose between on a console with one (or none listed).
     ui::set_visible(account.getView(), play_data::accounts().size() > 1);
     // Applet mode (opened from the album): a few MB for icons is too much.
@@ -135,6 +142,14 @@ ActivityTab::~ActivityTab()
 
 void ActivityTab::refresh()
 {
+    if (this->stale) {
+        // Back on top: next frame, once borealis has put the focus back.
+        this->stale = false;
+        std::weak_ptr<bool> weak = this->alive;
+        brls::sync([this, weak]() {
+            if (!weak.expired()) this->rebuild();
+        });
+    }
     if (play_data::fresh(play_data::key_of(chosen_account()), MAX_AGE)) return;
     this->fetch();
 }

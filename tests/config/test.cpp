@@ -3,9 +3,12 @@
 // back to their defaults, records dropped as a whole, round trip, recovery
 // of a save that stopped between its remove and its rename.
 #include <cassert>
+#include <csignal>
 #include <cstdio>
 #include <cstdlib>
 #include <string>
+#include <sys/resource.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include "util/config.hpp"
@@ -204,6 +207,17 @@ static void test_preferences()
     config::load();
     assert(config::get().extra_amounts == std::vector<int>({ 15, 30, 60 }) && config::get().backup_keep == 0);
 
+    // 64-bit values are not narrowed into a valid one: 2^32 + 15 is not 15,
+    // 2^32 is not 0 (a "locked" day), 2^64 - 1 is not -1.
+    write_config(R"({"extra_amounts": [4294967311, 30, 60], "backup_keep": 4294967306,
+                    "console_lock_prev": [4294967296, 0, 0, 0, 0, 0, 0],
+                    "extra_weekday": 18446744073709551615, "extra_date": "2026-10-07",
+                    "extra_base": 60, "extra_value": 90})");
+    config::load();
+    c = config::get();
+    assert(c.extra_amounts == std::vector<int>({ 15, 30, 60 }) && c.backup_keep == 0);
+    assert(c.console_lock_prev.empty() && c.extra_weekday == -1 && c.extra_date.empty());
+
     // Round trip.
     config::get() = config::Config{};
     config::get().start_tab = "tools";
@@ -231,6 +245,29 @@ static void test_tmp_recovery()
     config::load();
     assert(config::get().theme == "dark");
 
+    // The next save must not truncate that .tmp, the only good copy: it is
+    // promoted first, and a save that fails afterwards still leaves it.
+    std::string text;
+    assert(paths::atomic_write(file, R"({"theme": "light"})"));
+    assert(paths::read_file(file, text) && text == R"({"theme": "light"})");
+    assert(std::rename(file.c_str(), (file + ".tmp").c_str()) == 0);
+    assert(paths::atomic_write(file, R"({"theme": "dark"})"));
+    assert(paths::read_file(file, text) && text == R"({"theme": "dark"})");
+    struct stat st;
+    assert(stat((file + ".tmp").c_str(), &st) != 0);
+    // Same, but the write fails (file size limit): the old content survives.
+    assert(std::rename(file.c_str(), (file + ".tmp").c_str()) == 0);
+    std::signal(SIGXFSZ, SIG_IGN);
+    rlimit saved;
+    assert(getrlimit(RLIMIT_FSIZE, &saved) == 0);
+    rlimit small = saved;
+    small.rlim_cur = 64;
+    assert(setrlimit(RLIMIT_FSIZE, &small) == 0);
+    const bool wrote = paths::atomic_write(file, std::string(4096, ' '));
+    assert(setrlimit(RLIMIT_FSIZE, &saved) == 0);
+    assert(!wrote);
+    assert(paths::read_file(file, text) && text == R"({"theme": "dark"})");
+
     // A leftover .tmp never wins over the file itself.
     write_config(R"({"theme": "light"})");
     assert(paths::atomic_write(file + ".tmp", R"({"theme": "dark"})"));
@@ -240,7 +277,6 @@ static void test_tmp_recovery()
     // Both missing: nothing to read.
     std::remove(file.c_str());
     std::remove((file + ".tmp").c_str());
-    std::string text;
     assert(!paths::read_file(file, text));
 }
 
