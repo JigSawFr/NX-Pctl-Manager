@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <cstdio>
 #include <curl/curl.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <mutex>
 
 #include "app.hpp"
@@ -24,7 +26,7 @@ struct Sink
     FILE*        file = nullptr;   // … written to this file
     size_t       written = 0;
     bool         file_error = false;
-    std::function<void(uint64_t, uint64_t)> progress;
+    std::function<void(uint64_t, uint64_t)> progress{};
     CURL*        curl = nullptr;
 };
 
@@ -158,8 +160,11 @@ bool post(const std::string& url, const std::string& data, const char* content_t
 bool download(const std::string& url, const std::string& path, std::string* error, size_t max_bytes,
               long timeout_s, std::function<void(uint64_t, uint64_t)> progress)
 {
-    FILE* file = std::fopen(path.c_str(), "wb");
+    // Owner-writable only (fopen would ask for 0666): an executable lands here.
+    const int fd = ::open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    FILE* file = fd >= 0 ? ::fdopen(fd, "wb") : nullptr;
     if (!file) {
+        if (fd >= 0) ::close(fd);
         if (error) *error = "cannot create " + path;
         return false;
     }
