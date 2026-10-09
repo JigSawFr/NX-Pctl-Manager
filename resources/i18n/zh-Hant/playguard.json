@@ -459,6 +459,7 @@
         "seconds": "{}秒",
         "busy": "請等待目前的請求完成。",
         "autosync_off_note": "若要依此設定網路時鐘，請先在系統設定中開啟「透過網際網路同步時鐘」。",
+        "auto_how": "PlayGuard can only read this setting: it belongs to System Settings, which only the HOME menu can open.\n\nTo change it: HOME menu › System Settings › System › Date and Time › Synchronise Clock via Internet.\n\nWhen it is on, the console clock follows the network clock. Note: when the clock was moved, the console was seen to start today's play time over.",
         "ntp_err": {
             "bad_host": "不是有效的伺服器名稱",
             "lookup": "找不到伺服器（未連線至網際網路？）",

@@ -49,6 +49,11 @@ ClockTab::ClockTab()
     this->server = clock_flow::current_server();
     this->region_id = find_region(this->server);
 
+    // A state of System Settings, which an application cannot open: say where it is.
+    autosync->registerClickAction([](brls::View*) {
+        ui::info("playguard/clock/auto_how"_i18n);
+        return true;
+    });
     region->registerClickAction([this](brls::View*) { this->choose_region(); return true; });
     server_cell->registerClickAction([this](brls::View*) { this->choose_server(); return true; });
     custom->registerClickAction([this](brls::View*) { this->enter_custom(); return true; });

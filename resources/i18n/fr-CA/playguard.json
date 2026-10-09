@@ -459,6 +459,7 @@
         "seconds": "{} s",
         "busy": "Patientez jusqu'à la fin de la requête en cours.",
         "autosync_off_note": "Pour régler l'horloge réseau d'après cette mesure, activez d'abord « Synchroniser l'horloge par Internet » dans les paramètres de la console.",
+        "auto_how": "PlayGuard peut seulement lire ce réglage : il fait partie des Paramètres de la console, que seul le menu HOME peut ouvrir.\n\nPour le changer : menu HOME › Paramètres de la console › Console › Date et heure › Synchroniser l'horloge via Internet.\n\nQuand il est activé, l'horloge de la console suit l'horloge réseau. À noter : quand l'horloge a été déplacée, la console a remis à zéro le temps de jeu du jour.",
         "ntp_err": {
             "bad_host": "nom de serveur invalide",
             "lookup": "serveur introuvable (pas de connexion Internet?)",

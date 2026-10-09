@@ -459,6 +459,7 @@
         "seconds": "{} s",
         "busy": "Bitte warten Sie auf die laufende Anfrage.",
         "autosync_off_note": "Um die Netzwerkuhr danach zu stellen, aktivieren Sie zuerst „Uhr mithilfe des Internets synchronisieren“ in den Systemeinstellungen.",
+        "auto_how": "PlayGuard can only read this setting: it belongs to System Settings, which only the HOME menu can open.\n\nTo change it: HOME menu › System Settings › System › Date and Time › Synchronise Clock via Internet.\n\nWhen it is on, the console clock follows the network clock. Note: when the clock was moved, the console was seen to start today's play time over.",
         "ntp_err": {
             "bad_host": "kein gültiger Servername",
             "lookup": "Server nicht gefunden (keine Internetverbindung?)",
