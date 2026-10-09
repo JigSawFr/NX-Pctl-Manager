@@ -9,12 +9,9 @@
     width="auto"
     height="auto">
 
-    <!-- Centered, like the other long lists: every press moves the focus
-         (natural scrolling spends a press scrolling to a half-visible game). -->
-    <brls:ScrollingFrame
+    <ScrollView
         width="auto"
         height="auto"
-        scrollingBehavior="centered"
         grow="1.0">
 
         <brls:Box
@@ -46,6 +43,6 @@
 
         </brls:Box>
 
-    </brls:ScrollingFrame>
+    </ScrollView>
 
 </brls:Box>

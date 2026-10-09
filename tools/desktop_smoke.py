@@ -93,10 +93,9 @@ def alive():
 
 
 def key(name, n=1, hold=0.02):
-    """Presses `name` n times, each exactly once. While Down / Up is held,
-    borealis' ScrollingFrame keeps scrolling ("natural scrolling") and can move
-    the focus again; with frames as slow as under software GL, even an 80 ms
-    press did. So each press waits for the screen to settle (the app then waits
+    """Presses `name` n times, each exactly once. A held Down / Up repeats
+    (ScrollView scrolls a long text, then moves the focus again); with frames
+    as slow as under software GL, even an 80 ms press could. So each press waits for the screen to settle (the app then waits
     for input and sees the press at once) and is released `hold` seconds later
     (20 ms by default), both
     sent by one xdotool process so a busy runner cannot delay the release."""
@@ -177,9 +176,7 @@ if GATE:
     key("Right")
     key("Return", 7)
     shot("04_dev_enabled")
-    # The developer tools are at the end of Tools. A short press does not get
-    # past the bottom edge of a long tab (borealis' natural scrolling needs the
-    # button held for a few frames): press like a hand.
+    # The developer tools are at the end of Tools: press like a hand.
     key("Left")
     key("Up", steps("tools", "about"))
     key("Right")

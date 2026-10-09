@@ -7,14 +7,13 @@
 <brls:AppletFrame
     iconInterpolation="linear">
 
-    <brls:ScrollingFrame
+    <ScrollView
         title="@i18n/playguard/play_timer/profiles_title"
         icon="@res/img/app_icon.jpg"
         width="auto"
         height="auto"
         axis="column"
         alignItems="stretch"
-        scrollingBehavior="centered"
         grow="1.0">
 
         <brls:Box
@@ -37,6 +36,6 @@
 
         </brls:Box>
 
-    </brls:ScrollingFrame>
+    </ScrollView>
 
 </brls:AppletFrame>

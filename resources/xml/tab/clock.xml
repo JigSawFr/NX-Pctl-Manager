@@ -6,13 +6,9 @@
     width="auto"
     height="auto">
 
-    <!-- Centered: the first focusable row (Region) sits below the status rows,
-         and borealis' natural scrolling would otherwise start with nothing
-         focused. -->
-    <brls:ScrollingFrame
+    <ScrollView
         width="auto"
         height="auto"
-        scrollingBehavior="centered"
         grow="1.0">
 
         <brls:Box
@@ -48,6 +44,6 @@
 
         </brls:Box>
 
-    </brls:ScrollingFrame>
+    </ScrollView>
 
 </brls:Box>

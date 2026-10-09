@@ -8,7 +8,7 @@
 <brls:AppletFrame
     iconInterpolation="linear">
 
-    <brls:ScrollingFrame
+    <ScrollView
         title="@i18n/playguard/tabs/activity"
         icon="@res/img/app_icon.jpg"
         width="auto"
@@ -46,6 +46,6 @@
 
         </brls:Box>
 
-    </brls:ScrollingFrame>
+    </ScrollView>
 
 </brls:AppletFrame>
