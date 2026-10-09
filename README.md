@@ -11,7 +11,7 @@
 
 **Nintendo Switch parental controls, right on the console — no phone app, no Nintendo account, no internet.**
 
-PlayGuard is a homebrew app that brings the settings of the Nintendo Switch Parental Controls phone app onto the console itself, for offline use: daily play-time limits, restrictions, PIN, network clock, play activity — and a way back in when you are locked out.
+PlayGuard is a homebrew app that brings the settings of the [Nintendo Switch Parental Controls](https://apps.apple.com/fr/app/contr%C3%B4le-parental-nintendo-sw/id1190074407) phone app onto the console itself, for offline use: daily play-time limits, restrictions, PIN, network clock, play activity — and a way back in when you are locked out. What it covers of the phone app, and what is still missing: [docs/companion-app.md](docs/companion-app.md).
 
 ![Overview](images/screenshots/dashboard.png)
 
@@ -260,7 +260,7 @@ Press *About › Version* seven times; the developer tools appear at the end of 
 
 ## Contributing
 
-Build instructions, the desktop simulator, the code layout, the release process and how to translate PlayGuard are in **[CONTRIBUTING.md](CONTRIBUTING.md)**.
+Build instructions, the desktop simulator, the code layout, the release process and how to translate PlayGuard are in **[CONTRIBUTING.md](CONTRIBUTING.md)**. What comes next, and the ideas waiting for a decision: **[ROADMAP.md](ROADMAP.md)**.
 
 Quick taste:
 
