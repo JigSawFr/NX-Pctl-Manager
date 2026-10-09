@@ -20,6 +20,7 @@ PlayGuard est un homebrew qui ramène sur la console, hors ligne, les réglages 
 
 ## Sommaire
 
+- [Pourquoi PlayGuard](#pourquoi-playguard)
 - [Points forts](#points-forts)
 - [Compatibilité](#compatibilité)
 - [Installation](#installation)
@@ -31,6 +32,14 @@ PlayGuard est un homebrew qui ramène sur la console, hors ligne, les réglages 
 - [Signaler un bug](#signaler-un-bug)
 - [Contribuer](#contribuer)
 - [Licence et remerciements](#licence-et-remerciements)
+
+## Pourquoi PlayGuard
+
+Les enfants aiment les jeux vidéo, et les jeux vidéo, ce sont des écrans : les limiter fait partie de prendre soin d'eux. Sur une Switch d'origine, l'application mobile de Nintendo s'en chargeait. En passant la console sous firmware personnalisé, le champ des possibles s'ouvre — mais le contrôle parental saute, car l'application mobile n'atteint plus la console. Savoir combien de temps ils ont joué, fixer une limite, faire arrêter le jeu sans bataille ni éternel « encore cinq minutes » devenait compliqué.
+
+Les rares outils existants ne faisaient pas l'affaire : un suivi d'activité peu maintenu et peu détaillé, un contrôle parental peu développé et inabouti. Je ne voulais pas non plus d'un remplacement maison, ni d'un sysmodule qui tourne en permanence en arrière-plan. L'objectif : **réutiliser au maximum le contrôle parental de la console**, avec tout ce qu'il sait déjà faire — la limite, le code PIN, les avertissements, la suspension — et ramener ses réglages sur la console. C'est PlayGuard.
+
+Piloter le contrôle parental de la console ouvre aussi la porte à bien plus : remonter le temps de jeu vers un serveur à la maison, recevoir des ordres, Home Assistant, des automatisations. Ce vers quoi cela pourrait aller est dans [l'horizon de la feuille de route](ROADMAP.md#horizon) (en anglais).
 
 ## Points forts
 

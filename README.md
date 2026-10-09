@@ -20,6 +20,7 @@ PlayGuard is a homebrew app that brings the settings of the [Nintendo Switch Par
 
 ## Contents
 
+- [Why PlayGuard](#why-playguard)
 - [Highlights](#highlights)
 - [Compatibility](#compatibility)
 - [Install](#install)
@@ -31,6 +32,14 @@ PlayGuard is a homebrew app that brings the settings of the [Nintendo Switch Par
 - [Reporting a bug](#reporting-a-bug)
 - [Contributing](#contributing)
 - [License and credits](#license-and-credits)
+
+## Why PlayGuard
+
+Children love video games, and video games mean screens: a limit is part of looking after them. On an unmodified Switch, Nintendo's phone app took care of it. Once the console runs custom firmware, a whole new world opens up — and parental control goes out of the window, because the phone app no longer reaches the console. Knowing how long they played, setting a limit, getting the game stopped without a fight or one more "five more minutes" became hard.
+
+The few tools that existed did not do the job: activity reports that were barely maintained and not very detailed, parental controls that were rough and unfinished. And I did not want a custom replacement either, or a sysmodule always running in the background. The idea was to **reuse the console's own parental controls as much as possible**, with everything they already do — the limit, the PIN, the warnings, the suspension — and to bring their settings back onto the console. That is PlayGuard.
+
+Driving the console's own controls also opens the door to much more: reporting play time to a home server, taking orders from it, Home Assistant, automations. Where that could go is in the [roadmap's horizon](ROADMAP.md#horizon).
 
 ## Highlights
 
