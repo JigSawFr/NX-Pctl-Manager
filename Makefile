@@ -21,6 +21,9 @@ TESTOUT := $(BUILD)/host-tests
 JOBS    ?= $(shell nproc 2>/dev/null || echo 4)
 SAN     ?= -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=undefined
 CWARN   := -Wall -Wextra -Werror $(SAN)
+# The remote link's console-free C (source/sync/), shared by its host tests.
+SYNC_PURE := source/sync/sync_json.c source/sync/mqtt_packet.c source/sync/sync_conf.c source/sync/sync_apply.c \
+             source/sync/sync_records.c source/sync/sync_entities.c source/sync/sync_discovery.c source/sync/sync_state.c
 
 .PHONY: all clean dist nxlink desktop test check rescue dist-rescue
 
@@ -73,6 +76,10 @@ test:
 	$(CC) -std=c11 $(CWARN) -Isource/core source/core/rescue.c tests/rescue/test.c -o $(TESTOUT)/rescue && $(TESTOUT)/rescue
 	$(CC) -std=c11 $(CWARN) -Isource/util source/util/ntp_packet.c tests/ntp_packet/test.c -o $(TESTOUT)/ntp && $(TESTOUT)/ntp
 	$(CC) -std=c11 $(CWARN) -Isource/util source/util/playlog.c tests/playlog/test.c -o $(TESTOUT)/playlog && $(TESTOUT)/playlog
+	@mkdir -p $(TESTOUT)/sync
+	$(CC) -std=gnu11 $(CWARN) -Isource/sync -Isource/core $(SYNC_PURE) tests/sync_core/test.c -o $(TESTOUT)/sync_core && $(TESTOUT)/sync_core $(TESTOUT)/sync
+	$(CC) -std=gnu11 $(CWARN) -DNX_HOST_TEST -Itests/pctl_session -Isource/core -Isource/sync source/core/pctl_ops.c source/core/pure.c source/core/write_guard.c source/sync/sync_exec.c source/sync/sync_records.c source/sync/sync_apply.c source/sync/sync_conf.c tests/sync_exec/test.c -o $(TESTOUT)/sync_exec && $(TESTOUT)/sync_exec
+	$(CC) -std=gnu11 $(CWARN) -Isource/sync -Isource/core $(SYNC_PURE) source/sync/mqtt_client.c source/sync/sync_engine.c tests/sync_engine/test.c -o $(TESTOUT)/sync_engine && $(TESTOUT)/sync_engine
 	$(CXX) -std=c++17 $(CWARN) -Isource source/util/paths.cpp source/util/patches.cpp tests/patches/test.cpp -o $(TESTOUT)/patches && $(TESTOUT)/patches
 	$(CXX) -std=c++17 $(CWARN) -Isource source/util/duration.cpp tests/duration/test.cpp -o $(TESTOUT)/duration && $(TESTOUT)/duration
 	$(CXX) -std=c++17 $(CWARN) -Isource source/util/changelog.cpp tests/changelog/test.cpp -o $(TESTOUT)/changelog && $(TESTOUT)/changelog
@@ -94,6 +101,7 @@ test:
 
 check: test
 	python3 tools/check_resources.py .
+	python3 tools/check_sync_json.py $(TESTOUT)/sync
 	python3 tools/gen_compat.py . $(BUILD)/compat.json
 
 clean:

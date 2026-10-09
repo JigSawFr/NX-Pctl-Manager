@@ -51,7 +51,8 @@ Game patches are read from `./playguard_data/sd/`, the simulated SD card root.
 
 ## Tests and CI
 
-- `make test` — host unit tests (`tests/`, see [`tests/README.md`](tests/README.md)), including the recovery sysmodule logic (`tests/rescue/`).
+- `make test` — host unit tests (`tests/`, see [`tests/README.md`](tests/README.md)), including the recovery sysmodule logic (`tests/rescue/`) and the remote link (`tests/sync_*`).
+- `make check` — `make test`, then the resource check, the remote link's JSON documents (`tools/check_sync_json.py`) and `compat.json`.
 - `tools/desktop_smoke.py <out-dir> [gate|errors|rescue|devbuild]` — clicks through every screen of the desktop build headlessly (needs `DISPLAY`, `xdotool`, ImageMagick) and saves screenshots. The `gate` scenario covers the firmware screen and developer mode on a simulated 24.0.0; `errors` covers a failed unlock and an unsettable clock; `rescue` the recovery screen; `devbuild` signing in to a simulated GitHub and installing a pull request's build in place out of its artifact.
 - `tools/visual_check.py` — compares those screenshots with the references in `tests/visual/`. A difference is reported as a warning, not a failure; see [`tests/visual/README.md`](tests/visual/README.md) to update them.
 - `python3 tools/check_resources.py .` — checks the XML layouts and translation catalogs.
@@ -69,6 +70,7 @@ CI runs all of the above plus the Switch build.
 | `source/view/` | Widgets: the week chart, the gauge, the day bars, the game cell |
 | `source/ui/` | Dialogs, formatting, theme colours |
 | `source/util/` | NTP, config, profiles, settings backups, change history, play-log folding, the play-data cache, table export, diagnostics, sending reports online, update check, store launcher |
+| `source/sync/` | C, no allocation: the optional remote link (MQTT client, Home Assistant discovery, orders and their execution), shared with the agent sysmodule. See [`docs/sync-design.md`](docs/sync-design.md) |
 | `source/sim/` | The simulated console for the desktop build |
 | `resources/` | XML layouts and `i18n/<language>/playguard.json` |
 | `sysmodule/` | The optional recovery boot sysmodule; shares `source/core/rescue.c` with the app. See [`sysmodule/README.md`](sysmodule/README.md) |

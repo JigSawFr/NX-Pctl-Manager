@@ -36,6 +36,8 @@ jobs:
         run: make test
       - name: Resources (i18n keys, translations, XML layouts)
         run: python3 tools/check_resources.py .
+      - name: Remote link documents (Home Assistant discovery, state)
+        run: python3 tools/check_sync_json.py build/host-tests/sync
       - name: compat.json generator
         run: python3 tools/gen_compat.py . build/compat.json
 
