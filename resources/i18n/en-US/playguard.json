@@ -650,7 +650,9 @@
         "update_daily": "Check for updates every day",
         "update_last": "Last checked {}",
         "flag_read_only": "read-only",
-        "flag_dev": "developer"
+        "flag_dev": "developer",
+        "upload": "Send a report online",
+        "upload_note": "Sends a report to dpaste.org and shows its link with a QR code: give it to whoever helps you, or open a bug report with it."
     },
     "about": {
         "section_changelog": "What's new in {}",
@@ -712,6 +714,22 @@
         "update_manual": "How to update",
         "appstore": "Homebrew App Store"
     },
+    "upload": {
+        "pick": "What to send",
+        "current": "This report and the debug files",
+        "saved": "Saved report {}",
+        "part_report": "Diagnostic report",
+        "confirm": "Send to dpaste.org ({} KB)?",
+        "confirm_public": "Anyone with the link can read it for 30 days, then it is deleted. It never contains the PIN or the serial number.",
+        "send": "Send",
+        "sending": "Sending...",
+        "failed": "Could not send the report: {}",
+        "done": "Sent: {}\nGive this link to whoever helps you, or open a bug report with it.",
+        "partial": "Too large: only the start will be sent.",
+        "qr_report": "The report",
+        "qr_issue": "Report a bug",
+        "qr_issue_note": "on GitHub, link included"
+    },
     "dev": {
         "section": "Developer",
         "mode": "Developer mode",
@@ -736,7 +754,8 @@
         "already_on": "Developer mode is already on.",
         "enabled": "Developer mode is on: see the end of Tools.",
         "presses_left": "{} more presses to turn on developer mode.",
-        "presses_left_one": "1 more press to turn on developer mode."
+        "presses_left_one": "1 more press to turn on developer mode.",
+        "report_upload": "Send online"
     },
     "toast": {
         "diag_saved": "Diagnostic saved: {}",

@@ -650,7 +650,9 @@
         "update_daily": "Rechercher les mises à jour chaque jour",
         "update_last": "Dernière recherche le {}",
         "flag_read_only": "lecture seule",
-        "flag_dev": "développeur"
+        "flag_dev": "développeur",
+        "upload": "Envoyer un rapport en ligne",
+        "upload_note": "Envoie un rapport sur dpaste.org et affiche son lien avec un QR code : donnez-le à la personne qui vous aide, ou ouvrez un signalement de bug avec."
     },
     "about": {
         "section_changelog": "Nouveautés de la {}",
@@ -712,6 +714,22 @@
         "update_manual": "Comment mettre à jour",
         "appstore": "Homebrew App Store"
     },
+    "upload": {
+        "pick": "Que faut-il envoyer ?",
+        "current": "Ce rapport et les fichiers de débogage",
+        "saved": "Rapport enregistré {}",
+        "part_report": "Rapport de diagnostic",
+        "confirm": "Envoyer sur dpaste.org ({} Ko) ?",
+        "confirm_public": "Toute personne qui a le lien peut le lire pendant 30 jours, puis il est supprimé. Il ne contient jamais le code PIN ni le numéro de série.",
+        "send": "Envoyer",
+        "sending": "Envoi...",
+        "failed": "Impossible d'envoyer le rapport : {}",
+        "done": "Envoyé : {}\nDonnez ce lien à la personne qui vous aide, ou ouvrez un signalement de bug avec.",
+        "partial": "Trop volumineux : seul le début sera envoyé.",
+        "qr_report": "Le rapport",
+        "qr_issue": "Signaler un bug",
+        "qr_issue_note": "sur GitHub, lien inclus"
+    },
     "dev": {
         "section": "Développeur",
         "mode": "Mode développeur",
@@ -736,7 +754,8 @@
         "already_on": "Le mode développeur est déjà activé.",
         "enabled": "Mode développeur activé : voir la fin de l'onglet Outils.",
         "presses_left": "Encore {} appuis pour activer le mode développeur.",
-        "presses_left_one": "Encore 1 appui pour activer le mode développeur."
+        "presses_left_one": "Encore 1 appui pour activer le mode développeur.",
+        "report_upload": "Envoyer en ligne"
     },
     "toast": {
         "diag_saved": "Diagnostic enregistré : {}",

@@ -23,6 +23,8 @@ class ToolsTab : public TabBase
     BRLS_BIND(brls::DetailCell,  history, "tl_history");
     BRLS_BIND(brls::DetailCell,  export_cell, "tl_export");
     BRLS_BIND(brls::Label,       export_note, "tl_export_note");
+    BRLS_BIND(brls::DetailCell,  upload,      "tl_upload");
+    BRLS_BIND(brls::Label,       upload_note, "tl_upload_note");
     BRLS_BIND(brls::DetailCell,  backup_save, "tl_backup_save");
     BRLS_BIND(brls::DetailCell,  backup_restore, "tl_backup_restore");
     BRLS_BIND(brls::Label,       backup_note, "tl_backup_note");

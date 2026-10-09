@@ -7,6 +7,7 @@
 #include "action/fw_gate.hpp"
 #include "action/pt_block_flow.hpp"
 #include "action/pt_flow.hpp"
+#include "action/upload_flow.hpp"
 #include "activity/diagnostic_activity.hpp"
 #include "activity/firmware_gate_activity.hpp"
 #include "activity/history_activity.hpp"
@@ -59,6 +60,13 @@ ToolsTab::ToolsTab()
         std::string path = diagnostic::save(diagnostic::current_report(), &err);
         if (path.empty()) ui::error("playguard/toast/diag_err"_i18n + ": " + err);
         else ui::notify(brls::getStr("playguard/toast/diag_saved", path));
+        return true;
+    });
+
+    // Only reads and the network: also offered in read-only mode.
+    upload_note->setSingleLine(false);
+    upload->registerClickAction([](brls::View*) {
+        upload_flow::choose();
         return true;
     });
 

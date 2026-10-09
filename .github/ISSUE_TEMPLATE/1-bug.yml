@@ -5,9 +5,11 @@ body:
   - type: markdown
     attributes:
       value: |
-        The quickest way to a fix is the **diagnostic report**: *Tools & about › Export a
-        diagnostic report* saves a text file in `sd:/switch/playguard/logs/`. It never
-        contains the PIN or the serial number.
+        The quickest way to a fix is the **diagnostic report**: *Tools › Export a
+        diagnostic report* saves a text file in `sd:/switch/playguard/logs/`, and
+        *Tools › Send a report online* sends it with the debug files and gives a link
+        (its QR code opens this form with the link filled in). It never contains the
+        PIN or the serial number.
 
   - type: textarea
     id: what
@@ -81,6 +83,6 @@ body:
     id: report
     attributes:
       label: Diagnostic report
-      description: Drag the file from `sd:/switch/playguard/logs/` here.
+      description: Drag the file from `sd:/switch/playguard/logs/` here, or paste the link from *Send a report online*.
     validations:
       required: true

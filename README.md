@@ -86,7 +86,7 @@ All in `sd:/switch/playguard/`:
 | `profiles/` | Saved play-time limit profiles |
 | `backups/` | Settings backups (never contain the PIN) |
 | `exports/` | Activity exports |
-| `logs/` | Diagnostic reports (never contain the PIN or the serial number) |
+| `logs/` | Diagnostic reports (never contain the PIN or the serial number), the developer tools' files, and `uploads.txt` (the links of the reports sent online) |
 
 More in [packaging/README.md](packaging/README.md).
 </details>
@@ -190,7 +190,7 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 - **Change history:** what PlayGuard changed (limits, restriction level, PIN, unlocks, unlinking, the clock, restores …), when and from where. Ⓐ on a change shows it and, for a value, **puts the previous one back** — through the same unlock and PIN as any change, saying if it changed since.
 - **Back up / restore the settings** on the SD card: restriction level, custom settings, VR mode, rating organisation, daily limits, the "time's up" alarm (with the advanced actions on), and the raw play-timer block for the record — never the PIN. A restore lists only what would change. Choose how many backups to keep.
 - **First steps** opens the guide again (with an *Unlink the companion app* step while linked, a *Turn the "Time's up" alarm back on* step while it is off, and a switch to stop it coming up at start-up). Below *Close*, *Support PlayGuard* shows the funding QR codes.
-- **Export a diagnostic report** (see [Reporting a bug](#reporting-a-bug)).
+- **Export a diagnostic report**, or **send one online** (see [Reporting a bug](#reporting-a-bug)).
 - **Console:** firmware, Atmosphère, compatibility, storage (emuMMC or sysMMC), whether Atmosphère **blanks the serial number** (partly hidden until Ⓐ; a warning on emuMMC when it is not), **game patches** (sys-patch or sigpatch files, recommending sys-patch when only files are used).
 - **About** (its own tab): version, launch mode and data folder; **updates** (check now or once a day at start-up; *Update with* sphaira, Homebrew App Store or by hand); **what's new** in the running version (its entry of the bundled changelog, in English); the credits, how to **support PlayGuard** ([GitHub Sponsors](https://github.com/sponsors/JigSawFr), [Ko-fi](https://ko-fi.com/jigsawfr), shown as QR codes to scan with a phone), and a small *Made in France* 🇫🇷. After an update, PlayGuard opens once on **What's new in X.Y.Z** (the same notes, then the QR codes).
 </details>
@@ -237,14 +237,16 @@ PlayGuard drives the parental controls built into the console (the `pctl` servic
 1. *Tools › Export a diagnostic report* saves a text file in `sd:/switch/playguard/logs/`: firmware, Atmosphère version, clocks, storage, serial-blanking and game-patch status, and the raw result of every parental-control query. **It never contains the PIN or the serial number.**
 2. [Open an issue](https://github.com/JigSawFr/PlayGuard/issues/new) and attach it.
 
+Or, with the console online, *Tools › Send a report online* (Ⓧ on the diagnostic report in developer mode) sends it, with the debug files (the play-timer block reference, the change history and PlayGuard's settings), to [dpaste.org](https://dpaste.org), after saying exactly what goes. It shows the link and two QR codes: the report, and the bug-report form with the link and your versions already filled in. Anyone with the link can read the report for 30 days, then dpaste.org deletes it; the links are kept in `logs/uploads.txt`. A report saved earlier in `logs/` can be sent the same way.
+
 <details>
 <summary>Developer mode (investigating a new firmware)</summary>
 
 Press *About › Version* seven times; the developer tools appear at the end of *Tools*. It adds:
 
 - a **read-only** switch — with it on, the app cannot change anything: the safe way to investigate a new firmware (the firmware screen offers it directly);
-- the diagnostic report on screen, and a shortcut to export it from the Play timer tab;
-- **Compare the play-timer block**, to decode settings PlayGuard does not show yet: save the raw block as a reference, change one setting in the phone app, come back — PlayGuard lists the values that changed (saved in `logs/` on request). Bedtime and "alarm only" vs "suspend the software" could be found this way. Attach that file to an issue.
+- the diagnostic report on screen (Ⓨ saves it, Ⓧ sends it online), and a shortcut to export it from the Play timer tab;
+- **Compare the play-timer block**, to decode settings PlayGuard does not show yet: save the raw block as a reference, change one setting in the phone app, come back — PlayGuard lists the values that changed (saved in `logs/` on request). Bedtime and "alarm only" vs "suspend the software" could be found this way. Attach that file to an issue, or send it with the report (*Send a report online*).
 </details>
 
 ## Contributing

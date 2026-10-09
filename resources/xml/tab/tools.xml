@@ -34,7 +34,9 @@
             <brls:Label id="tl_backup_note" text="" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
             <brls:Header title="@i18n/playguard/tools/section_diag" marginTop="24" marginBottom="8"/>
             <brls:DetailCell id="tl_export" title="@i18n/playguard/tools/export"/>
+            <brls:DetailCell id="tl_upload" title="@i18n/playguard/tools/upload"/>
             <brls:Label id="tl_export_note" text="" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
+            <brls:Label id="tl_upload_note" text="@i18n/playguard/tools/upload_note" fontSize="20" marginTop="4" marginBottom="6" textColor="@theme/brand/note"/>
             <brls:Header title="@i18n/playguard/tools/section_console" marginTop="24" marginBottom="8"/>
             <brls:DetailCell id="tl_fw" focusable="false" title="@i18n/playguard/tools/firmware"/>
             <brls:DetailCell id="tl_ams" focusable="false" title="@i18n/playguard/tools/atmosphere"/>
