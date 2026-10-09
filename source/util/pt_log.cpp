@@ -5,6 +5,8 @@
 #include <cinttypes>
 #include <cstdio>
 #include <cstring>
+#include <fcntl.h>
+#include <unistd.h>
 
 #include "util/paths.hpp"
 
@@ -57,6 +59,16 @@ uint64_t le64(const uint8_t* b)
     uint64_t v = 0;
     for (int i = 7; i >= 0; i--) v = (v << 8) | b[i];
     return v;
+}
+
+// Opened for appending, created 0644 (as util/http.cpp), not fopen's 0666.
+FILE* open_append(const std::string& p)
+{
+    const int fd = ::open(p.c_str(), O_WRONLY | O_APPEND | O_CREAT, 0644);
+    if (fd < 0) return nullptr;
+    FILE* f = ::fdopen(fd, "ab");
+    if (!f) ::close(fd);
+    return f;
 }
 
 // The cell, or "" when it is what the line before held.
@@ -129,13 +141,13 @@ bool append(const std::string& line, std::string* error)
         return false;
     }
     // The size is read from the open file, not from the path beforehand.
-    FILE* f = std::fopen(p.c_str(), "ab");
+    FILE* f = open_append(p);
     long size = f && std::fseek(f, 0, SEEK_END) == 0 ? std::ftell(f) : -1;
     if (f && size > (long)MAX_BYTES) {
         std::fclose(f);
         std::remove(old_path().c_str());
         std::rename(p.c_str(), old_path().c_str());
-        f = std::fopen(p.c_str(), "ab");
+        f = open_append(p);
         size = f && std::fseek(f, 0, SEEK_END) == 0 ? std::ftell(f) : -1;
     }
     if (!f) {

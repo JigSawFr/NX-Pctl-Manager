@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <fcntl.h>
 #include <unistd.h>
 
 #include "util/paths.hpp"
@@ -113,7 +114,8 @@ static void test_file()
 
     // Over the limit: kept as the .old file, a new one with its header.
     {
-        FILE* f = std::fopen(pt_log::path().c_str(), "ab");
+        const int fd = ::open(pt_log::path().c_str(), O_WRONLY | O_APPEND);   // exists: not created here
+        FILE* f = fd >= 0 ? ::fdopen(fd, "ab") : nullptr;
         assert(f);
         const std::string filler(pt_log::MAX_BYTES, 'z');
         assert(std::fwrite(filler.data(), 1, filler.size(), f) == filler.size());
