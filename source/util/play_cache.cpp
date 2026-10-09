@@ -44,17 +44,17 @@ bool decode(const std::string& bytes, PlayStats& out)
 {
     Header h;
     if (bytes.size() < sizeof h + HEAD_SIZE) return false;
-    std::memcpy(&h, bytes.data(), sizeof h);
+    bytes.copy(reinterpret_cast<char*>(&h), sizeof h, 0);
     if (std::memcmp(h.magic, MAGIC, sizeof MAGIC) != 0 || h.version != VERSION ||
         h.stats_size != sizeof(PlayStats) || h.game_size != sizeof(GameStat))
         return false;
     std::memset(&out, 0, sizeof out);
-    std::memcpy(&out, bytes.data() + sizeof h, HEAD_SIZE);
+    bytes.copy(reinterpret_cast<char*>(&out), HEAD_SIZE, sizeof h);
     if (out.count > PLAYSTATS_MAX || bytes.size() != sizeof h + HEAD_SIZE + out.count * sizeof(GameStat)) {
         std::memset(&out, 0, sizeof out);
         return false;
     }
-    std::memcpy(out.games, bytes.data() + sizeof h + HEAD_SIZE, out.count * sizeof(GameStat));
+    bytes.copy(reinterpret_cast<char*>(out.games), out.count * sizeof(GameStat), sizeof h + HEAD_SIZE);
     for (uint32_t i = 0; i < out.count; i++) out.games[i].name[PLAYSTATS_NAME_LEN - 1] = '\0';
     return true;
 }
