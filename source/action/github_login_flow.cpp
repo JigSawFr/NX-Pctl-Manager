@@ -55,7 +55,9 @@ void show_code(const github_auth::DeviceCode& code, std::function<void()> done)
     ui::on_cancel(dialog, [cancelled]() { *cancelled = true; });
     dialog->open();
 
-    brls::async([code, cancelled, dialog, done]() {
+    // Polls for up to 15 minutes: on its own thread, not holding up the play
+    // log, the game icons and the rest of brls::async's single queue.
+    ui::in_background("GitHub sign-in", [code, cancelled, dialog, done]() {
         int interval = code.interval;
         const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(code.expires_in);
         github_auth::Poll result = github_auth::Poll::Expired;
@@ -103,7 +105,7 @@ void sign_in(std::function<void()> done)
     if (s_busy) return;
     s_busy = true;
     ui::notify("playguard/github/starting"_i18n);
-    brls::async([done]() {
+    ui::in_background("GitHub sign-in", [done]() {
         github_auth::DeviceCode code;
         std::string err;
         const bool ok = github_auth::start(&code, &err);

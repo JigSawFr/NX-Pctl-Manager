@@ -94,7 +94,8 @@ void install(const dev_builds::Build& b)
     s_busy = true;
     ui::notify(brls::getStr("playguard/dev_build/downloading", (int)((b.size + 512 * 1024) / (1024 * 1024))));
     const std::string target = file_path(sd_path());
-    brls::async([b, target]() {
+    // Not behind the play log or the game icons (ui::in_background).
+    ui::in_background("dev build download", [b, target]() {
         std::string err;
         const std::string fresh = target + ".new";
         bool ok = dev_builds::download(b, fresh, &err);
@@ -148,7 +149,7 @@ void open()
     }
     s_busy = true;
     ui::notify("playguard/dev_build/loading"_i18n);
-    brls::async([]() {
+    ui::in_background("dev build list", []() {
         std::vector<dev_builds::Build> builds;
         std::string err;
         bool needs_login = false;

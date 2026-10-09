@@ -99,7 +99,7 @@ void send(const std::vector<log_upload::Part>& parts)
         ui::notify("playguard/upload/sending"_i18n);
         if (s_sending) return;
         s_sending = true;
-        brls::async([text]() {
+        ui::in_background("report upload", [text]() {
             const log_upload::Result r = log_upload::upload(text);
             brls::sync([r]() {
                 s_sending = false;
