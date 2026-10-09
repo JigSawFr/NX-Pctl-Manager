@@ -97,8 +97,17 @@ static void test_reply()
 
 static void test_form()
 {
-    assert(log_upload::form("a b&c=\n") ==
-           "content=a%20b%26c%3D%0A&format=url&lexer=_text&expires=" + std::to_string(30L * 24 * 3600));
+    std::string type;
+    const std::string f = log_upload::form("a b&c=\n{\"é\": 1}", &type);
+    assert(type == "multipart/form-data; boundary=PlayGuardBoundary");
+    assert(f == "--PlayGuardBoundary\r\nContent-Disposition: form-data; name=\"content\"\r\n\r\na b&c=\n{\"é\": 1}\r\n"
+                "--PlayGuardBoundary\r\nContent-Disposition: form-data; name=\"format\"\r\n\r\nurl\r\n"
+                "--PlayGuardBoundary\r\nContent-Disposition: form-data; name=\"lexer\"\r\n\r\n_text\r\n"
+                "--PlayGuardBoundary\r\nContent-Disposition: form-data; name=\"expires\"\r\n\r\n" +
+                    std::to_string(30L * 24 * 3600) + "\r\n--PlayGuardBoundary--\r\n");
+    // A text holding the boundary gets another one.
+    log_upload::form("x --PlayGuardBoundary PlayGuardBoundary0", &type);
+    assert(type == "multipart/form-data; boundary=PlayGuardBoundary1");
 }
 
 static void test_urls()
