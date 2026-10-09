@@ -1,0 +1,86 @@
+name: Bug report
+description: PlayGuard does something it should not, or does not do something it should.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The quickest way to a fix is the **diagnostic report**: *Tools & about › Export a
+        diagnostic report* saves a text file in `sd:/switch/playguard/logs/`. It never
+        contains the PIN or the serial number.
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what PlayGuard did instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: How to reproduce
+      description: The steps from opening PlayGuard. Screenshots help (capture button, then the Album).
+      placeholder: |
+        1. Play timer tab
+        2. …
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: PlayGuard version
+      description: Shown in *Tools & about*.
+      placeholder: 1.0.0
+    validations:
+      required: true
+
+  - type: input
+    id: firmware
+    attributes:
+      label: Firmware
+      placeholder: 23.0.1
+    validations:
+      required: true
+
+  - type: input
+    id: atmosphere
+    attributes:
+      label: Atmosphère version
+      placeholder: 1.12.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: launcher
+    attributes:
+      label: Launched from
+      options:
+        - hbmenu, over a game (title override)
+        - hbmenu, from the Album (applet)
+        - sphaira
+        - Homebrew App Store
+        - Other (say which below)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: storage
+    attributes:
+      label: System
+      options:
+        - sysMMC
+        - emuMMC
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: report
+    attributes:
+      label: Diagnostic report
+      description: Drag the file from `sd:/switch/playguard/logs/` here.
+    validations:
+      required: true
