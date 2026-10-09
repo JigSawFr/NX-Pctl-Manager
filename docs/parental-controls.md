@@ -121,7 +121,7 @@ Header, as seen so far:
 |---|---|---|
 | `00 01` | `01 01` | non-zero while a limit or a bedtime is set (observed) |
 | `02 03` | `01 00` | unknown, constant |
-| `04..0B` | `00 00 00 06 00 00 00 00` | the same format as a day; probably the `DAILY` rule (hypothesis below). Its `06` stays even in the "off" block (observed) |
+| `04..0B` | `00 00 00 06 00 00 00 00` | the same format as a day; probably the `DAILY` rule (hypothesis below). Its `06` (byte `07`) stays in the "off" block, but was seen turn to `00` with the limits kept (observed, 22.0.0, between 20:10 and 20:44 on 2026-10-09; what changed it is not known) |
 
 The byte-by-byte reading of a real block is under
 [Reading a diagnostic report](#reading-a-diagnostic-report).
@@ -173,7 +173,9 @@ That is exactly eight rules and a few modes, and the block holds:
 - bytes `04..0B` follow the day format to the byte, down to the `06` of the
   default 06:00 "allowed again" time at their +3, which no other header field
   would explain;
-- that `06` stays when everything else is cleared, like a default.
+- that `06` stays when everything else is cleared, like a default. It was
+  also seen turn to `00` while every limit stayed: a value that can change,
+  as an "allowed again" hour of a rule nobody uses might.
 
 So the guess is: bytes `00..03` hold the modes (among them most likely
 `timerMode`, `01` = each day of the week, since every observed block uses the
@@ -202,8 +204,31 @@ Observed on 22.0.0, 2026-10-09 (a Friday, limit 120 minutes):
   time outside applications, or while unlocked, does not seem to count
   (inferred; not measured separately).
 
-When the time spent resets (midnight local time, or the "allowed again" time)
-is not confirmed yet.
+**Changing the clock resets the time spent** (observed, 22.0.0,
+2026-10-09, the evening reports):
+
+| When (user clock, local) | What happened | 1952 spent | 1454 left |
+|---|---|---|---|
+| 20:10 | | 5772 s | 1428 s |
+| between | automatic correction turned on: the user clock jumps 1411 s **forward**, to the network clock | | |
+| 21:08 | | **54 s** | 7146 s |
+| 21:08 → 20:45 | PlayGuard sets the network clock from NTP: the user clock follows, 1387 s **back** | | |
+| 20:45:14 | | **0 s** | 7200 s |
+| 20:45:27 | | 0 s | 7200 s |
+| 20:46:22 | PlayGuard open the whole time | **0 s** | 7200 s |
+
+- After the forward jump the day started over: 54 s counted since, out of
+  more than 1900 s of reports apart. Whether the jump itself or something
+  else in between reset it is inferred, not certain.
+- The backward jump reset it at once, and the time then **stopped counting**
+  (55 s with PlayGuard open, still 0). Likely explanation, to be confirmed:
+  the console counts from a reference time that is now in the future (21:08)
+  and waits for the clock to pass it.
+- Both reset the remaining time to the full limit: changing the clock is a
+  way around the play timer, and PlayGuard's own *Network clock* tab does it.
+
+When the time spent resets on its own (midnight local time, or the "allowed
+again" time) is not confirmed yet.
 
 ### 1459 `GetPlayTimerRemainingTimeDisplayInfo`
 
@@ -230,9 +255,16 @@ The play timer counts per day, so the console's clocks matter.
   the user clock does not follow the network clock. PlayGuard refuses to write
   the network clock then, so the system's own setting stays in charge.
 - 200 `IsStandardNetworkSystemClockAccuracySufficient`.
-- On the test console the network clock stays 1411 s (23.5 min) ahead of the
+- On the test console the network clock was 1411 s (23.5 min) ahead of the
   user clock, with automatic correction off and accuracy insufficient
-  (observed, 22.0.0, every report of 2026-10-09).
+  (observed, 22.0.0, 2026-10-09). The network clock was the wrong one: once
+  automatic correction was turned on, the user clock jumped to it, and
+  setting the network clock from NTP (europe.pool.ntp.org, then
+  fr.pool.ntp.org) put both back 1387 s, verified by reading it back. 200
+  then read `true`.
+- With automatic correction on, the user clock follows a network clock
+  written by PlayGuard immediately (same value in the report taken right
+  after).
 
 ## Reading a diagnostic report
 
@@ -330,7 +362,9 @@ From the same 20:10 report:
   `restrictionMode`; whether `04..0B` is the `DAILY` rule (hypothesis above).
 - The bedtime bytes with a bedtime actually on.
 - 1459's first byte; 1460's layout (23.0.0+).
-- When the time spent resets.
+- When the time spent resets on its own; how long it stays frozen after the
+  clock goes back (until the clock passes the old time?).
+- What turned the header's byte `07` from `06` to `00`.
 - The `01` byte of each free-communication list entry.
 - Whether time spent counts while temporarily unlocked.
 
