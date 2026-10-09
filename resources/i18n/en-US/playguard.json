@@ -174,7 +174,8 @@
         "stop_confirm": "Stop for today",
         "stop_done": "No more play today.",
         "stop_restore_body": "On {}, the {} limit was set to {} for that day only. Put it back to {}?",
-        "applet": "PlayGuard is running as an applet (opened from the album), with little memory: an export or a long Activity list may fail. For the full app, open it while holding R as you start a game."
+        "applet": "PlayGuard is running as an applet (opened from the album), with little memory: an export or a long Activity list may fail. For the full app, open it while holding R as you start a game.",
+        "counted": "Opened over a game, PlayGuard counts as that game: the console adds its time to the play timer and to the activity of the user picked at launch (PlayGuard's Activity tab leaves it out). Open it with a parent's user, or from the Album for a quick look."
     },
     "onboarding": {
         "title": "First steps",
@@ -190,7 +191,7 @@
         "step_unlink": "4. Unlink the companion app (its next sync would undo this)",
         "step_alarm": "{}. Turn the \"Time's up\" alarm back on (nothing says when time is up)",
         "at_start": "Show at start-up while no PIN is set",
-        "note": "The PIN is the console's own; the limit is checked against the network clock, so it must be accurate.",
+        "note": "The PIN is the console's own; the limit is checked against the network clock, so it must be accurate. Open PlayGuard with a parent's user: opened over a game, its time counts as play.",
         "close": "Close"
     },
     "compat": {
@@ -368,7 +369,7 @@
         "first": "First played",
         "last": "Last played",
         "less_than_minute": "< 1 min",
-        "note": "Read from the console's activity log, for every account. Times are approximate if the console clock was changed, and PlayGuard opened over a game counts as time in that game."
+        "note": "Read from the console's activity log, for every account. Times are approximate if the console clock was changed. PlayGuard's own time over a game is left out of today and the last 7 days, but stays in the all-time totals, which the console keeps."
     },
     "restrictions": {
         "section_level": "Restriction level",

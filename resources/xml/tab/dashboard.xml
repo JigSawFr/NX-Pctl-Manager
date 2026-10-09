@@ -49,6 +49,7 @@
             <brls:DetailCell id="dash_fw" title="@i18n/playguard/dashboard/firmware"/>
             <brls:DetailCell id="dash_compat" title="@i18n/playguard/dashboard/compat"/>
             <brls:Label id="dash_updated" text="" fontSize="20" marginTop="10" textColor="@theme/brand/note"/>
+            <brls:Label id="dash_counted" text="@i18n/playguard/dashboard/counted" fontSize="18" marginTop="10" textColor="@theme/brand/note"/>
             <MadeInFrance marginTop="24"/>
 
         </brls:Box>

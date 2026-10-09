@@ -174,7 +174,8 @@
         "stop_confirm": "Parar por hoy",
         "stop_done": "No se juega más hoy.",
         "stop_restore_body": "El {}, el límite del {} se fijó en {} solo para ese día. ¿Volver a dejarlo en {}?",
-        "applet": "PlayGuard se está ejecutando como applet (abierto desde el Álbum), con poca memoria: una exportación o una lista larga en Actividad puede fallar. Para usar la aplicación completa, ábrala manteniendo presionado R al iniciar un juego."
+        "applet": "PlayGuard se está ejecutando como applet (abierto desde el Álbum), con poca memoria: una exportación o una lista larga en Actividad puede fallar. Para usar la aplicación completa, ábrala manteniendo presionado R al iniciar un juego.",
+        "counted": "Abierto sobre un juego, PlayGuard cuenta como ese juego: la consola suma su tiempo al temporizador y a la actividad del usuario elegido al iniciar (la pestaña Actividad de PlayGuard lo descuenta). Ábrelo con el usuario de un adulto, o desde el Álbum para un vistazo rápido."
     },
     "onboarding": {
         "title": "Primeros pasos",
@@ -190,7 +191,7 @@
         "step_unlink": "4. Desvincular la app para celular (su próxima sincronización lo desharía)",
         "step_alarm": "{}. Reactivar la alarma de “Se acabó el tiempo” (nada avisa al terminar)",
         "at_start": "Mostrar al iniciar mientras no haya PIN",
-        "note": "El PIN es el de la propia consola; el límite se calcula con el reloj de red, así que debe ser preciso.",
+        "note": "El PIN es el de la propia consola; el límite se calcula con el reloj de red, así que debe ser preciso. Abre PlayGuard con el usuario de un adulto: abierto sobre un juego, su tiempo cuenta como tiempo de juego.",
         "close": "Cerrar"
     },
     "compat": {
@@ -368,7 +369,7 @@
         "first": "Primera partida",
         "last": "Última partida",
         "less_than_minute": "< 1 min",
-        "note": "Leído del registro de actividad de la consola, para todas las cuentas. Los tiempos son aproximados si se cambió el reloj de la consola, y el tiempo con PlayGuard abierto sobre un juego cuenta como tiempo en ese juego."
+        "note": "Leído del registro de actividad de la consola, para todos los usuarios. Los tiempos son aproximados si se cambió el reloj de la consola. El tiempo de PlayGuard abierto sobre un juego se descuenta de hoy y de los últimos 7 días, pero sigue en los totales, que lleva la consola."
     },
     "restrictions": {
         "section_level": "Nivel de restricción",

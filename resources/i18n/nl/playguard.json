@@ -174,7 +174,8 @@
         "stop_confirm": "Stoppen voor vandaag",
         "stop_done": "Er wordt vandaag niet meer gespeeld.",
         "stop_restore_body": "Op {} is de limiet voor {} alleen voor die dag op {} gezet. Terugzetten naar {}?",
-        "applet": "PlayGuard draait als applet (geopend vanuit het album), met weinig geheugen: een export of een lange activiteitenlijst kan mislukken. Open PlayGuard voor de volledige app door R ingedrukt te houden terwijl je een game start."
+        "applet": "PlayGuard draait als applet (geopend vanuit het album), met weinig geheugen: een export of een lange activiteitenlijst kan mislukken. Open PlayGuard voor de volledige app door R ingedrukt te houden terwijl je een game start.",
+        "counted": "Over een spel geopend telt PlayGuard als dat spel: de console telt de tijd mee voor de speeltimer en de activiteit van de gebruiker die bij het starten is gekozen (het tabblad Activiteit van PlayGuard laat die weg). Open PlayGuard met de gebruiker van een ouder, of via het Album voor een snelle blik."
     },
     "onboarding": {
         "title": "Eerste stappen",
@@ -190,7 +191,7 @@
         "step_unlink": "4. De smartphone-app ontkoppelen (de volgende synchronisatie zou dit ongedaan maken)",
         "step_alarm": "{}. Alarm \"Tijd is om\" weer inschakelen (niets waarschuwt als de tijd om is)",
         "at_start": "Bij het opstarten tonen zolang er geen pincode is",
-        "note": "De pincode is die van de console zelf; de limiet wordt gecontroleerd met de netwerkklok, die dus nauwkeurig moet zijn.",
+        "note": "De pincode is die van de console zelf; de limiet wordt gecontroleerd met de netwerkklok, die dus nauwkeurig moet zijn. Open PlayGuard met de gebruiker van een ouder: over een spel geopend telt de tijd als speeltijd.",
         "close": "Sluiten"
     },
     "compat": {
@@ -368,7 +369,7 @@
         "first": "Voor het eerst gespeeld",
         "last": "Laatst gespeeld",
         "less_than_minute": "< 1 min",
-        "note": "Gelezen uit het activiteitenlog van de console, voor alle accounts. Tijden zijn bij benadering als de klok van de console is gewijzigd, en PlayGuard geopend tijdens een game telt als tijd in die game."
+        "note": "Gelezen uit het activiteitenlogboek van de console, voor alle gebruikers. De tijden zijn bij benadering als de klok van de console is gewijzigd. De tijd in PlayGuard over een spel wordt weggelaten bij vandaag en de laatste 7 dagen, maar blijft in de totalen die de console bijhoudt."
     },
     "restrictions": {
         "section_level": "Beperkingsniveau",
