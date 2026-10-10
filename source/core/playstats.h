@@ -55,6 +55,14 @@ size_t playstats_accounts(PlayAccount *out, size_t max, Result *rc);
 void playstats_fetch_for(PlayStats *out, const PlayAccount *account);
 void playstats_fetch(PlayStats *out);   // playstats_fetch_for(out, NULL)
 
+// What the agent sysmodule reads (it cannot afford ns and its 147 KiB of
+// control data per game): the last 7 days per game from the play log alone
+// (pdm:qry), `day_wday` as in PlayStats, and the game that has the focus now
+// (*playing 0: none) since when (user clock). *now: the user clock used.
+// Returns how many totals were written to `out`; *rc says why none.
+size_t playstats_days(PlayLogTotal *out, size_t max, u64 *now, u8 day_wday[7], u64 *playing,
+                      u64 *playing_since, Result *rc);
+
 // One game's all-time play time per user account on the console (pdm:qry by
 // account, acc:u0 for the nicknames). Accounts that never played it are left
 // out. Returns how many were written to `out`; *rc says why none when 0.

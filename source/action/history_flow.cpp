@@ -6,6 +6,7 @@
 
 #include "action/pt_flow.hpp"
 #include "action/pt_log_flow.hpp"
+#include "action/sync_flow.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
 #include "util/config.hpp"
@@ -51,7 +52,7 @@ std::string kind_label(const std::string& kind)
 {
     static const char* known[] = { "limits", "level", "custom", "org", "vr", "alarm", "pin",
                                    "unlock", "relock", "unlink", "delete", "clock", "restore", "rescue",
-                                   "console_lock", "bedtime" };
+                                   "console_lock", "bedtime", "module" };
     for (const char* k : known)
         if (kind == k) return brls::getStr(std::string("playguard/history/kinds/") + k);
     return kind;
@@ -60,8 +61,11 @@ std::string kind_label(const std::string& kind)
 std::string source_label(const history::Entry& e)
 {
     static const char* known[] = { "uniform", "day", "per_day", "extra", "stop", "restore_extra",
-                                   "remove", "backup", "undo", "first_steps", "overview", "console_lock" };
+                                   "remove", "backup", "undo", "first_steps", "overview", "console_lock",
+                                   "remote", "remote_extra", "remote_stop", "remote_console_lock",
+                                   "remote_restore_extra" };
     if (e.source == "profile") return brls::getStr("playguard/history/sources/profile", e.detail);
+    if (e.source == "remote_profile") return brls::getStr("playguard/history/sources/remote_profile", e.detail);
     for (const char* s : known)
         if (e.source == s) return brls::getStr(std::string("playguard/history/sources/") + s);
     return "";
@@ -112,9 +116,10 @@ std::vector<int> custom_values(const PctlCustomSettings& s)
 
 static void store(history::Entry e)
 {
-    e.when = ui::now_stamp();
+    if (e.when.empty()) e.when = ui::now_stamp();
     std::string err;
     if (!history::append(e, &err)) brls::Logger::warning("history: not saved ({})", err);
+    sync_flow::changed();   // the remote link publishes the new state
     // Developer › Record the play timer: a line marking the change.
     std::string event = e.kind;
     for (const std::string* part : { &e.source, &e.detail })
@@ -131,10 +136,11 @@ static void store(history::Entry e)
 }
 
 void record_values(const char* kind, std::vector<int> before, std::vector<int> after,
-                   const std::string& source, const std::string& detail)
+                   const std::string& source, const std::string& detail, const std::string& when)
 {
     if (before == after) return;
     history::Entry e;
+    e.when   = when;
     e.kind   = kind;
     e.source = source;
     e.detail = detail;
@@ -143,9 +149,10 @@ void record_values(const char* kind, std::vector<int> before, std::vector<int> a
     store(e);
 }
 
-void record_event(const char* kind, const std::string& source, const std::string& detail)
+void record_event(const char* kind, const std::string& source, const std::string& detail, const std::string& when)
 {
     history::Entry e;
+    e.when   = when;
     e.kind   = kind;
     e.source = source;
     e.detail = detail;
@@ -157,7 +164,10 @@ std::string title(const history::Entry& e)
     const std::string before = value_text(e.kind, e.before), after = value_text(e.kind, e.after);
     if (!before.empty() && !after.empty())
         return brls::getStr("playguard/history/title_change", kind_label(e.kind), before, after);
-    if (!e.detail.empty() && e.source.empty()) return brls::getStr("playguard/common/line", kind_label(e.kind), e.detail);
+    // A detail that is the change itself (a bedtime "21:00 → 22:00"), not a
+    // profile's name.
+    if (!e.detail.empty() && (e.source.empty() || e.source == "remote"))
+        return brls::getStr("playguard/common/line", kind_label(e.kind), e.detail);
     return kind_label(e.kind);
 }
 
@@ -167,7 +177,7 @@ std::string details(const history::Entry& e)
     out += "\n" + brls::getStr("playguard/common/line", "playguard/history/when"_i18n, e.when.empty() ? "?" : e.when);
     const std::string from = source_label(e);
     if (!from.empty()) out += "\n" + brls::getStr("playguard/common/line", "playguard/history/how"_i18n, from);
-    else if (!e.detail.empty()) out += "\n" + e.detail;
+    if (!e.detail.empty() && (from.empty() || e.source == "remote")) out += "\n" + e.detail;
     const std::string before = value_text(e.kind, e.before), after = value_text(e.kind, e.after);
     if (!before.empty()) out += "\n" + brls::getStr("playguard/common/line", "playguard/history/before"_i18n, before);
     if (!after.empty()) out += "\n" + brls::getStr("playguard/common/line", "playguard/history/after"_i18n, after);

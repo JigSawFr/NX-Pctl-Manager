@@ -3,6 +3,7 @@
 
 #include "action/history_flow.hpp"
 #include "action/pt_log_flow.hpp"
+#include "action/sync_flow.hpp"
 #include "activity/main_activity.hpp"
 #include "app.hpp"
 #include "core/platform.h"
@@ -10,6 +11,7 @@
 #include "util/config.hpp"
 #include "util/duration.hpp"
 #include "util/paths.hpp"
+#include "util/sync_files.hpp"
 
 #include <algorithm>
 #include <ctime>
@@ -794,6 +796,7 @@ void note_unlocked(bool valid, bool unlocked)
 {
     if (!valid || unlocked == s_unlocked) return;
     s_unlocked = unlocked;
+    sync_flow::changed();
     // Next frame: at start-up the first tab is read before the main screen is
     // on the activity stack.
     brls::sync([]() {
@@ -805,6 +808,15 @@ void note_unlocked(bool valid, bool unlocked)
 void on_mode_changed()
 {
     pt_log_flow::apply();   // the recorder only runs in developer mode
+    sync_flow::changed();   // read-only mode is in the remote link's state
+    {
+        SysInfo si;
+        sysinfo_get(&si);
+        char fw[16];
+        sysinfo_version_string(si.hos_version, fw, sizeof(fw));
+        sync_files::set_console(fw, app::read_only());   // and in what the agent may do
+        sync_files::export_nro_state();
+    }
     for (brls::Activity* activity : brls::Application::getActivitiesStack())
         if (auto* main = dynamic_cast<MainActivity*>(activity)) main->update_title();
     TabBase::refresh_shown();

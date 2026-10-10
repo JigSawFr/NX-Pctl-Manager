@@ -99,7 +99,9 @@ else ()
     list(APPEND PLAYGUARD_SRC ${CMAKE_CURRENT_SOURCE_DIR}/source/core/pure.c
                               ${CMAKE_CURRENT_SOURCE_DIR}/source/core/calendar.c
                               ${CMAKE_CURRENT_SOURCE_DIR}/source/core/rescue.c
-                              ${CMAKE_CURRENT_SOURCE_DIR}/source/core/write_guard.c)
+                              ${CMAKE_CURRENT_SOURCE_DIR}/source/core/write_guard.c
+                              # The simulated agent runs the agent's own command dispatch.
+                              ${CMAKE_CURRENT_SOURCE_DIR}/sysmodule/agent/source/agent_core.c)
 endif ()
 
 # QR codes of the funding links in About (MIT, vendored: extern/qrcodegen).
@@ -109,6 +111,9 @@ program_target(${PROJECT_NAME} "${PLAYGUARD_SRC}")
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
 
 target_include_directories(${PROJECT_NAME} PRIVATE source extern/qrcodegen ${APP_PLATFORM_INCLUDE})
+if (NOT PLATFORM_SWITCH)
+    target_include_directories(${PROJECT_NAME} PRIVATE source/sync sysmodule/agent/source)
+endif ()
 # -ffunction-sections / -fdata-sections come from borealis (PUBLIC) and
 # --gc-sections from libnx's switch.specs.
 target_compile_options(${PROJECT_NAME} PRIVATE ${APP_PLATFORM_OPTION})
@@ -147,7 +152,11 @@ set(ASSEMBLE_RESOURCES
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_RESOURCES}/i18n/en-US ${MERGED_RESOURCES}/i18n/en-GB
     # About shows the latest releases from it (util/changelog.cpp).
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/CHANGELOG.md ${MERGED_RESOURCES}/CHANGELOG.md
-    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_ICON} ${MERGED_RESOURCES}/img/app_icon.jpg)
+    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_ICON} ${MERGED_RESOURCES}/img/app_icon.jpg
+    # The optional sysmodules, when built (make rescue / make agent).
+    COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -DDEST=${MERGED_RESOURCES}/sysmodules
+            -DAPP_VERSION=${APP_VERSION} -DAPP_COMMIT=${APP_COMMIT}
+            -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/bundle_sysmodules.cmake)
 
 set(PLAYGUARD_COPY_SHADERS)
 if (PLATFORM_SWITCH AND USE_DEKO3D)

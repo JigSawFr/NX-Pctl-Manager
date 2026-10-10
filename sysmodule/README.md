@@ -1,74 +1,23 @@
-# playguard-rescue — the recovery sysmodule
+# PlayGuard's optional sysmodules
 
-A tiny Atmosphère boot sysmodule: the **last chance** for a parent who set a
-play-time limit of 0 minutes (or any limit that suspends every program) and
-then **forgot the PIN**. When the timer blocks everything, the HOME menu, the
-Album and PlayGuard itself cannot start — so no homebrew can undo it. This
-module runs before any of that, from the SD card.
+Two small Atmosphère sysmodules, both **optional**: PlayGuard works fully
+without them. PlayGuard carries a copy of each in its romfs and installs,
+updates, starts at boot or removes them from *Tools › Optional modules*
+(`source/util/modules.hpp`, `source/activity/modules_activity.cpp`); each is
+also a download of its own on the releases page.
 
-It is **optional** and ships as its own download (`playguard-rescue.zip`), never
-as part of the normal PlayGuard install. Install it only if you want this safety
-net. PlayGuard works fully without it; it simply shows a recovery screen when
-the module leaves a report.
+| Folder | Program id | What it does |
+|---|---|---|
+| [`rescue/`](rescue/README.md) | `4200000000505247` | At boot, only when a `RESCUE` file asks it to: unlocks parental controls with the stored PIN (or deletes them), for a forgotten PIN with a 0-minute limit. Then exits. |
+| [`agent/`](agent/README.md) | `4200000000504741` | Keeps the remote link (MQTT, Home Assistant) up while PlayGuard is closed; PlayGuard talks to it over `pg:agent` while it runs. |
 
-## What it does
-
-At boot the module looks for a file named `RESCUE` (or `RESCUE.txt`) in
-`sd:/switch/playguard/`:
-
-- **present, empty or any text** → it unlocks parental controls temporarily,
-  using the PIN the console already stores, exactly as the system PIN screen
-  would. Everything can start again, so you can open PlayGuard and fix things
-  properly (see or change the PIN, adjust the limit, or remove the controls).
-- **a line that reads just `delete`** (any case; spaces around it and a
-  byte-order mark are ignored) → it deletes every parental control (PIN and all
-  restrictions). Irreversible; use it only if you are giving up on the PIN.
-  The word inside other text (`delete everything`, `don't delete`) is not
-  enough: that file only unlocks.
-
-The request file is **removed before anything is done** (it acts once). Should
-the card refuse that, it is renamed `RESCUE.done` instead; should that fail too,
-the file is still there, so a delete is **not done** (it would repeat at every
-boot) while an unlock still is — and PlayGuard's recovery screen tells you to
-remove the file from a computer. The outcome is written to
-`rescue_report.txt`. The next time PlayGuard opens it
-shows what happened, lets you finish, records it in the change history, and
-removes the report.
-
-## How to use it
-
-1. Install the module once: extract `playguard-rescue.zip` to the SD-card root
-   (it lands in `atmosphere/contents/4200000000505247/`). Reboot.
-2. When you are locked out: put the SD card in a computer, create an empty file
-   `switch/playguard/RESCUE` (or `RESCUE.txt`; to delete everything instead,
-   write `delete` on a line of its own), put the card back, turn the
-   console on. Open PlayGuard and finish from the recovery screen.
-
-## What it is not
-
-- **Not a security hole beyond what already exists.** Anyone who can edit the
-  SD card can already turn off PlayGuard's own PIN prompt by editing
-  `config.json`, or wipe parental controls with any pctl tool. The module needs
-  the same physical access to the card. It changes nothing a determined person
-  with the card could not already do; it just makes the honest "I forgot the
-  PIN" case recoverable without a computer-side guide.
-- **Not for stock consoles.** Like all of PlayGuard it needs Atmosphère.
-
-## Build
+Both are built with [`common.mk`](common.mk) (devkitPro's libnx rules, the ARM
+flags, `out/<name>.nsp`):
 
 ```sh
-make -C sysmodule          # -> sysmodule/out/playguard-rescue.nsp (needs devkitPro, DEVKITPRO set)
-make dist-rescue           # -> playguard-rescue.zip  (SD-card layout, from the repo root)
+make rescue          # sysmodule/rescue/out/playguard-rescue.nsp
+make dist-rescue     # playguard-rescue.zip
+make agent           # sysmodule/agent/out/playguard-agent.nsp
+make dist-agent      # playguard-agent.zip
+make                 # the .nro, with the modules built first and bundled (cmake/bundle_sysmodules.cmake)
 ```
-
-The module shares `source/core/rescue.c` with the app (the request / report
-file format, host-tested in `tests/rescue/`). Its own pctl calls are the ones
-documented in `source/core/pctl_ops.c`, kept minimal and self-contained so the
-sysmodule pulls in nothing from the app's service layer.
-
-Program ID `0x4200000000505247` is in the private range homebrew sysmodules use,
-so it never collides with a real title.
-
-## License
-
-GPLv3 (see [`../LICENSE`](../LICENSE)).

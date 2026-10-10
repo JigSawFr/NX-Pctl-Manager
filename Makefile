@@ -21,12 +21,17 @@ TESTOUT := $(BUILD)/host-tests
 JOBS    ?= $(shell nproc 2>/dev/null || echo 4)
 SAN     ?= -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=undefined
 CWARN   := -Wall -Wextra -Werror $(SAN)
+# The remote link's console-free C (source/sync/), shared by its host tests.
+SYNC_PURE := source/sync/sync_json.c source/sync/mqtt_packet.c source/sync/sync_conf.c source/sync/sync_apply.c \
+             source/sync/sync_records.c source/sync/sync_entities.c source/sync/sync_discovery.c source/sync/sync_state.c
 
-.PHONY: all clean dist nxlink desktop test check rescue dist-rescue
+.PHONY: all clean dist nxlink desktop test check rescue dist-rescue agent dist-agent
 
 RENDERER := $(if $(GL),-DUSE_DEKO3D=OFF,-DUSE_DEKO3D=ON)
 
-all:
+# The optional sysmodules first: the .nro carries them in its romfs, so
+# Tools › Optional modules can install them (CMakeLists.txt, cmake/bundle_sysmodules.cmake).
+all: rescue agent
 	@cmake -B $(BUILD) -S . -DPLATFORM_SWITCH=ON $(RENDERER)
 	@cmake --build $(BUILD) --target $(TARGET).nro -j $(JOBS)
 	@cp $(BUILD)/$(TARGET).nro  $(TARGET).nro
@@ -44,21 +49,40 @@ dist: all
 	@cp packaging/sphaira/$(TARGET).json out/config/sphaira/github/
 	@cd out && zip -r ../$(TARGET).zip ./*
 
-# The optional recovery sysmodule (sysmodule/), as its own asset so it is a
-# deliberate install, never part of the default one. The zip drops into the
-# SD-card root: Atmosphère runs 4200000000505247 at boot (the boot2.flag).
+# The optional recovery sysmodule (sysmodule/rescue/), as its own asset so it
+# is a deliberate install, never part of the default one. The zip drops into
+# the SD-card root: Atmosphère runs 4200000000505247 at boot (the boot2.flag).
 RESCUE_TID := 4200000000505247
 rescue:
-	@$(MAKE) --no-print-directory -C sysmodule
+	@$(MAKE) --no-print-directory -C sysmodule/rescue
 
 dist-rescue: rescue
 	@echo making rescue dist ...
 	@rm -rf out-rescue/ playguard-rescue.zip
 	@mkdir -p out-rescue/atmosphere/contents/$(RESCUE_TID)/flags
-	@cp sysmodule/out/playguard-rescue.nsp out-rescue/atmosphere/contents/$(RESCUE_TID)/exefs.nsp
+	@cp sysmodule/rescue/out/playguard-rescue.nsp out-rescue/atmosphere/contents/$(RESCUE_TID)/exefs.nsp
 	@touch out-rescue/atmosphere/contents/$(RESCUE_TID)/flags/boot2.flag
+	@printf '{\n  "name": "PlayGuard rescue",\n  "tid": "%s",\n  "requires_reboot": true\n}\n' $(RESCUE_TID) \
+		> out-rescue/atmosphere/contents/$(RESCUE_TID)/toolbox.json
 	@cp LICENSE out-rescue/atmosphere/contents/$(RESCUE_TID)/LICENSE.txt
 	@cd out-rescue && zip -r ../playguard-rescue.zip ./*
+
+# The optional remote-link agent (sysmodule/agent/): its own asset too. It
+# starts at boot (boot2.flag) and can be started or stopped without a reboot.
+AGENT_TID := 4200000000504741
+agent:
+	@$(MAKE) --no-print-directory -C sysmodule/agent
+
+dist-agent: agent
+	@echo making agent dist ...
+	@rm -rf out-agent/ playguard-agent.zip
+	@mkdir -p out-agent/atmosphere/contents/$(AGENT_TID)/flags
+	@cp sysmodule/agent/out/playguard-agent.nsp out-agent/atmosphere/contents/$(AGENT_TID)/exefs.nsp
+	@touch out-agent/atmosphere/contents/$(AGENT_TID)/flags/boot2.flag
+	@printf '{\n  "name": "PlayGuard agent",\n  "tid": "%s",\n  "requires_reboot": false\n}\n' $(AGENT_TID) \
+		> out-agent/atmosphere/contents/$(AGENT_TID)/toolbox.json
+	@cp LICENSE out-agent/atmosphere/contents/$(AGENT_TID)/LICENSE.txt
+	@cd out-agent && zip -r ../playguard-agent.zip ./*
 
 desktop:
 	@cmake -B $(DESKTOP) -S . -DPLATFORM_DESKTOP=ON -DCMAKE_BUILD_TYPE=Release
@@ -73,6 +97,11 @@ test:
 	$(CC) -std=c11 $(CWARN) -Isource/core source/core/rescue.c tests/rescue/test.c -o $(TESTOUT)/rescue && $(TESTOUT)/rescue
 	$(CC) -std=c11 $(CWARN) -Isource/util source/util/ntp_packet.c tests/ntp_packet/test.c -o $(TESTOUT)/ntp && $(TESTOUT)/ntp
 	$(CC) -std=c11 $(CWARN) -Isource/util source/util/playlog.c tests/playlog/test.c -o $(TESTOUT)/playlog && $(TESTOUT)/playlog
+	@mkdir -p $(TESTOUT)/sync
+	$(CC) -std=gnu11 $(CWARN) -Isource/sync -Isource/core $(SYNC_PURE) tests/sync_core/test.c -o $(TESTOUT)/sync_core && $(TESTOUT)/sync_core $(TESTOUT)/sync
+	$(CC) -std=gnu11 $(CWARN) -DNX_HOST_TEST -Itests/pctl_session -Isource/core -Isource/sync source/core/pctl_ops.c source/core/pure.c source/core/write_guard.c source/sync/sync_exec.c source/sync/sync_records.c source/sync/sync_apply.c source/sync/sync_conf.c tests/sync_exec/test.c -o $(TESTOUT)/sync_exec && $(TESTOUT)/sync_exec
+	$(CC) -std=gnu11 $(CWARN) -Isource/sync -Isource/core $(SYNC_PURE) source/sync/mqtt_client.c source/sync/sync_engine.c tests/sync_engine/test.c -o $(TESTOUT)/sync_engine && $(TESTOUT)/sync_engine
+	$(CC) -std=gnu11 $(CWARN) -Isource/sync -Isource/core -Isysmodule/agent/source sysmodule/agent/source/agent_core.c source/sync/sync_conf.c source/sync/sync_records.c tests/agent/test.c -o $(TESTOUT)/agent && $(TESTOUT)/agent
 	$(CXX) -std=c++17 $(CWARN) -Isource source/util/paths.cpp source/util/patches.cpp tests/patches/test.cpp -o $(TESTOUT)/patches && $(TESTOUT)/patches
 	$(CXX) -std=c++17 $(CWARN) -Isource source/util/duration.cpp tests/duration/test.cpp -o $(TESTOUT)/duration && $(TESTOUT)/duration
 	$(CXX) -std=c++17 $(CWARN) -Isource source/util/changelog.cpp tests/changelog/test.cpp -o $(TESTOUT)/changelog && $(TESTOUT)/changelog
@@ -83,8 +112,12 @@ test:
 	$(CXX) -std=c++17 $(CWARN) -Isource -Iextern/borealis/library/include source/util/update.cpp tests/update/test.cpp -o $(TESTOUT)/update && $(TESTOUT)/update
 	$(CXX) -std=c++17 $(CWARN) -Isource -Iextern/borealis/library/include source/util/paths.cpp source/util/config.cpp tests/config/test.cpp -o $(TESTOUT)/config && $(TESTOUT)/config
 	$(CXX) -std=c++17 $(CWARN) -Isource -Iextern/borealis/library/include source/util/paths.cpp source/util/profiles.cpp tests/profiles/test.cpp -o $(TESTOUT)/profiles && $(TESTOUT)/profiles
+	$(CC) -std=gnu11 $(CWARN) -c source/sync/sync_conf.c -o $(TESTOUT)/sync_conf.o
+	$(CC) -std=gnu11 $(CWARN) -c source/sync/sync_records.c -o $(TESTOUT)/sync_records.o
+	$(CXX) -std=c++17 $(CWARN) -Isource -Iextern/borealis/library/include source/util/paths.cpp source/util/config.cpp source/util/profiles.cpp source/util/sync_files.cpp $(TESTOUT)/sync_conf.o $(TESTOUT)/sync_records.o tests/sync_files/test.cpp -o $(TESTOUT)/sync_files && $(TESTOUT)/sync_files
 	$(CXX) -std=c++17 $(CWARN) -Isource -Iextern/borealis/library/include source/util/paths.cpp source/util/pt_block.cpp tests/pt_block/test.cpp -o $(TESTOUT)/pt_block && $(TESTOUT)/pt_block
 	$(CXX) -std=c++17 $(CWARN) -Isource source/util/paths.cpp source/util/launcher.cpp tests/launcher/test.cpp -o $(TESTOUT)/launcher && $(TESTOUT)/launcher
+	$(CXX) -std=c++17 $(CWARN) -Isource source/util/paths.cpp source/util/sha256.cpp source/util/modules.cpp tests/modules/test.cpp -o $(TESTOUT)/modules && $(TESTOUT)/modules
 	$(CXX) -std=c++17 $(CWARN) -Isource -Iextern/borealis/library/include source/util/paths.cpp source/util/history.cpp tests/history/test.cpp -o $(TESTOUT)/history && $(TESTOUT)/history
 	$(CXX) -std=c++17 $(CWARN) -Isource -Iextern/borealis/library/include source/util/paths.cpp source/util/pt_log.cpp source/util/log_upload.cpp tests/log_upload/test.cpp -o $(TESTOUT)/log_upload && $(TESTOUT)/log_upload
 	$(CXX) -std=c++17 $(CWARN) -Isource -Iextern/borealis/library/include source/util/paths.cpp source/util/sha256.cpp source/util/dev_builds.cpp source/util/zip_read.cpp source/util/github_auth.cpp tests/dev_builds/test.cpp -lz -o $(TESTOUT)/dev_builds && $(TESTOUT)/dev_builds
@@ -93,12 +126,14 @@ test:
 
 check: test
 	python3 tools/check_resources.py .
+	python3 tools/check_sync_json.py $(TESTOUT)/sync
 	python3 tools/gen_compat.py . $(BUILD)/compat.json
 
 clean:
 	@echo clean ...
-	@rm -rf $(BUILD) $(DESKTOP) out out-rescue $(TARGET).zip playguard-rescue.zip $(TARGET).nro $(TARGET).nacp $(TARGET).elf
-	@$(MAKE) --no-print-directory -C sysmodule clean 2>/dev/null || true
+	@rm -rf $(BUILD) $(DESKTOP) out out-rescue out-agent $(TARGET).zip playguard-rescue.zip playguard-agent.zip $(TARGET).nro $(TARGET).nacp $(TARGET).elf
+	@$(MAKE) --no-print-directory -C sysmodule/rescue clean 2>/dev/null || true
+	@$(MAKE) --no-print-directory -C sysmodule/agent clean 2>/dev/null || true
 
 nxlink: all
 	nxlink $(BUILD)/$(TARGET).nro

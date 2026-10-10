@@ -79,10 +79,13 @@ HB_APPSTORE_SUBMISSION.md
 toolchain.txt
 /node_modules
 /out-rescue
+/out-agent
 /smoke-rescue
 /smoke-devbuild
-/sysmodule/build
-/sysmodule/out
+/smoke-sync
+/smoke-modules
+/sysmodule/*/build
+/sysmodule/*/out
 *.nsp
 *.npdm
 *.nso

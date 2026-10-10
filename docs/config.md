@@ -5,7 +5,8 @@ set from the app; the file is only worth editing by hand to get back in (see
 [`pin_lock`](#pin_lock)) or to check what PlayGuard remembered.
 
 The code is the reference: `source/util/config.hpp` (fields and defaults) and
-`source/util/config.cpp` (reading, checks, writing).
+`source/util/config.cpp` (reading, checks, writing). The remote link's
+settings are not here but in `sync.conf` ([`sync-protocol.md`](sync-protocol.md)).
 
 ## How the file is read
 
@@ -81,6 +82,7 @@ Set in *About*.
 | `support_reminder` | boolean | *Support PlayGuard* once a month at start-up (Preferences) | `true` |
 | `support_reminded` | string | `"YYYY-MM-DD"` of the last reminder; anything else is cleared | `""` |
 | `seen_version` | string | the version whose *What's new* was shown; at most 32 characters | `""` |
+| `agent_update_skipped` | string | the SHA-256 of the remote link agent PlayGuard carries that the offer to update the installed one was answered *Later* to: not offered again at start-up for that build (*Tools › Optional modules* still offers it); at most 64 characters | `""` |
 
 ## Developer tools
 
@@ -165,6 +167,7 @@ PlayGuard*:
   "support_reminder": true,
   "support_reminded": "",
   "seen_version": "",
+  "agent_update_skipped": "",
   "console_lock": false,
   "console_lock_prev": [],
   "fw_gate_fw": "",

@@ -14,7 +14,7 @@ Each fact says how sure it is:
 
 The code is the reference for the details: `source/core/pctl_ops.c` (command
 table, session handling), `source/core/pure.h` (the play-timer block),
-`source/core/time_ops.h` (clocks), `sysmodule/source/main.c` (rescue).
+`source/core/time_ops.h` (clocks), `sysmodule/rescue/source/main.c` (rescue).
 Public reference: [switchbrew, Parental Control services](https://switchbrew.org/wiki/Parental_Control_services).
 
 ## The service and its session

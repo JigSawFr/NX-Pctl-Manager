@@ -8,6 +8,7 @@
 #include "action/console_lock.hpp"
 #include "action/history_flow.hpp"
 #include "action/pt_logic.hpp"
+#include "action/sync_flow.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
 #include "util/config.hpp"
@@ -181,6 +182,7 @@ static void offer_relock(std::function<void()> after)
 void finish_write(Result rc, bool did_unlock, const std::string& ok_text,
                   const std::string& error_prefix, std::function<void()> refresh)
 {
+    sync_flow::changed();
     if (!did_unlock) {
         ui::notify_result(rc, ok_text, error_prefix);
         if (refresh) refresh();

@@ -89,7 +89,13 @@ at once, as PlayGuard does, and never writes the play timer while it counts
 down. Whether the bridge runs only while PlayGuard is open (sync on opening)
 or as a separate, opt-in sysmodule that never takes over the controls is the
 first decision to make; it would be the one exception to "nothing in the
-background", and an optional one.
+background", and an optional one. That decision and the design of the bridge
+(an optional agent sysmodule installed from PlayGuard, Home Assistant through
+MQTT discovery and a HACS integration) are in
+[docs/sync-design.md](docs/sync-design.md); the wire contract is in
+[docs/sync-protocol.md](docs/sync-protocol.md). Its first phase is in:
+PlayGuard links to an MQTT broker and Home Assistant while it is open
+([guide](docs/home-assistant.md)); the agent sysmodule is next.
 
 ## Ideas without a decision
 

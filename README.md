@@ -39,7 +39,7 @@ Children love video games, and video games mean screens: a limit is part of look
 
 The few tools that existed did not do the job: activity reports that were barely maintained and not very detailed, parental controls that were rough and unfinished. And I did not want a custom replacement either, or a sysmodule always running in the background. The idea was to **reuse the console's own parental controls as much as possible**, with everything they already do — the limit, the PIN, the warnings, the suspension — and to bring their settings back onto the console. That is PlayGuard.
 
-Driving the console's own controls also opens the door to much more: reporting play time to a home server, taking orders from it, Home Assistant, automations. Where that could go is in the [roadmap's horizon](ROADMAP.md#horizon).
+Driving the console's own controls also opens the door to much more: reporting play time to a home server, taking orders from it, Home Assistant, automations. The first step is here, an optional link to Home Assistant over MQTT ([guide](docs/home-assistant.md)); where it could go next is in the [roadmap's horizon](ROADMAP.md#horizon).
 
 ## Highlights
 
@@ -49,6 +49,7 @@ Driving the console's own controls also opens the door to much more: reporting p
 - 🕒 **Network clock** — measure against public NTP servers and set it, so the play timer counts correctly on a console that never reaches Nintendo.
 - 📱 **Companion app** — see whether the phone app is linked and **unlink** it, even for a second-hand console.
 - ↩️ **Change history, backups and undo** — every change PlayGuard makes is logged and can be reverted; settings can be backed up to the SD card.
+- 🏠 **Home Assistant (optional)** — over MQTT (5.0 or 3.1.1, any broker) on your local network: the state, the limits and play time in Home Assistant, orders from it (extra time, limits, lock), each one asked on the console or carried out at once. Off by default; runs while PlayGuard is open, or all the time with the optional agent. [Guide](docs/home-assistant.md).
 - 🌍 **Every console language** — 15 catalogs, light and dark themes.
 - 🛡️ **Safe writes** — the play timer is never written while it counts down, and no background process runs while a child plays.
 
@@ -83,7 +84,7 @@ Pick one:
 | **sphaira › GitHub** | The release zip already contains the entry (`/config/sphaira/github/playguard.json`): after a first install, update from *GitHub* in sphaira. |
 | **Manual** | Download `playguard.zip` from the [latest release](https://github.com/JigSawFr/PlayGuard/releases/latest) and extract it to the **root** of the SD card. The app lands in `sd:/switch/playguard/`. |
 
-The optional **recovery sysmodule** (`playguard-rescue.zip`) is a separate download — see [Locked out?](#locked-out-second-hand-console-forgotten-pin).
+The optional **recovery sysmodule** is installed from PlayGuard (*Tools › Optional modules*, or *Security & app › Locked out?*), or by hand from its own download (`playguard-rescue.zip`) — see [Locked out?](#locked-out-second-hand-console-forgotten-pin).
 
 <details>
 <summary>Files PlayGuard writes on the SD card</summary>
@@ -100,6 +101,8 @@ All in `sd:/switch/playguard/`:
 | `cache/` | The last play activity read (every account, and each account viewed), shown at once on the next start while the log is read again; in developer mode, the list of *Install another build* (`dev_builds.json`) |
 | `github_token` | Developer mode only: the GitHub sign-in of *Install another build* (deleted by signing out) |
 | `rescue_report.txt` | Left by the recovery sysmodule after it acted, until PlayGuard shows it at start-up |
+| `sync.conf` | Only once *Remote access* was set up: the link's settings, the broker's password included (never in a report or an upload) |
+| `sync/` | Only with *Remote access*: what the optional agent reads (records, profiles, game names) and writes (what it changed, its events) |
 | `logs/` | Diagnostic reports (never contain the PIN or the serial number), the developer tools' files, `uploads.txt` (the links of the reports sent online) and `crash.txt` (what made PlayGuard stop, if it ever crashed) |
 
 More in [packaging/README.md](packaging/README.md).
@@ -185,6 +188,7 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 - **Console lock:** one switch that sets every day's limit to 0, so a PIN is needed to start a game — a light lock without age ratings or communication limits. It blocks starting games, not the HOME menu, and needs a PIN. The previous limits come back when it is turned off. While it is on, *extra time* and *no more play today* are refused, and limits set another way (a profile, a backup, the history…) replace it.
 - **Companion app:** whether the Nintendo Switch Parental Controls app is linked, its last sync, and **unlink** (otherwise its next sync overwrites the limits set here).
 - **Delete all parental controls:** two confirmations, irreversible; a backup of the settings is saved first.
+- **Locked out?** installs the optional recovery module, for a forgotten PIN with a 0-minute limit.
 </details>
 
 <details>
@@ -197,11 +201,13 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 - A network-clock check at start-up (a toast when it is more than a minute off; it never sets the clock).
 - A **monthly reminder to support PlayGuard** (on by default, never in the first month nor right after an update; *Don't show again* on the reminder or this switch turns it off for good, updates included).
 - Advanced actions.
+- **Remote access (MQTT / Home Assistant):** the broker and its MQTT version, the console's name, what to do with orders (ask on the console, carry them out, refuse them), whether they may change the play timer (off by default), Home Assistant's discovery, the live status, *Sync now* and the log. See [docs/home-assistant.md](docs/home-assistant.md).
 </details>
 
 <details>
 <summary><b>Tools</b> and <b>About</b> — history, backups, console info; version, updates, what's new, credits</summary>
 
+- **Optional modules:** install, update, start at boot or remove the recovery module and the remote link's agent, from the copies PlayGuard carries (no computer needed; each change asks for the PIN when *Security* does).
 - **Change history:** what PlayGuard changed (limits, restriction level, PIN, unlocks, unlinking, the clock, restores …), when and from where. Ⓐ on a change shows it and, for a value, **puts the previous one back** — through the same unlock and PIN as any change, saying if it changed since.
 - **Back up / restore the settings** on the SD card: restriction level, custom settings, VR mode, rating organisation, daily limits, the "time's up" alarm (with the advanced actions on), and the raw play-timer block for the record — never the PIN. A restore lists only what would change. Choose how many backups to keep.
 - **First steps** opens the guide again (with an *Unlink the companion app* step while linked, a *Turn the "Time's up" alarm back on* step while it is off, and a switch to stop it coming up at start-up). Below *Close*, *Support PlayGuard* shows the funding QR codes.
@@ -219,7 +225,7 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 
 **No more 22.5 crashes.** `pctl:a`, the privileged parental-control service, accepts a **single session**. Older builds of the original app kept it open, so the HOME-menu PIN prompt (or the PIN applet) could not get it and Atmosphère could crash. PlayGuard opens the session for each action and releases it immediately; periodic refreshes pause while the app is in the background. *(Diagnosis by [anbingxi's fork](https://github.com/anbingxi/NX-Pctl-Manager/tree/diag/fw22-5-readonly).)*
 
-**Nothing runs in the background.** The limit, the PIN, the warnings and the suspension are the console's own; PlayGuard only changes their settings.
+**Nothing runs in the background.** The limit, the PIN, the warnings and the suspension are the console's own; PlayGuard only changes their settings. The optional remote link runs only while PlayGuard is open, and carries out an order exactly like a change made on the console (the same unlock, relock, read-only mode and history); it can never delete parental controls, unlink the phone app or touch the PIN.
 
 ## Locked out? (second-hand console, forgotten PIN)
 
@@ -230,7 +236,7 @@ PlayGuard only sees the parental controls of the system it runs on: **emuMMC and
 | **Second-hand console:** you know the PIN, but the previous owner's phone app is still linked (unlinking fails, or a factory reset asks for their account) | *Security & app › Unlink the companion app*, then, if you want no parental controls at all, *Delete all parental controls*. Both work offline, on emuMMC as on sysMMC. |
 | **PIN forgotten** | *Security & app › Show the PIN*. Or *Delete all parental controls* to start again (a settings backup is saved first; it never contains the PIN). |
 | **PIN forgotten, and *Ask for the PIN* is set to *To open PlayGuard* or *Before a change*** | That setting lives in `sd:/switch/playguard/config.json` on purpose: put the SD card in a computer and set `"pin_lock"` to `"off"`. |
-| **The play timer blocks everything (0-minute limit) and the PIN is forgotten** | PlayGuard itself cannot start then. Install the optional recovery sysmodule (`playguard-rescue.zip`) **beforehand**; when locked out, drop an empty `switch/playguard/RESCUE` file on the SD card and boot — it unlocks the console so PlayGuard can open. See [`sysmodule/README.md`](sysmodule/README.md). |
+| **The play timer blocks everything (0-minute limit) and the PIN is forgotten** | PlayGuard itself cannot start then. Install the optional recovery sysmodule **beforehand** (*Security & app › Locked out? › Recovery module*, or `playguard-rescue.zip` by hand); when locked out, drop an empty `switch/playguard/RESCUE` file on the SD card and boot — it unlocks the console so PlayGuard can open. See [`sysmodule/rescue/README.md`](sysmodule/rescue/README.md). |
 | **Console not modded** | PlayGuard cannot help: it needs Atmosphère. Nintendo support's master-key procedure is the official way. |
 
 ## PlayGuard or a replacement sysmodule?

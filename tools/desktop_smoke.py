@@ -25,7 +25,37 @@ failing and "Synchronise clock via Internet" off (PLAYGUARD_SIM_FAIL & co.):
 a limit change must end in the "could not unlock" dialog, with the app alive,
 and the clock tab must say why the network clock cannot be set.
 
-Usage: tools/desktop_smoke.py <out-dir> [gate|errors|rescue|lock|devbuild]   (needs DISPLAY, xdotool, ImageMagick)
+The "sync" scenario starts a local Mosquitto (needs mosquitto and
+mosquitto-clients) and sets the remote link up in sync.conf: PlayGuard must
+come online, publish the Home Assistant discovery, the state, today's
+activity and the names, carry out a limit order (event, retained order
+cleared, new state, change history), refuse one out of range, publish the
+discovery again when Home Assistant says it restarted, show the link online
+in Preferences › Remote access, and leave "offline" behind at exit. It
+connects in MQTT 5.0 ("auto"); "sync-311" runs the same with
+mqtt_version=3.1.1 (Mosquitto's log says which version the client spoke).
+
+The "agent" scenario runs with a simulated agent sysmodule
+(PLAYGUARD_SIM_AGENT=running, no broker): PlayGuard must hand the link to it
+(no session of its own), import the change the agent logged while PlayGuard
+was closed into the history with the agent's time, push the state, today's
+activity and the names, carry out the order the agent hands it
+(PLAYGUARD_SIM_AGENT_ORDER) and answer it, show "through the agent" in
+Preferences › Remote access, and close its session at exit.
+
+The "agent-update" and "agent-rollback" scenarios start with an old agent
+on the simulated SD card (it speaks another protocol) and a new one carried
+by PlayGuard: the offer to update it must come at start-up; accepted, the
+new agent must be in place and answering ("agent-update"), or, when the new
+one never answers, the old one back after 10 s and running again
+("agent-rollback"), each in the history.
+
+The "modules" scenario carries a made-up recovery module
+(PLAYGUARD_SIM_BUNDLED): from Security › Locked out?, it must be installed on
+the simulated SD card (exefs.nsp, boot2.flag, toolbox.json, version.txt), its
+start at boot turned off, then removed, each change in the history.
+
+Usage: tools/desktop_smoke.py <out-dir> [gate|errors|rescue|lock|devbuild|sync|sync-311|agent|agent-update|agent-rollback|modules]   (needs DISPLAY, xdotool, ImageMagick)
 Environment knobs of the simulated backend (PLAYGUARD_SIM_*) are passed through;
 the console time is fixed (PLAYGUARD_SIM_NOW, TZ) unless set.
 """
@@ -44,11 +74,17 @@ ERRORS = SCENARIO == "errors"
 RESCUE = SCENARIO == "rescue"
 LOCK = SCENARIO == "lock"
 DEVBUILD = SCENARIO == "devbuild"
+SYNC = SCENARIO in ("sync", "sync-311")
+MQTT311 = SCENARIO == "sync-311"
+MODULES = SCENARIO == "modules"
+AGENT = SCENARIO == "agent"
+AGENT_UPDATE = SCENARIO in ("agent-update", "agent-rollback")
+ROLLBACK = SCENARIO == "agent-rollback"
 os.makedirs(OUT, exist_ok=True)
 run_dir = os.path.join(OUT, "run")
 os.makedirs(run_dir, exist_ok=True)
 config_file = os.path.join(run_dir, "playguard_data", "config.json")
-if (GATE or ERRORS or DEVBUILD) and os.path.exists(config_file):
+if (GATE or ERRORS or DEVBUILD or SYNC or AGENT or AGENT_UPDATE or MODULES) and os.path.exists(config_file):
     os.remove(config_file)   # no remembered choice, developer mode off
 block_ref = os.path.join(run_dir, "playguard_data", "logs", "play_timer_block.json")
 if GATE and os.path.exists(block_ref):
@@ -117,7 +153,100 @@ if DEVBUILD:
     installed_nro = os.path.join(run_dir, "playguard_data", "sd", "switch", "playguard", "playguard.nro")
     os.makedirs(os.path.dirname(installed_nro), exist_ok=True)
     open(installed_nro, "wb").write(b"the build before")
-if not GATE and not ERRORS and not DEVBUILD:
+sync_conf = os.path.join(run_dir, "playguard_data", "sync.conf")
+if os.path.exists(sync_conf):
+    os.remove(sync_conf)   # the link is off but in the "sync" scenario
+SYNC_ID = "5a0c3e11"
+mqtt_port = 0
+mqtt_broker = None
+if SYNC:
+    # A broker of its own, on a free port, anonymous (on 127.0.0.1 only).
+    import atexit
+    import socket
+    s = socket.socket()
+    s.bind(("127.0.0.1", 0))
+    mqtt_port = s.getsockname()[1]
+    s.close()
+    broker_conf = os.path.join(OUT, "mosquitto.conf")
+    open(broker_conf, "w").write(f"listener {mqtt_port} 127.0.0.1\nallow_anonymous true\npersistence false\n")
+    mqtt_broker = subprocess.Popen(["mosquitto", "-c", broker_conf], stdout=open(os.path.join(OUT, "mosquitto.log"), "w"),
+                                   stderr=subprocess.STDOUT)
+    atexit.register(mqtt_broker.terminate)
+    time.sleep(1)
+    os.makedirs(os.path.dirname(sync_conf), exist_ok=True)
+    open(sync_conf, "w").write(
+        "enabled=1\nhost=127.0.0.1\n"
+        f"port={mqtt_port}\nallow_anonymous=1\nconsole_id={SYNC_ID}\nconsole_name=Smoke\n"
+        f"mqtt_version={'3.1.1' if MQTT311 else 'auto'}\n"
+        "policy=auto\nremote_timer_writes=1\npoll_s=10\n")
+    history = os.path.join(run_dir, "playguard_data", "history.json")
+    if os.path.exists(history):
+        os.remove(history)   # the remote change must be the only entry
+AGENT_DIR = os.path.join(run_dir, "playguard_data", "sd", "atmosphere", "contents", "4200000000504741")
+if AGENT or AGENT_UPDATE:
+    import shutil
+    shutil.rmtree(AGENT_DIR, ignore_errors=True)
+if AGENT:
+    # The simulated agent holds the link (it says it is online, no broker),
+    # and hands PlayGuard one order once it said Hello.
+    env.setdefault("PLAYGUARD_SIM_AGENT", "running")
+    env.setdefault("PLAYGUARD_SIM_MODULES", "agent:running")
+    env.setdefault("PLAYGUARD_SIM_AGENT_ORDER", "limit_uniform=90")
+    os.makedirs(os.path.dirname(sync_conf), exist_ok=True)
+    open(sync_conf, "w").write(
+        "enabled=1\nhost=127.0.0.1\nport=1\nallow_anonymous=1\n"
+        f"console_id={SYNC_ID}\nconsole_name=Smoke\npolicy=auto\nremote_timer_writes=1\npoll_s=10\n")
+    history = os.path.join(run_dir, "playguard_data", "history.json")
+    if os.path.exists(history):
+        os.remove(history)
+    # What the agent did while PlayGuard was closed: Monday's limit at noon
+    # (UTC) on 8 October 2026.
+    agent_events = os.path.join(run_dir, "playguard_data", "sync", "agent_events.log")
+    os.makedirs(os.path.dirname(agent_events), exist_ok=True)
+    open(agent_events, "w").write("1791460800\tlimit_mon\t45\t1\tnone\t1\t7\tremote\t"
+                                  "60,60,60,60,60,60,60\t60,45,60,60,60,60,60\t-1\n")
+if AGENT_UPDATE:
+    import hashlib
+    # An old agent runs (another protocol); PlayGuard carries a new one, or one
+    # that never answers.
+    env.setdefault("PLAYGUARD_SIM_AGENT", "running")
+    env.setdefault("PLAYGUARD_SIM_MODULES", "agent:running")
+    os.makedirs(os.path.join(AGENT_DIR, "flags"), exist_ok=True)
+    OLD_NSP = b"PFS0 old agent build"
+    open(os.path.join(AGENT_DIR, "exefs.nsp"), "wb").write(OLD_NSP)
+    open(os.path.join(AGENT_DIR, "flags", "boot2.flag"), "w").close()
+    open(os.path.join(AGENT_DIR, "version.txt"), "w").write("version=0.9.0\n")
+    NEW_NSP = b"PFS0 broken agent build" if ROLLBACK else b"PFS0 new agent build"
+    bundle = os.path.join(OUT, "bundle")
+    os.makedirs(os.path.join(bundle, "agent"), exist_ok=True)
+    open(os.path.join(bundle, "agent", "exefs.nsp"), "wb").write(NEW_NSP)
+    open(os.path.join(bundle, "agent", "version.txt"), "w").write(
+        f"version=9.9.9\ncommit=smoke00\nsha256={hashlib.sha256(NEW_NSP).hexdigest()}\n")
+    env.setdefault("PLAYGUARD_SIM_BUNDLED", bundle)
+    os.makedirs(os.path.dirname(sync_conf), exist_ok=True)
+    open(sync_conf, "w").write(
+        "enabled=1\nhost=127.0.0.1\nport=1\nallow_anonymous=1\n"
+        f"console_id={SYNC_ID}\nconsole_name=Smoke\npolicy=auto\npoll_s=10\n")
+    history = os.path.join(run_dir, "playguard_data", "history.json")
+    if os.path.exists(history):
+        os.remove(history)
+RESCUE_DIR = os.path.join(run_dir, "playguard_data", "sd", "atmosphere", "contents", "4200000000505247")
+if MODULES:
+    import hashlib
+    import shutil
+    # What a Switch build carries in its romfs (cmake/bundle_sysmodules.cmake).
+    bundle = os.path.join(OUT, "bundle")
+    nsp = b"PFS0" + b"made-up recovery module" * 64
+    os.makedirs(os.path.join(bundle, "rescue"), exist_ok=True)
+    open(os.path.join(bundle, "rescue", "exefs.nsp"), "wb").write(nsp)
+    open(os.path.join(bundle, "rescue", "version.txt"), "w").write(
+        f"version=9.8.7\ncommit=smoke00\nsha256={hashlib.sha256(nsp).hexdigest()}\n")
+    env.setdefault("PLAYGUARD_SIM_BUNDLED", bundle)
+    shutil.rmtree(RESCUE_DIR, ignore_errors=True)
+    history = os.path.join(run_dir, "playguard_data", "history.json")
+    if os.path.exists(history):
+        os.remove(history)
+if not GATE and not ERRORS and not DEVBUILD and not SYNC and not AGENT and not AGENT_UPDATE and not MODULES:
     env.setdefault("PLAYGUARD_SIM_NUMPAD", "1:30")   # what the system number pad returns
     env.setdefault("PLAYGUARD_SIM_PASTE", "https://bpa.st/SMOKE")   # what bpa.st (or GitHub) answers
     github_token = os.path.join(run_dir, "playguard_data", "github_token")
@@ -151,7 +280,9 @@ def have(tool):
 cmd = (["stdbuf", "-oL", "-eL"] if have("stdbuf") else []) + [APP]
 if have("dbus-run-session"):
     cmd = ["dbus-run-session", "--"] + cmd
-proc = subprocess.Popen(cmd, cwd=run_dir, env=env, stdout=log, stderr=subprocess.STDOUT)
+# A session of its own: finish() stops the app with its wrappers (stopping
+# only dbus-run-session would leave PlayGuard running).
+proc = subprocess.Popen(cmd, cwd=run_dir, env=env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
 
 
 def alive():
@@ -217,11 +348,14 @@ def steps(a, b):
 
 def finish(check=None):
     """Stops the app, then runs `check` (on its complete log)."""
-    proc.terminate()
+    import signal
     try:
+        os.killpg(proc.pid, signal.SIGTERM)
         proc.wait(5)
     except subprocess.TimeoutExpired:
-        proc.kill()
+        os.killpg(proc.pid, signal.SIGKILL)
+    except ProcessLookupError:
+        pass
     if check:
         check()
     print("desktop smoke test passed:", OUT)
@@ -360,6 +494,234 @@ if ERRORS:
         if not any(t.startswith("Could not unlock parental controls") for t in messages()):
             fail("no 'could not unlock' dialog; messages: " + repr(messages()))
     finish(told_unlock_failed)
+if SYNC:
+    BASE = f"playguard/{SYNC_ID}"
+
+    def mqtt_get(topic, timeout=3):
+        """The retained message on `topic`, or None."""
+        r = subprocess.run(["mosquitto_sub", "-h", "127.0.0.1", "-p", str(mqtt_port), "-t", topic, "-C", "1",
+                            "-W", str(timeout)], capture_output=True, text=True)
+        return r.stdout.rstrip("\n") if r.returncode == 0 and r.stdout.strip() else None
+
+    def mqtt_pub(topic, payload, retain=True):
+        subprocess.run(["mosquitto_pub", "-h", "127.0.0.1", "-p", str(mqtt_port), "-t", topic, "-m", payload]
+                       + (["-r"] if retain else []), check=True)
+
+    def wait_for(what, check, timeout=30, running=True):
+        end = time.time() + timeout
+        while time.time() < end:
+            value = check()
+            if value:
+                return value
+            if running and not alive():
+                fail(f"app exited while waiting for {what}")
+            time.sleep(0.5)
+        fail(f"no {what} after {timeout} s")
+
+    def watch(topic, name):
+        """Every message on `topic` from now on, one per line, in OUT/<name>."""
+        path = os.path.join(OUT, name)
+        p = subprocess.Popen(["mosquitto_sub", "-h", "127.0.0.1", "-p", str(mqtt_port), "-v", "-t", topic],
+                             stdout=open(path, "w"), stderr=subprocess.STDOUT)
+        atexit.register(p.terminate)
+        time.sleep(0.5)
+        return lambda: [l for l in open(path, errors="replace").read().splitlines() if l.strip()]
+
+    def doc(topic):
+        text = mqtt_get(topic)
+        try:
+            return json.loads(text) if text else None
+        except ValueError:
+            fail(f"{topic} is not JSON: {text[:200]}")
+
+    wait_for("availability online", lambda: mqtt_get(f"{BASE}/availability") == "online")
+    # The version the client spoke, as Mosquitto logs it: "as pg-<id>-app (p5, …"
+    # (its own numbering: p2 is 3.1.1, p5 is 5.0).
+    level = "p2" if MQTT311 else "p5"
+    broker_log = open(os.path.join(OUT, "mosquitto.log"), errors="replace").read()
+    if f"as pg-{SYNC_ID}-app ({level}," not in broker_log:
+        fail(f"the client did not connect with {level}: {broker_log[-600:]}")
+    discovery = wait_for("discovery", lambda: doc(f"homeassistant/device/playguard_{SYNC_ID}/config"))
+    if "limit_mon" not in discovery.get("cmps", {}) or discovery["dev"]["name"] != "Smoke":
+        fail("the discovery lacks the timer entities or the console's name")
+    state = wait_for("state", lambda: doc(f"{BASE}/state"))
+    if state.get("source") != "app" or state.get("local_date") != "2026-10-08":
+        fail(f"unexpected state: {json.dumps(state)[:300]}")
+    wait_for("today's activity", lambda: doc(f"{BASE}/activity"))
+    wait_for("names", lambda: doc(f"{BASE}/names"))
+
+    events = watch(f"{BASE}/event", "events.txt")
+    discoveries = watch(f"homeassistant/device/playguard_{SYNC_ID}/config", "discoveries.txt")
+
+    # A limit order: applied, answered, cleared, and the state follows.
+    mqtt_pub(f"{BASE}/limit_uniform/set", "90")
+    wait_for("the order's event", lambda: any('"command_applied"' in e and '"limit_uniform"' in e for e in events()))
+    wait_for("the order cleared", lambda: mqtt_get(f"{BASE}/limit_uniform/set", 1) is None)
+    wait_for("the new limits in the state",
+             lambda: (doc(f"{BASE}/state") or {}).get("timer", {}).get("limits_min") == [90] * 7)
+    # Out of range: refused with the reason, cleared too.
+    mqtt_pub(f"{BASE}/limit_mon/set", "5000")
+    wait_for("the refusal", lambda: any('"command_rejected"' in e and '"out_of_range"' in e for e in events()))
+    wait_for("the refused order cleared", lambda: mqtt_get(f"{BASE}/limit_mon/set", 1) is None)
+    # Home Assistant restarted: the discovery again.
+    before = len(discoveries())
+    mqtt_pub("homeassistant/status", "online", retain=False)
+    wait_for("the discovery again", lambda: len(discoveries()) > before)
+
+    shot("01_overview")        # the Overview after the remote change (1 h 30 every day)
+    key("Down", steps("dashboard", "preferences"))
+    key("Right")
+    key("Down", 12)            # Remote access, the last cell
+    shot("02_preferences_end")
+    key("Return")
+    shot("03_remote_access")   # the link online
+
+    def checked():
+        try:
+            entries = json.load(open(os.path.join(run_dir, "playguard_data", "history.json"))).get("entries", [])
+        except (OSError, ValueError) as e:
+            fail(f"no history written: {e}")
+        if not any(e.get("kind") == "limits" and e.get("source") == "remote" for e in entries):
+            fail("the remote change is not in the change history")
+        if not any(m.startswith("Remote order done:") for m in messages()):
+            fail("no toast for the remote order; messages: " + repr(messages()))
+        wait_for("availability offline at exit", lambda: mqtt_get(f"{BASE}/availability") == "offline", 15, False)
+    finish(checked)
+def app_log():
+    log.flush()
+    return open(os.path.join(OUT, "app.log"), errors="replace").read()
+
+
+def wait_log(what, text, timeout=30):
+    end = time.time() + timeout
+    while time.time() < end:
+        if text in app_log():
+            return
+        if not alive():
+            fail(f"app exited while waiting for {what}")
+        time.sleep(0.5)
+    fail(f"no {what} after {timeout} s (no '{text}' in the log)")
+
+
+if AGENT_UPDATE:
+    wait_log("the old agent's refusal", "sim agent: Hello -> refused (old agent)")
+    time.sleep(3)              # the offer comes 2.5 s after the main screen
+    shot("01_offer")           # the agent on the SD card is not the one PlayGuard carries
+    key("Right")               # Update (Later has the focus)
+    key("Return")
+    end_step = "rolled_back" if ROLLBACK else "done"
+    wait_log("the end of the update", f"agent update: {end_step}", 40)
+    shot("02_after")
+    nsp = open(os.path.join(AGENT_DIR, "exefs.nsp"), "rb").read()
+    if nsp != (OLD_NSP if ROLLBACK else NEW_NSP):
+        fail(f"unexpected agent on the SD card after the update: {nsp!r}")
+    if os.path.exists(os.path.join(AGENT_DIR, "exefs.nsp.bak")):
+        fail("the backup was left behind")
+    if ROLLBACK:
+        wait_log("the old agent running again", "agent update: restart ok")
+        if not any("did not start" in m for m in messages()):
+            fail("no dialog for the update undone; messages: " + repr(messages()))
+    else:
+        if "version=9.9.9" not in open(os.path.join(AGENT_DIR, "version.txt")).read():
+            fail("version.txt is not the new agent's")
+        wait_log("the new agent's session", "sim agent: Hello -> accepted")
+
+    def recorded():
+        try:
+            entries = json.load(open(os.path.join(run_dir, "playguard_data", "history.json"))).get("entries", [])
+        except (OSError, ValueError) as e:
+            fail(f"no history written: {e}")
+        details = [e.get("detail", "") for e in entries if e.get("kind") == "module"]
+        want = "update undone" if ROLLBACK else "updated"
+        if not any(want in d for d in details):
+            fail(f"no '{want}' module entry in the history: {details}")
+    finish(recorded)
+if AGENT:
+    wait_log("the agent's session", "sim agent: Hello -> accepted")
+    wait_log("the state pushed", "sim agent: push 2 (")
+    wait_log("today's activity pushed", "sim agent: push 3 (")
+    wait_log("the names pushed", "sim agent: push 4 (")
+    wait_log("the order answered", "sim agent: order 1 -> applied")
+    if "sync: remote link started" in app_log():
+        fail("PlayGuard started a session of its own next to the agent")
+    if os.path.exists(agent_events):
+        fail("the agent's events were not taken: " + agent_events)
+
+    shot("01_overview")        # the Overview after the order (1 h 30 every day)
+    key("Down", steps("dashboard", "preferences"))
+    key("Right")
+    key("Down", 12)            # Remote access, the last cell
+    key("Return")
+    shot("02_remote_access")   # online, through the agent
+    # Quit the way a user does (B twice on the sidebar): the session must end.
+    key("Escape")
+    key("Left")
+    key("Escape", 2)
+    for _ in range(20):
+        if not alive():
+            break
+        time.sleep(0.5)
+    else:
+        fail("still running after B twice on the sidebar")
+
+    def checked():
+        try:
+            entries = json.load(open(os.path.join(run_dir, "playguard_data", "history.json"))).get("entries", [])
+        except (OSError, ValueError) as e:
+            fail(f"no history written: {e}")
+        if not any(e.get("kind") == "limits" and e.get("when") == "2026-10-08 12:00" and e.get("after", [0, 0])[1] == 45
+                   for e in entries):
+            fail(f"the agent's change is not in the history with its time: {entries}")
+        if not any(e.get("kind") == "limits" and e.get("source") == "remote" and e.get("after") == [90] * 7
+                   for e in entries):
+            fail(f"the order handed over by the agent is not in the history: {entries}")
+        if "sim agent: session closed" not in app_log():
+            fail("the session on the agent was not closed at exit")
+    finish(checked)
+if MODULES:
+    key("Down", steps("dashboard", "security"))
+    key("Right")
+    key("Down", 30, hold=0.05)   # Locked out? › Recovery module, the last cell
+    shot("01_security_end")
+    key("Return")
+    shot("02_modules")           # not installed; Install has the focus next
+    key("Down")                  # Install
+    key("Return")
+    shot("03_install")
+    key("Right")                 # Install (Cancel has the focus)
+    key("Return")
+    time.sleep(1)
+    shot("04_installed")
+    for f in ("exefs.nsp", "flags/boot2.flag", "toolbox.json", "version.txt"):
+        if not os.path.exists(os.path.join(RESCUE_DIR, f)):
+            fail("not installed: no " + f)
+    if "version=9.8.7" not in open(os.path.join(RESCUE_DIR, "version.txt")).read():
+        fail("version.txt is not the bundle's")
+    key("Up")                    # State
+    key("Down")                  # Start at boot (Install is gone)
+    key("Return")
+    time.sleep(1)
+    if os.path.exists(os.path.join(RESCUE_DIR, "flags", "boot2.flag")):
+        fail("boot2.flag still there after turning Start at boot off")
+    key("Down")                  # Remove
+    key("Return")
+    shot("05_remove")
+    key("Right")                 # Remove (Cancel has the focus)
+    key("Return")
+    time.sleep(1)
+    shot("06_removed")
+    if os.path.exists(RESCUE_DIR):
+        fail("the module's folder is still there after Remove")
+
+    def recorded():
+        try:
+            entries = json.load(open(os.path.join(run_dir, "playguard_data", "history.json"))).get("entries", [])
+        except (OSError, ValueError) as e:
+            fail(f"no history written: {e}")
+        kinds = [e.get("kind") for e in entries]
+        if kinds.count("module") != 3:
+            fail(f"expected 3 module entries in the history, got {kinds}")
+    finish(recorded)
 def main_opened():
     log.flush()
     return any("main screen opened" in l for l in open(os.path.join(OUT, "app.log"), errors="replace"))

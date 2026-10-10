@@ -39,7 +39,7 @@ Les enfants aiment les jeux vidéo, et les jeux vidéo, ce sont des écrans : le
 
 Les rares outils existants ne faisaient pas l'affaire : un suivi d'activité peu maintenu et peu détaillé, un contrôle parental peu développé et inabouti. Je ne voulais pas non plus d'un remplacement maison, ni d'un sysmodule qui tourne en permanence en arrière-plan. L'objectif : **réutiliser au maximum le contrôle parental de la console**, avec tout ce qu'il sait déjà faire — la limite, le code PIN, les avertissements, la suspension — et ramener ses réglages sur la console. C'est PlayGuard.
 
-Piloter le contrôle parental de la console ouvre aussi la porte à bien plus : remonter le temps de jeu vers un serveur à la maison, recevoir des ordres, Home Assistant, des automatisations. Ce vers quoi cela pourrait aller est dans [l'horizon de la feuille de route](ROADMAP.md#horizon) (en anglais).
+Piloter le contrôle parental de la console ouvre aussi la porte à bien plus : remonter le temps de jeu vers un serveur à la maison, recevoir des ordres, Home Assistant, des automatisations. La première étape est là, un lien facultatif avec Home Assistant par MQTT ([guide](docs/home-assistant.fr.md)) ; la suite possible est dans [l'horizon de la feuille de route](ROADMAP.md#horizon) (en anglais).
 
 ## Points forts
 
@@ -49,6 +49,7 @@ Piloter le contrôle parental de la console ouvre aussi la porte à bien plus : 
 - 🕒 **Horloge réseau** — mesure sur des serveurs NTP publics et réglage, pour que le minuteur compte juste sur une console qui n'atteint jamais Nintendo.
 - 📱 **Application mobile** — voir si elle est associée et la **dissocier**, même sur une console d'occasion.
 - ↩️ **Historique, sauvegardes et retour arrière** — chaque modification faite par PlayGuard est consignée et peut être annulée ; les réglages peuvent être sauvegardés sur la carte SD.
+- 🏠 **Home Assistant (facultatif)** — par MQTT (5.0 ou 3.1.1, n'importe quel broker) sur votre réseau local : l'état, les limites et le temps de jeu dans Home Assistant, des ordres depuis lui (temps en plus, limites, verrouillage), chacun demandé sur la console ou exécuté aussitôt. Désactivé par défaut ; fonctionne tant que PlayGuard est ouvert, ou en permanence avec l'agent facultatif. [Guide](docs/home-assistant.fr.md).
 - 🌍 **Toutes les langues de la console** — 15 catalogues, thèmes clair et sombre.
 - 🛡️ **Écritures sûres** — le minuteur n'est jamais écrit pendant son décompte, et rien ne tourne en arrière-plan pendant que l'enfant joue.
 
@@ -83,7 +84,7 @@ Au choix :
 | **sphaira › GitHub** | Le zip de la version contient déjà l'entrée (`/config/sphaira/github/playguard.json`) : après une première installation, mettez à jour depuis *GitHub* dans sphaira. |
 | **Manuellement** | Téléchargez `playguard.zip` dans la [dernière version](https://github.com/JigSawFr/PlayGuard/releases/latest) et extrayez-le à la **racine** de la carte SD. L'application arrive dans `sd:/switch/playguard/`. |
 
-Le **module système de récupération** optionnel (`playguard-rescue.zip`) se télécharge à part — voir [Console bloquée ?](#console-bloquée--console-doccasion-code-pin-oublié).
+Le **module système de récupération** optionnel s'installe depuis PlayGuard (*Outils › Modules facultatifs*, ou *Sécurité et appli › Bloqué ?*), ou à la main depuis son propre téléchargement (`playguard-rescue.zip`) — voir [Console bloquée ?](#console-bloquée--console-doccasion-code-pin-oublié).
 
 <details>
 <summary>Fichiers écrits par PlayGuard sur la carte SD</summary>
@@ -100,6 +101,8 @@ Tous dans `sd:/switch/playguard/` :
 | `cache/` | La dernière activité de jeu lue (tous les comptes, et chaque compte consulté), affichée dès le lancement suivant pendant que le journal est relu ; en mode développeur, la liste d'*Installer un autre build* (`dev_builds.json`) |
 | `github_token` | Mode développeur uniquement : la connexion GitHub d'*Installer un autre build* (supprimé à la déconnexion) |
 | `rescue_report.txt` | Laissé par le sysmodule de secours après son intervention, jusqu'à ce que PlayGuard l'affiche au démarrage |
+| `sync.conf` | Seulement une fois l'*Accès à distance* configuré : les réglages du lien, mot de passe du broker compris (jamais dans un rapport ni un envoi) |
+| `sync/` | Seulement avec l'*Accès à distance* : ce que lit l'agent facultatif (enregistrements, profils, noms des jeux) et ce qu'il écrit (ce qu'il a changé, ses événements) |
 | `logs/` | Rapports de diagnostic (jamais le code PIN ni le numéro de série), les fichiers des outils développeur, `uploads.txt` (les liens des rapports envoyés en ligne) et `crash.txt` (ce qui a arrêté PlayGuard, s'il a planté) |
 
 Plus de détails dans [packaging/README.md](packaging/README.md) (en anglais).
@@ -185,6 +188,7 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 - **Verrou de console :** un interrupteur qui met la limite de chaque jour à 0, donc un code PIN est nécessaire pour lancer un jeu — un verrou léger, sans classification par âge ni limite de communication. Il bloque le lancement des jeux, pas le menu HOME, et nécessite un code PIN. Les limites précédentes reviennent quand on le désactive. Tant qu'il est activé, *temps en plus* et *plus de jeu aujourd'hui* sont refusés, et des limites réglées autrement (un profil, une sauvegarde, l'historique…) le remplacent.
 - **Application mobile :** association de l'application Contrôle parental Nintendo Switch, dernière synchronisation, et **dissociation** (sinon sa prochaine synchronisation écrase les limites réglées ici).
 - **Supprimer tout le contrôle parental :** deux confirmations, irréversible ; une sauvegarde des réglages est d'abord enregistrée.
+- **Bloqué ?** installe le module de secours facultatif, pour un code PIN oublié avec une limite de 0 minute.
 </details>
 
 <details>
@@ -197,11 +201,13 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 - Vérification de l'horloge réseau au lancement (une notification si elle a plus d'une minute d'écart ; elle ne règle jamais l'horloge).
 - Un **rappel mensuel pour soutenir PlayGuard** (activé par défaut, jamais le premier mois ni juste après une mise à jour ; *Ne plus afficher* sur le rappel ou cet interrupteur le désactive pour de bon, mises à jour comprises).
 - Actions avancées.
+- **Accès à distance (MQTT / Home Assistant) :** le broker et sa version MQTT, le nom de la console, que faire des ordres (demander sur la console, les exécuter, les refuser), s'ils peuvent changer le temps de jeu (désactivé par défaut), la découverte Home Assistant, l'état en direct, *Synchroniser maintenant* et le journal. Voir [docs/home-assistant.fr.md](docs/home-assistant.fr.md).
 </details>
 
 <details>
 <summary><b>Outils</b> et <b>À propos</b> — historique, sauvegardes, infos console ; version, mises à jour, nouveautés, crédits</summary>
 
+- **Modules facultatifs :** installer, mettre à jour, lancer au démarrage ou supprimer le module de secours et l'agent du lien à distance, depuis les copies que contient PlayGuard (sans ordinateur ; chaque changement demande le code PIN quand *Sécurité* le demande).
 - **Historique des modifications :** ce que PlayGuard a changé (limites, niveau de restriction, code PIN, déverrouillages, dissociation, horloge, restaurations…), quand et depuis où. Ⓐ sur une modification l'affiche et, pour une valeur, **remet la précédente** — avec le même déverrouillage et le même code PIN que toute modification, en signalant si elle a changé depuis.
 - **Sauvegarder / restaurer les réglages** sur la carte SD : niveau de restriction, réglages personnalisés, mode VR, organisme de classification, limites quotidiennes, alarme « temps écoulé » (avec les actions avancées activées), et pour mémoire le bloc brut du minuteur — jamais le code PIN. La restauration ne liste que ce qui changerait. Nombre de sauvegardes conservées au choix.
 - **Premiers pas** rouvre le guide (avec une étape *Dissocier l'application mobile* tant qu'elle est associée, une étape *Réactiver l'alarme « temps écoulé »* tant qu'elle est désactivée, et un interrupteur pour qu'il ne s'ouvre plus au lancement). Sous *Fermer*, *Soutenir PlayGuard* affiche les QR codes de soutien.
@@ -219,7 +225,7 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 
 **Plus de plantage en 22.5.** `pctl:a`, le service privilégié du contrôle parental, n'accepte **qu'une seule session**. Les anciennes versions de l'application d'origine la gardaient ouverte : l'écran PIN du menu HOME (ou l'applet PIN) ne pouvait pas l'obtenir et Atmosphère pouvait planter. PlayGuard ouvre la session pour chaque action et la libère aussitôt ; les rafraîchissements périodiques s'arrêtent quand l'application est en arrière-plan. *(Diagnostic du [fork d'anbingxi](https://github.com/anbingxi/NX-Pctl-Manager/tree/diag/fw22-5-readonly).)*
 
-**Rien ne tourne en arrière-plan.** La limite, le code PIN, les avertissements et la suspension sont ceux de la console ; PlayGuard ne change que leurs réglages.
+**Rien ne tourne en arrière-plan.** La limite, le code PIN, les avertissements et la suspension sont ceux de la console ; PlayGuard ne change que leurs réglages. Le lien à distance facultatif ne fonctionne que tant que PlayGuard est ouvert, et exécute un ordre exactement comme un changement fait sur la console (même déverrouillage, reverrouillage, mode lecture seule et historique) ; il ne peut jamais supprimer le contrôle parental, délier l'appli mobile ni toucher au code PIN.
 
 ## Console bloquée ? (console d'occasion, code PIN oublié)
 
@@ -230,7 +236,7 @@ PlayGuard ne voit que le contrôle parental du système sur lequel il tourne : *
 | **Console d'occasion :** vous connaissez le code PIN, mais l'application mobile de l'ancien propriétaire est toujours associée (la dissociation échoue, ou la réinitialisation demande son compte) | *Sécurité et appli › Dissocier l'application mobile*, puis, si vous ne voulez plus du tout de contrôle parental, *Supprimer tout le contrôle parental*. Les deux fonctionnent hors ligne, en emuMMC comme en sysMMC. |
 | **Code PIN oublié** | *Sécurité et appli › Afficher le code PIN*. Ou *Supprimer tout le contrôle parental* pour repartir de zéro (une sauvegarde des réglages est d'abord enregistrée ; elle ne contient jamais le code PIN). |
 | **Code PIN oublié, et *Demander le code PIN* réglé sur *Pour ouvrir PlayGuard* ou *Avant une modification*** | Ce réglage est exprès dans `sd:/switch/playguard/config.json` : mettez la carte SD dans un ordinateur et passez `"pin_lock"` à `"off"`. |
-| **Le minuteur bloque tout (limite à 0 min) et le code PIN est oublié** | PlayGuard lui-même ne peut pas démarrer. Installez **à l'avance** le module système de récupération optionnel (`playguard-rescue.zip`) ; une fois bloqué, déposez un fichier vide `switch/playguard/RESCUE` sur la carte SD et démarrez — il déverrouille la console pour que PlayGuard puisse s'ouvrir. Voir [`sysmodule/README.md`](sysmodule/README.md) (en anglais). |
+| **Le minuteur bloque tout (limite à 0 min) et le code PIN est oublié** | PlayGuard lui-même ne peut pas démarrer. Installez **à l'avance** le module système de récupération optionnel (*Sécurité et appli › Bloqué ? › Module de secours*, ou `playguard-rescue.zip` à la main) ; une fois bloqué, déposez un fichier vide `switch/playguard/RESCUE` sur la carte SD et démarrez — il déverrouille la console pour que PlayGuard puisse s'ouvrir. Voir [`sysmodule/rescue/README.md`](sysmodule/rescue/README.md) (en anglais). |
 | **Console non modifiée** | PlayGuard ne peut rien faire : il nécessite Atmosphère. La procédure officielle passe par la clé maîtresse du service client de Nintendo. |
 
 ## PlayGuard ou un sysmodule de remplacement ?

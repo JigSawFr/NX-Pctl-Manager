@@ -169,6 +169,7 @@ static void test_preferences()
     assert(!d.update_daily && d.update_checked.empty() && !d.clock_check_at_start && d.pin_lock == "off");
     assert(d.onboarding_at_start);
     assert(d.support_reminder && d.support_reminded.empty() && d.seen_version.empty());
+    assert(d.agent_update_skipped.empty());
     write_config(R"({"support_reminder": false, "support_reminded": "2026-10-09", "seen_version": "1.1.0"})");
     config::load();
     assert(!config::get().support_reminder && config::get().support_reminded == "2026-10-09");
@@ -226,12 +227,17 @@ static void test_preferences()
     config::get().backup_keep = 20;
     config::get().support_reminder = false;
     config::get().seen_version = "1.2.0";
+    config::get().agent_update_skipped = std::string(64, 'a');
     assert(config::save());
     config::get() = config::Config{};
     config::load();
     assert(config::get().start_tab == "tools" && config::get().extra_amounts == std::vector<int>({ 5, 10, 15 }));
     assert(config::get().backup_keep == 20);
     assert(!config::get().support_reminder && config::get().seen_version == "1.2.0");
+    assert(config::get().agent_update_skipped == std::string(64, 'a'));
+    write_config(R"({"agent_update_skipped": ")" + std::string(65, 'b') + R"("})");
+    config::load();
+    assert(config::get().agent_update_skipped.empty());
 }
 
 static void test_tmp_recovery()

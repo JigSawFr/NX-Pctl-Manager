@@ -199,6 +199,45 @@ static void set_totals(GameStat *g, const PdmPlayStatistics *st)
     g->last_played  = st->last_timestamp_user;
 }
 
+size_t playstats_days(PlayLogTotal *out, size_t max, u64 *now, u8 day_wday[7], u64 *playing,
+                      u64 *playing_since, Result *rc_out)
+{
+    *now = 0;
+    *playing = *playing_since = 0;
+    time_local_now(now, NULL);
+    Result rc = pdmqryInitialize();
+    if (R_FAILED(rc)) {
+        if (rc_out) *rc_out = rc;
+        return 0;
+    }
+    const TimeRule *rule = time_console_rule();
+    u64 day_starts[7];
+    for (int k = 0; k < 7; k++) day_starts[k] = local_midnight(rule, *now, k);
+    LocalTime today;
+    const int wday = rule->to_local(rule->ctx, *now, &today) ? today.wday : 0;
+    for (int k = 0; k < 7; k++) day_wday[k] = (u8)((wday - k + 7) % 7);
+    PlayLogEvent *events = NULL;
+    size_t count = 0, n = 0;
+    rc = read_events(day_starts[6] >= DAY_S ? day_starts[6] - DAY_S : 0, &events, &count);
+    if (R_SUCCEEDED(rc)) {
+        n = playlog_fold_days(events, count, *now, day_starts, out, max);
+        // The newest focus change says which game is in front.
+        for (size_t i = count; i-- > 0;) {
+            const u8 k = events[i].kind;
+            if (k == PlayLogEv_AccountOpen || k == PlayLogEv_AccountClose) continue;
+            if (k == PlayLogEv_Focus) {
+                *playing = events[i].app_id;
+                *playing_since = events[i].ts_user;
+            }
+            break;
+        }
+    }
+    free(events);
+    pdmqryExit();
+    if (rc_out) *rc_out = rc;
+    return n;
+}
+
 void playstats_fetch(PlayStats *out)
 {
     playstats_fetch_for(out, NULL);

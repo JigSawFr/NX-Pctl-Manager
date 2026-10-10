@@ -36,6 +36,8 @@ jobs:
         run: make test
       - name: Resources (i18n keys, translations, XML layouts)
         run: python3 tools/check_resources.py .
+      - name: Remote link documents (Home Assistant discovery, state)
+        run: python3 tools/check_sync_json.py build/host-tests/sync
       - name: compat.json generator
         run: python3 tools/gen_compat.py . build/compat.json
 
@@ -62,7 +64,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y cmake ccache libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev \
             libxcursor-dev libxi-dev libxkbcommon-dev libwayland-dev wayland-protocols libdbus-1-dev \
-            libcurl4-openssl-dev xvfb xdotool imagemagick dbus
+            libcurl4-openssl-dev xvfb xdotool imagemagick dbus mosquitto mosquitto-clients
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .ccache
@@ -82,6 +84,18 @@ jobs:
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-lock lock
       - name: Smoke test (install a development build in place)
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-devbuild devbuild
+      - name: Smoke test (remote link against a local Mosquitto)
+        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-sync sync
+      - name: Smoke test (remote link in MQTT 3.1.1)
+        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-sync-311 sync-311
+      - name: Smoke test (the link handed to a simulated agent sysmodule)
+        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-agent agent
+      - name: Smoke test (update the agent from PlayGuard)
+        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-agent-update agent-update
+      - name: Smoke test (an agent update undone when the new one does not answer)
+        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-agent-rollback agent-rollback
+      - name: Smoke test (install and remove the recovery module)
+        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-modules modules
       # The screens against tests/visual (reference | now | changes in
       # smoke*/visual_diff/ when one changed; tests/visual/README.md says how
       # to update the references after a change that is meant). Not blocking:
@@ -112,6 +126,12 @@ jobs:
             smoke-errors/*.png
             smoke-rescue/*.png
             smoke-devbuild/*.png
+            smoke-sync/*.png
+            smoke-sync/*.txt
+            smoke-agent/*.png
+            smoke-agent-update/*.png
+            smoke-agent-rollback/*.png
+            smoke-modules/*.png
             smoke*/visual_diff/*.png
 
   # The real .nro, built in the official devkitPro image (same as ./run.sh),
@@ -162,8 +182,10 @@ jobs:
           git config --global --add safe.directory '*'
           export CCACHE_DIR="$GITHUB_WORKSPACE/.ccache" CCACHE_BASEDIR="$GITHUB_WORKSPACE"
           make dist
-          # The optional recovery sysmodule, as its own asset (sysmodule/).
-          make dist-rescue
+          # make dist builds the optional sysmodules first and bundles them in the
+          # romfs (Tools › Optional modules); each is also its own asset
+          # (sysmodule/rescue/, sysmodule/agent/).
+          make dist-rescue dist-agent
           ccache --show-stats
           dkp-pacman -Q libnx switch-tools switch-curl switch-glfw switch-mesa > toolchain.txt 2>/dev/null || true
       - name: compat.json
@@ -180,10 +202,11 @@ jobs:
             git submodule status
             cat toolchain.txt
           } > build-info.txt
-          sha256sum playguard.nro playguard.zip playguard-rescue.zip compat.json > SHA256SUMS.txt
+          sha256sum playguard.nro playguard.zip playguard-rescue.zip playguard-agent.zip compat.json > SHA256SUMS.txt
           cat build-info.txt
           unzip -l playguard.zip
           unzip -l playguard-rescue.zip
+          unzip -l playguard-agent.zip
       # Two artifacts so the .nro is not in the same one twice (raw, and again
       # inside playguard.zip): playguard_release is what Developer tools ›
       # Install another build downloads on the console (source/util/dev_builds.hpp),
@@ -203,6 +226,7 @@ jobs:
           path: |
             playguard.zip
             playguard-rescue.zip
+            playguard-agent.zip
       - name: Linker map (what makes the .nro big)
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -254,6 +278,7 @@ jobs:
             dist/playguard.nro
             dist/playguard.zip
             dist/playguard-rescue.zip
+            dist/playguard-agent.zip
             dist/compat.json
       - name: Attach to the GitHub release
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
@@ -263,6 +288,7 @@ jobs:
             dist/playguard.nro
             dist/playguard.zip
             dist/playguard-rescue.zip
+            dist/playguard-agent.zip
             dist/compat.json
             dist/build-info.txt
             dist/SHA256SUMS.txt

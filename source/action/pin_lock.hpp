@@ -32,6 +32,16 @@ bool ask();
 // the result the PIN screen gave (its code tells a cancel from a refusal).
 std::string refusal_text();
 
+// Around an order of the remote link applied with its "auto" policy (UI
+// thread): the check lets the changes through. The broker authenticated the
+// sender; the PIN prompt is for someone at the console.
+void remote_bypass(bool on);
+
+// The check a change goes through, for a setting that is not on the console
+// but lets one be made (the remote link's settings): true when no PIN is
+// needed, it was entered (or recently), false when refused.
+bool allow_change();
+
 // "Never" / "Before a change" / "To open PlayGuard".
 std::string mode_text();
 // One sentence on what the chosen mode means (shown under the setting).
