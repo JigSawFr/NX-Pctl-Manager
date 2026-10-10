@@ -29,13 +29,20 @@ The latest release. Fixes are not backported.
 - **The recovery sysmodule** — acting without a `RESCUE` request file, acting twice on one
   request, or doing more than the request asks.
 - **The update check and releases** — anything that makes PlayGuard trust a `compat.json`
-  or a download that did not come from this repository's releases.
+  or a download that did not come from this repository's releases, or, in developer mode
+  (*Install another build*), from this repository's own CI builds of `main` and of pull
+  requests from its branches (pull requests from forks are never offered).
+- **The recovery screen** — reaching its actions (show the PIN, delete everything) from a
+  `rescue_report.txt` the console's state does not confirm, or without the recovery
+  sysmodule installed.
 
 ## What is not
 
 - **Physical access to the SD card.** Whoever can edit the card can already turn off
   PlayGuard's own PIN prompt in `config.json`, install the recovery sysmodule, or remove
-  parental controls with any pctl tool. See [`sysmodule/README.md`](sysmodule/README.md).
+  parental controls with any pctl tool. On a console running custom firmware, any homebrew
+  can also read the stored PIN from the system (`pctl:a` command 1208): PlayGuard keeps a
+  child out of PlayGuard, not out of every homebrew. See [`sysmodule/README.md`](sysmodule/README.md).
 - **Custom firmware itself.** PlayGuard needs Atmosphère; a modded console can run any
   homebrew, including ones that change parental controls.
 - **Nintendo's parental controls.** Behaviour of the system `pctl` service or the phone app

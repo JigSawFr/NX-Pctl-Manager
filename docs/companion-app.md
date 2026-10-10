@@ -2,7 +2,7 @@
 
 PlayGuard brings the settings of Nintendo's companion app,
 **Nintendo Switch Parental Controls**
-([App Store](https://apps.apple.com/fr/app/contr%C3%B4le-parental-nintendo-sw/id1190074407),
+([App Store](https://apps.apple.com/app/id1190074407),
 [Google Play](https://play.google.com/store/apps/details?id=com.nintendo.znma)),
 onto the console itself. A console running Atmosphère is usually kept away
 from Nintendo's servers, so the companion app can no longer reach it: every

@@ -69,7 +69,7 @@ jobs:
           key: ccache-desktop-${{ github.sha }}
           restore-keys: ccache-desktop-
       - name: Build (desktop simulation)
-        run: make desktop && ccache --show-stats
+        run: make desktop CMAKE_ARGS=-DPLAYGUARD_WERROR=ON && ccache --show-stats
       - name: Smoke test
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke
       - name: Smoke test (firmware not supported yet, developer mode)
@@ -78,6 +78,8 @@ jobs:
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-errors errors
       - name: Smoke test (recovery screen from a rescue report)
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-rescue rescue
+      - name: Smoke test (a hand-written rescue report opens nothing)
+        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-forged forged
       - name: Smoke test (a large library in Activity)
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-library library
       - name: Smoke test (PIN asked to open PlayGuard)
@@ -92,7 +94,7 @@ jobs:
       # test above is what fails the job.
       - name: Visual check (warning only)
         run: |
-          for set in "smoke smoke" "smoke-errors errors" "smoke-gate gate"; do
+          for set in "smoke smoke" "smoke-errors errors" "smoke-gate gate" "smoke-rescue rescue" "smoke-forged forged" "smoke-lock lock"; do
             set -- $set
             if python3 tools/visual_check.py "$1" "tests/visual/$2" > "$1-visual.txt" 2>&1; then
               tail -n 1 "$1-visual.txt"
@@ -113,6 +115,8 @@ jobs:
             smoke-gate/*.png
             smoke-errors/*.png
             smoke-rescue/*.png
+            smoke-forged/*.png
+            smoke-lock/*.png
             smoke-library/*.png
             smoke-devbuild/*.png
             smoke*/visual_diff/*.png

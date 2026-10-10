@@ -18,7 +18,10 @@
     "hints": {
         "refresh": "Actualiser",
         "open": "Ouvrir",
-        "exit_again": "Appuyez de nouveau sur B pour quitter"
+        "exit_again": "Appuyez de nouveau sur B pour quitter",
+        "exit_unlocked": "Le contrôle parental est encore déverrouillé temporairement : on peut jouer sans limite jusqu'à ce qu'il soit reverrouillé ou que la console redémarre.\n\nLe reverrouiller avant de quitter ?",
+        "exit_lock": "Verrouiller et quitter",
+        "exit_leave": "Quitter sans verrouiller"
     },
     "common": {
         "yes": "Oui",
@@ -91,7 +94,8 @@
         "bad_pin_format": "le système a refusé le format du code PIN",
         "pctl_refused": "refusé par le service du contrôle parental",
         "relock_failed": "la console a été déverrouillée mais n'a pas pu être reverrouillée : verrouillez-la maintenant (Sécurité et appli › Verrouiller maintenant)",
-        "not_applied": "la console n'a pas pris en compte la modification : les réglages précédents ont été remis"
+        "not_applied": "la console n'a pas pris en compte la modification : les réglages précédents ont été remis",
+        "not_saved": "PlayGuard n'a pas pu enregistrer sur la carte SD ce qu'il devra remettre plus tard, rien n'a été écrit"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -471,7 +475,8 @@
         "start_off": "L'horloge réseau a {} d'écart (vérifiée avec {}). La limite de temps de jeu s'appuie dessus : voir l'onglet Horloge réseau.",
         "guided_body": "L'horloge réseau est imprécise, et la limite de temps de jeu s'appuie dessus.\n\nMesurer l'heure avec {} maintenant ? (La console doit être connectée.) Le réglage de l'horloge vous sera ensuite proposé.",
         "guided_measure": "Mesurer maintenant",
-        "guided_fine": "L'horloge réseau est précise : rien à faire."
+        "guided_fine": "L'horloge réseau est précise : rien à faire.",
+        "confirm_apply_resets": "\n\nChanger l'horloge remet à zéro le temps de jeu du jour : toute la limite quotidienne redevient disponible."
     },
     "pairing": {
         "section": "Application Contrôle parental Nintendo Switch",
@@ -523,7 +528,7 @@
             "open": "Pour ouvrir PlayGuard"
         },
         "notes": {
-            "off": "Toute personne qui tient la console peut modifier les réglages ici.",
+            "off": "Toute personne qui tient la console peut modifier les réglages ici. Afficher le code PIN le demande quand même.",
             "changes": "Tout le monde peut consulter ; seul le parent modifie (redemandé après 5 minutes). Reverrouiller ne le demande jamais.",
             "open": "Un écran verrouillé jusqu'à la saisie du code. Reverrouiller ne le demande jamais."
         },
@@ -554,8 +559,8 @@
         "reset_pin": "Définir un nouveau code PIN",
         "continue": "Ouvrir PlayGuard",
         "note": "Vous êtes arrivé à cet écran grâce au fichier RESCUE : aucun code PIN n'est demandé ici. Définissez un nouveau code PIN ou supprimez le contrôle parental, puis ouvrez PlayGuard.",
-        "note_failed": "La récupération n'a pas abouti d'elle-même. Vous pouvez réessayer ici, ou retirer la carte SD et modifier les réglages sur un ordinateur.",
-        "note_refused": "Tout le contrôle parental aurait été supprimé, mais le fichier de demande n'a pas pu être retiré de la carte SD : il aurait été rejoué à chaque démarrage. Supprimez-le depuis un ordinateur puis réessayez, ou utilisez les actions ci-dessous.",
+        "note_failed": "La récupération n'a pas abouti : rien ne peut être modifié ici sans le code PIN. Réessayez avec le fichier RESCUE, ou retirez la carte SD et modifiez les réglages sur un ordinateur.",
+        "note_refused": "Tout le contrôle parental aurait été supprimé, mais le fichier de demande n'a pas pu être retiré de la carte SD : il aurait été rejoué à chaque démarrage. Supprimez-le depuis un ordinateur, puis réessayez.",
         "request_kept": "Le fichier {} n'a pas pu être retiré de la carte SD : tant qu'il y est, la console est de nouveau déverrouillée à chaque démarrage. Supprimez-le depuis un ordinateur.",
         "note_deleted": "Tout le contrôle parental a été supprimé, code PIN compris. Ouvrez PlayGuard — vous pourrez le reconfigurer à tout moment depuis l'application.",
         "note_no_pin": "Aucun code PIN de contrôle parental n'était défini, il n'y avait donc rien à déverrouiller. Vous pouvez en définir un ici, puis ouvrir PlayGuard.",
@@ -565,13 +570,15 @@
             "deleted": "Tout le contrôle parental a été supprimé.",
             "no_pin": "Aucun code PIN à récupérer : aucun code PIN de contrôle parental n'est défini.",
             "failed": "La récupération n'a pas pu aboutir.",
-            "refused": "Rien n'a été supprimé : le fichier RESCUE n'a pas pu être retiré de la carte SD."
+            "refused": "Rien n'a été supprimé : le fichier RESCUE n'a pas pu être retiré de la carte SD.",
+            "unconfirmed": "La console ne montre pas la récupération que décrit ce rapport."
         },
         "hint": {
             "show_pin": "en cas d'oubli",
             "reset_pin": "en choisir un nouveau",
             "delete": "tout supprimer"
-        }
+        },
+        "note_unconfirmed": "Rien ne peut être modifié ici sans le code PIN, et PlayGuard s'ouvre comme d'habitude. Bloqué ? Remettez le fichier RESCUE sur la carte SD, avec le sysmodule de récupération installé, puis redémarrez la console."
     },
     "tools": {
         "section_diag": "Diagnostic",
@@ -713,7 +720,8 @@
         "restored": "Réglages restaurés.",
         "restore_err": "Non restauré : {}",
         "before_delete_err": "Aucune sauvegarde n'a pu être enregistrée avant ({}).\n\nTout supprimer quand même ?",
-        "delete_anyway": "Supprimer quand même"
+        "delete_anyway": "Supprimer quand même",
+        "bedtime_not_restored": "Cette sauvegarde avait une alarme du coucher activée : elle n'est pas restaurée, réglez-la de nouveau dans Temps de jeu si besoin."
     },
     "update": {
         "checking": "Recherche d'une mise à jour...",

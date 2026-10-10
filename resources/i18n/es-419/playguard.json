@@ -18,7 +18,10 @@
     "hints": {
         "refresh": "Actualizar",
         "open": "Abrir",
-        "exit_again": "Presione B de nuevo para salir"
+        "exit_again": "Presione B de nuevo para salir",
+        "exit_unlocked": "El control parental sigue desbloqueado temporalmente: se puede jugar sin límite hasta que se vuelva a bloquear o se reinicie la consola.\n\n¿Bloquearlo antes de salir?",
+        "exit_lock": "Bloquear y salir",
+        "exit_leave": "Salir sin bloquear"
     },
     "common": {
         "yes": "Sí",
@@ -91,7 +94,8 @@
         "bad_pin_format": "el sistema rechazó el formato del PIN",
         "pctl_refused": "rechazado por el servicio de control parental",
         "relock_failed": "la consola se desbloqueó pero no se pudo volver a bloquear: bloquéala ahora (Seguridad y app › Bloquear ahora)",
-        "not_applied": "la consola no aceptó el cambio, así que se restableció la configuración anterior"
+        "not_applied": "la consola no aceptó el cambio, así que se restableció la configuración anterior",
+        "not_saved": "PlayGuard no pudo guardar en la tarjeta SD lo que tendrá que restablecer más tarde, así que no se escribió nada"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -460,7 +464,7 @@
         "seconds": "{} s",
         "busy": "Espere a que termine la solicitud en curso.",
         "autosync_off_note": "Para ajustar el reloj de red con esta medición, active primero “Sincronizar el reloj por Internet” en la configuración de la consola.",
-        "auto_how": "PlayGuard can only read this setting: it belongs to System Settings, which only the HOME menu can open.\n\nTo change it: HOME menu › System Settings › System › Date and Time › Synchronise Clock via Internet.\n\nWhen it is on, the console clock follows the network clock. Note: when the clock was moved, the console was seen to start today's play time over.",
+        "auto_how": "PlayGuard solo puede leer esta opción: forma parte de la configuración de la consola, que solo el menú HOME puede abrir.\n\nPara cambiarla: menú HOME › Configuración de la consola › Consola › Fecha y hora › Sincronizar el reloj por Internet.\n\nSi está activada, el reloj de la consola sigue al reloj de la red. Nota: cuando se cambió el reloj, la consola volvió a empezar el tiempo de juego del día.",
         "ntp_err": {
             "bad_host": "no es un nombre de servidor",
             "lookup": "servidor no encontrado (¿sin conexión a Internet?)",
@@ -471,7 +475,8 @@
         "start_off": "El reloj de red tiene una diferencia de {} (verificado con {}). El temporizador de juego depende de él: consulte la pestaña Reloj de red.",
         "guided_body": "El reloj de red es impreciso, y el temporizador de juego depende de él.\n\n¿Medir la hora con {} ahora? (La consola debe estar conectada a Internet.) Después se le pedirá confirmación antes de ajustar el reloj.",
         "guided_measure": "Medir ahora",
-        "guided_fine": "El reloj de red es preciso: no hay nada que hacer."
+        "guided_fine": "El reloj de red es preciso: no hay nada que hacer.",
+        "confirm_apply_resets": "\n\nCambiar el reloj pone a cero el tiempo de juego de hoy: vuelve a estar disponible todo el límite diario."
     },
     "pairing": {
         "section": "App Control parental de Nintendo Switch",
@@ -523,7 +528,7 @@
             "open": "Para abrir PlayGuard"
         },
         "notes": {
-            "off": "Cualquiera que tenga la consola puede cambiar aquí la configuración.",
+            "off": "Cualquiera que tenga la consola puede cambiar aquí los ajustes. Mostrar el PIN lo pide igualmente.",
             "changes": "Cualquiera puede consultar; solo el padre o la madre puede cambiar algo (se vuelve a pedir tras 5 minutos). Volver a bloquear nunca lo pide.",
             "open": "Una pantalla de bloqueo hasta que se ingresa el PIN. Volver a bloquear nunca lo pide."
         },
@@ -554,8 +559,8 @@
         "reset_pin": "Definir un PIN nuevo",
         "continue": "Abrir PlayGuard",
         "note": "Llegó a esta pantalla con el archivo RESCUE, así que aquí no se pide el PIN. Defina un PIN nuevo o elimine el control parental y luego abra PlayGuard.",
-        "note_failed": "La recuperación no terminó por sí sola. Puede volver a intentarlo desde aquí, o sacar la tarjeta SD y cambiar la configuración en una computadora.",
-        "note_refused": "Se habría eliminado todo el control parental, pero no se pudo quitar el archivo de solicitud de la tarjeta SD, así que se habría repetido en cada inicio. Elimínalo desde una computadora y vuelve a intentarlo, o usa las acciones de abajo.",
+        "note_failed": "La recuperación no ha terminado, así que aquí no se puede cambiar nada sin el PIN. Vuelve a intentarlo con el archivo RESCUE, o saca la tarjeta SD y cambia los ajustes en un ordenador.",
+        "note_refused": "Se habría eliminado todo el control parental, pero no se pudo quitar el archivo de solicitud de la tarjeta SD, así que se habría repetido en cada arranque. Elimínalo desde un ordenador y vuelve a intentarlo.",
         "request_kept": "No se pudo quitar el archivo {} de la tarjeta SD: mientras siga ahí, la consola se desbloquea de nuevo en cada inicio. Elimínalo desde una computadora.",
         "note_deleted": "Se eliminó todo el control parental, incluido el PIN. Abra PlayGuard: desde ahí puede volver a configurarlo cuando quiera.",
         "note_no_pin": "No había ningún PIN de control parental, así que no había nada que desbloquear. Puede definir uno aquí y luego abrir PlayGuard.",
@@ -565,13 +570,15 @@
             "deleted": "Se eliminó todo el control parental.",
             "no_pin": "No había ningún PIN que recuperar: no hay un PIN de control parental definido.",
             "failed": "La recuperación no pudo terminar.",
-            "refused": "No se eliminó nada: no se pudo quitar el archivo RESCUE de la tarjeta SD."
+            "refused": "No se eliminó nada: no se pudo quitar el archivo RESCUE de la tarjeta SD.",
+            "unconfirmed": "La consola no muestra la recuperación que describe este informe."
         },
         "hint": {
             "show_pin": "si lo olvidó",
             "reset_pin": "elegir uno nuevo",
             "delete": "borrar todo"
-        }
+        },
+        "note_unconfirmed": "Aquí no se puede cambiar nada sin el PIN, y PlayGuard se abre como de costumbre. ¿Sin acceso? Vuelve a poner el archivo RESCUE en la tarjeta SD, con el sysmodule de recuperación instalado, y reinicia la consola."
     },
     "tools": {
         "section_diag": "Diagnóstico",
@@ -713,7 +720,8 @@
         "restored": "Configuración restaurada.",
         "restore_err": "No restaurado: {}",
         "before_delete_err": "No se pudo guardar antes ningún respaldo ({}).\n\n¿Eliminarlo todo de todos modos?",
-        "delete_anyway": "Eliminar de todos modos"
+        "delete_anyway": "Eliminar de todos modos",
+        "bedtime_not_restored": "Esta copia tenía activada una alarma de hora de dormir: no se restablece; vuelve a configurarla en Tiempo de juego si hace falta."
     },
     "update": {
         "checking": "Buscando actualizaciones...",
@@ -769,9 +777,9 @@
         "pt_block_changed": "{} valores cambiaron desde la referencia del {}:",
         "pt_block_report": "Guardar en la tarjeta SD",
         "pt_block_new": "Nueva referencia",
-        "pt_log": "Record the play timer",
-        "pt_log_note": "Every 30 s while PlayGuard is open, one line of what the play timer reports (time left, time spent, 1459, the settings block) in logs/play_timer_log.csv, and one more right after each change PlayGuard makes, saying which. A clock that moved more than the time that went by is noted too. Leave PlayGuard open over midnight, or until the time is up, to see what the console does then. Sent with the diagnostic report.",
-        "pt_log_on": "Recording every 30 s in {}",
+        "pt_log": "Registrar el temporizador de juego",
+        "pt_log_note": "Cada 30 s mientras PlayGuard está abierto, una línea con lo que indica el temporizador de juego (tiempo restante, tiempo usado, 1459, el bloque de configuración) en logs/play_timer_log.csv, y otra justo después de cada cambio que hace PlayGuard, indicando cuál. También se anota un reloj que se movió más que el tiempo transcurrido. Deja PlayGuard abierto pasada la medianoche, o hasta que se acabe el tiempo, para ver qué hace entonces la consola. Se envía con el informe de diagnóstico.",
+        "pt_log_on": "Registrando cada 30 s en {}",
         "gate": "Volver a la pantalla de firmware",
         "forget": "Olvidar la elección del firmware",
         "forgotten": "La elección del firmware se volverá a pedir en el próximo inicio.",

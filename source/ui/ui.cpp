@@ -116,6 +116,7 @@ static std::string hint_for(Result rc)
             case 10: return "playguard/error/no_pin"_i18n;
             case 11: return "playguard/error/relock_failed"_i18n;
             case 12: return "playguard/error/not_applied"_i18n;
+            case 13: return "playguard/error/not_saved"_i18n;
             default: return "";
         }
     }

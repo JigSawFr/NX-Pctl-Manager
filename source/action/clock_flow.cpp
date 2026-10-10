@@ -214,6 +214,9 @@ void apply(const Measurement& m, std::function<void(const std::string& message)>
     time_format_utc(preview, utc, sizeof(utc));
     std::string body = brls::getStr("playguard/clock/confirm_apply", ui::time_text(preview), std::string(utc));
     if (m.spread > 5) body += brls::getStr("playguard/clock/confirm_apply_spread", (int)m.spread);
+    // Measured on a console (docs/parental-controls.md): the play timer
+    // starts the day over when the clock changes. Say so before, not after.
+    body += "playguard/clock/confirm_apply_resets"_i18n;
 
     auto finish = [done](const std::string& message) {
         if (done) done(message);

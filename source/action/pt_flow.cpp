@@ -457,6 +457,30 @@ static pt_logic::ExtraRecord extra_record()
     return rec;
 }
 
+// What to put back later, saved *before* the write it describes: should the
+// app stop between the two, the limit still comes back. False when it could
+// not be saved, and then nothing must be written (it would never be put back).
+static bool save_extra_record(int wd, uint16_t base, uint16_t value)
+{
+    auto& c = config::get();
+    c.extra_weekday = wd;
+    c.extra_date    = ui::today_date();
+    c.extra_base    = base;
+    c.extra_value   = value;
+    return ui::save_config();
+}
+
+// The write failed: the record it was saved for goes back to what it was.
+static void put_back_extra_record(const pt_logic::ExtraRecord& prev)
+{
+    auto& c = config::get();
+    c.extra_weekday = prev.weekday;
+    c.extra_date    = prev.date;
+    c.extra_base    = prev.base;
+    c.extra_value   = prev.value;
+    ui::save_config();
+}
+
 void add_extra_time(const PtState& pt, std::function<void()> refresh)
 {
     if (refuse_console_lock()) return;
@@ -488,15 +512,13 @@ void add_extra_time(const PtState& pt, std::function<void()> refresh)
             uint16_t days[7];
             for (int i = 0; i < 7; i++) days[i] = now.day_min[i];
             days[wd] = value;
-            Result rc = write_days(days, "extra");
-            if (R_SUCCEEDED(rc)) {
-                auto& c = config::get();
-                c.extra_weekday = wd;
-                c.extra_date    = ui::today_date();
-                c.extra_base    = original;
-                c.extra_value   = value;
-                ui::save_config();
+            const pt_logic::ExtraRecord prev = extra_record();
+            if (!save_extra_record(wd, original, value)) {
+                finish_write(NXM_RC_NOT_SAVED, did_unlock, "", "playguard/play_timer/write_err"_i18n, refresh);
+                return;
             }
+            Result rc = write_days(days, "extra");
+            if (R_FAILED(rc)) put_back_extra_record(prev);
             finish_write(rc, did_unlock, brls::getStr("playguard/dashboard/extra_done", ui::fmt_minutes(value)),
                          "playguard/play_timer/write_err"_i18n, refresh);
         });
@@ -529,15 +551,13 @@ void stop_today(const PtState& pt, std::function<void()> refresh)
         uint16_t days[7];
         for (int i = 0; i < 7; i++) days[i] = now.day_min[i];
         days[wd] = 0;
-        Result rc = write_days(days, "stop");
-        if (R_SUCCEEDED(rc)) {
-            auto& c = config::get();
-            c.extra_weekday = wd;
-            c.extra_date    = ui::today_date();
-            c.extra_base    = original;
-            c.extra_value   = 0;
-            ui::save_config();
+        const pt_logic::ExtraRecord prev = extra_record();
+        if (!save_extra_record(wd, original, 0)) {
+            finish_write(NXM_RC_NOT_SAVED, did_unlock, "", "playguard/play_timer/write_err"_i18n, refresh);
+            return;
         }
+        Result rc = write_days(days, "stop");
+        if (R_FAILED(rc)) put_back_extra_record(prev);
         finish_write(rc, did_unlock, "playguard/dashboard/stop_done"_i18n, "playguard/play_timer/write_err"_i18n, refresh);
     }, new_days, true);
 }
@@ -549,7 +569,9 @@ static void restore_extra(int wd, uint16_t base, uint16_t value, std::function<v
         PtState now;
         pctl_play_timer_query(&now);
         if (!now.valid || now.day_min[wd] != value) {
-            clear_extra_record();
+            // Changed meanwhile: nothing left to put back. Unreadable: the
+            // record stays, to try again (pt_logic::restore_action says Later).
+            if (now.valid) clear_extra_record();
             finish_write(NXM_RC_STATE_UNKNOWN, did_unlock, "", "playguard/play_timer/write_err"_i18n, refresh);
             return;
         }

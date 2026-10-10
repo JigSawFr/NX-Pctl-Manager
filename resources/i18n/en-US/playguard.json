@@ -18,7 +18,10 @@
     "hints": {
         "refresh": "Refresh",
         "open": "Open",
-        "exit_again": "Press B again to quit"
+        "exit_again": "Press B again to quit",
+        "exit_unlocked": "Parental controls are still temporarily unlocked: games can be played without a limit until they are locked again or the console restarts.\n\nLock them before quitting?",
+        "exit_lock": "Lock and quit",
+        "exit_leave": "Quit, still unlocked"
     },
     "common": {
         "yes": "Yes",
@@ -91,7 +94,8 @@
         "bad_pin_format": "the system rejected the PIN format",
         "pctl_refused": "refused by the parental-control service",
         "relock_failed": "the console was unlocked but could not be locked again: lock it now (Security & app › Lock now)",
-        "not_applied": "the console did not take the change, so the previous settings were put back"
+        "not_applied": "the console did not take the change, so the previous settings were put back",
+        "not_saved": "PlayGuard could not save to the SD card what it must put back later, so nothing was written"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -471,7 +475,8 @@
         "start_off": "The network clock is {} off (checked against {}). The play timer counts on it: see the Network clock tab.",
         "guided_body": "The network clock is inaccurate, and the play timer counts on it.\n\nMeasure the time against {} now? (The console must be online.) You will then be asked before the clock is set.",
         "guided_measure": "Measure now",
-        "guided_fine": "The network clock is accurate: nothing to do."
+        "guided_fine": "The network clock is accurate: nothing to do.",
+        "confirm_apply_resets": "\n\nChanging the clock starts today's play time over: the whole daily limit is available again."
     },
     "pairing": {
         "section": "Nintendo Switch Parental Controls app",
@@ -523,7 +528,7 @@
             "open": "To open PlayGuard"
         },
         "notes": {
-            "off": "Anyone who holds the console can change the settings here.",
+            "off": "Anyone who holds the console can change the settings here. Showing the PIN still asks for it.",
             "changes": "Anyone can look; changing something needs the PIN (asked again after 5 minutes). Locking again never asks.",
             "open": "A lock screen until the PIN is entered. Locking again never asks."
         },
@@ -554,8 +559,8 @@
         "reset_pin": "Set a new PIN",
         "continue": "Open PlayGuard",
         "note": "You reached this screen with the RESCUE file, so no PIN is asked here. Set a new PIN or remove the parental controls, then open PlayGuard.",
-        "note_failed": "Recovery did not finish on its own. You can still try from here, or remove the SD card and edit the settings on a computer.",
-        "note_refused": "Every parental control would have been deleted, but the request file could not be removed from the SD card, so it would have run again at every start. Remove it from a computer, then try again, or use the actions below.",
+        "note_failed": "Recovery did not finish, so nothing can be changed from here without the PIN. Try again with the RESCUE file, or remove the SD card and edit the settings on a computer.",
+        "note_refused": "Every parental control would have been deleted, but the request file could not be removed from the SD card, so it would have run again at every start. Remove it from a computer, then try again.",
         "request_kept": "The {} file could not be removed from the SD card: until it is, the console is unlocked again at every start. Remove it from a computer.",
         "note_deleted": "Every parental control was removed, including the PIN. Open PlayGuard — you can set it up again from there whenever you like.",
         "note_no_pin": "No parental-control PIN was set, so there was nothing to unlock. You can set one here, then open PlayGuard.",
@@ -565,13 +570,15 @@
             "deleted": "Every parental control was deleted.",
             "no_pin": "There was no PIN to recover: no parental-control PIN is set.",
             "failed": "Recovery could not finish.",
-            "refused": "Nothing was deleted: the RESCUE file could not be removed from the SD card."
+            "refused": "Nothing was deleted: the RESCUE file could not be removed from the SD card.",
+            "unconfirmed": "The console does not show the recovery this report describes."
         },
         "hint": {
             "show_pin": "if you forgot it",
             "reset_pin": "choose a new one",
             "delete": "remove everything"
-        }
+        },
+        "note_unconfirmed": "Nothing can be changed from here without the PIN, and PlayGuard opens as usual. Locked out? Put the RESCUE file back on the SD card with the recovery sysmodule installed, then restart the console."
     },
     "tools": {
         "section_diag": "Diagnostics",
@@ -713,7 +720,8 @@
         "restored": "Settings restored.",
         "restore_err": "Not restored: {}",
         "before_delete_err": "No backup could be saved first ({}).\n\nDelete everything anyway?",
-        "delete_anyway": "Delete anyway"
+        "delete_anyway": "Delete anyway",
+        "bedtime_not_restored": "This backup had a bedtime alarm on: it is not restored, set it again in Play timer if needed."
     },
     "update": {
         "checking": "Checking for updates...",

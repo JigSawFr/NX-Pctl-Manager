@@ -25,7 +25,7 @@ failing and "Synchronise clock via Internet" off (PLAYGUARD_SIM_FAIL & co.):
 a limit change must end in the "could not unlock" dialog, with the app alive,
 and the clock tab must say why the network clock cannot be set.
 
-Usage: tools/desktop_smoke.py <out-dir> [gate|errors|rescue|lock|devbuild|library]   (needs DISPLAY, xdotool, ImageMagick)
+Usage: tools/desktop_smoke.py <out-dir> [gate|errors|rescue|forged|lock|devbuild|library]   (needs DISPLAY, xdotool, ImageMagick)
 Environment knobs of the simulated backend (PLAYGUARD_SIM_*) are passed through;
 the console time is fixed (PLAYGUARD_SIM_NOW, TZ) unless set.
 """
@@ -42,6 +42,7 @@ SCENARIO = sys.argv[2] if len(sys.argv) > 2 else ""
 GATE = SCENARIO == "gate"
 ERRORS = SCENARIO == "errors"
 RESCUE = SCENARIO == "rescue"
+FORGED = SCENARIO == "forged"
 LOCK = SCENARIO == "lock"
 DEVBUILD = SCENARIO == "devbuild"
 LIBRARY = SCENARIO == "library"
@@ -131,12 +132,33 @@ if ERRORS:
 if RESCUE:
     # The playguard-rescue sysmodule left a report: PlayGuard must show the
     # recovery screen at start-up and open the app when it is dismissed.
+    # The console confirms it: the sysmodule is installed and its unlock is
+    # still on (a report the console does not confirm only shows, without
+    # the actions).
+    env.setdefault("PLAYGUARD_SIM_UNLOCKED", "1")
+    sysmodule = os.path.join(run_dir, "playguard_data", "sd", "atmosphere", "contents", "4200000000505247", "exefs.nsp")
+    os.makedirs(os.path.dirname(sysmodule), exist_ok=True)
+    open(sysmodule, "w").write("NSP0")
     report = os.path.join(run_dir, "playguard_data", "rescue_report.txt")
     os.makedirs(os.path.dirname(report), exist_ok=True)
     open(report, "w").write("mode=unlock\nresult=ok\nrc=0x00000000\nunlocks=1\n")
     history = os.path.join(run_dir, "playguard_data", "history.json")
     if os.path.exists(history):
         os.remove(history)   # a clean history: the rescue entry must be the only one
+if FORGED:
+    # A rescue report written by hand while PlayGuard asks for the PIN to
+    # open, on a console a parent left temporarily unlocked but without the
+    # sysmodule: the recovery screen shows it with no action, and "Open
+    # PlayGuard" goes through the lock screen.
+    env.setdefault("PLAYGUARD_SIM_UNLOCKED", "1")
+    sysmodule = os.path.join(run_dir, "playguard_data", "sd", "atmosphere", "contents", "4200000000505247")
+    if os.path.exists(sysmodule):
+        import shutil
+        shutil.rmtree(sysmodule)
+    report = os.path.join(run_dir, "playguard_data", "rescue_report.txt")
+    os.makedirs(os.path.dirname(report), exist_ok=True)
+    open(report, "w").write("mode=unlock\nresult=ok\nrc=0x00000000\nunlocks=1\n")
+    json.dump({"schema": 1, "pin_lock": "open"}, open(config_file, "w"))
 if LIBRARY:
     # A large library: the Activity list builds its first rows, then the
     # rest on "Show every game".
@@ -393,6 +415,22 @@ if LOCK:
     if not main_opened():
         fail("the right PIN left the lock screen up; messages: " + repr(messages()))
     finish()
+if FORGED:
+    shot("01_recovery_unconfirmed")   # what the file says, no action offered
+    def log_text():
+        log.flush()
+        return open(os.path.join(OUT, "app.log"), errors="replace").read()
+    if "rescue report not confirmed" not in log_text():
+        fail("a hand-written rescue report was trusted")
+    if "pctl_ask_pin" in log_text():
+        fail("the PIN was asked before leaving the recovery screen")
+    key("Return")              # Open PlayGuard, the only thing left
+    shot("02_opened")
+    if "pctl_ask_pin returned" not in log_text():
+        fail("an unconfirmed rescue report skipped the lock screen")
+    if not main_opened():
+        fail("the app did not open after the lock screen")
+    finish()
 if RESCUE:
     shot("01_recovery")        # the recovery screen, in place of the usual first screen
     key("Down", 3)             # past Show the PIN / Set a new PIN / Delete: Open PlayGuard
@@ -414,6 +452,29 @@ if RESCUE:
             fail(f"no history written: {e}")
         if not any(e.get("kind") == "rescue" for e in entries):
             fail("recovery was not recorded in the change history")
+        if not any(e.get("kind") == "relock" for e in entries):
+            fail("\"Lock and quit\" did not lock again")
+
+    # Still unlocked (the sysmodule's unlock): quitting asks to lock again.
+    def asked_to_relock():
+        log.flush()
+        return "asking to lock again" in open(os.path.join(OUT, "app.log"), errors="replace").read()
+    for _ in range(4):         # back to the sidebar first, then B twice
+        if asked_to_relock():
+            break
+        key("Escape")
+        time.sleep(0.3)
+    shot("03_quit_unlocked")
+    if not alive() or not asked_to_relock():
+        fail("quitting while unlocked did not ask to lock again")
+    key("Right")               # Quit, still unlocked | Lock and quit
+    key("Return")
+    for _ in range(50):
+        if not alive():
+            break
+        time.sleep(0.1)
+    if alive():
+        fail("\"Lock and quit\" did not quit")
     finish(recorded)
 
 shot("01_dashboard")

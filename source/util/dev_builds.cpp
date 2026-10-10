@@ -153,7 +153,11 @@ std::vector<Build> combine(const std::vector<Artifact>& artifacts, const std::ve
     std::vector<Pull> by_number = pulls;
     std::sort(by_number.begin(), by_number.end(), [](const Pull& a, const Pull& b) { return a.number > b.number; });
     for (const Pull& p : by_number) {
+        // Only branches of this repository: a fork's build runs code nobody
+        // with write access has reviewed yet, and installing it replaces
+        // PlayGuard itself.
         for (const Artifact& a : sorted) {
+            if (a.head_repo != a.repo) continue;
             if (a.branch != p.branch || a.head_repo != p.head_repo) continue;
             Build b = build(a, Kind::PullRequest);
             b.pr = p.number;

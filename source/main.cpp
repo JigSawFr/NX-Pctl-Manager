@@ -148,9 +148,11 @@ int main(int argc, char* argv[])
         pin_lock::install();
         // The playguard-rescue sysmodule acted on a RESCUE file: show what it
         // did and let the parent finish, before (and instead of) the lock
-        // screen — they are here because they forgot the PIN.
+        // screen — they are here because they forgot the PIN. Only when the
+        // console confirms it: anyone can write the report file, and an
+        // unconfirmed one leads to the lock screen like any start.
         if (auto report = rescue::take())
-            brls::Application::pushActivity(new RescueActivity(*report));
+            brls::Application::pushActivity(new RescueActivity(*report, rescue::confirmed(*report)));
         else if (pin_lock::at_start())
             brls::Application::pushActivity(new LockActivity());
         else
