@@ -97,7 +97,7 @@ All in `sd:/switch/playguard/`:
 | `profiles/` | Saved play-time limit profiles |
 | `backups/` | Settings backups (never contain the PIN) |
 | `exports/` | Activity exports |
-| `cache/` | The last play activity read (every account, and each account viewed), shown at once on the next start while the log is read again; in developer mode, the list of *Install another build* (`dev_builds.json`) |
+| `cache/` | The last play activity read (every account, and each account viewed), shown at once on the next start while the log is read again; the game icons (`icons/`, 16 MB at most, emptied when the console language changes), so names and icons are not read from each game again at every start; in developer mode, the list of *Install another build* (`dev_builds.json`) |
 | `github_token` | Developer mode only: the GitHub sign-in of *Install another build* (deleted by signing out) |
 | `rescue_report.txt` | Left by the recovery sysmodule after it acted, until PlayGuard shows it at start-up |
 | `logs/` | Diagnostic reports (never contain the PIN or the serial number), the developer tools' files, `uploads.txt` (the links of the reports sent online) and `crash.txt` (what made PlayGuard stop, if it ever crashed) |
@@ -155,7 +155,7 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 - A **summary** over the chosen period, for the account shown: average per day, the most played game, the days played and the busiest one (last 7 days), the average session (all time).
 - **To rediscover**: installed games under 3 h in all and not played for a month or more, the least played first (up to three).
 - Sort by period; the first games show their icon (not in applet mode, to spare memory). A large library lists its first 50 games, then *Show every game*; the export always holds them all.
-- Ⓐ on a game: its last seven days as bars, launches, first and last play, time per user account. Deleted games keep their all-time figures.
+- Ⓐ on a game: its last seven days as bars, launches, first and last play, time per user account. Deleted games keep their all-time figures, and their name once PlayGuard has seen it.
 - **Export to the SD card** as CSV, JSON, XLSX (Excel) or PDF, one column per day.
 - Opens at once on the last figures read (kept on the SD card between runs), refreshed in the background when over a minute old; Ⓧ reads them again now, with a spinner.
 - Times are approximate if the console clock was changed.
