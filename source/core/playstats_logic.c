@@ -4,10 +4,12 @@
 
 #include <dirent.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #include <zlib.h>
 
 bool playstats_convert(const PdmPlayEvent *p, PlayLogEvent *e)
@@ -329,6 +331,17 @@ static bool make_dirs(char *path)
     }
 }
 
+// A new file for writing, readable by all but writable by its owner only
+// (fopen "wb" would ask for 0666).
+static FILE *create_file(const char *path)
+{
+    const int fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (fd < 0) return NULL;
+    FILE *f = fdopen(fd, "wb");
+    if (!f) close(fd);
+    return f;
+}
+
 bool icon_store_open(IconStore *s, const char *dir, u8 lang, u64 max_bytes, u32 max_files)
 {
     memset(s, 0, sizeof(*s));
@@ -352,7 +365,7 @@ bool icon_store_open(IconStore *s, const char *dir, u8 lang, u64 max_bytes, u32 
         scan(s, true);
         s->bytes = 0;
         s->files = 0;
-        f = fopen(path, "wb");
+        f = create_file(path);
         if (!f) return false;
         const bool written = fputc(lang, f) != EOF;
         if (fclose(f) != 0 || !written) return false;
@@ -394,7 +407,7 @@ void icon_store_put(IconStore *s, u64 id, const unsigned char *jpeg, size_t size
         !icon_path(s, id, ".tmp", tmp, sizeof(tmp)) || !icon_path(s, id, ".jpg", path, sizeof(path)))
         return;
     // Written aside, then renamed: a file cut by a crash is never read as an icon.
-    FILE *f = fopen(tmp, "wb");
+    FILE *f = create_file(tmp);
     if (!f) return;
     const bool written = fwrite(jpeg, 1, size, f) == size;
     if (fclose(f) != 0 || !written) {

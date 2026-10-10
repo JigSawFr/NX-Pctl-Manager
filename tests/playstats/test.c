@@ -5,6 +5,7 @@
 #define _DEFAULT_SOURCE   // mkdtemp
 #include "check.h"
 #include <dirent.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,6 +14,13 @@
 #include <zlib.h>
 
 #include "playstats_logic.h"
+
+// A file for the test to damage, owner-writable only (CodeQL: no 0666).
+static FILE *create_file(const char *path)
+{
+    const int fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    return fd < 0 ? NULL : fdopen(fd, "wb");
+}
 
 // ---------------------------------------------------------------- convert
 
@@ -386,13 +394,13 @@ static void test_icons(void)
 
     // A file damaged meanwhile is not handed out; a .tmp left by a crash goes.
     snprintf(path, sizeof(path), "%s/0000000000000003.jpg", dir);
-    FILE *f = fopen(path, "wb");
+    FILE *f = create_file(path);
     REQUIRE(f != NULL);
     fputs("junk", f);
     fclose(f);
     CHECK(icon_store_get(&s, 3, &size) == NULL);
     snprintf(path, sizeof(path), "%s/0000000000000009.tmp", dir);
-    f = fopen(path, "wb");
+    f = create_file(path);
     REQUIRE(f != NULL);
     fclose(f);
 
