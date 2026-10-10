@@ -78,6 +78,9 @@ test:
 	$(CXX) -std=c++17 $(CWARN) -Isource source/util/changelog.cpp tests/changelog/test.cpp -o $(TESTOUT)/changelog && $(TESTOUT)/changelog
 	$(CXX) -std=c++17 $(CWARN) -Isource source/util/support.cpp tests/support/test.cpp -o $(TESTOUT)/support && $(TESTOUT)/support
 	$(CXX) -std=c++17 $(CWARN) -Isource source/action/pt_logic.cpp tests/pt_logic/test.cpp -o $(TESTOUT)/pt_logic && $(TESTOUT)/pt_logic
+	$(CXX) -std=c++17 $(CWARN) -Isource source/action/pin_lock_logic.cpp tests/pin_lock_logic/test.cpp -o $(TESTOUT)/pin_lock_logic && $(TESTOUT)/pin_lock_logic
+	$(CXX) -std=c++17 $(CWARN) -Isource source/action/console_lock_logic.cpp tests/console_lock_logic/test.cpp -o $(TESTOUT)/console_lock_logic && $(TESTOUT)/console_lock_logic
+	$(CXX) -std=c++17 $(CWARN) -Isource source/action/history_logic.cpp tests/history_logic/test.cpp -o $(TESTOUT)/history_logic && $(TESTOUT)/history_logic
 	$(CXX) -std=c++17 $(CWARN) -Isource -Iextern/borealis/library/include source/util/paths.cpp source/util/backup.cpp tests/backup/test.cpp -o $(TESTOUT)/backup && $(TESTOUT)/backup
 	$(CXX) -std=c++17 $(CWARN) -Isource -Iextern/borealis/library/include source/util/paths.cpp source/util/table_export.cpp tests/table_export/test.cpp -o $(TESTOUT)/table_export && $(TESTOUT)/table_export
 	$(CXX) -std=c++17 $(CWARN) -Isource -Iextern/borealis/library/include source/util/update.cpp tests/update/test.cpp -o $(TESTOUT)/update && $(TESTOUT)/update
