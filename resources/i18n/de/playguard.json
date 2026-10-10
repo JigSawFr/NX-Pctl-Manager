@@ -668,6 +668,62 @@
         "upload": "Bericht online senden",
         "upload_note": "Sendet einen Bericht an bpa.st oder, wenn du bei GitHub angemeldet bist, in einen geheimen Gist und zeigt seinen Link mit einem QR-Code: Gib ihn der Person, die dir hilft, oder eröffne damit einen Fehlerbericht."
     },
+    "games": {
+        "open": "Installierte Spiele prüfen",
+        "title": "Installierte Spiele",
+        "note": "Die Spiele, die das HOME-Menü nicht starten oder anzeigen kann (ein Symbol, das endlos lädt, „!“, ein gestrichelter Rahmen), warum, und was zu tun ist. A auf einem Spiel für die Details.",
+        "scanning": "Installierte Spiele werden geprüft…",
+        "section": "Spiele mit einem Problem",
+        "none": "Alle {} installierten Spiele scheinen in Ordnung.",
+        "err_list": "Die installierten Spiele konnten nicht aufgelistet werden",
+        "truncated": "Nur die ersten {} Spiele wurden geprüft.",
+        "many": "Mehrere Spiele auf einmal: Prüfe die SD-Karte an einem Computer auf Fehler und ob die Konsole vom selben Speicher ({} gerade) gestartet ist wie bei der Installation dieser Spiele. Ein von sysMMC installiertes Spiel funktioniert nicht unter emuMMC und umgekehrt.",
+        "unnamed": "Unbekanntes Spiel ({})",
+        "id": "Titel-ID: {}",
+        "cause": "Ursache",
+        "fix": "Was tun",
+        "remove": "Von der Konsole entfernen",
+        "remove_body": "Beim Entfernen werden das Spiel, sein Update und seine Zusatzinhalte von der Konsole und aus dem HOME-Menü gelöscht. Spielstände bleiben erhalten.",
+        "removed": "{} entfernt",
+        "remove_err": "Das Spiel konnte nicht entfernt werden",
+        "issues": {
+            "archived": {
+                "short": "Nichts installiert (gestrichelt)",
+                "cause": "Die Konsole listet das Spiel, aber nichts davon ist mehr installiert: Es wurde archiviert, oder seine Dateien wurden außerhalb der Konsole gelöscht.",
+                "fix": "Installiere das Spiel erneut oder entferne seinen Eintrag, um das HOME-Menü aufzuräumen."
+            },
+            "storage": {
+                "short": "SD-Karte nicht lesbar",
+                "cause": "Das Spiel liegt auf der SD-Karte, die die Konsole gerade nicht lesen kann.",
+                "fix": "Schalte die Konsole aus, nimm die SD-Karte heraus und setze sie wieder ein, und prüfe sie dann an einem Computer auf Fehler. Nichts zu entfernen: Die Dateien sind noch auf der Karte."
+            },
+            "no_base": {
+                "short": "Spiel fehlt („!“)",
+                "cause": "Nur ein Update oder ein Zusatzinhalt dieses Spiels ist installiert, nicht das Spiel selbst.",
+                "fix": "Installiere das Spiel selbst oder entferne den Eintrag und was davon übrig ist."
+            },
+            "files": {
+                "short": "Beschädigte Installation",
+                "cause": "Dateien des Spiels oder seines Updates fehlen dort, wo sie installiert sind: eine abgebrochene Installation oder eine beschädigte SD-Karte.",
+                "fix": "Entferne das Spiel und installiere es erneut. Sind mehrere Spiele betroffen, prüfe zuerst die SD-Karte."
+            },
+            "firmware": {
+                "short": "Benötigt Firmware {}",
+                "cause": "Das Spiel oder sein Update benötigt die Systemversion {}; diese Konsole hat {}.",
+                "fix": "Aktualisiere zuerst Atmosphère auf eine Version, die die neue Firmware unterstützt, dann die Firmware: In umgekehrter Reihenfolge startet die Konsole nicht mehr. Oder installiere eine ältere Version des Updates."
+            },
+            "launch": {
+                "short": "Von der Konsole abgelehnt",
+                "cause": "Die Konsole verweigert den Start: {}. Meist ist ein neueres Update des Spiels erforderlich.",
+                "fix": "Installiere das neueste Update des Spiels. Ist es bereits installiert, entferne das Spiel und installiere es erneut."
+            },
+            "no_control": {
+                "short": "Name und Symbol unlesbar",
+                "cause": "Das Spiel ist installiert, aber sein Name und sein Symbol können nicht gelesen werden: Das HOME-Menü zeigt ein Symbol, das endlos lädt.",
+                "fix": "Starte die Konsole neu. Lädt das Symbol weiterhin, prüfe die Daten unter Systemeinstellungen › Datenverwaltung oder entferne das Spiel und installiere es erneut."
+            }
+        }
+    },
     "about": {
         "section_changelog": "Neu in {}",
         "changelog_note": "Frühere Versionen: {}",
@@ -849,7 +905,8 @@
             "restore": "Sicherung wiederhergestellt",
             "rescue": "Wiederherstellung verwendet",
             "console_lock": "Konsolensperre",
-            "bedtime": "Gute-Nacht-Alarm"
+            "bedtime": "Gute-Nacht-Alarm",
+            "remove_game": "Spiel entfernt"
         },
         "sources": {
             "uniform": "Jeden Tag gleiches Limit",

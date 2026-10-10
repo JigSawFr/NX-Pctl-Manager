@@ -501,6 +501,20 @@ if upload_count() != uploads_before + 2:
 key("Return")              # OK
 os.remove(github_token)
 
+# Installed games: the simulated console's broken games, the first one's
+# cause and fix, and its removal (recorded in the change history).
+key("Down")                # Check the installed games
+key("Return")
+shot("27_games")
+key("Return")              # the first broken game: cause, fix, Remove
+shot("27_games_details")
+key("Right")               # Remove from the console
+key("Return")
+shot("27_games_removed")
+if not any(m.endswith("removed") for m in messages()):
+    fail("the broken game was not removed: " + repr(messages()[-3:]))
+key("Escape")
+
 # Activity: one game's screen, then a PDF export to the (simulated) SD card.
 exports = os.path.join(run_dir, "playguard_data", "exports")
 def pdfs():

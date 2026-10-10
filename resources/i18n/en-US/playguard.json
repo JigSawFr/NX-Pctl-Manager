@@ -668,6 +668,62 @@
         "upload": "Send a report online",
         "upload_note": "Sends a report to bpa.st, or to a secret gist when signed in to GitHub, and shows its link with a QR code: give it to whoever helps you, or open a bug report with it."
     },
+    "games": {
+        "open": "Check the installed games",
+        "title": "Installed games",
+        "note": "The games the HOME menu cannot start or draw (an icon that keeps loading, \"!\", a dotted frame), why, and what to do. A on a game for the details.",
+        "scanning": "Checking the installed games…",
+        "section": "Games with a problem",
+        "none": "All {} installed games look fine.",
+        "err_list": "The installed games could not be listed",
+        "truncated": "Only the first {} games were checked.",
+        "many": "Several games at once: check the SD card for errors on a computer, and that the console started on the same storage ({} now) as when these games were installed. A game installed from sysMMC does not work from emuMMC, and the other way round.",
+        "unnamed": "Unknown game ({})",
+        "id": "Title ID: {}",
+        "cause": "Cause",
+        "fix": "What to do",
+        "remove": "Remove from the console",
+        "remove_body": "Removing deletes the game, its update and its add-ons from the console and the HOME menu. Save data stays.",
+        "removed": "{} removed",
+        "remove_err": "Could not remove the game",
+        "issues": {
+            "archived": {
+                "short": "Nothing installed (dotted frame)",
+                "cause": "The console lists the game, but nothing of it is installed any more: it was archived, or its files were deleted outside the console.",
+                "fix": "Install the game again, or remove its entry to clean up the HOME menu."
+            },
+            "storage": {
+                "short": "SD card unreadable",
+                "cause": "The game is on the SD card, which the console cannot read right now.",
+                "fix": "Turn the console off, take the SD card out and put it back, then check it for errors on a computer. Nothing to remove: the files are still on the card."
+            },
+            "no_base": {
+                "short": "Game missing (\"!\")",
+                "cause": "Only an update or an add-on of this game is installed, not the game itself.",
+                "fix": "Install the game itself, or remove the entry and what is left of it."
+            },
+            "files": {
+                "short": "Damaged installation",
+                "cause": "Files of the game or of its update are missing where they are installed: an installation that was interrupted, or a damaged SD card.",
+                "fix": "Remove the game, then install it again. If several games are affected, check the SD card first."
+            },
+            "firmware": {
+                "short": "Needs firmware {}",
+                "cause": "The game or its update needs system version {}; this console runs {}.",
+                "fix": "Update Atmosphère first, to a version that supports the new firmware, then the firmware: in the other order the console no longer starts. Or install an older version of the update."
+            },
+            "launch": {
+                "short": "Refused by the console",
+                "cause": "The console refuses to start it: {}. Usually a newer update of the game is required.",
+                "fix": "Install the game's latest update. If it is already installed, remove the game and install it again."
+            },
+            "no_control": {
+                "short": "Name and icon unreadable",
+                "cause": "The game is installed, but its name and icon cannot be read: the HOME menu shows an icon that keeps loading.",
+                "fix": "Restart the console. If the icon still loads, check the data in System Settings › Data Management, or remove the game and install it again."
+            }
+        }
+    },
     "about": {
         "section_changelog": "What's new in {}",
         "changelog_note": "Earlier versions: {}",
@@ -849,7 +905,8 @@
             "restore": "Backup restored",
             "rescue": "Recovery used",
             "console_lock": "Console lock",
-            "bedtime": "Bedtime alarm"
+            "bedtime": "Bedtime alarm",
+            "remove_game": "Game removed"
         },
         "sources": {
             "uniform": "Same limit every day",

@@ -668,6 +668,62 @@
         "upload": "Rapport online versturen",
         "upload_note": "Verstuurt een rapport naar bpa.st, of naar een geheime gist als je bij GitHub bent aangemeld, en toont de link met een QR-code: geef hem aan wie je helpt, of open er een bugmelding mee."
     },
+    "games": {
+        "open": "Geïnstalleerde games controleren",
+        "title": "Geïnstalleerde games",
+        "note": "De games die het HOME-menu niet kan starten of tonen (een icoon dat blijft laden, \"!\", een gestippeld kader), waarom, en wat je kunt doen. A op een game voor de details.",
+        "scanning": "Geïnstalleerde games worden gecontroleerd…",
+        "section": "Games met een probleem",
+        "none": "Alle {} geïnstalleerde games lijken in orde.",
+        "err_list": "De geïnstalleerde games konden niet worden opgesomd",
+        "truncated": "Alleen de eerste {} games zijn gecontroleerd.",
+        "many": "Meerdere games tegelijk: controleer de SD-kaart op een computer, en of de console is opgestart vanaf hetzelfde geheugen ({} nu) als toen deze games werden geïnstalleerd. Een game die vanaf sysMMC is geïnstalleerd werkt niet vanaf emuMMC, en andersom.",
+        "unnamed": "Onbekende game ({})",
+        "id": "Titel-ID: {}",
+        "cause": "Oorzaak",
+        "fix": "Wat te doen",
+        "remove": "Van de console verwijderen",
+        "remove_body": "Verwijderen wist de game, de update en de extra content van de console en uit het HOME-menu. Opgeslagen data blijven bewaard.",
+        "removed": "{} verwijderd",
+        "remove_err": "De game kon niet worden verwijderd",
+        "issues": {
+            "archived": {
+                "short": "Niets geïnstalleerd (gestippeld)",
+                "cause": "De console toont de game, maar er is niets meer van geïnstalleerd: hij is gearchiveerd, of de bestanden zijn buiten de console gewist.",
+                "fix": "Installeer de game opnieuw, of verwijder de vermelding om het HOME-menu op te ruimen."
+            },
+            "storage": {
+                "short": "SD-kaart onleesbaar",
+                "cause": "De game staat op de SD-kaart, die de console nu niet kan lezen.",
+                "fix": "Zet de console uit, haal de SD-kaart eruit en plaats hem terug, en controleer hem daarna op een computer. Niets te verwijderen: de bestanden staan nog op de kaart."
+            },
+            "no_base": {
+                "short": "Game ontbreekt (\"!\")",
+                "cause": "Alleen een update of extra content van deze game is geïnstalleerd, niet de game zelf.",
+                "fix": "Installeer de game zelf, of verwijder de vermelding en wat ervan over is."
+            },
+            "files": {
+                "short": "Beschadigde installatie",
+                "cause": "Bestanden van de game of de update ontbreken waar ze geïnstalleerd zijn: een onderbroken installatie of een beschadigde SD-kaart.",
+                "fix": "Verwijder de game en installeer hem opnieuw. Gaat het om meerdere games, controleer dan eerst de SD-kaart."
+            },
+            "firmware": {
+                "short": "Vereist firmware {}",
+                "cause": "De game of de update vereist systeemversie {}; deze console draait {}.",
+                "fix": "Werk eerst Atmosphère bij naar een versie die de nieuwe firmware ondersteunt, daarna de firmware: in de andere volgorde start de console niet meer. Of installeer een oudere versie van de update."
+            },
+            "launch": {
+                "short": "Geweigerd door de console",
+                "cause": "De console weigert hem te starten: {}. Meestal is een nieuwere update van de game nodig.",
+                "fix": "Installeer de nieuwste update van de game. Is die al geïnstalleerd, verwijder de game dan en installeer hem opnieuw."
+            },
+            "no_control": {
+                "short": "Naam en icoon onleesbaar",
+                "cause": "De game is geïnstalleerd, maar de naam en het icoon kunnen niet worden gelezen: het HOME-menu toont een icoon dat blijft laden.",
+                "fix": "Start de console opnieuw. Blijft het icoon laden, controleer dan de data via Systeeminstellingen › Databeheer, of verwijder de game en installeer hem opnieuw."
+            }
+        }
+    },
     "about": {
         "section_changelog": "Nieuw in {}",
         "changelog_note": "Eerdere versies: {}",
@@ -849,7 +905,8 @@
             "restore": "Back-up teruggezet",
             "rescue": "Herstel gebruikt",
             "console_lock": "Consolevergrendeling",
-            "bedtime": "Bedtijdalarm"
+            "bedtime": "Bedtijdalarm",
+            "remove_game": "Game verwijderd"
         },
         "sources": {
             "uniform": "Elke dag dezelfde limiet",

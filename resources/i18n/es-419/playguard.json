@@ -668,6 +668,62 @@
         "upload": "Enviar un informe en línea",
         "upload_note": "Envía un informe a bpa.st, o a un gist secreto si iniciaste sesión en GitHub, y muestra su enlace con un código QR: dáselo a quien te ayude o abre con él un reporte de error."
     },
+    "games": {
+        "open": "Comprobar los juegos instalados",
+        "title": "Juegos instalados",
+        "note": "Los juegos que el menú HOME no puede iniciar ni mostrar (un icono que no termina de cargar, «!», un marco punteado), por qué, y qué hacer. A en un juego para ver los detalles.",
+        "scanning": "Comprobando los juegos instalados…",
+        "section": "Juegos con un problema",
+        "none": "Los {} juegos instalados parecen estar bien.",
+        "err_list": "No se pudieron listar los juegos instalados",
+        "truncated": "Solo se comprobaron los {} primeros juegos.",
+        "many": "Varios juegos a la vez: comprueba la tarjeta SD en un computadora y que la consola se haya iniciado desde la misma memoria ({} ahora) que cuando se instalaron estos juegos. Un juego instalado desde sysMMC no funciona desde emuMMC, y al revés.",
+        "unnamed": "Juego desconocido ({})",
+        "id": "ID del título: {}",
+        "cause": "Causa",
+        "fix": "Qué hacer",
+        "remove": "Eliminar de la consola",
+        "remove_body": "Al eliminarlo se borran el juego, su actualización y sus contenidos descargables de la consola y del menú HOME. Los datos guardados se conservan.",
+        "removed": "{} eliminado",
+        "remove_err": "No se pudo eliminar el juego",
+        "issues": {
+            "archived": {
+                "short": "Nada instalado (punteado)",
+                "cause": "La consola muestra el juego, pero ya no hay nada instalado: se archivó, o sus archivos se borraron fuera de la consola.",
+                "fix": "Vuelve a instalar el juego, o elimina su entrada para limpiar el menú HOME."
+            },
+            "storage": {
+                "short": "Tarjeta SD ilegible",
+                "cause": "El juego está en la tarjeta SD, que la consola no puede leer ahora mismo.",
+                "fix": "Apaga la consola, saca la tarjeta SD y vuelve a insertarla, y luego compruébala en una computadora. Nada que eliminar: los archivos siguen en la tarjeta."
+            },
+            "no_base": {
+                "short": "Falta el juego («!»)",
+                "cause": "Solo hay instalada una actualización o un contenido descargable de este juego, no el juego en sí.",
+                "fix": "Instala el juego en sí, o elimina la entrada y lo que queda de él."
+            },
+            "files": {
+                "short": "Instalación dañada",
+                "cause": "Faltan archivos del juego o de su actualización donde están instalados: una instalación interrumpida o una tarjeta SD dañada.",
+                "fix": "Elimina el juego y vuelve a instalarlo. Si hay varios juegos afectados, comprueba primero la tarjeta SD."
+            },
+            "firmware": {
+                "short": "Requiere el firmware {}",
+                "cause": "El juego o su actualización requiere la versión del sistema {}; esta consola tiene la {}.",
+                "fix": "Actualiza primero Atmosphère a una versión compatible con el nuevo firmware y después el firmware: en el orden inverso la consola ya no arranca. O instala una versión anterior de la actualización."
+            },
+            "launch": {
+                "short": "Rechazado por la consola",
+                "cause": "La consola se niega a iniciarlo: {}. Normalmente hace falta una actualización más reciente del juego.",
+                "fix": "Instala la última actualización del juego. Si ya está instalada, elimina el juego y vuelve a instalarlo."
+            },
+            "no_control": {
+                "short": "Nombre e icono ilegibles",
+                "cause": "El juego está instalado, pero su nombre y su icono no se pueden leer: el menú HOME muestra un icono que no termina de cargar.",
+                "fix": "Reinicia la consola. Si el icono sigue cargando, comprueba los datos en Configuración de la consola › Gestión de datos, o elimina el juego y vuelve a instalarlo."
+            }
+        }
+    },
     "about": {
         "section_changelog": "Novedades de la {}",
         "changelog_note": "Versiones anteriores: {}",
@@ -849,7 +905,8 @@
             "restore": "Respaldo restaurado",
             "rescue": "Recuperación usada",
             "console_lock": "Bloqueo de la consola",
-            "bedtime": "Alarma de hora de dormir"
+            "bedtime": "Alarma de hora de dormir",
+            "remove_game": "Juego eliminado"
         },
         "sources": {
             "uniform": "Mismo límite todos los días",

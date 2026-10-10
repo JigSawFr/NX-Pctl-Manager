@@ -24,7 +24,8 @@ std::vector<int> custom_values(const PctlCustomSettings& s);
 // the change itself went through.
 void record_values(const char* kind, std::vector<int> before, std::vector<int> after,
                    const std::string& source = "", const std::string& detail = "");
-// An action with no value to put back ("pin", "unlock", "unlink", …).
+// An action with no value to put back ("pin", "unlock", "unlink",
+// "remove_game" with the game in `detail`, …).
 void record_event(const char* kind, const std::string& source = "", const std::string& detail = "");
 
 // The History screen's wording: one line, and the details for its dialog.

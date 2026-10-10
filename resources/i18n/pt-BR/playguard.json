@@ -668,6 +668,62 @@
         "upload": "Enviar um relatório online",
         "upload_note": "Envia um relatório para o bpa.st, ou para um gist secreto se você estiver conectado ao GitHub, e mostra o link com um código QR: passe-o para quem está ajudando você, ou abra um relatório de bug com ele."
     },
+    "games": {
+        "open": "Verificar os jogos instalados",
+        "title": "Jogos instalados",
+        "note": "Os jogos que o menu HOME não consegue iniciar nem exibir (um ícone que fica carregando, \"!\", uma moldura pontilhada), por quê, e o que fazer. A em um jogo para os detalhes.",
+        "scanning": "Verificando os jogos instalados…",
+        "section": "Jogos com um problema",
+        "none": "Os {} jogos instalados parecem estar bem.",
+        "err_list": "Não foi possível listar os jogos instalados",
+        "truncated": "Só os primeiros {} jogos foram verificados.",
+        "many": "Vários jogos ao mesmo tempo: verifique o cartão SD em um computador, e se o console foi iniciado pela mesma memória ({} agora) de quando esses jogos foram instalados. Um jogo instalado pelo sysMMC não funciona no emuMMC, e vice-versa.",
+        "unnamed": "Jogo desconhecido ({})",
+        "id": "ID do título: {}",
+        "cause": "Causa",
+        "fix": "O que fazer",
+        "remove": "Remover do console",
+        "remove_body": "Remover apaga o jogo, a atualização e os conteúdos adicionais do console e do menu HOME. Os dados salvos ficam.",
+        "removed": "{} removido",
+        "remove_err": "Não foi possível remover o jogo",
+        "issues": {
+            "archived": {
+                "short": "Nada instalado (pontilhado)",
+                "cause": "O console lista o jogo, mas nada dele está mais instalado: ele foi arquivado, ou os arquivos foram apagados fora do console.",
+                "fix": "Instale o jogo de novo, ou remova a entrada para limpar o menu HOME."
+            },
+            "storage": {
+                "short": "Cartão SD ilegível",
+                "cause": "O jogo está no cartão SD, que o console não consegue ler agora.",
+                "fix": "Desligue o console, retire e coloque de volta o cartão SD, e depois verifique-o em um computador. Nada a remover: os arquivos continuam no cartão."
+            },
+            "no_base": {
+                "short": "Jogo ausente (\"!\")",
+                "cause": "Só uma atualização ou um conteúdo adicional deste jogo está instalado, não o jogo em si.",
+                "fix": "Instale o jogo em si, ou remova a entrada e o que resta dele."
+            },
+            "files": {
+                "short": "Instalação danificada",
+                "cause": "Faltam arquivos do jogo ou da atualização onde eles estão instalados: uma instalação interrompida ou um cartão SD danificado.",
+                "fix": "Remova o jogo e instale-o de novo. Se vários jogos forem afetados, verifique primeiro o cartão SD."
+            },
+            "firmware": {
+                "short": "Requer o firmware {}",
+                "cause": "O jogo ou a atualização requer a versão do sistema {}; este console está na {}.",
+                "fix": "Atualize primeiro o Atmosphère para uma versão compatível com o novo firmware, e depois o firmware: na ordem inversa o console não liga mais. Ou instale uma versão mais antiga da atualização."
+            },
+            "launch": {
+                "short": "Recusado pelo console",
+                "cause": "O console se recusa a iniciá-lo: {}. Geralmente é preciso uma atualização mais recente do jogo.",
+                "fix": "Instale a atualização mais recente do jogo. Se ela já estiver instalada, remova o jogo e instale-o de novo."
+            },
+            "no_control": {
+                "short": "Nome e ícone ilegíveis",
+                "cause": "O jogo está instalado, mas o nome e o ícone não podem ser lidos: o menu HOME mostra um ícone que fica carregando.",
+                "fix": "Reinicie o console. Se o ícone continuar carregando, verifique os dados em Configurações do console › Gerenciamento de dados, ou remova o jogo e instale-o de novo."
+            }
+        }
+    },
     "about": {
         "section_changelog": "Novidades da {}",
         "changelog_note": "Versões anteriores: {}",
@@ -849,7 +905,8 @@
             "restore": "Backup restaurado",
             "rescue": "Recuperação usada",
             "console_lock": "Bloqueio do console",
-            "bedtime": "Alarme de hora de dormir"
+            "bedtime": "Alarme de hora de dormir",
+            "remove_game": "Jogo removido"
         },
         "sources": {
             "uniform": "Mesmo limite todos os dias",

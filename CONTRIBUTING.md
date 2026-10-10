@@ -31,7 +31,8 @@ Clone with submodules (`git clone --recursive`, or `git submodule update --init`
 | `PLAYGUARD_SIM_ALARM_OFF=1` | The "time's up" alarm off |
 | `PLAYGUARD_SIM_ACCURATE=1` | An accurate network clock |
 | `PLAYGUARD_SIM_AUTOSYNC_OFF=1` | *Synchronise Clock via Internet* off |
-| `PLAYGUARD_SIM_FAIL=timer,clock,unverified,bedtime` | Failures: the play-timer write, setting the clock, an unlock the system does not confirm, a bedtime the console does not take |
+| `PLAYGUARD_SIM_FAIL=timer,clock,unverified,bedtime,remove` | Failures: the play-timer write, setting the clock, an unlock the system does not confirm, a bedtime the console does not take, removing a game |
+| `PLAYGUARD_SIM_GAMES_OK=1` | Every installed game fine (*Tools › Check the installed games*; by default one of each problem) |
 | `PLAYGUARD_SIM_EMUMMC=1` | Running on emuMMC |
 | `PLAYGUARD_SIM_BLANK=1` | Atmosphère blanking the serial number |
 | `PLAYGUARD_SIM_APPLET=1` | Applet (album) mode |
@@ -62,7 +63,7 @@ CI runs all of the above plus the Switch build.
 
 | Path | Content |
 |---|---|
-| `source/core/` | C, libnx: `pctl_ops`, `time_ops`, `sysinfo`, `playstats`, `rescue` |
+| `source/core/` | C, libnx: `pctl_ops`, `time_ops`, `sysinfo`, `playstats`, `gamecheck`, `rescue` |
 | `source/tab/` | One class per tab |
 | `source/action/` | Flows: play-timer write, clock, settings restore, firmware screen, updates |
 | `source/activity/` | Screens: per-day editor, profiles, a game, first steps, change history, firmware |

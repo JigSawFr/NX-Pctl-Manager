@@ -25,7 +25,9 @@
 //                               setting write), relock (1007), timer (145601
 //                               read), clock (network clock write), pin (1208),
 //                               pin_entry (the PIN screen is cancelled),
-//                               bedtime (the console does not take the bedtime)
+//                               bedtime (the console does not take the bedtime),
+//                               remove (Tools › Installed games: the deletion)
+//   PLAYGUARD_SIM_GAMES_OK=1    every installed game fine (Tools › Installed games)
 // The play-timer limits are kept as the real 0x44 block (core/pure.c encodes
 // and decodes it, as on the console); the read-only switch is core/write_guard.c.
 // Game patches are read from ./playguard_data/sd/ (the simulated SD card root).
@@ -36,6 +38,7 @@
 #include <string.h>
 #include <time.h>
 
+#include "../core/gamecheck.h"
 #include "../core/pctl_ops.h"
 #include "../core/playstats.h"
 #include "../core/sysinfo.h"
@@ -579,5 +582,71 @@ size_t playstats_by_account(u64 app_id, AccountPlay *out, size_t max, Result *rc
         out[1].launches = all.games[i].launches - out[0].launches;
         return 2;
     }
+    return 0;
+}
+
+// ---------------------------------------------------------------- gamecheck
+// The made-up games of the Activity tab, fine, then one of each problem the
+// HOME menu shows (an icon that keeps loading, "!", a dotted frame), unless
+// PLAYGUARD_SIM_GAMES_OK. A removed game stays gone until the app quits.
+static u64 s_removed[16];
+static size_t s_removed_count;
+
+static bool sim_removed(u64 id)
+{
+    for (size_t i = 0; i < s_removed_count; i++)
+        if (s_removed[i] == id) return true;
+    return false;
+}
+
+void gamecheck_scan(GameCheck *out)
+{
+    memset(out, 0, sizeof(*out));
+    static const char *fine[] = { "Star Kart Racers", "Island Builders", "Pixel Quest Deluxe",
+                                  "Dragon Valley Legends", "Puzzle Garden" };
+    for (size_t i = 0; i < sizeof(fine) / sizeof(fine[0]); i++) {
+        GameFacts *g = &out->games[out->count++];
+        g->app_id = 0x0100A1B2C3D40000ULL + i * 0x1000;
+        snprintf(g->name, sizeof(g->name), "%s", fine[i]);
+        g->control_ok = true;
+        g->meta_count = 2;
+        g->has_base = g->has_patch = true;
+        g->patch_version = 0x30000;
+        g->required_hos = MAKEHOSVERSION(18, 0, 0);
+    }
+    // A game card left out of its slot: not a problem.
+    GameFacts *card = &out->games[out->count++];
+    card->app_id = 0x0100A1B2C3D4A000ULL;
+    snprintf(card->name, sizeof(card->name), "Sky Kingdom");
+    card->control_ok = card->has_base = card->card_only = true;
+    card->meta_count = 1;
+    if (getenv("PLAYGUARD_SIM_GAMES_OK")) return;
+
+    static const struct { u64 id; const char *name; GameIssue issue; } broken[] = {
+        { 0x0100A1B2C3D46000ULL, "",                 GC_NO_CONTROL },
+        { 0x0100A1B2C3D47000ULL, "Garden Defenders", GC_NO_BASE },
+        { 0x0100A1B2C3D48000ULL, "Hedgehog Rush",    GC_ARCHIVED },
+        { 0x0100A1B2C3D49000ULL, "Robot Factory",    GC_FIRMWARE_TOO_OLD },
+        { 0x0100A1B2C3D4B000ULL, "Ocean Explorer",   GC_FILES_MISSING },
+    };
+    for (size_t i = 0; i < sizeof(broken) / sizeof(broken[0]); i++) {
+        if (sim_removed(broken[i].id)) continue;
+        GameFacts *g = &out->games[out->count++];
+        g->app_id = broken[i].id;
+        snprintf(g->name, sizeof(g->name), "%s", broken[i].name);
+        g->control_ok = broken[i].name[0] != '\0';
+        g->meta_count = broken[i].issue == GC_ARCHIVED ? 0 : 1;
+        g->has_base = broken[i].issue != GC_NO_BASE;
+        g->has_patch = broken[i].issue == GC_NO_BASE;
+        g->files_missing = broken[i].issue == GC_FILES_MISSING;
+        g->required_hos = broken[i].issue == GC_FIRMWARE_TOO_OLD ? MAKEHOSVERSION(24, 1, 0) : 0;
+    }
+}
+
+Result gamecheck_remove(u64 app_id)
+{
+    RO_GUARD();
+    FAIL_IF("remove");
+    if (s_removed_count < sizeof(s_removed) / sizeof(s_removed[0])) s_removed[s_removed_count++] = app_id;
     return 0;
 }

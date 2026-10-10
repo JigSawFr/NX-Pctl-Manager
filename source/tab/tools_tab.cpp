@@ -13,6 +13,7 @@
 #include "action/upload_flow.hpp"
 #include "activity/diagnostic_activity.hpp"
 #include "activity/firmware_gate_activity.hpp"
+#include "activity/game_check_activity.hpp"
 #include "activity/history_activity.hpp"
 #include "activity/onboarding_activity.hpp"
 #include "app.hpp"
@@ -59,6 +60,11 @@ ToolsTab::ToolsTab()
         return true;
     }, false, false, brls::SOUND_CLICK);
     export_note->setText(brls::getStr("playguard/tools/export_note", paths::logs_dir()));
+
+    games->registerClickAction([](brls::View*) {
+        brls::Application::pushActivity(new GameCheckActivity());
+        return true;
+    });
 
     export_cell->registerClickAction([](brls::View*) {
         std::string err;
