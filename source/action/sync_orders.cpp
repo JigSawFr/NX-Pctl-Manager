@@ -46,43 +46,51 @@ std::vector<int> values(const int* v, int n)
     return std::vector<int>(v, v + n);
 }
 
-// The change history, as for the same change made on the console.
-void record(const Order& o, const SyncOutcome& out, const PtState& before)
+// The change history, as for the same change made on the console. `before`
+// is the play timer before a bedtime change; none for a change the agent made
+// (at `when`), whose bedtime is recorded as it was asked.
+void record(const Order& o, const SyncOutcome& out, const PtState* before, const std::string& when = "")
 {
     if (!out.applied || !out.changed) return;
     const std::string source = out.source ? out.source : "remote";
     const std::string detail = o.intent.kind == SyncIntent_Profile ? std::string(o.intent.profile) : std::string();
     switch (out.change) {
         case SyncChange_Limits:
-            history_flow::record_values("limits", values(out.before, 7), values(out.after, 7), source, detail);
+            history_flow::record_values("limits", values(out.before, 7), values(out.after, 7), source, detail, when);
             break;
         case SyncChange_Level:
-            if (out.before[0] >= 0) history_flow::record_values("level", { out.before[0] }, { out.after[0] }, "remote");
+            if (out.before[0] >= 0)
+                history_flow::record_values("level", { out.before[0] }, { out.after[0] }, "remote", "", when);
             break;
         case SyncChange_Custom:
-            history_flow::record_values("custom", values(out.before, 3), values(out.after, 3), "remote");
+            history_flow::record_values("custom", values(out.before, 3), values(out.after, 3), "remote", "", when);
             break;
         case SyncChange_Vr:
-            if (out.before[0] >= 0) history_flow::record_values("vr", { out.before[0] }, { out.after[0] }, "remote");
+            if (out.before[0] >= 0) history_flow::record_values("vr", { out.before[0] }, { out.after[0] }, "remote", "", when);
             break;
         case SyncChange_Alarm:
-            if (out.before[0] >= 0) history_flow::record_values("alarm", { out.before[0] }, { out.after[0] }, "remote");
+            if (out.before[0] >= 0)
+                history_flow::record_values("alarm", { out.before[0] }, { out.after[0] }, "remote", "", when);
             break;
         case SyncChange_Bedtime: {
+            if (!before) {
+                history_flow::record_event("bedtime", "remote", o.entity + " = " + o.payload, when);
+                break;
+            }
             PtState after;
             pctl_play_timer_query(&after);
-            if (!before.valid || !after.valid) break;
-            const std::string from = pt_flow::bedtime_text(before), to = pt_flow::bedtime_text(after);
+            if (!before->valid || !after.valid) break;
+            const std::string from = pt_flow::bedtime_text(*before), to = pt_flow::bedtime_text(after);
             if (from != to) history_flow::record_event("bedtime", "remote", from + " → " + to);
             break;
         }
-        case SyncChange_Unlock: history_flow::record_event("unlock", "remote"); break;
-        case SyncChange_Relock: history_flow::record_event("relock", "remote"); break;
+        case SyncChange_Unlock: history_flow::record_event("unlock", "remote", "", when); break;
+        case SyncChange_Relock: history_flow::record_event("relock", "remote", "", when); break;
         default: break;
     }
     if (o.intent.kind == SyncIntent_ConsoleLock && out.console_lock_after >= 0)
         history_flow::record_values("console_lock", { out.console_lock_after ? 0 : 1 }, { out.console_lock_after },
-                                    "remote");
+                                    "remote", "", when);
 }
 
 SyncOutcome execute(const Order& o, bool remote_timer_writes)
@@ -106,7 +114,7 @@ SyncOutcome execute(const Order& o, bool remote_timer_writes)
     SyncOutcome out;
     sync_exec(&o.intent, &ctx, &out);
     if (sync_files::records_into(rec, cfg)) ui::save_config();
-    record(o, out, before);
+    record(o, out, &before);
     brls::Logger::info("sync: {}={} -> rc 0x{:08X} {}", o.entity, o.payload, (unsigned)out.rc,
                        out.applied ? "applied" : sync_reason_name(out.reason));
     return out;
@@ -198,6 +206,29 @@ void tell(const Order& o, const SyncOutcome& out)
                           : brls::getStr(std::string("playguard/sync/reasons/") + sync_reason_name(out.reason));
     if (out.reason == SyncReason_PctlError && out.rc) why += " — " + ui::rc_text(out.rc);
     ui::notify(brls::getStr("playguard/sync/refused", what, why));
+}
+
+void import(const sync_files::AgentEvent& ev, const std::string& when)
+{
+    if (!ev.applied) return;
+    Order o;
+    o.entity = ev.entity;
+    o.payload = ev.payload;
+    // The intent only says which kind of order it was (a profile's name, the
+    // console lock); the usual limit put back after midnight is none.
+    if (sync_apply_parse(o.entity.c_str(), o.payload.c_str(), o.payload.size(), &o.intent) != SyncReason_None)
+        o.intent = SyncIntent{};
+    SyncOutcome out;
+    sync_outcome_init(&out);
+    out.applied = true;
+    out.changed = true;
+    out.change = (SyncChange)ev.change;
+    out.n = (int)ev.before.size();
+    for (size_t i = 0; i < ev.before.size() && i < 7; i++) out.before[i] = ev.before[i];
+    for (size_t i = 0; i < ev.after.size() && i < 7; i++) out.after[i] = ev.after[i];
+    out.source = ev.source.c_str();
+    out.console_lock_after = ev.console_lock_after;
+    record(o, out, nullptr, when);
 }
 
 }   // namespace sync_orders

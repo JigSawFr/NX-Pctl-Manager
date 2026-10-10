@@ -116,6 +116,16 @@ static void test_documents(void)
     assert(call(AgentCmd_PushFinal, NULL, 0, "2026/10/08\n{}", 13, NULL, 0, NULL) == AGENT_RC_BAD_INPUT);
     assert(call(AgentCmd_PushFinal, NULL, 0, "2026-10-08", 10, NULL, 0, NULL) == AGENT_RC_BAD_INPUT);
     for (int i = 0; i < AGENT_FINALS; i++) S.finals[i].fresh = false;
+    // An old day cleared: the date and no document.
+    assert(call(AgentCmd_PushFinal, NULL, 0, "2026-09-20\n", 11, NULL, 0, NULL) == 0);
+    fresh = 0;
+    for (int i = 0; i < AGENT_FINALS; i++)
+        if (S.finals[i].fresh) {
+            fresh++;
+            assert(!strcmp(S.finals[i].date, "2026-09-20") && S.finals[i].len == 0);
+        }
+    assert(fresh == 1);
+    for (int i = 0; i < AGENT_FINALS; i++) S.finals[i].fresh = false;
 }
 
 static void test_orders(void)

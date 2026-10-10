@@ -32,12 +32,20 @@ cleared, new state, change history), refuse one out of range, publish the
 discovery again when Home Assistant says it restarted, show the link online
 in Preferences › Remote access, and leave "offline" behind at exit.
 
+The "agent" scenario runs with a simulated agent sysmodule
+(PLAYGUARD_SIM_AGENT=running, no broker): PlayGuard must hand the link to it
+(no session of its own), import the change the agent logged while PlayGuard
+was closed into the history with the agent's time, push the state, today's
+activity and the names, carry out the order the agent hands it
+(PLAYGUARD_SIM_AGENT_ORDER) and answer it, show "through the agent" in
+Preferences › Remote access, and close its session at exit.
+
 The "modules" scenario carries a made-up recovery module
 (PLAYGUARD_SIM_BUNDLED): from Security › Locked out?, it must be installed on
 the simulated SD card (exefs.nsp, boot2.flag, toolbox.json, version.txt), its
 start at boot turned off, then removed, each change in the history.
 
-Usage: tools/desktop_smoke.py <out-dir> [gate|errors|rescue|devbuild|sync|modules]   (needs DISPLAY, xdotool, ImageMagick)
+Usage: tools/desktop_smoke.py <out-dir> [gate|errors|rescue|devbuild|sync|agent|modules]   (needs DISPLAY, xdotool, ImageMagick)
 Environment knobs of the simulated backend (PLAYGUARD_SIM_*) are passed through;
 the console time is fixed (PLAYGUARD_SIM_NOW, TZ) unless set.
 """
@@ -57,11 +65,12 @@ RESCUE = SCENARIO == "rescue"
 DEVBUILD = SCENARIO == "devbuild"
 SYNC = SCENARIO == "sync"
 MODULES = SCENARIO == "modules"
+AGENT = SCENARIO == "agent"
 os.makedirs(OUT, exist_ok=True)
 run_dir = os.path.join(OUT, "run")
 os.makedirs(run_dir, exist_ok=True)
 config_file = os.path.join(run_dir, "playguard_data", "config.json")
-if (GATE or ERRORS or DEVBUILD or SYNC or MODULES) and os.path.exists(config_file):
+if (GATE or ERRORS or DEVBUILD or SYNC or AGENT or MODULES) and os.path.exists(config_file):
     os.remove(config_file)   # no remembered choice, developer mode off
 block_ref = os.path.join(run_dir, "playguard_data", "logs", "play_timer_block.json")
 if GATE and os.path.exists(block_ref):
@@ -155,6 +164,24 @@ if SYNC:
     history = os.path.join(run_dir, "playguard_data", "history.json")
     if os.path.exists(history):
         os.remove(history)   # the remote change must be the only entry
+if AGENT:
+    # The simulated agent holds the link (it says it is online, no broker),
+    # and hands PlayGuard one order once it said Hello.
+    env.setdefault("PLAYGUARD_SIM_AGENT", "running")
+    env.setdefault("PLAYGUARD_SIM_AGENT_ORDER", "limit_uniform=90")
+    os.makedirs(os.path.dirname(sync_conf), exist_ok=True)
+    open(sync_conf, "w").write(
+        "enabled=1\nhost=127.0.0.1\nport=1\nallow_anonymous=1\n"
+        f"console_id={SYNC_ID}\nconsole_name=Smoke\npolicy=auto\nremote_timer_writes=1\npoll_s=10\n")
+    history = os.path.join(run_dir, "playguard_data", "history.json")
+    if os.path.exists(history):
+        os.remove(history)
+    # What the agent did while PlayGuard was closed: Monday's limit at noon
+    # (UTC) on 8 October 2026.
+    agent_events = os.path.join(run_dir, "playguard_data", "sync", "agent_events.log")
+    os.makedirs(os.path.dirname(agent_events), exist_ok=True)
+    open(agent_events, "w").write("1791460800\tlimit_mon\t45\t1\tnone\t1\t7\tremote\t"
+                                  "60,60,60,60,60,60,60\t60,45,60,60,60,60,60\t-1\n")
 RESCUE_DIR = os.path.join(run_dir, "playguard_data", "sd", "atmosphere", "contents", "4200000000505247")
 if MODULES:
     import hashlib
@@ -171,7 +198,7 @@ if MODULES:
     history = os.path.join(run_dir, "playguard_data", "history.json")
     if os.path.exists(history):
         os.remove(history)
-if not GATE and not ERRORS and not DEVBUILD and not SYNC and not MODULES:
+if not GATE and not ERRORS and not DEVBUILD and not SYNC and not AGENT and not MODULES:
     env.setdefault("PLAYGUARD_SIM_NUMPAD", "1:30")   # what the system number pad returns
     env.setdefault("PLAYGUARD_SIM_PASTE", "https://dpaste.org/SmOkE1")   # what dpaste.org answers
 if ERRORS:
@@ -481,6 +508,62 @@ if SYNC:
         if not any(m.startswith("Remote order done:") for m in messages()):
             fail("no toast for the remote order; messages: " + repr(messages()))
         wait_for("availability offline at exit", lambda: mqtt_get(f"{BASE}/availability") == "offline", 15, False)
+    finish(checked)
+if AGENT:
+    def app_log():
+        log.flush()
+        return open(os.path.join(OUT, "app.log"), errors="replace").read()
+
+    def wait_log(what, text, timeout=30):
+        end = time.time() + timeout
+        while time.time() < end:
+            if text in app_log():
+                return
+            if not alive():
+                fail(f"app exited while waiting for {what}")
+            time.sleep(0.5)
+        fail(f"no {what} after {timeout} s (no '{text}' in the log)")
+
+    wait_log("the agent's session", "sim agent: Hello -> accepted")
+    wait_log("the state pushed", "sim agent: push 2 (")
+    wait_log("today's activity pushed", "sim agent: push 3 (")
+    wait_log("the names pushed", "sim agent: push 4 (")
+    wait_log("the order answered", "sim agent: order 1 -> applied")
+    if "sync: remote link started" in app_log():
+        fail("PlayGuard started a session of its own next to the agent")
+    if os.path.exists(agent_events):
+        fail("the agent's events were not taken: " + agent_events)
+
+    shot("01_overview")        # the Overview after the order (1 h 30 every day)
+    key("Down", steps("dashboard", "preferences"))
+    key("Right")
+    key("Down", 12)            # Remote access, the last cell
+    key("Return")
+    shot("02_remote_access")   # online, through the agent
+    # Quit the way a user does (B twice on the sidebar): the session must end.
+    key("Escape")
+    key("Left")
+    key("Escape", 2)
+    for _ in range(20):
+        if not alive():
+            break
+        time.sleep(0.5)
+    else:
+        fail("still running after B twice on the sidebar")
+
+    def checked():
+        try:
+            entries = json.load(open(os.path.join(run_dir, "playguard_data", "history.json"))).get("entries", [])
+        except (OSError, ValueError) as e:
+            fail(f"no history written: {e}")
+        if not any(e.get("kind") == "limits" and e.get("when") == "2026-10-08 12:00" and e.get("after", [0, 0])[1] == 45
+                   for e in entries):
+            fail(f"the agent's change is not in the history with its time: {entries}")
+        if not any(e.get("kind") == "limits" and e.get("source") == "remote" and e.get("after") == [90] * 7
+                   for e in entries):
+            fail(f"the order handed over by the agent is not in the history: {entries}")
+        if "sim agent: session closed" not in app_log():
+            fail("the session on the agent was not closed at exit")
     finish(checked)
 if MODULES:
     key("Down", steps("dashboard", "security"))

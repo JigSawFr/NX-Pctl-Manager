@@ -72,6 +72,9 @@ size_t sync_engine_pending(const SyncEngine *e)
 void sync_engine_sync_now(SyncEngine *e)
 {
     e->want_state = e->want_activity = e->want_discovery = e->want_names = true;
+    // "online" again: another client of the same console (PlayGuard's own
+    // session, handing over to the agent) may have left "offline" behind.
+    e->want_online = true;
 }
 
 void sync_engine_state_changed(SyncEngine *e)
@@ -482,6 +485,11 @@ static void publish_due(SyncEngine *e)
         if (e->conf.ha_discovery) publish_discovery(e);
     }
     if (!e->mqtt.connected) return;
+    if (e->want_online) {
+        char topic[160];
+        snprintf(topic, sizeof(topic), "%s/availability", e->base);
+        if (mqtt_client_publish(&e->mqtt, topic, "online", 6, true) >= 0) e->want_online = false;
+    }
     if (e->want_state || now >= e->next_state_ms) {
         if (now >= e->next_state_ms || e->want_state) {
             const size_t n = e->host.state ? e->host.state(e->host.ctx, e->scratch, sizeof(e->scratch)) : 0;

@@ -57,4 +57,28 @@ bool write_profiles(const std::vector<profiles::Profile>& list);
 std::string names_text(const std::vector<std::pair<uint64_t, std::string>>& names);
 bool write_names(const std::vector<std::pair<uint64_t, std::string>>& names);
 
+// sync/agent_state.txt (what the agent changed itself) is at least as recent
+// as sync/nro_state.txt (what PlayGuard saved last): the agent's records are
+// then the newer ones, for PlayGuard to adopt. False when the agent never
+// wrote any (its records are PlayGuard's).
+bool agent_records_newer();
+
+// sync/agent_events.log: the orders the agent carried out itself while
+// PlayGuard was closed, one tab-separated line each (docs/sync-protocol.md),
+// for PlayGuard's change history.
+struct AgentEvent
+{
+    uint64_t         ts = 0;           // POSIX
+    std::string      entity, payload, reason, source;
+    bool             applied = false;
+    int              change = 0;       // SyncChange
+    std::vector<int> before, after;
+    int              console_lock_after = -1;
+};
+// The lines that parse, oldest first.
+std::vector<AgentEvent> parse_agent_events(const std::string& text);
+// Takes the file (renamed first, so a line the agent appends meanwhile waits
+// for the next time), parses it, and removes it.
+std::vector<AgentEvent> take_agent_events();
+
 }   // namespace sync_files

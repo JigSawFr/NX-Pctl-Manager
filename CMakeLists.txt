@@ -99,7 +99,9 @@ else ()
     list(APPEND PLAYGUARD_SRC ${CMAKE_CURRENT_SOURCE_DIR}/source/core/pure.c
                               ${CMAKE_CURRENT_SOURCE_DIR}/source/core/calendar.c
                               ${CMAKE_CURRENT_SOURCE_DIR}/source/core/rescue.c
-                              ${CMAKE_CURRENT_SOURCE_DIR}/source/core/write_guard.c)
+                              ${CMAKE_CURRENT_SOURCE_DIR}/source/core/write_guard.c
+                              # The simulated agent runs the agent's own command dispatch.
+                              ${CMAKE_CURRENT_SOURCE_DIR}/sysmodule/agent/source/agent_core.c)
 endif ()
 
 # QR codes of the funding links in About (MIT, vendored: extern/qrcodegen).
@@ -109,6 +111,9 @@ program_target(${PROJECT_NAME} "${PLAYGUARD_SRC}")
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
 
 target_include_directories(${PROJECT_NAME} PRIVATE source extern/qrcodegen ${APP_PLATFORM_INCLUDE})
+if (NOT PLATFORM_SWITCH)
+    target_include_directories(${PROJECT_NAME} PRIVATE source/sync sysmodule/agent/source)
+endif ()
 # -ffunction-sections / -fdata-sections come from borealis (PUBLIC) and
 # --gc-sections from libnx's switch.specs.
 target_compile_options(${PROJECT_NAME} PRIVATE ${APP_PLATFORM_OPTION})

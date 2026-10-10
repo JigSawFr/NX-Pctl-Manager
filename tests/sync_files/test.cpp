@@ -9,6 +9,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <sys/stat.h>
+#include <sys/time.h>
 #include <unistd.h>
 
 #include "util/config.hpp"
@@ -165,6 +167,48 @@ static void test_lists()
     assert(paths::read_file(sync_files::dir() + "/names.txt", read) && read.find("Super Mario Odyssey") != std::string::npos);
 }
 
+void test_agent_events()
+{
+    const std::string text =
+        "1760000000\tlimit_uniform\t90\t1\tnone\t1\t7\tremote\t60,60,60,60,60,60,60\t90,90,90,90,90,90,90\t-1\n"
+        "1760000100\tconsole_lock\tON\t1\tnone\t1\t7\tremote_console_lock\t90,90,90,90,90,90,90\t90,90,90,0,90,90,90\t1\r\n"
+        "1760000200\tunlock\tPRESS\t1\tnone\t7\t0\t\t\t\n"            // older line: no console-lock field
+        "1760000300\tlimit_uniform\t90\t1\tnone\t1\t7\tremote\t60,60\t90,90,90,90,90,90,90\t-1\n"   // too few
+        "garbage\n"
+        "1760000400\t\t90\t1\tnone\t1\t0\tremote\t\t\t-1\n"   // no entity
+        "\n";
+    const auto ev = sync_files::parse_agent_events(text);
+    assert(ev.size() == 3);
+    assert(ev[0].ts == 1760000000ULL && ev[0].entity == "limit_uniform" && ev[0].payload == "90" && ev[0].applied);
+    assert(ev[0].change == 1 && ev[0].before.size() == 7 && ev[0].after[6] == 90 && ev[0].console_lock_after == -1);
+    assert(ev[1].source == "remote_console_lock" && ev[1].after[3] == 0 && ev[1].console_lock_after == 1);
+    assert(ev[2].entity == "unlock" && ev[2].before.empty() && ev[2].source == "remote" && ev[2].console_lock_after == -1);
+
+    // Whose records are newer: the agent's only once it wrote some, and not
+    // before PlayGuard's last save.
+    const std::string agent_state = sync_files::dir() + "/agent_state.txt", nro = sync_files::dir() + "/nro_state.txt";
+    std::remove(agent_state.c_str());
+    assert(!sync_files::agent_records_newer());
+    assert(paths::atomic_write(agent_state, "schema=1\n"));
+    std::remove(nro.c_str());
+    assert(sync_files::agent_records_newer());
+    assert(paths::atomic_write(nro, "schema=1\n"));
+    struct timeval old_times[2] = { { 1000000000, 0 }, { 1000000000, 0 } };
+    assert(utimes(agent_state.c_str(), old_times) == 0);
+    assert(!sync_files::agent_records_newer());
+    assert(utimes(nro.c_str(), old_times) == 0);
+    assert(sync_files::agent_records_newer());
+
+    // Taken once: renamed, read, removed.
+    assert(paths::ensure_dir(sync_files::dir()));
+    assert(paths::atomic_write(sync_files::dir() + "/agent_events.log", text));
+    assert(sync_files::take_agent_events().size() == 3);
+    assert(sync_files::take_agent_events().empty());
+    struct stat st;
+    assert(stat((sync_files::dir() + "/agent_events.log").c_str(), &st) != 0);
+    assert(stat((sync_files::dir() + "/agent_events.log.read").c_str(), &st) != 0);
+}
+
 int main()
 {
     char dir[] = "/tmp/playguard_sync_files_XXXXXX";
@@ -176,9 +220,10 @@ int main()
     test_records();
     test_nro_state();
     test_lists();
+    test_agent_events();
 
     const std::string cleanup = std::string("rm -rf '") + dir + "'";
     assert(std::system(cleanup.c_str()) == 0);
-    std::puts("sync_files: sync.conf, records, nro_state.txt, profiles and names assertions passed");
+    std::puts("sync_files: sync.conf, records, nro_state.txt, profiles, names, agent records and events assertions passed");
     return 0;
 }

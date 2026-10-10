@@ -16,6 +16,7 @@
 #include "sync/sync_apply.h"
 #include "sync/sync_conf.h"
 #include "sync/sync_exec.h"
+#include "util/sync_files.hpp"
 
 namespace sync_orders
 {
@@ -37,5 +38,9 @@ void run(const Order& o, SyncPolicy policy, bool remote_timer_writes, std::funct
 
 // The toast or dialog that says how an order ended.
 void tell(const Order& o, const SyncOutcome& out);
+
+// A change the agent made while PlayGuard was closed (sync/agent_events.log),
+// recorded in the change history at `when` ("2026-10-08 18:30").
+void import(const sync_files::AgentEvent& ev, const std::string& when);
 
 }   // namespace sync_orders

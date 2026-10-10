@@ -2,6 +2,7 @@
 #include "util/sync_files.hpp"
 
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <sys/stat.h>
 
@@ -174,6 +175,93 @@ bool write_names(const std::vector<std::pair<uint64_t, std::string>>& names)
 {
     paths::ensure_dir(dir());
     return paths::atomic_write(dir() + "/names.txt", names_text(names));
+}
+
+namespace
+{
+std::vector<std::string> split(const std::string& s, char sep)
+{
+    std::vector<std::string> out;
+    size_t at = 0;
+    for (;;) {
+        const size_t end = s.find(sep, at);
+        out.push_back(s.substr(at, end == std::string::npos ? std::string::npos : end - at));
+        if (end == std::string::npos) return out;
+        at = end + 1;
+    }
+}
+
+bool parse_int(const std::string& s, long long lo, long long hi, long long* out)
+{
+    if (s.empty() || s.size() > 20) return false;
+    char* end = nullptr;
+    const long long v = std::strtoll(s.c_str(), &end, 10);
+    if (*end || v < lo || v > hi) return false;
+    *out = v;
+    return true;
+}
+
+bool parse_values(const std::string& s, size_t n, std::vector<int>* out)
+{
+    out->clear();
+    if (!n) return s.empty();
+    for (const std::string& part : split(s, ',')) {
+        long long v = 0;
+        if (!parse_int(part, -1, 65535, &v)) return false;
+        out->push_back((int)v);
+    }
+    return out->size() == n;
+}
+}   // namespace
+
+bool agent_records_newer()
+{
+    struct stat agent, nro;
+    if (stat((dir() + "/agent_state.txt").c_str(), &agent) != 0) return false;
+    if (stat((dir() + "/nro_state.txt").c_str(), &nro) != 0) return true;
+    return agent.st_mtime >= nro.st_mtime;
+}
+
+std::vector<AgentEvent> parse_agent_events(const std::string& text)
+{
+    std::vector<AgentEvent> out;
+    for (std::string line : split(text, '\n')) {
+        if (!line.empty() && line.back() == '\r') line.pop_back();
+        const std::vector<std::string> f = split(line, '\t');
+        // The console lock's field came last; a line without it is older.
+        if (f.size() != 10 && f.size() != 11) continue;
+        AgentEvent e;
+        long long ts = 0, applied = 0, change = 0, n = 0, lock = -1;
+        if (!parse_int(f[0], 1, 0x7FFFFFFFFFFFLL, &ts) || !parse_int(f[3], 0, 1, &applied) ||
+            !parse_int(f[5], 0, 64, &change) || !parse_int(f[6], 0, 7, &n))
+            continue;
+        if (f[1].empty() || !parse_values(f[8], (size_t)n, &e.before) || !parse_values(f[9], (size_t)n, &e.after))
+            continue;
+        if (f.size() == 11 && !parse_int(f[10], -1, 1, &lock)) continue;
+        e.ts = (uint64_t)ts;
+        e.entity = f[1];
+        e.payload = f[2];
+        e.applied = applied != 0;
+        e.reason = f[4];
+        e.change = (int)change;
+        e.source = f[7].empty() ? "remote" : f[7];
+        e.console_lock_after = (int)lock;
+        out.push_back(std::move(e));
+    }
+    return out;
+}
+
+std::vector<AgentEvent> take_agent_events()
+{
+    const std::string file = dir() + "/agent_events.log", taken = file + ".read";
+    struct stat st;
+    // A file left by a run that stopped before removing it comes first.
+    if (stat(taken.c_str(), &st) != 0 && std::rename(file.c_str(), taken.c_str()) != 0) return {};
+    std::string text;
+    paths::read_file(taken, text);
+    std::vector<AgentEvent> out = parse_agent_events(text);
+    std::remove(taken.c_str());
+    return out;
 }
 
 }   // namespace sync_files

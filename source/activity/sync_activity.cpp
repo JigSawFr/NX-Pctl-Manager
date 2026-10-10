@@ -213,6 +213,10 @@ void SyncActivity::onContentAvailable()
         const sync_flow::Status st = sync_flow::status();
         std::string text = this->status_line;
         const SyncStatus& l = st.link;
+        if (st.agent) {
+            text += "\n\n" + brls::getStr("playguard/sync/status_agent", st.agent_version);
+            if (st.agent_read_only) text += "\n" + "playguard/sync/status_agent_read_only"_i18n;
+        }
         if (st.running) {
             text += "\n\n" + brls::getStr("playguard/sync/status_counts", (int)l.publishes, (int)l.orders,
                                           (int)l.rejected, (int)st.pending);
@@ -306,6 +310,9 @@ void SyncActivity::refresh_status()
     } else if (!st.ready) {
         text = brls::getStr("playguard/sync/state_incomplete", problem_text(conf));
         color = ui::color_warn();
+    } else if (st.agent_refused) {
+        text = brls::getStr("playguard/sync/state_agent_refused", st.agent_version);
+        color = ui::color_warn();
     } else if (!st.running) {
         text = "playguard/sync/state_stopped"_i18n;
         color = ui::color_warn();
@@ -326,6 +333,7 @@ void SyncActivity::refresh_status()
                 break;
             default: text = "playguard/sync/state_off"_i18n; break;
         }
+        if (st.agent) text = brls::getStr("playguard/sync/state_agent", text);
     }
     if (text == this->status_line) return;
     this->status_line = text;

@@ -11,10 +11,10 @@ local network, and works with any MQTT broker; the Mosquitto add-on of Home
 Assistant is the easy path.
 
 > [!NOTE]
-> For now the link runs **while PlayGuard is open** on the console. Orders sent
-> while it is closed or the console sleeps wait on the broker and are carried
-> out the next time PlayGuard opens. An optional background module that keeps
-> the link up all the time is planned ([design](sync-design.md)).
+> On its own the link runs **while PlayGuard is open** on the console: orders
+> sent while it is closed or the console sleeps wait on the broker and are
+> carried out the next time PlayGuard opens. The optional **agent** keeps it up
+> all the time ([below](#keep-the-link-up-when-playguard-is-closed)).
 
 ## What you need
 
@@ -43,6 +43,28 @@ Assistant is the easy path.
 
 Changing any of these asks for the PIN when *Security › Ask for the PIN* is
 set to *Before a change*: the link can change the console.
+
+## Keep the link up when PlayGuard is closed
+
+The **agent** is a small optional background module (an Atmosphère
+sysmodule, [`sysmodule/agent`](../sysmodule/agent/README.md)) that holds the
+same link while PlayGuard is closed, with the same settings:
+
+1. PlayGuard › **Tools › Optional modules › Remote link agent › Install**
+   (PlayGuard carries it; or extract `playguard-agent.zip` from the release at
+   the SD card's root). It starts at once, and at every boot.
+2. Nothing else to set up: it reads *Remote access*. Its **Status** then reads
+   *Online · through the agent*.
+
+While PlayGuard is open, the agent stays the console's only MQTT client
+(Home Assistant never sees it go offline); PlayGuard passes it what it reads
+and carries out the orders, with its confirmation, PIN check and history as
+usual. While PlayGuard is closed, the agent reads the console itself every
+`poll_s` seconds and carries out orders **only under *Carry them out at
+once***: under *Ask on the console* they wait for PlayGuard. It changes
+nothing when PlayGuard was in read-only mode or after a system update
+PlayGuard has not checked yet. What it changed shows up in PlayGuard's change
+history, with its time, the next time PlayGuard opens.
 
 ## What appears in Home Assistant
 

@@ -115,17 +115,18 @@ std::vector<int> custom_values(const PctlCustomSettings& s)
 
 static void store(history::Entry e)
 {
-    e.when = ui::now_stamp();
+    if (e.when.empty()) e.when = ui::now_stamp();
     std::string err;
     if (!history::append(e, &err)) brls::Logger::warning("history: not saved ({})", err);
     sync_flow::changed();   // the remote link publishes the new state
 }
 
 void record_values(const char* kind, std::vector<int> before, std::vector<int> after,
-                   const std::string& source, const std::string& detail)
+                   const std::string& source, const std::string& detail, const std::string& when)
 {
     if (before == after) return;
     history::Entry e;
+    e.when   = when;
     e.kind   = kind;
     e.source = source;
     e.detail = detail;
@@ -134,9 +135,10 @@ void record_values(const char* kind, std::vector<int> before, std::vector<int> a
     store(e);
 }
 
-void record_event(const char* kind, const std::string& source, const std::string& detail)
+void record_event(const char* kind, const std::string& source, const std::string& detail, const std::string& when)
 {
     history::Entry e;
+    e.when   = when;
     e.kind   = kind;
     e.source = source;
     e.detail = detail;

@@ -95,7 +95,7 @@ typedef struct {
     char        client_id[24];
 
     uint64_t    backoff_ms;
-    bool        want_state, want_activity, want_discovery, want_names;
+    bool        want_state, want_activity, want_discovery, want_names, want_online;
     uint64_t    next_state_ms, next_activity_ms;
     bool        discovery_published;
 

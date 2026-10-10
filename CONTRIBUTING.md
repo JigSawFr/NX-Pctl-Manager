@@ -48,6 +48,8 @@ Clone with submodules (`git clone --recursive`, or `git submodule update --init`
 | `PLAYGUARD_SIM_NUMPAD=1:30` | What the system number pad returns |
 | `PLAYGUARD_SIM_NOW=<POSIX seconds>` | A frozen console time (with `TZ=` for its time zone) |
 | `PLAYGUARD_SIM_MODULES=agent:running` | Optional modules running at start (`name:running`, comma-separated); a module starts only when its `exefs.nsp` is on the simulated SD card |
+| `PLAYGUARD_SIM_AGENT=running` | The agent sysmodule runs (an agent simulated in the process, with its own command dispatch, `sysmodule/agent/source/agent_core.c`): PlayGuard hands the link to it; what it pushes and answers is logged as `sim agent: …` |
+| `PLAYGUARD_SIM_AGENT_ORDER=limit_uniform=90` | An order the simulated agent hands PlayGuard once, after `Hello` |
 | `PLAYGUARD_SIM_BUNDLED=<folder>` | The optional modules PlayGuard carries (`<name>/exefs.nsp` and `version.txt`, as `cmake/bundle_sysmodules.cmake` writes them in the romfs) |
 
 Game patches are read from `./playguard_data/sd/`, the simulated SD card root.

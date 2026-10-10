@@ -12,11 +12,11 @@ votre réseau local et fonctionne avec n'importe quel broker MQTT ; le module
 Mosquitto de Home Assistant est le plus simple.
 
 > [!NOTE]
-> Pour l'instant, le lien fonctionne **tant que PlayGuard est ouvert** sur la
-> console. Les ordres envoyés quand il est fermé ou que la console est en
-> veille attendent sur le broker et sont exécutés à la prochaine ouverture de
-> PlayGuard. Un module facultatif en arrière-plan, qui garde le lien en
-> permanence, est prévu ([conception](sync-design.md)).
+> Seul, le lien fonctionne **tant que PlayGuard est ouvert** sur la console :
+> les ordres envoyés quand il est fermé ou que la console est en veille
+> attendent sur le broker et sont exécutés à la prochaine ouverture de
+> PlayGuard. L'**agent** facultatif le garde en permanence
+> ([plus bas](#garder-le-lien-quand-playguard-est-fermé)).
 
 ## Ce qu'il faut
 
@@ -49,6 +49,30 @@ Mosquitto de Home Assistant est le plus simple.
 
 Changer l'un de ces réglages demande le code PIN quand *Sécurité › Demander le
 code PIN* vaut *Avant un changement* : le lien peut modifier la console.
+
+## Garder le lien quand PlayGuard est fermé
+
+L'**agent** est un petit module facultatif en arrière-plan (un sysmodule
+Atmosphère, [`sysmodule/agent`](../sysmodule/agent/README.md)) qui tient le
+même lien quand PlayGuard est fermé, avec les mêmes réglages :
+
+1. PlayGuard › **Outils › Modules facultatifs › Agent du lien à distance ›
+   Installer** (PlayGuard le contient ; ou extrayez `playguard-agent.zip` de
+   la release à la racine de la carte SD). Il démarre aussitôt, puis à chaque
+   démarrage.
+2. Rien d'autre à régler : il lit *Accès à distance*. Son **État** affiche
+   alors *En ligne · par l'agent*.
+
+Quand PlayGuard est ouvert, l'agent reste le seul client MQTT de la console
+(Home Assistant ne la voit jamais hors ligne) ; PlayGuard lui passe ce qu'il
+lit et exécute les ordres, avec sa confirmation, sa vérification du code PIN
+et son historique habituels. Quand PlayGuard est fermé, l'agent lit la console
+lui-même toutes les `poll_s` secondes et n'exécute les ordres **qu'avec
+*Les exécuter aussitôt*** : avec *Demander sur la console*, ils attendent
+PlayGuard. Il ne change rien quand PlayGuard était en mode lecture seule ou
+après une mise à jour du système que PlayGuard n'a pas encore vérifiée. Ce
+qu'il a changé apparaît dans l'historique des changements de PlayGuard, avec
+son heure, à la prochaine ouverture de PlayGuard.
 
 ## Ce qui apparaît dans Home Assistant
 

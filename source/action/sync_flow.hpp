@@ -1,5 +1,10 @@
-// sync_flow — the remote link (MQTT, Home Assistant) while PlayGuard runs and
-// no agent sysmodule does it (docs/sync-design.md, "autonomous mode").
+// sync_flow — the remote link (MQTT, Home Assistant) while PlayGuard runs.
+//
+// When the agent sysmodule runs (util/agent_client, its pg:agent service), it
+// holds the link: PlayGuard pushes the documents built below and carries out
+// the orders the agent hands it, then answers them; nothing else changes.
+// Otherwise PlayGuard holds the link itself ("autonomous mode",
+// docs/sync-design.md):
 //
 // A worker thread owns the session (source/sync/sync_engine.c over TCP or
 // the console's TLS) and never touches pctl or the play log: everything it
@@ -36,13 +41,24 @@ void sync_now();
 // at the next second rather than at the next poll.
 void changed();
 
+// Tools › Optional modules, around the agent: before it is stopped (PlayGuard
+// ends its session, the agent says "offline"; reload() afterwards hands the
+// link to PlayGuard's own), and once started (waits a moment for its service,
+// then the agent's session takes the link over).
+void agent_stopping();
+void agent_started();
+
 struct Status
 {
     bool        enabled  = false;   // sync.conf turns the link on
     bool        ready    = false;   // and has what it needs (host, user)
     bool        running  = false;   // the worker runs
-    SyncStatus  link{};             // the worker's last view
+    SyncStatus  link{};             // the worker's (or the agent's) last view
     size_t      pending  = 0;       // orders received, not answered yet
+    bool        agent    = false;   // the agent sysmodule holds the link, PlayGuard pushes to it
+    bool        agent_refused = false;   // it runs, but speaks another protocol (an update is due)
+    bool        agent_read_only = false; // it refuses changes (sync/nro_state.txt)
+    std::string agent_version;
 };
 Status status();
 

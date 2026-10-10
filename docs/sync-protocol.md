@@ -257,7 +257,7 @@ creates its own entities with the same object ids.
 | `switch/playguard/sync/profiles.txt` | PlayGuard, when the link starts and when the profiles change | `60,90,120,120,120,180,180=School week`: minutes Sunday first (65535 no limit), then the name. |
 | `switch/playguard/sync/names.txt` | PlayGuard, after a read of the play log | `0100000000010000=Super Mario Odyssey`: the agent's "now playing". |
 | `switch/playguard/sync/agent_state.txt` | the agent | The same records, for what the agent changed itself. At start the agent takes the newer of this file and `nro_state.txt`; PlayGuard adopts the agent's records (`GetRecords`) when it opens. |
-| `switch/playguard/sync/agent_events.log` | the agent | One line per order the agent carried out itself, tab-separated: time (POSIX), entity, payload, applied (0/1), reason, change kind (`SyncChange`), number of values, source (`remote`, `remote_extra`…), values before (comma-separated), values after. PlayGuard imports them into `history.json` and empties the file. |
+| `switch/playguard/sync/agent_events.log` | the agent | One line per order the agent carried out itself, tab-separated: time (POSIX), entity, payload, applied (0/1), reason, change kind (`SyncChange`), number of values, source (`remote`, `remote_extra`…), values before (comma-separated), values after, the console lock afterwards (-1 unchanged, 0, 1). PlayGuard imports them into `history.json`, with the agent's time, when it opens a session, and removes the file. |
 | `switch/playguard/logs/agent_<time>.txt` | the agent | A report asked for by `export_report` while PlayGuard is closed (clocks and parental controls, as PlayGuard's report has them). |
 | `atmosphere/contents/<tid>/{exefs.nsp, flags/boot2.flag, toolbox.json, version.txt}` | *Tools › Optional modules*, or the user | The installed module (`4200000000505247` recovery, `4200000000504741` agent). |
 
@@ -281,10 +281,23 @@ when PlayGuard writes the file again. Anonymous brokers need
 
 ## IPC service `pg:agent` (PlayGuard ↔ agent)
 
-Hosted by the agent (`sysmodule/agent/source/agent_ipc.c`); PlayGuard
-connects at start-up when the agent runs. Command ids and structures are in
+Hosted by the agent (`sysmodule/agent/source/agent_ipc.c`); PlayGuard's
+client is `source/util/agent_client_nx.cpp` (`source/action/sync_flow.cpp`
+drives it). Command ids, structures and result codes are in
 `source/sync/agent_ipc.h` (protocol 1). The IPC message holds 256 bytes, so
 documents, the log, an order and the status travel in mapped buffers.
+
+PlayGuard looks for the service when the link is on, at start-up and every
+5 s after (Atmosphère's `sm` answers whether a service is registered without
+waiting for it), so the agent can be started or stopped while PlayGuard runs
+(*Tools › Optional modules* does it, and hands the link over at once). With
+the agent there, PlayGuard opens no broker session of its own; when the
+agent goes away, PlayGuard's own session takes over. Once its session opens,
+PlayGuard adopts the agent's records (`GetRecords`) when `agent_state.txt` is
+not older than `nro_state.txt` (else it asks the agent to read PlayGuard's
+newer ones: `ReloadConfig`), imports
+`agent_events.log` into its history, and asks for `SyncNow` (which also says
+`online` again over any `offline` its own session left behind).
 
 **An open session means PlayGuard is running.** While it is in the foreground
 it is the only process that reads pctl: the agent publishes what it pushes.
@@ -298,12 +311,12 @@ and come back from the broker for the agent.
 |---|---|---|---|---|
 | 0 | `Hello` | `AgentHello`: protocol, PlayGuard's version | `AgentHelloReply`: protocol, the agent's version, console id, online | Opens PlayGuard's session. Another protocol gets the reply (PlayGuard offers to update the agent) and no session. |
 | 1 | `SetForeground` | `u8` | | In the foreground PlayGuard reads and pushes; in the background the agent reads. |
-| 2 | `PushState` | buffer: JSON | | Publish `state` now. |
+| 2 | `PushState` | buffer: JSON | | Publish `state` now. PlayGuard pushes it when it changes, and every `poll_s` for a fresh time stamp. |
 | 3 | `PushActivity` | buffer: JSON | | Publish `activity` now. |
 | 4 | `PushNames` | buffer: JSON | | Publish `names`. |
 | 5 | `PushWeek` | buffer: JSON | | Publish `week`. |
-| 6 | `PushFinal` | buffer: `YYYY-MM-DD` + newline + JSON | | Publish `activity/<date>` (an empty document clears it). |
-| 7 | `PopOrder` | | buffer: `AgentOrder` (id 0: none) | The next order for PlayGuard, each handed out once. PlayGuard asks every 500 ms. |
+| 6 | `PushFinal` | buffer: `YYYY-MM-DD` + newline + JSON | | Publish `activity/<date>` (an empty document clears it). Seven wait at most: `AGENT_RC_FULL`, and PlayGuard sends it again a second later. |
+| 7 | `PopOrder` | | buffer: `AgentOrder` (id 0: none) | The next order for PlayGuard, each handed out once. PlayGuard asks every second, in the foreground, one order at a time. |
 | 8 | `OrderResult` | `AgentResult`: id, rc, applied, changed, reason | | The agent publishes the event, clears the retained order, republishes the state. |
 | 9 | `SyncNow` | | | Republish everything. |
 | 10 | `GetStatus` | | buffer: `AgentStatus` | The link's status, pending orders, read-only, version, uptime. |

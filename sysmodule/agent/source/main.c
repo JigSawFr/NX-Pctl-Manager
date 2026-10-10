@@ -440,6 +440,7 @@ static void append_event(const char *entity, const char *payload, const SyncOutc
     if (at > 0 && at < (int)sizeof(line)) at += snprintf(line + at, sizeof(line) - (size_t)at, "\t");
     for (int i = 0; i < o->n && at > 0 && at < (int)sizeof(line); i++)
         at += snprintf(line + at, sizeof(line) - (size_t)at, i ? ",%d" : "%d", o->after[i]);
+    if (at > 0 && at < (int)sizeof(line)) at += snprintf(line + at, sizeof(line) - (size_t)at, "\t%d", o->console_lock_after);
     if (at <= 0 || at >= (int)sizeof(line) - 1) return;
     line[at++] = '\n';
     FILE *f = fopen(AGENT_EVENTS, "ab");
@@ -715,7 +716,11 @@ static void hand_over(void)
         o.relock_failed = results[i].relock_failed;
         sync_engine_order_done(&g_engine, results[i].id, &o);
     }
-    if (want_reload) reload(true);
+    if (want_reload) {
+        // PlayGuard saved: sync.conf, the profiles, read-only mode.
+        reload(true);
+        if (g_engine_on) sync_engine_discovery_changed(&g_engine);
+    }
     if (session_changed) {
         if (session) {
             slog("PlayGuard opened (%s)%s", app_version, NULL);

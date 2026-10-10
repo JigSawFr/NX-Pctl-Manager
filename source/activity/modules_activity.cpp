@@ -6,6 +6,7 @@
 
 #include "action/history_flow.hpp"
 #include "action/pin_lock.hpp"
+#include "action/sync_flow.hpp"
 #include "ui/ui.hpp"
 #include "util/paths.hpp"
 #include "util/pctl_ops_c.hpp"
@@ -115,10 +116,14 @@ void ModulesActivity::bind(Row& row)
             Result rc = 0;
             const bool running = module_running(m.tid, &rc);
             if (!allowed()) return true;
+            if (running) sync_flow::agent_stopping();
             rc = running ? module_terminate(m.tid) : module_launch(m.tid);
             ui::notify_result(rc, running ? "playguard/modules/stopped"_i18n : "playguard/modules/started"_i18n,
                               "playguard/modules/error"_i18n);
             if (R_SUCCEEDED(rc)) record(m, running ? "stopped" : "started");
+            // The link follows: the agent's, or PlayGuard's own.
+            if (running || R_FAILED(rc)) sync_flow::reload();
+            else sync_flow::agent_started();
             this->refresh();
             return true;
         });
@@ -149,11 +154,15 @@ void ModulesActivity::install(const Row& row)
         // A resident module is stopped for the swap and started again; it
         // must come back, or the previous one is put back.
         const bool was_running = m.resident && module_running(m.tid, nullptr);
-        if (was_running) module_terminate(m.tid);
+        if (was_running) {
+            sync_flow::agent_stopping();
+            module_terminate(m.tid);
+        }
         std::string err;
         if (!modules::install(sd, m, b, m.resident, &err)) {
             if (was_running) module_launch(m.tid);
             ui::error("playguard/modules/error"_i18n + " — " + err);
+            sync_flow::reload();
             this->refresh();
             return;
         }
@@ -163,9 +172,11 @@ void ModulesActivity::install(const Row& row)
                 std::string back;
                 if (update && modules::rollback(sd, m, &back) && was_running) module_launch(m.tid);
                 ui::error(brls::getStr("playguard/modules/start_failed", ui::rc_text(rc)));
+                sync_flow::reload();
                 this->refresh();
                 return;
             }
+            sync_flow::agent_started();
         }
         modules::confirm(sd, m);
         record(m, update ? "updated" : "installed");
@@ -182,7 +193,11 @@ void ModulesActivity::uninstall(const Row& row)
     ui::confirm_danger(brls::getStr(key(m, "remove_body")), "playguard/modules/remove"_i18n, [this, id]() {
         const modules::Module& m = modules::get(id);
         if (!allowed()) return;
-        if (m.resident && module_running(m.tid, nullptr)) module_terminate(m.tid);
+        if (m.resident && module_running(m.tid, nullptr)) {
+            sync_flow::agent_stopping();
+            module_terminate(m.tid);
+            sync_flow::reload();
+        }
         std::string err;
         if (!modules::uninstall(paths::sd_root(), m, &err)) {
             ui::error("playguard/modules/error"_i18n + " — " + err);

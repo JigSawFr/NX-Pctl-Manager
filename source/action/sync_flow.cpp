@@ -24,6 +24,7 @@
 #include "sync/sync_tls.h"
 #include "tab/tab_base.hpp"
 #include "ui/ui.hpp"
+#include "util/agent_client.hpp"
 #include "util/config.hpp"
 #include "util/diagnostics.hpp"
 #include "util/profiles.hpp"
@@ -41,6 +42,7 @@ constexpr size_t REPORT_MAX = 128 * 1024;
 constexpr auto FETCH_EVERY = std::chrono::minutes(5);
 constexpr auto ACCOUNTS_FRESH = std::chrono::minutes(15);
 constexpr auto EXIT_WAIT = std::chrono::seconds(4);
+constexpr auto PROBE_EVERY = std::chrono::seconds(5);
 
 // What the UI thread and the worker share. The worker never calls into
 // borealis but brls::sync() and the logger; the UI never calls the engine.
@@ -278,6 +280,19 @@ std::string s_names_sent, s_week_sent;
 std::vector<std::string> s_profiles_sent;
 bool s_profiles_known = false;
 int s_read_only_sent = -1;   // the discovery offers no control in read-only mode
+uint32_t s_generation = 0;   // changes with the session: an answer never reaches another one
+
+// Agent mode: the agent sysmodule holds the link (sync/agent_ipc.h, its
+// pg:agent service); PlayGuard pushes what it reads of the console and carries
+// out the orders the agent hands it. No worker then.
+bool s_agent = false;           // PlayGuard's session on pg:agent
+bool s_agent_refused = false;   // the agent runs but speaks another protocol: it keeps the link to itself
+AgentHelloReply s_hello{};
+AgentStatus s_agent_status{};
+int s_agent_fg = -1;            // what the agent was last told (-1: nothing yet)
+Clock::time_point s_agent_state_at{}, s_last_probe{};
+std::string s_agent_activity;
+std::deque<std::pair<std::string, std::string>> s_agent_finals;   // date, document: waiting for room
 
 void wake(Shared& sh)
 {
@@ -285,13 +300,52 @@ void wake(Shared& sh)
     sh.cv.notify_all();
 }
 
+// The link runs from here: PlayGuard's own session, or the agent's.
 bool running()
 {
-    return s_shared != nullptr;
+    return s_shared != nullptr || s_agent;
+}
+
+bool wanted()
+{
+    return s_conf.enabled && !sync_conf_problem(&s_conf);
+}
+
+void agent_lost();
+
+// A pg:agent call's result: false when it failed. A session that went away
+// (the agent stopped) is dropped; the next probe hands the link to PlayGuard.
+bool agent_ok(Result rc, const char* what)
+{
+    if (R_SUCCEEDED(rc)) return true;
+    brls::Logger::warning("sync: agent {}: 0x{:08X}", what, (unsigned)rc);
+    if (!agent_client::connected()) agent_lost();
+    return false;
+}
+
+// Finished days wait for room in the agent (it holds a few until published).
+void agent_flush_finals()
+{
+    while (s_agent && !s_agent_finals.empty()) {
+        const Result rc = agent_client::push_final(s_agent_finals.front().first, s_agent_finals.front().second);
+        if (rc == AGENT_RC_FULL) return;
+        if (!agent_ok(rc, "final") && !s_agent) return;   // gone (the list went with it)
+        s_agent_finals.pop_front();                       // sent, or refused (too large): dropped
+    }
 }
 
 void post_publish(const std::string& sub, const std::string& payload, bool retained)
 {
+    if (s_agent) {
+        if (sub == "names") agent_ok(agent_client::push(AgentCmd_PushNames, payload), "names");
+        else if (sub == "week") agent_ok(agent_client::push(AgentCmd_PushWeek, payload), "week");
+        else if (sub.compare(0, 9, "activity/") == 0) {
+            s_agent_finals.push_back({ sub.substr(9), payload });
+            agent_flush_finals();
+        }
+        // A report: the agent writes and publishes its own.
+        return;
+    }
     if (!s_shared) return;
     std::lock_guard<std::mutex> lk(s_shared->m);
     s_shared->pubs[sub] = { payload, retained };
@@ -440,7 +494,11 @@ void on_play_data()
     const std::string date = date_text(today.year, today.month, today.day);
 
     const std::string activity = activity_doc(*stats, 0, date, posix);
-    {
+    if (s_agent) {
+        if (activity != s_agent_activity && agent_ok(agent_client::push(AgentCmd_PushActivity, activity), "activity"))
+            s_agent_activity = activity;
+        if (!running()) return;
+    } else {
         std::lock_guard<std::mutex> lk(s_shared->m);
         if (s_shared->activity != activity) s_shared->activity_changed = true;
         s_shared->activity = activity;
@@ -494,7 +552,9 @@ void build_state()
     const std::string version = app::version();
 
     std::string last_result;
-    {
+    if (s_agent) {
+        last_result = s_agent_status.link.last_result;
+    } else {
         std::lock_guard<std::mutex> lk(s_shared->m);
         last_result = s_shared->status.last_result;
     }
@@ -511,7 +571,7 @@ void build_state()
     s.conf = &s_conf;
     s.sys = &si;
     s.app_version = version.c_str();
-    s.agent_version = nullptr;
+    s.agent_version = s_agent ? s_hello.version : nullptr;
     s.read_only = app::read_only();
     s.status = &st;
     s.timer = &pt;
@@ -520,7 +580,7 @@ void build_state()
     s.records = &rec;
     s.activity_ok = activity_ok;
     s.activity_s = activity_ok ? (uint32_t)play_data::today_total_s(*stats) : 0;
-    s.agent = false;
+    s.agent = s_agent;
     s.last_result = last_result.c_str();
 
     std::string doc(16384, '\0');
@@ -528,6 +588,24 @@ void build_state()
     if (!n) return;
     doc.resize(n);
     const std::string body = without_ts(doc);
+    if (s_agent) {
+        // The agent publishes what it gets at once: a change, or the poll's
+        // fresh time stamp.
+        const auto now = Clock::now();
+        const int every = s_conf.poll_s > 2 ? s_conf.poll_s - 1 : 1;
+        if (body == s_state_body && now - s_agent_state_at < std::chrono::seconds(every)) return;
+        if (s_read_only_sent != (app::read_only() ? 1 : 0)) {
+            // nro_state.txt says it (ui::on_mode_changed): the agent reads it
+            // again and its discovery follows.
+            s_read_only_sent = app::read_only() ? 1 : 0;
+            agent_ok(agent_client::reload(), "reload");
+        }
+        if (s_agent && agent_ok(agent_client::push(AgentCmd_PushState, doc), "state")) {
+            s_state_body = body;
+            s_agent_state_at = now;
+        }
+        return;
+    }
     std::lock_guard<std::mutex> lk(s_shared->m);
     s_shared->state = doc;
     s_shared->state_at = Clock::now();
@@ -558,6 +636,11 @@ void check_profiles()
     s_profiles_known = true;
     s_profiles_sent = names;
     sync_files::write_profiles(list);
+    if (s_agent) {
+        agent_ok(agent_client::reload(), "reload");   // its discovery's select
+        return;
+    }
+    if (!s_shared) return;
     std::lock_guard<std::mutex> lk(s_shared->m);
     s_shared->profiles = names;
     s_shared->discovery_changed = true;
@@ -566,6 +649,17 @@ void check_profiles()
 
 void post_done(uint32_t id, const SyncOutcome& out)
 {
+    if (s_agent) {
+        AgentResult r{};
+        r.id = id;
+        r.rc = out.rc;
+        r.applied = out.applied;
+        r.changed = out.changed;
+        r.reason = (uint8_t)out.reason;
+        r.relock_failed = out.relock_failed;
+        agent_ok(agent_client::order_result(r), "result");
+        return;
+    }
     if (!s_shared) return;
     std::lock_guard<std::mutex> lk(s_shared->m);
     s_shared->done.push_back({ id, out });
@@ -595,12 +689,14 @@ SyncOutcome export_report()
 
 void next_order();
 
-void finish_order(const sync_orders::Order& o, const SyncOutcome& out)
+void finish_order(const sync_orders::Order& o, const SyncOutcome& out, uint32_t generation)
 {
     // The new state first: the engine publishes it right after the event.
     s_dirty = true;
     build_state();
-    post_done(o.id, out);
+    // A session that ended meanwhile keeps the order on the broker: the
+    // next one gets it again.
+    if (generation == s_generation) post_done(o.id, out);
     sync_orders::tell(o, out);
     if (out.applied && out.changed) TabBase::refresh_shown();
     s_order_running = false;
@@ -625,12 +721,13 @@ void next_order()
     const sync_orders::Order o = s_queue.front();
     s_queue.pop_front();
     s_order_running = true;
+    const uint32_t generation = s_generation;
     if (o.intent.kind == SyncIntent_ExportReport) {
-        finish_order(o, export_report());
+        finish_order(o, export_report(), generation);
         return;
     }
     sync_orders::run(o, s_conf.policy, s_conf.remote_timer_writes,
-                     [o](const SyncOutcome& out) { finish_order(o, out); });
+                     [o, generation](const SyncOutcome& out) { finish_order(o, out, generation); });
 }
 
 void pump()
@@ -659,12 +756,52 @@ void pump()
     next_order();
 }
 
+void apply_conf();
+
+// In agent mode, every second: the foreground, the agent's status, the
+// finished days waiting, and the next order.
+void agent_tick()
+{
+    const bool fg = app::in_focus();
+    if ((fg ? 1 : 0) != s_agent_fg) {
+        if (!agent_ok(agent_client::set_foreground(fg), "foreground")) return;
+        s_agent_fg = fg ? 1 : 0;
+        if (fg) s_dirty = true;   // back in front: PlayGuard reads the console again
+    }
+    AgentStatus st;
+    if (!agent_ok(agent_client::status(&st), "status")) return;
+    s_agent_status = st;
+    agent_flush_finals();
+    // One at a time, in the foreground (next_order says when).
+    if (s_agent && fg && !s_order_running && s_queue.empty()) {
+        AgentOrder a;
+        if (agent_ok(agent_client::pop_order(&a), "order") && a.id) {
+            sync_orders::Order o;
+            o.id = a.id;
+            o.intent = a.intent;
+            o.entity.assign(a.entity, strnlen(a.entity, sizeof(a.entity)));
+            o.payload.assign(a.payload, strnlen(a.payload, sizeof(a.payload)));
+            o.retained = a.retained;
+            brls::Logger::info("sync: order {} from the agent: {}={}", o.id, o.entity, o.payload);
+            s_queue.push_back(o);
+        }
+    }
+    next_order();
+}
+
 void tick()
 {
+    const auto now = Clock::now();
+    // The agent started or stopped (Tools › Optional modules, a crash): the
+    // link follows.
+    if (wanted() && !s_agent && now - s_last_probe >= PROBE_EVERY) {
+        s_last_probe = now;
+        if (agent_client::available() ? !s_agent_refused : !s_shared) apply_conf();
+    }
+    if (s_agent) agent_tick();
     if (!running()) return;
     pump();
     if (!app::in_focus()) return;
-    const auto now = Clock::now();
     if (s_dirty || now - s_last_state >= std::chrono::seconds(s_conf.poll_s)) {
         s_dirty = false;
         s_last_state = now;
@@ -715,6 +852,7 @@ void halt()
     if (!s_shared) return;
     std::shared_ptr<Shared> sh = s_shared;
     s_shared.reset();
+    s_generation++;
     std::unique_lock<std::mutex> lk(sh->m);
     sh->stop = true;
     wake(*sh);
@@ -729,13 +867,115 @@ void halt()
     s_queue.clear();
 }
 
+// PlayGuard's session on the agent ends: it reads the console by itself
+// again, and answers the orders it handed out "waiting" (they stay on the
+// broker).
+void agent_leave()
+{
+    if (!s_agent) return;
+    agent_client::close();
+    s_agent = false;
+    s_generation++;
+    s_queue.clear();
+    s_agent_finals.clear();
+}
+
+void agent_lost()
+{
+    if (!s_agent) return;
+    brls::Logger::warning("sync: the agent went away");
+    agent_leave();
+    s_last_probe = {};   // the next second: PlayGuard's own session, or the agent again
+}
+
+// What the agent did while PlayGuard was closed: its records (extra time
+// given, the console lock, a relock pending) and its changes, into the
+// history with the time they were made.
+void agent_adopt()
+{
+    // Not when PlayGuard saved after the agent's last change: the agent then
+    // reads PlayGuard's (nro_state.txt) at once.
+    if (sync_files::agent_records_newer()) {
+        AgentRecords r{};
+        if (agent_ok(agent_client::records(&r), "records") && r.valid &&
+            sync_files::records_into(r.records, config::get())) {
+            ui::save_config();
+            brls::Logger::info("sync: the agent's records adopted");
+        }
+    } else {
+        agent_ok(agent_client::reload(), "reload");
+    }
+    const auto events = sync_files::take_agent_events();
+    const TimeRule* rule = time_console_rule();
+    for (const auto& ev : events) {
+        LocalTime t{};
+        std::string when;
+        if (rule && rule->to_local(rule->ctx, ev.ts, &t))
+            when = fmt::format("{:04d}-{:02d}-{:02d} {:02d}:{:02d}", (int)t.year, (int)t.month, (int)t.day, (int)t.hour,
+                               (int)t.minute);
+        sync_orders::import(ev, when);
+    }
+    if (!events.empty()) brls::Logger::info("sync: {} change(s) of the agent in the history", events.size());
+}
+
+// The agent runs: its session is the link, PlayGuard's own stops. True when
+// the agent holds the link (PlayGuard's session or not).
+bool agent_join()
+{
+    s_agent_refused = false;
+    if (!agent_client::available()) return false;
+    AgentHelloReply r{};
+    Result rc = 0;
+    if (!agent_client::open(&r, &rc)) {
+        brls::Logger::warning("sync: the agent did not answer (0x{:08X})", (unsigned)rc);
+        return false;
+    }
+    s_hello = r;
+    s_hello.version[sizeof(s_hello.version) - 1] = '\0';
+    halt();   // "offline" from PlayGuard's own session first; the agent says "online" again below
+    if (!r.accepted) {
+        // Another protocol: the agent keeps the link to itself (Tools ›
+        // Optional modules updates it).
+        s_agent_refused = true;
+        brls::Logger::warning("sync: the agent {} speaks protocol {}, PlayGuard {}", s_hello.version, r.protocol,
+                              AGENT_PROTOCOL);
+        return true;
+    }
+    s_agent = true;
+    s_agent_fg = -1;
+    s_agent_status = AgentStatus{};
+    s_agent_state_at = {};
+    s_agent_activity.clear();
+    s_agent_finals.clear();
+    s_dirty = true;
+    s_finals_sent.clear();
+    s_old_cleared = false;
+    s_names_sent.clear();
+    s_week_sent.clear();
+    s_state_body.clear();
+    s_read_only_sent = app::read_only() ? 1 : 0;
+    s_profiles_known = false;
+    brls::Logger::info("sync: the agent {} holds the link", s_hello.version);
+    agent_adopt();
+    if (s_agent) agent_ok(agent_client::sync_now(), "sync now");
+    if (s_agent) on_play_data();
+    return true;
+}
+
 void apply_conf()
 {
-    const bool want = s_conf.enabled && !sync_conf_problem(&s_conf);
-    if (!want) {
+    if (!wanted()) {
         halt();
+        if (s_agent) agent_ok(agent_client::reload(), "reload");   // the agent stops its link too
+        agent_leave();
+        s_agent_refused = false;
         return;
     }
+    if (s_agent) {
+        agent_ok(agent_client::reload(), "reload");   // sync.conf again
+        return;
+    }
+    if (agent_join()) return;
     if (!s_shared) {
         launch();
         return;
@@ -764,6 +1004,7 @@ void stop()
 {
     if (!s_started) return;
     halt();
+    agent_leave();
     if (s_timer) {
         s_timer->stop();
         delete s_timer;
@@ -786,11 +1027,14 @@ void sync_now()
     s_names_sent.clear();
     s_week_sent.clear();
     s_finals_sent.clear();
-    if (!s_shared) return;
-    {
+    if (s_agent) {
+        agent_ok(agent_client::sync_now(), "sync now");
+    } else if (s_shared) {
         std::lock_guard<std::mutex> lk(s_shared->m);
         s_shared->sync_now = true;
         wake(*s_shared);
+    } else {
+        return;
     }
     tick();
     if (!play_data::busy("")) play_data::fetch(nullptr);
@@ -801,13 +1045,43 @@ void changed()
     s_dirty = true;
 }
 
+void agent_stopping()
+{
+    if (!s_agent) return;
+    if (agent_ok(agent_client::prepare_shutdown(), "shutdown")) {
+        // A clean "offline" before the process ends (else the broker's last
+        // will says it).
+        AgentStatus st;
+        for (int i = 0; i < 20 && s_agent; i++) {
+            if (!agent_ok(agent_client::status(&st), "status") || st.link.state != SyncLink_Online) break;
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+    }
+    agent_leave();
+}
+
+void agent_started()
+{
+    // pg:agent is there once the agent is up, a moment after its start.
+    for (int i = 0; i < 30 && !agent_client::available(); i++)
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    reload();
+}
+
 Status status()
 {
     Status st;
     st.enabled = s_conf.enabled;
     st.ready = s_conf.enabled && !sync_conf_problem(&s_conf);
-    st.running = s_shared != nullptr;
-    if (s_shared) {
+    st.running = running();
+    st.agent = s_agent;
+    st.agent_refused = s_agent_refused;
+    if (s_agent || s_agent_refused) st.agent_version = s_hello.version;
+    if (s_agent) {
+        st.link = s_agent_status.link;
+        st.pending = s_agent_status.pending + s_queue.size();
+        st.agent_read_only = s_agent_status.read_only;
+    } else if (s_shared) {
         std::lock_guard<std::mutex> lk(s_shared->m);
         st.link = s_shared->status;
         st.pending = s_shared->pending + s_queue.size();
@@ -817,6 +1091,18 @@ Status status()
 
 std::vector<std::string> log_lines()
 {
+    if (s_agent) {
+        std::string text;
+        std::vector<std::string> lines;
+        if (!agent_ok(agent_client::log(&text), "log")) return lines;
+        for (size_t at = 0; at < text.size();) {
+            size_t end = text.find('\n', at);
+            if (end == std::string::npos) end = text.size();
+            if (end > at) lines.push_back(text.substr(at, end - at));
+            at = end + 1;
+        }
+        return lines;
+    }
     if (!s_shared) return {};
     std::lock_guard<std::mutex> lk(s_shared->m);
     return std::vector<std::string>(s_shared->log.begin(), s_shared->log.end());
@@ -834,6 +1120,10 @@ std::string report_section()
                        c.enabled ? 1 : 0, st.ready ? 1 : 0, c.tls ? 1 : 0, c.username[0] ? "set" : "none",
                        c.allow_anonymous ? 1 : 0, sync_policy_name(c.policy), c.remote_timer_writes ? 1 : 0,
                        c.ha_discovery ? 1 : 0, c.publish_report ? 1 : 0, c.publish_activity ? 1 : 0, c.poll_s);
+    if (st.agent || st.agent_refused)
+        out += fmt::format("agent       : {} {}\n", st.agent_version,
+                           st.agent ? (st.agent_read_only ? "(holds the link, read-only)" : "(holds the link)")
+                                    : "(another protocol: not used)");
     if (!st.running) return out + "session     : not running\n";
     const SyncStatus& l = st.link;
     out += fmt::format("session     : {} connects={} publishes={} orders={} rejected={} dropped={} pending={}\n",

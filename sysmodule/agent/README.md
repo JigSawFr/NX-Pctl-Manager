@@ -38,7 +38,11 @@ console go offline. PlayGuard holds a session on the agent's IPC service
 foreground it is the only one reading the parental controls and pushes what it
 reads; orders go to PlayGuard, which applies its policy, its PIN check and its
 change history. When PlayGuard closes or goes to the background, the agent
-reads the console again by itself.
+reads the console again by itself. *Preferences › Remote access* then says
+*Online · through the agent*; when PlayGuard opens, it adopts the agent's
+records and imports what the agent changed into its history. Started or
+stopped from *Tools › Optional modules*, the link moves between the agent and
+PlayGuard's own session at once.
 
 ## Files
 

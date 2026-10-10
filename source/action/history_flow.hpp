@@ -21,11 +21,13 @@ std::vector<int> custom_values(const PctlCustomSettings& s);
 
 // A value change ("limits", "level", "custom", "org", "vr", "alarm"); nothing
 // is recorded when `before` equals `after`. A failed SD write is only logged:
-// the change itself went through.
+// the change itself went through. `when` is now unless given (a change the
+// agent made while PlayGuard was closed: "2026-10-08 18:30").
 void record_values(const char* kind, std::vector<int> before, std::vector<int> after,
-                   const std::string& source = "", const std::string& detail = "");
+                   const std::string& source = "", const std::string& detail = "", const std::string& when = "");
 // An action with no value to put back ("pin", "unlock", "unlink", …).
-void record_event(const char* kind, const std::string& source = "", const std::string& detail = "");
+void record_event(const char* kind, const std::string& source = "", const std::string& detail = "",
+                  const std::string& when = "");
 
 // The History screen's wording: one line, and the details for its dialog.
 std::string title(const history::Entry& e);

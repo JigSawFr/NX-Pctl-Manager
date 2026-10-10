@@ -29,9 +29,9 @@ static uint32_t push_doc(char *doc, size_t cap, AgentDocInfo *info, const AgentC
 
 static uint32_t push_final(AgentShared *s, const AgentCall *c)
 {
-    // "YYYY-MM-DD\n" then the document.
+    // "YYYY-MM-DD\n" then the document (none: the day is cleared).
     const char *b = (const char *)c->buf;
-    if (!b || c->buf_len < 12 || b[10] != '\n') return AGENT_RC_BAD_INPUT;
+    if (!b || c->buf_len < 11 || b[10] != '\n') return AGENT_RC_BAD_INPUT;
     for (int i = 0; i < 10; i++)
         if (i == 4 || i == 7 ? b[i] != '-' : (b[i] < '0' || b[i] > '9')) return AGENT_RC_BAD_INPUT;
     size_t n = c->buf_len - 11;

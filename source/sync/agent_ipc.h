@@ -32,6 +32,15 @@ extern "C" {
 #define AGENT_LOG_LINES    200
 #define AGENT_LOG_LINE     120
 
+// The agent's results ("module" 412 in the Result encoding).
+#define AGENT_RC(desc)        ((uint32_t)(412u | ((uint32_t)(desc) << 9)))
+#define AGENT_RC_UNKNOWN_CMD  AGENT_RC(1)
+#define AGENT_RC_BAD_INPUT    AGENT_RC(2)
+#define AGENT_RC_TOO_LARGE    AGENT_RC(3)
+#define AGENT_RC_PROTOCOL     AGENT_RC(4)
+#define AGENT_RC_NO_SESSION   AGENT_RC(5)
+#define AGENT_RC_FULL         AGENT_RC(6)   // no room: try again later
+
 typedef enum {
     AgentCmd_Hello           = 0,   // in AgentHello, out AgentHelloReply
     AgentCmd_SetForeground   = 1,   // in u8
