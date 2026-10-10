@@ -139,7 +139,7 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 - Une ligne d'état : actif, temps restant, limite du jour, profil correspondant (en rouge tant que la limite est atteinte).
 - **Le graphique de la semaine :** ←/→ choisit un jour, Ⓐ change sa limite.
 - **Même limite tous les jours :** liste rapide ou valeur libre, en minutes (`90`, `90 min`) ou en heures (`1:30`, `1h30`).
-- **Limite différente selon le jour :** jours non enregistrés en orange, valeurs rapides, préréglages lundi–vendredi / week-end, « pas de limite » par jour ; **+** enregistre depuis n'importe où.
+- **Limite différente selon le jour :** jours non enregistrés en orange et marqués \*, valeurs rapides, préréglages lundi–vendredi / week-end, « pas de limite » par jour ; **+** enregistre depuis n'importe où.
 - **Suppression de la limite**, **temps en plus aujourd'hui**, **plus de jeu aujourd'hui** (comme dans la Vue d'ensemble).
 - **Profils** enregistrés sur la carte SD : appliquer, modifier, renommer ou supprimer un profil ; enregistrer les limites actuelles ou en créer un nouveau. N'importe quel nom, dans n'importe quelle écriture (*École*, *周末*, *Выходные* …) — un nom sans lettres latines reçoit son propre nom de fichier, et deux noms qui donneraient le même fichier sont repérés.
 - Chaque confirmation dessine la semaine telle qu'elle sera, les jours qui changent en orange.
@@ -151,7 +151,7 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 <summary><b>Activité</b> — qui a joué à quoi, et combien de temps</summary>
 
 - Temps passé sur chaque jeu **aujourd'hui**, sur les **7 derniers jours** et **depuis toujours**, lu dans le journal d'activité de la console — pour tous les comptes ou **un seul compte utilisateur** (*Compte*, quand la console en a plusieurs).
-- Un graphique des sept derniers jours, avec la limite de chaque jour en trait et le temps au-delà en orange ; totaux du jour, de la semaine et depuis toujours.
+- Un graphique des sept derniers jours (aujourd'hui à droite, une légende dessous), avec la limite de chaque jour en trait et le temps au-delà en orange, marqué ! ; totaux du jour, de la semaine et depuis toujours.
 - Un **résumé** sur la période choisie, pour le compte affiché : moyenne par jour, le jeu le plus joué, les jours joués et le plus chargé (7 derniers jours), la session moyenne (depuis toujours).
 - **À redécouvrir** : les jeux installés, à moins de 3 h au total et pas lancés depuis un mois ou plus, les moins joués d'abord (jusqu'à trois).
 - Tri par période ; les premiers jeux affichent leur icône (pas en mode applet, pour économiser la mémoire). Une grande bibliothèque affiche ses 50 premiers jeux, puis *Afficher tous les jeux* ; l'export les contient toujours tous.

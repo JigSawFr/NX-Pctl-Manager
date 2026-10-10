@@ -503,7 +503,8 @@
         "unlink_confirm": "解除关联",
         "unlinked": "已解除手机应用的关联。",
         "unlink_err": "无法解除手机应用的关联",
-        "note": "只要主机仍保持关联，手机应用会在下次同步时覆盖在此进行的设置。"
+        "note": "只要主机仍保持关联，手机应用会在下次同步时覆盖在此进行的设置。",
+        "unlink_dev_note": "开发者工具：“比较游戏时间数据块”需要仍然关联的主机。如要解读某项设置，请先保存参照。"
     },
     "security": {
         "section_status": "状态",
@@ -820,7 +821,7 @@
         "busy": "已在进行中…",
         "list_failed": "无法列出构建：{}",
         "list_stale": "无法刷新列表（{}）：显示上次的列表。",
-        "downloading": "正在下载（{} MB）…",
+        "downloading": "正在下载版本…\n{} / {} MB",
         "failed": "无法安装构建：{}\n\n已安装的 PlayGuard 未改变。",
         "done_manual": "{} 已安装。关闭 PlayGuard 并重新打开即可使用。",
         "no_path": "PlayGuard 不知道自己的 .nro 文件位置（未通过 hbloader 启动？），因此无法替换。请从 GitHub 手动安装该构建。",
@@ -903,5 +904,12 @@
         "undo_confirm": "恢复",
         "undone": "已恢复之前的值。",
         "undo_err": "无法恢复之前的值"
+    },
+    "chart": {
+        "last_days": "最近 7 天，最右边是今天",
+        "limit_line": "柱上的线是当天的限制",
+        "limit_over": "线是当天的限制 · 橙色 !：超过了限制",
+        "week_order": "周一到周日，带下划线的是今天",
+        "unsaved": "橙色 *：已更改，尚未保存"
     }
 }

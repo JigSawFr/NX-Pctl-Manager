@@ -349,6 +349,8 @@ if DEVBUILD:
     shot("04_dev_build_confirm")
     key("Right")               # Install
     key("Return")
+    time.sleep(0.7)
+    shot("05_dev_build_downloading")   # the progress bar (the simulated download takes 2 s)
     for _ in range(20):
         if not alive():
             break

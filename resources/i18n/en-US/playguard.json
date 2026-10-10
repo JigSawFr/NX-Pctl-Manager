@@ -503,7 +503,8 @@
         "unlink_confirm": "Unlink",
         "unlinked": "Companion app unlinked.",
         "unlink_err": "Could not unlink the companion app",
-        "note": "While the console stays linked, the companion app overwrites the settings made here at its next synchronisation."
+        "note": "While the console stays linked, the companion app overwrites the settings made here at its next synchronisation.",
+        "unlink_dev_note": "Developer tools: Compare the play-timer block needs a console that is still linked. Save its reference first if you want to decode a setting."
     },
     "security": {
         "section_status": "Status",
@@ -820,7 +821,7 @@
         "busy": "Already in progress...",
         "list_failed": "Could not list the builds: {}",
         "list_stale": "Could not refresh the list ({}): showing the last one.",
-        "downloading": "Downloading ({} MB)...",
+        "downloading": "Downloading the build...\n{} of {} MB",
         "failed": "Could not install the build: {}\n\nThe installed PlayGuard is unchanged.",
         "done_manual": "{} is installed. Close PlayGuard and open it again to use it.",
         "no_path": "PlayGuard does not know where its .nro file is (started without hbloader?), so it cannot replace it. Install the build by hand from GitHub.",
@@ -903,5 +904,12 @@
         "undo_confirm": "Put back",
         "undone": "Previous value put back.",
         "undo_err": "Could not put the previous value back"
+    },
+    "chart": {
+        "last_days": "The last 7 days, today on the right",
+        "limit_line": "The line across a bar is that day's limit",
+        "limit_over": "The line is that day's limit · ! in amber: played over it",
+        "week_order": "Monday to Sunday, today underlined",
+        "unsaved": "* in amber: changed, not saved yet"
     }
 }

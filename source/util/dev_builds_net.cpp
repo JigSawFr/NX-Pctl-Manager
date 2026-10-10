@@ -3,6 +3,10 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#ifndef __SWITCH__
+#include <chrono>
+#include <thread>
+#endif
 
 #include "app.hpp"
 #include "util/dev_builds.hpp"
@@ -84,7 +88,8 @@ bool fetch(std::vector<Build>* out, bool* needs_login, std::string* error)
     return false;
 }
 
-bool download(const Build& b, const std::string& path, std::string* error)
+bool download(const Build& b, const std::string& path, std::string* error,
+              std::function<void(uint64_t done, uint64_t total)> progress)
 {
     if (b.size > MAX_DOWNLOAD) {
         if (error) *error = "too large for PlayGuard";
@@ -96,8 +101,13 @@ bool download(const Build& b, const std::string& path, std::string* error)
 #ifndef __SWITCH__
     if (sim()) {
         std::string content;
-        ok = b.url.compare(0, 8, "https://") == 0 && paths::read_file(b.url.substr(8), content) &&
-             paths::atomic_write(file, content, error);
+        ok = b.url.compare(0, 8, "https://") == 0 && paths::read_file(b.url.substr(8), content);
+        // A few steps, slow enough for the progress bar to be seen.
+        for (int i = 1; ok && progress && i <= 4; i++) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            progress(content.size() * i / 4, content.size());
+        }
+        ok = ok && paths::atomic_write(file, content, error);
         if (!ok && error && error->empty()) *error = "simulated: cannot read " + b.url;
     } else
 #endif
@@ -112,9 +122,9 @@ bool download(const Build& b, const std::string& path, std::string* error)
         // builds but is refused the download.
         if (!ok && error && (*error == "HTTP 401" || *error == "HTTP 403"))
             *error += ": GitHub refused the download, sign out of GitHub and sign in again";
-        if (ok) ok = http::download(link, file, error, (size_t)b.size + 1);
+        if (ok) ok = http::download(link, file, error, (size_t)b.size + 1, 600, progress);
     } else {
-        ok = http::download(b.url, file, error, (size_t)b.size + 1);
+        ok = http::download(b.url, file, error, (size_t)b.size + 1, 600, progress);
     }
     if (ok) ok = verify_file(file, b.size, b.sha256, error);
     if (ok && b.artifact) ok = zip_read::extract(file, "playguard.nro", path, MAX_DOWNLOAD, error);

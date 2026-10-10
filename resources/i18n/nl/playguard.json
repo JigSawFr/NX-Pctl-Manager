@@ -503,7 +503,8 @@
         "unlink_confirm": "Ontkoppelen",
         "unlinked": "Smartphone-app ontkoppeld.",
         "unlink_err": "Kan de smartphone-app niet ontkoppelen",
-        "note": "Zolang de console gekoppeld blijft, overschrijft de smartphone-app bij de volgende synchronisatie de instellingen die hier zijn gemaakt."
+        "note": "Zolang de console gekoppeld blijft, overschrijft de smartphone-app bij de volgende synchronisatie de instellingen die hier zijn gemaakt.",
+        "unlink_dev_note": "Ontwikkelaarstools: Speeltijdblok vergelijken heeft een console nodig die nog gekoppeld is. Sla eerst de referentie op als je een instelling wilt ontcijferen."
     },
     "security": {
         "section_status": "Status",
@@ -820,7 +821,7 @@
         "busy": "Al bezig...",
         "list_failed": "Kon de builds niet ophalen: {}",
         "list_stale": "Kan de lijst niet vernieuwen ({}): de laatste wordt getoond.",
-        "downloading": "Downloaden ({} MB)...",
+        "downloading": "Build downloaden...\n{} van {} MB",
         "failed": "Kon de build niet installeren: {}\n\nDe geïnstalleerde PlayGuard is ongewijzigd.",
         "done_manual": "{} is geïnstalleerd. Sluit PlayGuard en open het opnieuw om hem te gebruiken.",
         "no_path": "PlayGuard weet niet waar zijn .nro-bestand staat (gestart zonder hbloader?) en kan het dus niet vervangen. Installeer de build handmatig vanaf GitHub.",
@@ -903,5 +904,12 @@
         "undo_confirm": "Terugzetten",
         "undone": "Vorige waarde teruggezet.",
         "undo_err": "Kan de vorige waarde niet terugzetten"
+    },
+    "chart": {
+        "last_days": "De laatste 7 dagen, vandaag rechts",
+        "limit_line": "De lijn over een balk is de limiet van die dag",
+        "limit_over": "De lijn is de limiet van die dag · ! in oranje: langer gespeeld",
+        "week_order": "Maandag tot zondag, vandaag onderstreept",
+        "unsaved": "* in oranje: gewijzigd, nog niet opgeslagen"
     }
 }
