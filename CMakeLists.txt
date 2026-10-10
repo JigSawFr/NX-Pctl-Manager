@@ -111,7 +111,15 @@ set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
 target_include_directories(${PROJECT_NAME} PRIVATE source extern/qrcodegen ${APP_PLATFORM_INCLUDE})
 # -ffunction-sections / -fdata-sections come from borealis (PUBLIC) and
 # --gc-sections from libnx's switch.specs.
-target_compile_options(${PROJECT_NAME} PRIVATE ${APP_PLATFORM_OPTION})
+# Warnings on PlayGuard's own sources (not borealis, not the vendored
+# qrcodegen); CI turns them into errors with -DPLAYGUARD_WERROR=ON.
+option(PLAYGUARD_WERROR "Treat PlayGuard's compiler warnings as errors" OFF)
+set(PLAYGUARD_WARNINGS -Wall -Wextra)
+if (PLAYGUARD_WERROR)
+    list(APPEND PLAYGUARD_WARNINGS -Werror)
+endif ()
+target_compile_options(${PROJECT_NAME} PRIVATE ${APP_PLATFORM_OPTION} ${PLAYGUARD_WARNINGS})
+set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/extern/qrcodegen/qrcodegen.cpp PROPERTIES COMPILE_OPTIONS "-w")
 # The commit built (at configure time): development builds are told apart by
 # it (util/dev_builds.hpp). PLAYGUARD_COMMIT (CI: a pull request's head)
 # wins over the checkout's. Empty outside a git checkout.
@@ -127,6 +135,9 @@ endif()
 message(STATUS "PlayGuard commit: ${APP_COMMIT}")
 target_compile_definitions(${PROJECT_NAME} PRIVATE APP_VERSION="${APP_VERSION}" APP_COMMIT="${APP_COMMIT}")
 target_link_libraries(${PROJECT_NAME} PRIVATE borealis ${APP_PLATFORM_LIB})
+# borealis' headers as system headers: their warnings are not PlayGuard's.
+get_target_property(BOREALIS_INCLUDES borealis INTERFACE_INCLUDE_DIRECTORIES)
+target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${BOREALIS_INCLUDES})
 # On the Switch: a linker map (build/borealis.map) to see what makes the .nro big.
 target_link_options(${PROJECT_NAME} PRIVATE ${APP_PLATFORM_LINK_OPTION})
 

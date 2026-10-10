@@ -103,12 +103,12 @@ bool extract(const std::string& zip_path, const std::string& name, const std::st
     uint64_t written = 0;
     bool ok = true;
     if (e.method == 0) {
-        ok = e.packed == e.size && write_all(out, &z[data], e.packed, &crc);
+        ok = e.packed == e.size && write_all(out, z.data() + data, e.packed, &crc);   // data may be z.size() (empty entry)
         written = e.packed;
     } else {
         z_stream s{};
         ok = inflateInit2(&s, -MAX_WBITS) == Z_OK;   // raw deflate, as zip stores it
-        s.next_in = &z[data];
+        s.next_in = z.data() + data;
         s.avail_in = e.packed;
         std::vector<unsigned char> buf(64 * 1024);
         int rc = Z_OK;

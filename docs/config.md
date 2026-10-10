@@ -140,8 +140,9 @@ version. The three keys go together.
 
 ## Example
 
-A file as PlayGuard writes it, with *Ask for the PIN* set to *To open
-PlayGuard*:
+Every key with *Ask for the PIN* set to *To open PlayGuard*, in the order of
+this page. PlayGuard itself writes the keys in alphabetical order, with each
+array element on its own line; the order does not matter when it reads them:
 
 ```json
 {
