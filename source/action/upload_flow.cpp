@@ -105,7 +105,7 @@ void send_to(const std::vector<log_upload::Part>& parts, log_upload::Host host)
         ui::notify("playguard/upload/sending"_i18n);
         if (s_sending) return;
         s_sending = true;
-        brls::async([text, host, token]() {
+        ui::in_background("report upload", [text, host, token]() {
             const log_upload::Result r = log_upload::upload(text, host, token, app::version());
             brls::sync([r]() {
                 s_sending = false;

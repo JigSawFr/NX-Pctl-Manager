@@ -22,7 +22,7 @@ void at_start()
     const auto& cfg = config::get();
     if (!cfg.clock_check_at_start) return;
     const std::string server = cfg.ntp_server.empty() ? ntp::default_server_for_console() : cfg.ntp_server;
-    brls::async([server]() {
+    ui::in_background("clock check", [server]() {
         const ntp::Reply reply = ntp::fetch(server);
         TimeSnapshot clocks;
         time_clock_snapshot(&clocks);

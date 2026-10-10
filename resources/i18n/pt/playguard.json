@@ -793,11 +793,13 @@
         "loading": "A procurar compilações...",
         "busy": "Já em curso...",
         "list_failed": "Não foi possível listar as compilações: {}",
+        "list_stale": "Não foi possível atualizar a lista ({}): é mostrada a última.",
         "downloading": "A transferir ({} MB)...",
         "failed": "Não foi possível instalar a compilação: {}\n\nO PlayGuard instalado não mudou.",
         "done_manual": "{} está instalada. Feche o PlayGuard e abra-o de novo para a usar.",
         "no_path": "O PlayGuard não sabe onde está o seu ficheiro .nro (iniciado sem hbloader?), por isso não o pode substituir. Instale a compilação manualmente a partir do GitHub.",
-        "sign_in": "Iniciar sessão no GitHub para as compilações do main e dos pull requests"
+        "sign_in": "Iniciar sessão no GitHub para as compilações do main e dos pull requests",
+        "refresh": "Atualizar a lista (verificada há {} min)"
     },
     "github": {
         "account": "Conta GitHub",
@@ -805,13 +807,13 @@
         "signed_in_short": "Sessão iniciada",
         "starting": "A ligar ao GitHub...",
         "code_body": "Num telemóvel ou computador, abra {} (ou leia o código) e introduza:",
-        "code_note": "O PlayGuard só pede para criar gists, para enviar relatórios; de resto só pode ler o que é público no GitHub. A aguardar a sua aprovação...",
+        "code_note": "O PlayGuard só pede para ler os ficheiros do workflow de compilação (Actions), para instalar builds de desenvolvimento, e para criar gists, para enviar relatórios; de resto só pode ler o que é público no GitHub. A aguardar a sua aprovação...",
         "signed_in": "Sessão iniciada no GitHub.",
         "failed": "Não foi possível iniciar sessão no GitHub: {}",
         "denied": "O início de sessão no GitHub foi recusado.",
         "expired": "O código expirou antes de ser introduzido. Tente novamente.",
         "sign_out": "Terminar sessão",
-        "sign_out_body": "Terminar sessão no GitHub? O PlayGuard esquece o seu token. Para o revogar também: GitHub › Settings › Applications › Authorized OAuth Apps › PlayGuard.",
+        "sign_out_body": "Terminar sessão no GitHub? O PlayGuard esquece o seu token. Para o revogar também: GitHub › Settings › Applications › Authorized GitHub Apps › PlayGuard dev builds.",
         "signed_out": "Sessão do GitHub terminada."
     },
     "toast": {

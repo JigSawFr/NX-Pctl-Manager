@@ -175,16 +175,8 @@ void measure(const std::string& server, std::function<void(const Measurement&)> 
             done(m);
         });
     };
-    // A thread of its own rather than brls::async: that single queue also
-    // reads the play log, loads game icons and checks for updates, one task
-    // after the other, and the measurement (its spinner on screen) would wait
-    // behind them.
-    try {
-        std::thread(run).detach();
-    } catch (const std::system_error& e) {
-        brls::Logger::warning("NTP: no thread for the measurement ({}), queued instead", e.what());
-        brls::async(run);
-    }
+    // Its spinner is on screen: not behind the play log or the game icons.
+    ui::in_background("NTP", run);
 }
 
 int64_t seconds_left(const Measurement& m)

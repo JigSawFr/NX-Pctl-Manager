@@ -22,7 +22,7 @@ std::string str(const json& j, const char* key)
     return it != j.end() && it->is_string() ? it->get<std::string>() : std::string();
 }
 
-// GitHub tokens: letters, digits and '_' ("gho_…"); nothing that could break a header.
+// GitHub tokens: letters, digits and '_' ("ghu_…"); nothing that could break a header.
 bool token_chars(const std::string& t)
 {
     return !t.empty() && t.size() <= 255 &&
@@ -89,6 +89,8 @@ std::string token()
     std::string t;
     if (!paths::read_file(token_file(), t)) return "";
     while (!t.empty() && std::isspace((unsigned char)t.back())) t.pop_back();
+    // The earlier OAuth app's token: refused the artifacts, signed in again.
+    if (t.compare(0, 4, "gho_") == 0) return "";
     return token_chars(t) ? t : "";
 }
 

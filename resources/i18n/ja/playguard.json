@@ -793,11 +793,13 @@
         "loading": "ビルドを探しています…",
         "busy": "すでに実行中です…",
         "list_failed": "ビルドの一覧を取得できませんでした: {}",
+        "list_stale": "リストを更新できませんでした ({})。前回のリストを表示します。",
         "downloading": "ダウンロードしています（{} MB）…",
         "failed": "ビルドをインストールできませんでした: {}\n\nインストール済みの PlayGuard は変更されていません。",
         "done_manual": "{} をインストールしました。PlayGuard を閉じて、もう一度開いてください。",
         "no_path": "PlayGuard は自身の .nro ファイルの場所を把握していないため（hbloader を使わずに起動しましたか？）、置き換えられません。GitHub から手動でインストールしてください。",
-        "sign_in": "main とプルリクエストのビルドを使うには GitHub にログイン"
+        "sign_in": "main とプルリクエストのビルドを使うには GitHub にログイン",
+        "refresh": "リストを更新 ({} 分前に確認)"
     },
     "github": {
         "account": "GitHub アカウント",
@@ -805,13 +807,13 @@
         "signed_in_short": "ログイン済み",
         "starting": "GitHub に接続しています…",
         "code_body": "スマートフォンかパソコンで {} を開き（またはコードを読み取り）、次のコードを入力してください:",
-        "code_note": "PlayGuard が要求するのは、レポート送信のための Gist 作成のみです。それ以外は GitHub 上の公開情報しか読み取れません。承認を待っています…",
+        "code_note": "PlayGuard が要求するのは、開発ビルドをインストールするためのビルドワークフローのファイルの読み取り (Actions) と、レポート送信のための Gist 作成のみです。それ以外は GitHub 上の公開情報しか読み取れません。承認を待っています…",
         "signed_in": "GitHub にログインしました。",
         "failed": "GitHub にログインできませんでした: {}",
         "denied": "GitHub へのログインが拒否されました。",
         "expired": "入力される前にコードの有効期限が切れました。もう一度お試しください。",
         "sign_out": "ログアウト",
-        "sign_out_body": "GitHub からログアウトしますか？PlayGuard はトークンを破棄します。トークンを取り消すには: GitHub › Settings › Applications › Authorized OAuth Apps › PlayGuard。",
+        "sign_out_body": "GitHub からログアウトしますか？PlayGuard はトークンを破棄します。トークンを取り消すには: GitHub › Settings › Applications › Authorized GitHub Apps › PlayGuard dev builds。",
         "signed_out": "GitHub からログアウトしました。"
     },
     "toast": {

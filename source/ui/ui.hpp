@@ -37,6 +37,15 @@ NVGcolor color_text();      // plain label text colour
 // there is no code to look up.
 std::string rc_text(Result rc);
 
+// Runs `task` on a thread of its own, rather than brls::async: that single
+// queue runs one task after the other, so a network request queued there
+// waits behind reading the play log and loading game icons (minutes, on a
+// console with many games), or behind another request's timeout. Every
+// network task goes here; the play log and the icons stay on the queue, one
+// at a time on the console's services. Queued there when no thread can be
+// had. `what` names it in the log.
+void in_background(const char* what, std::function<void()> task);
+
 // Deferred to the next frame (toasts fired right after a system applet returns
 // were dropped on fw 22.1.0).
 void notify(const std::string& text);

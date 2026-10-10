@@ -15,6 +15,8 @@
 #include <ctime>
 #include <fmt/format.h>
 #include <memory>
+#include <system_error>
+#include <thread>
 
 #ifdef __SWITCH__
 #include <switch.h>
@@ -133,6 +135,16 @@ std::string rc_text(Result rc)
     std::string code = fmt::format("0x{:08X}", (unsigned)rc);
     return hint.empty() ? brls::getStr("playguard/error/code", code)
                         : brls::getStr("playguard/error/code_hint", code, hint);
+}
+
+void in_background(const char* what, std::function<void()> task)
+{
+    try {
+        std::thread(task).detach();
+    } catch (const std::system_error& e) {
+        brls::Logger::warning("{}: no thread ({}), queued instead", what, e.what());
+        brls::async(task);
+    }
 }
 
 void notify(const std::string& text)

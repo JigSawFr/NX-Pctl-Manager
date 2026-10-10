@@ -93,6 +93,26 @@ bool verify_nro(const std::string& path, std::string* error);
 // missing target is simply created.
 bool replace(const std::string& target, const std::string& fresh, std::string* error);
 
+// The last list fetched, kept on the SD card (cache/dev_builds.json) so the
+// next opening shows it at once while it is fresh.
+struct Cache
+{
+    std::vector<Build> builds;
+    bool    needs_login = false;   // as fetch() set it: signing in or out makes the list stale
+    int64_t fetched_at = 0;        // POSIX seconds
+};
+
+// A list older than this is fetched again before it is shown.
+constexpr int64_t CACHE_MAX_AGE_S = 10 * 60;
+
+std::string encode_cache(const Cache& cache);
+// False for anything else (damaged, another layout); a build that does not
+// look like one (no https URL, a malformed commit or digest) is left out.
+bool decode_cache(const std::string& json, Cache* out);
+// Fresh: fetched less than CACHE_MAX_AGE_S before `now` (not in the future:
+// the clock was set back), in the same sign-in state.
+bool cache_fresh(const Cache& cache, int64_t now, bool needs_login);
+
 // The builds that can be installed: the release, then (with a token) main
 // and the pull requests. Blocking (network): run it with brls::async.
 // *needs_login is set when there is no token, so only the release is listed.

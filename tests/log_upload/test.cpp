@@ -32,10 +32,10 @@ static void test_files()
     files = log_upload::debug_files();
     assert(files.size() == 3 && files[1].name == "history.json" && files[2].name == "config.json");
     // The GitHub token (util/github_auth.hpp) is never sent.
-    write(paths::data_dir() + "/github_token", "gho_secret");
+    write(paths::data_dir() + "/github_token", "ghu_secret");
     files = log_upload::debug_files();
     assert(files.size() == 3);
-    for (const auto& f : files) assert(f.content.find("gho_secret") == std::string::npos);
+    for (const auto& f : files) assert(f.content.find("ghu_secret") == std::string::npos);
 
     // The recorder's file, after the block: only its end, header kept.
     std::string csv = pt_log::header();
