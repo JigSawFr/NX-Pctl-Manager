@@ -58,14 +58,14 @@ bool read_int(const nlohmann::json& j, const char* key, int& out)
     return small_int(*it, out);
 }
 
-// A list of integers; one value out of range refuses the whole list (left
-// empty, which sanitize() never keeps).
+// A list of integers; one value of another type (30.5, "30") or out of range
+// refuses the whole list (left empty, which sanitize() never keeps), as for
+// a single value: skipping it would turn [15, 30.5, 30, 60] into a valid set.
 std::vector<int> read_int_list(const nlohmann::json& list)
 {
     std::vector<int> v;
     for (const auto& a : list) {
         int n;
-        if (!a.is_number_integer()) continue;
         if (!small_int(a, n)) return {};
         v.push_back(n);
     }
@@ -119,7 +119,7 @@ void sanitize(Config& c)
     bool keep_ok = false;
     for (int k : BACKUP_KEEP) keep_ok |= c.backup_keep == k;
     if (!keep_ok) c.backup_keep = 0;
-    if (!c.update_checked.empty() && c.update_checked.size() != 10) c.update_checked.clear();
+    if (!is_date(c.update_checked)) c.update_checked.clear();
     if (!is_date(c.support_reminded)) c.support_reminded.clear();
     if (c.seen_version.size() > 32) c.seen_version.clear();
 

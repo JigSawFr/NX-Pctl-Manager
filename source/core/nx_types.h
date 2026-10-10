@@ -1,4 +1,4 @@
-// nx_types.h — common integer / Result types for the C service layer.
+// nx_types — common integer / Result types for the C service layer.
 //
 // On the Switch (and in the host unit tests, which ship a minimal fake
 // <switch.h>) the real libnx header is used. On a desktop build (borealis
