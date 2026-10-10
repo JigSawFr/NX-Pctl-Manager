@@ -27,6 +27,15 @@ bool pending()
     return paths::read_file(report_path(), ignore);
 }
 
+bool installed()
+{
+    std::string path = paths::sd_root();
+    if (path.empty() || path.back() != '/') path += '/';   // "/" on the console
+    path += RESCUE_SYSMODULE_PATH;
+    struct stat st;
+    return stat(path.c_str(), &st) == 0;
+}
+
 std::optional<RescueReport> take()
 {
     const std::string path = report_path();
@@ -51,14 +60,13 @@ std::optional<RescueReport> take()
 
 bool confirmed(const RescueReport& report)
 {
-    struct stat st;
-    const bool installed = stat((paths::sd_root() + "/" + RESCUE_SYSMODULE_PATH).c_str(), &st) == 0;
+    const bool present = installed();
     u32 pin_length = 0;
     bool unlocked = false;
     const Result rc = pctl_lock_state(&pin_length, &unlocked);
-    const bool ok = installed && R_SUCCEEDED(rc) && rescue_report_confirmed(&report, pin_length, unlocked);
+    const bool ok = present && R_SUCCEEDED(rc) && rescue_report_confirmed(&report, pin_length, unlocked);
     brls::Logger::info("rescue report {} by the console (sysmodule {}, rc=0x{:08X}, PIN {}, unlocked={})",
-                       ok ? "confirmed" : "not confirmed", installed ? "installed" : "missing", (unsigned)rc,
+                       ok ? "confirmed" : "not confirmed", present ? "installed" : "missing", (unsigned)rc,
                        pin_length ? "set" : "none", unlocked);
     return ok;
 }

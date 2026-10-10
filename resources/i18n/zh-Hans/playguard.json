@@ -95,7 +95,8 @@
         "pctl_refused": "家长控制服务拒绝了此操作",
         "relock_failed": "主机已解锁，但无法重新锁定：请立即锁定（安全与应用 › 立即启用）",
         "not_applied": "主机未接受更改，已恢复之前的设置",
-        "not_saved": "PlayGuard 无法在 SD 卡上保存之后需要恢复的内容，未写入任何内容"
+        "not_saved": "PlayGuard 无法在 SD 卡上保存之后需要恢复的内容，未写入任何内容",
+        "next_step": "如果再次发生，请发送报告：工具 › 在线发送报告。"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -243,7 +244,6 @@
         "profile_saved": "已保存配置“{}”。",
         "profile_renamed": "已重命名配置：{}。",
         "profile_save_err": "无法保存配置",
-        "profile_bad_name": "名称需至少包含一个拉丁字母或数字。",
         "profile_replace": "已存在名为“{}”的配置。要替换吗？",
         "profile_replace_confirm": "替换",
         "profile_deleted": "已删除配置“{}”。",
@@ -416,7 +416,11 @@
         "free_comm_value": "{}款",
         "note": "这些设置与“系统设置 › 家长控制”中的相同。",
         "saved": "已保存限制。",
-        "save_err": "无法保存限制"
+        "save_err": "无法保存限制",
+        "none_body": "将不再有任何限制：任何年龄分级的软件都可以游玩，发布到社交媒体和与他人交流也都会被允许。每天的游戏时间限制仍然有效。",
+        "confirm_age": "要将年龄限制更改为“{}”吗？届时可以游玩年龄分级比现在更高的软件。",
+        "confirm_sns_off": "要取消限制发布到社交媒体吗？届时可以从主机发布截图和视频。",
+        "confirm_comm_off": "要取消限制与他人交流吗？届时软件可以让孩子与其他玩家聊天和分享内容。"
     },
     "clock": {
         "section_now": "时钟",
@@ -518,7 +522,8 @@
         "deleted": "已删除家长控制。",
         "delete_err": "无法删除家长控制",
         "pin_ok": "PIN已更新。",
-        "pin_err": "无法更新PIN"
+        "pin_err": "无法更新PIN",
+        "rescue_note": "已安装恢复用系统模块：任何能修改SD卡的人都可以在下次启动时解锁主机，或删除所有家长控制。不再需要时请将其删除（文件夹atmosphere/contents/4200000000505247）。"
     },
     "pin_lock": {
         "title": "要求输入PIN",

@@ -95,7 +95,8 @@
         "pctl_refused": "recusado pelo serviço de controlo parental",
         "relock_failed": "a consola foi desbloqueada mas não foi possível bloqueá-la de novo: bloqueie-a agora (Segurança e aplicação › Bloquear agora)",
         "not_applied": "a consola não aceitou a alteração, por isso as definições anteriores foram repostas",
-        "not_saved": "o PlayGuard não conseguiu guardar no cartão SD o que terá de repor mais tarde, por isso nada foi escrito"
+        "not_saved": "o PlayGuard não conseguiu guardar no cartão SD o que terá de repor mais tarde, por isso nada foi escrito",
+        "next_step": "Se voltar a acontecer, envie um relatório: Ferramentas › Enviar um relatório online."
     },
     "init_error": {
         "title": "PlayGuard",
@@ -243,7 +244,6 @@
         "profile_saved": "Perfil \"{}\" guardado.",
         "profile_renamed": "Nome do perfil alterado: {}.",
         "profile_save_err": "Não foi possível guardar o perfil",
-        "profile_bad_name": "O nome precisa de pelo menos uma letra latina ou um algarismo.",
         "profile_replace": "Já existe um perfil chamado \"{}\". Substituí-lo?",
         "profile_replace_confirm": "Substituir",
         "profile_deleted": "Perfil \"{}\" eliminado.",
@@ -416,7 +416,11 @@
         "free_comm_value": "{} título(s)",
         "note": "São as mesmas opções que em Definições da consola › Controlo parental.",
         "saved": "Restrição guardada.",
-        "save_err": "Não foi possível guardar a restrição"
+        "save_err": "Não foi possível guardar a restrição",
+        "none_body": "Nada será restringido: poderá ser usado software de qualquer idade, e as publicações nas redes sociais e a comunicação com outros serão permitidas. Os limites diários de tempo de jogo continuam a aplicar-se.",
+        "confirm_age": "Alterar o limite de idade para \"{}\"? Poderá então ser usado software com uma classificação etária mais alta do que agora.",
+        "confirm_sns_off": "Deixar de restringir as publicações nas redes sociais? Capturas de ecrã e vídeos poderão então ser publicados a partir da consola.",
+        "confirm_comm_off": "Deixar de restringir a comunicação com outros? O software poderá então deixar a criança conversar e partilhar conteúdos com outros jogadores."
     },
     "clock": {
         "section_now": "Relógios",
@@ -518,7 +522,8 @@
         "deleted": "Controlo parental eliminado.",
         "delete_err": "Não foi possível eliminar o controlo parental",
         "pin_ok": "PIN atualizado.",
-        "pin_err": "Não foi possível atualizar o PIN"
+        "pin_err": "Não foi possível atualizar o PIN",
+        "rescue_note": "O sysmodule de recuperação está instalado: qualquer pessoa que possa alterar o cartão SD pode então desbloquear a consola ou eliminar todo o controlo parental no próximo arranque. Remova-o quando já não precisar dele (pasta atmosphere/contents/4200000000505247)."
     },
     "pin_lock": {
         "title": "Pedir o PIN",

@@ -104,7 +104,7 @@ void RescueActivity::refresh()
                   : report.result == RescueResult_Refused ? "playguard/rescue/note_refused"_i18n
                                                           : "playguard/rescue/note_failed"_i18n;
     if (report.result == RescueResult_Failed)
-        n += "\n" + brls::getStr("playguard/rescue/failed_code", ui::rc_text(report.rc));
+        n += "\n" + brls::getStr("playguard/rescue/failed_code", ui::rc_text(report.rc, false));   // the note says what next
     // The request file is still on the card: an unlock request unlocks again
     // at every start until it is removed from a computer.
     if (report.request == RescueRequest_Kept && report.result != RescueResult_Refused)

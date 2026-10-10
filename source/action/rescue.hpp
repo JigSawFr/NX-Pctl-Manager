@@ -29,4 +29,9 @@ bool confirmed(const RescueReport& report);
 // whether to show the recovery screen instead of the lock screen.
 bool pending();
 
+// Whether the sysmodule is on the SD card
+// (atmosphere/contents/4200000000505247/exefs.nsp): while it is, anyone who
+// can edit the card can unlock or wipe the parental controls at boot.
+bool installed();
+
 }   // namespace rescue

@@ -95,7 +95,8 @@
         "pctl_refused": "refusé par le service du contrôle parental",
         "relock_failed": "la console a été déverrouillée mais n'a pas pu être reverrouillée : verrouillez-la maintenant (Sécurité et appli › Verrouiller maintenant)",
         "not_applied": "la console n'a pas pris en compte la modification : les réglages précédents ont été remis",
-        "not_saved": "PlayGuard n'a pas pu enregistrer sur la carte SD ce qu'il devra remettre plus tard, rien n'a été écrit"
+        "not_saved": "PlayGuard n'a pas pu enregistrer sur la carte SD ce qu'il devra remettre plus tard, rien n'a été écrit",
+        "next_step": "Si cela se reproduit, envoyez un rapport : Outils › Envoyer un rapport en ligne."
     },
     "init_error": {
         "title": "PlayGuard",
@@ -243,7 +244,6 @@
         "profile_saved": "Profil « {} » enregistré.",
         "profile_renamed": "Profil renommé : {}.",
         "profile_save_err": "Impossible d'enregistrer le profil",
-        "profile_bad_name": "Le nom doit contenir au moins une lettre latine ou un chiffre.",
         "profile_replace": "Un profil « {} » existe déjà. Le remplacer?",
         "profile_replace_confirm": "Remplacer",
         "profile_deleted": "Profil « {} » supprimé.",
@@ -416,7 +416,11 @@
         "free_comm_value": "{} logiciel(s)",
         "note": "Ce sont les mêmes réglages que Paramètres de la console › Contrôle parental.",
         "saved": "Restriction enregistrée.",
-        "save_err": "Impossible d'enregistrer la restriction"
+        "save_err": "Impossible d'enregistrer la restriction",
+        "none_body": "Plus rien ne sera restreint : les logiciels de tout âge pourront être lancés, et les publications sur les réseaux sociaux comme la communication avec d'autres joueurs seront autorisées. Les limites de temps de jeu restent appliquées.",
+        "confirm_age": "Passer la limite d'âge à « {} »? Des logiciels classés pour un âge plus élevé qu'aujourd'hui pourront alors être lancés.",
+        "confirm_sns_off": "Ne plus restreindre les publications sur les réseaux sociaux? Captures et vidéos pourront alors être publiées depuis la console.",
+        "confirm_comm_off": "Ne plus restreindre la communication avec d'autres joueurs? Les logiciels pourront alors laisser l'enfant clavarder et échanger des contenus avec d'autres joueurs."
     },
     "clock": {
         "section_now": "Horloges",
@@ -518,7 +522,8 @@
         "deleted": "Contrôle parental supprimé.",
         "delete_err": "Impossible de supprimer le contrôle parental",
         "pin_ok": "NIP mis à jour.",
-        "pin_err": "Impossible de mettre à jour le NIP"
+        "pin_err": "Impossible de mettre à jour le NIP",
+        "rescue_note": "Le sysmodule de récupération est installé : toute personne pouvant modifier la carte SD peut alors déverrouiller la console ou supprimer tout le contrôle parental au prochain démarrage. Supprimez-le quand vous n'en avez plus besoin (dossier atmosphere/contents/4200000000505247)."
     },
     "pin_lock": {
         "title": "Demander le NIP",

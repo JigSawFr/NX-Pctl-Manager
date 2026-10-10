@@ -141,7 +141,7 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 - **Same limit every day:** a quick list or any value, typed in minutes (`90`, `90 min`) or hours (`1:30`, `1h30`).
 - **A different limit for each day:** unsaved days in amber, quick values, Monday–Friday / weekend presets, "no limit" per day; **+** saves from anywhere.
 - **Remove the limit**, **extra time today**, **no more play today** (as on the Overview).
-- **Profiles** saved on the SD card: apply, edit, rename or delete one; save the current limits or make a new one. Any name, accents included — two names that would map to the same file are caught.
+- **Profiles** saved on the SD card: apply, edit, rename or delete one; save the current limits or make a new one. Any name, in any script (*École*, *周末*, *Выходные* …) — a name without Latin letters gets a file name of its own, and two names that would map to the same file are caught.
 - Every confirmation draws the week as it will be, with the days that change in amber.
 - **Bedtime alarm**: the alarm time (16:00 to 23:45, or off) and when play is allowed again (05:00 to 09:00), the same every day. Its place in the play-timer settings was worked out from the companion app's settings, not read on a console with a bedtime set: PlayGuard changes it only once the console reports what PlayGuard reads there, checks the console's answer after the change and puts the previous settings back if it differs. Advanced, opt-in: "time's up" alarm on/off, pause / resume the countdown.
 - `0` minutes means *no play that day*; *Remove the play-time limit* turns the timer off.

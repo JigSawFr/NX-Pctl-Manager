@@ -35,8 +35,10 @@ NVGcolor color_text();      // plain label text colour
 
 // "error 0x00001234" followed by a human explanation when one is known.
 // PlayGuard's own results (read-only, invalid value …) are just the sentence:
-// there is no code to look up.
-std::string rc_text(Result rc);
+// there is no code to look up. A system code gets, in a paragraph of its own,
+// what to do if it happens again (send a report); `next_step` false leaves it
+// out (the start-up error and recovery screens say what to do themselves).
+std::string rc_text(Result rc, bool next_step = true);
 
 // Runs `task` on a thread of its own, rather than brls::async: that single
 // queue runs one task after the other, so a network request queued there

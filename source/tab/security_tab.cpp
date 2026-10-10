@@ -5,6 +5,7 @@
 #include "action/console_lock.hpp"
 #include "action/history_flow.hpp"
 #include "action/pin_lock.hpp"
+#include "action/rescue.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
 #include "util/config.hpp"
@@ -16,6 +17,9 @@ SecurityTab::SecurityTab()
 {
     this->enable_auto_refresh(5000);
     pr_note->setSingleLine(false);
+    rescue_note->setSingleLine(false);
+    // Checked once: the sysmodule only comes and goes with the SD card out.
+    ui::set_visible(rescue_note.getView(), rescue::installed());
     pin_lock_note->setSingleLine(false);
     console_lock_note->setSingleLine(false);
     console_lock_cell->registerClickAction([this](brls::View*) {

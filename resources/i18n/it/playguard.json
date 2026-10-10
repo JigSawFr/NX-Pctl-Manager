@@ -95,7 +95,8 @@
         "pctl_refused": "rifiutato dal servizio del filtro famiglia",
         "relock_failed": "la console è stata sbloccata ma non è stato possibile bloccarla di nuovo: bloccala ora (Sicurezza e app › Blocca ora)",
         "not_applied": "la console non ha accettato la modifica, quindi sono state ripristinate le impostazioni precedenti",
-        "not_saved": "PlayGuard non è riuscito a salvare sulla scheda SD ciò che dovrà ripristinare in seguito, quindi non è stato scritto nulla"
+        "not_saved": "PlayGuard non è riuscito a salvare sulla scheda SD ciò che dovrà ripristinare in seguito, quindi non è stato scritto nulla",
+        "next_step": "Se succede di nuovo, invia un rapporto: Strumenti › Invia un rapporto online."
     },
     "init_error": {
         "title": "PlayGuard",
@@ -243,7 +244,6 @@
         "profile_saved": "Profilo \"{}\" salvato.",
         "profile_renamed": "Profilo rinominato: {}.",
         "profile_save_err": "Impossibile salvare il profilo",
-        "profile_bad_name": "Il nome deve contenere almeno una lettera latina o una cifra.",
         "profile_replace": "Esiste già un profilo chiamato \"{}\". Vuoi sostituirlo?",
         "profile_replace_confirm": "Sostituisci",
         "profile_deleted": "Profilo \"{}\" eliminato.",
@@ -416,7 +416,11 @@
         "free_comm_value": "{} software",
         "note": "Sono le stesse impostazioni di Impostazioni di sistema › Filtro famiglia.",
         "saved": "Limitazione salvata.",
-        "save_err": "Impossibile salvare la limitazione"
+        "save_err": "Impossibile salvare la limitazione",
+        "none_body": "Non verrà limitato nulla: si potranno usare software di qualsiasi età, e la pubblicazione sui social media e la comunicazione con altri utenti saranno consentite. I limiti giornalieri di tempo di gioco restano attivi.",
+        "confirm_age": "Vuoi impostare il limite di età su \"{}\"? Si potranno usare software con una classificazione per età più alta di adesso.",
+        "confirm_sns_off": "Vuoi smettere di limitare la pubblicazione sui social media? Screenshot e video potranno essere pubblicati dalla console.",
+        "confirm_comm_off": "Vuoi smettere di limitare la comunicazione con altri utenti? I software potranno permettere al bambino di chattare e scambiare contenuti con altri giocatori."
     },
     "clock": {
         "section_now": "Orologi",
@@ -518,7 +522,8 @@
         "deleted": "Filtro famiglia eliminato.",
         "delete_err": "Impossibile eliminare il filtro famiglia",
         "pin_ok": "PIN aggiornato.",
-        "pin_err": "Impossibile aggiornare il PIN"
+        "pin_err": "Impossibile aggiornare il PIN",
+        "rescue_note": "Il sysmodule di recupero è installato: chiunque possa modificare la scheda SD può così sbloccare la console o eliminare il filtro famiglia al prossimo avvio. Rimuovilo quando non ti serve più (cartella atmosphere/contents/4200000000505247)."
     },
     "pin_lock": {
         "title": "Richiedi il PIN",

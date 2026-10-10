@@ -160,10 +160,7 @@ void ProfilesActivity::ask_name(const std::string& initial, const std::string& e
     ui::prompt_text("playguard/play_timer/profile_name"_i18n, initial, (int)profiles::MAX_NAME,
                     [except_file, done](std::string typed) {
         const std::string name = profiles::sanitize_name(typed);
-        if (name.empty() || profiles::file_stem(name).empty()) {
-            ui::notify("playguard/play_timer/profile_bad_name"_i18n);
-            return;
-        }
+        if (name.empty()) return;   // nothing typed: as if cancelled
         profiles::Profile existing;
         if (profiles::find_same_file(name, except_file, &existing)) {
             // FAT ignores case (and the file name drops accents): this would
