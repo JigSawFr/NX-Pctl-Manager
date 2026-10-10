@@ -93,7 +93,7 @@ All in `sd:/switch/playguard/`:
 | Path | Content |
 |---|---|
 | `config.json` | Preferences (language, theme, NTP server, *Ask for the PIN* …); every key in [docs/config.md](docs/config.md) |
-| `history.json` | The change history (newest 200) |
+| `history.json` | The change history (newest 200); one that cannot be read is kept as `history.json.bad` rather than overwritten |
 | `profiles/` | Saved play-time limit profiles |
 | `backups/` | Settings backups (never contain the PIN) |
 | `exports/` | Activity exports |
@@ -173,7 +173,7 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 
 - Console and network clocks, time zone, accuracy.
 - Pick a public NTP server (≈ 50 built in, by region, or your own).
-- **Measure** against 3 servers (median; an amber warning when they disagree), then **set the network clock** — a measurement stays usable for 2 minutes, with a countdown.
+- **Measure** against 3 servers (median; an amber warning when they disagree), then **set the network clock** — a measurement stays usable for 2 minutes, with a countdown. The confirmation says it: changing the clock starts today's play time over, so the whole limit is available again.
 - A console that never reaches Nintendo's servers keeps this clock inaccurate, which skews the play timer.
 </details>
 
@@ -203,7 +203,7 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 <summary><b>Tools</b> and <b>About</b> — history, backups, console info; version, updates, what's new, credits</summary>
 
 - **Change history:** what PlayGuard changed (limits, restriction level, PIN, unlocks, unlinking, the clock, restores …), when and from where. Ⓐ on a change shows it and, for a value, **puts the previous one back** — through the same unlock and PIN as any change, saying if it changed since.
-- **Back up / restore the settings** on the SD card: restriction level, custom settings, VR mode, rating organisation, daily limits, the "time's up" alarm (with the advanced actions on), and the raw play-timer block for the record — never the PIN. A restore lists only what would change. Choose how many backups to keep.
+- **Back up / restore the settings** on the SD card: restriction level, custom settings, VR mode, rating organisation, daily limits, the "time's up" alarm (with the advanced actions on), and the raw play-timer block for the record — never the PIN. A restore lists only what would change, and says when the backup had a bedtime alarm on (it is not written back). Choose how many backups to keep.
 - **First steps** opens the guide again (with an *Unlink the companion app* step while linked, a *Turn the "Time's up" alarm back on* step while it is off, and a switch to stop it coming up at start-up). Below *Close*, *Support PlayGuard* shows the funding QR codes.
 - **Export a diagnostic report**, or **send one online** (see [Reporting a bug](#reporting-a-bug)).
 - **Console:** firmware, Atmosphère, compatibility, storage (emuMMC or sysMMC), whether Atmosphère **blanks the serial number** (partly hidden until Ⓐ; a warning on emuMMC when it is not), **game patches** (sys-patch or sigpatch files, recommending sys-patch when only files are used).

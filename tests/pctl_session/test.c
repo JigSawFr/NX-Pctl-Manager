@@ -34,6 +34,7 @@ static struct {
     bool saw_1904;
     bool bed_live;            /* 1954/1956/1957 answer bed_day of pt_block, which 195101 replaces */
     bool bed_ignored;         /* ... except that 195101 leaves the bedtime they report as it was */
+    bool pt_ignored;          /* 195101 answers OK but 145601 keeps returning the block as it was */
     int bed_day;
 } model;
 
@@ -131,7 +132,7 @@ Result mock_dispatch(Service *srv, u32 command, void *out, size_t out_size,
         switch (command) {
             case 195101:
                 assert(in_size == 0x44);
-                if (model.bed_live) memcpy(model.pt_block, in, in_size);
+                if (!model.pt_ignored) memcpy(model.pt_block, in, in_size);
                 break;
             case 1033:   assert(in_size == 4); model.safety_level = *(const u32 *)in; break;
             case 1036:   assert(in_size == 3); break;
@@ -550,6 +551,31 @@ static void test_write_gate(void)
             assert(model.refs == 0 && model.init_calls == model.exit_calls);
         }
     }
+
+    /* Unlocked, 1453 reads false even with a limit set (hardware): the
+     * unlock alone counts as active, so a failed read still refuses. */
+    for (unsigned variant = 0; variant < 2; ++variant) {
+        reset();
+        model.unlocked = true;
+        model.fail_command = 145601;
+        assert(write_variant(variant) == NXM_RC_STATE_UNKNOWN && model.writes == 0);
+        assert(model.refs == 0 && model.init_calls == model.exit_calls);
+    }
+
+    /* The limits are read back: a write the console answers OK but does not
+     * take is reported, and the block as it was is written again. */
+    reset();
+    model.pt_ignored = true;
+    {
+        u16 before[34];
+        memcpy(before, model.pt_block, sizeof(before));
+        assert(write_variant(0) == NXM_RC_NOT_APPLIED);
+        assert(model.writes == 2 && memcmp(model.last_write, before, sizeof(before)) == 0);
+        assert(model.refs == 0 && model.init_calls == model.exit_calls);
+    }
+    /* Taken: one write, read back once. */
+    reset();
+    assert(write_variant(0) == 0 && model.writes == 1);
 
     /* Out-of-range minutes and old firmware are refused before any IPC. */
     reset();

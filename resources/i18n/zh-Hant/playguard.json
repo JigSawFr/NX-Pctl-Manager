@@ -94,7 +94,8 @@
         "bad_pin_format": "系統不接受此PIN碼格式",
         "pctl_refused": "家長監護服務拒絕了此操作",
         "relock_failed": "主機已解鎖，但無法重新鎖定：請立即鎖定（安全與應用程式 › 立即鎖定）",
-        "not_applied": "主機未接受變更，已還原先前的設定"
+        "not_applied": "主機未接受變更，已還原先前的設定",
+        "not_saved": "PlayGuard 無法在 SD 卡上儲存之後需要復原的內容，因此未寫入任何資料"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -473,7 +474,8 @@
         "start_off": "網路時鐘偏差{}（與{}比對）。遊玩時間限制依據此時鐘：請查看「網路時鐘」分頁。",
         "guided_body": "網路時鐘不準確，而遊玩時間限制依據此時鐘。\n\n要立即以{}測量時間嗎？（主機必須連線至網路。）設定時鐘前會再次詢問您。",
         "guided_measure": "立即測量",
-        "guided_fine": "網路時鐘準確：不需要任何操作。"
+        "guided_fine": "網路時鐘準確：不需要任何操作。",
+        "confirm_apply_resets": "\n\n變更時鐘會讓今天的遊玩時間重新計算：每日上限將再次全部可用。"
     },
     "pairing": {
         "section": "「Nintendo Switch 家長監護」應用程式",
@@ -717,7 +719,8 @@
         "restored": "已還原設定。",
         "restore_err": "未還原：{}",
         "before_delete_err": "無法事先儲存備份（{}）。\n\n仍要刪除所有設定嗎？",
-        "delete_anyway": "仍要刪除"
+        "delete_anyway": "仍要刪除",
+        "bedtime_not_restored": "此備份中開啟了就寢鬧鐘：不會復原，如有需要請在「遊玩時間限制」中重新設定。"
     },
     "update": {
         "checking": "正在檢查更新…",

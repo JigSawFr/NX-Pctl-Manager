@@ -94,7 +94,8 @@
         "bad_pin_format": "het systeem heeft de opmaak van de pincode geweigerd",
         "pctl_refused": "geweigerd door de dienst voor ouderlijk toezicht",
         "relock_failed": "de console is ontgrendeld maar kon niet opnieuw worden vergrendeld: vergrendel hem nu (Beveiliging & app › Nu vergrendelen)",
-        "not_applied": "de console heeft de wijziging niet overgenomen, dus de vorige instellingen zijn teruggezet"
+        "not_applied": "de console heeft de wijziging niet overgenomen, dus de vorige instellingen zijn teruggezet",
+        "not_saved": "PlayGuard kon niet op de SD-kaart opslaan wat het later moet terugzetten, dus er is niets weggeschreven"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -473,7 +474,8 @@
         "start_off": "De netwerkklok wijkt {} af (gecontroleerd met {}). De speeltijdtimer is ervan afhankelijk: zie het tabblad Netwerkklok.",
         "guided_body": "De netwerkklok is onnauwkeurig, en de speeltijdtimer is ervan afhankelijk.\n\nNu de tijd meten met {}? (De console moet online zijn.) Daarna krijg je eerst nog de vraag of de klok mag worden ingesteld.",
         "guided_measure": "Nu meten",
-        "guided_fine": "De netwerkklok is nauwkeurig: niets te doen."
+        "guided_fine": "De netwerkklok is nauwkeurig: niets te doen.",
+        "confirm_apply_resets": "\n\nDe klok wijzigen zet de speeltijd van vandaag terug op nul: de hele daglimiet is weer beschikbaar."
     },
     "pairing": {
         "section": "App Nintendo Switch Ouderlijk toezicht",
@@ -717,7 +719,8 @@
         "restored": "Instellingen teruggezet.",
         "restore_err": "Niet teruggezet: {}",
         "before_delete_err": "Er kon vooraf geen back-up worden opgeslagen ({}).\n\nToch alles verwijderen?",
-        "delete_anyway": "Toch verwijderen"
+        "delete_anyway": "Toch verwijderen",
+        "bedtime_not_restored": "In deze back-up stond een bedtijdalarm aan: dat wordt niet teruggezet. Stel het zo nodig opnieuw in bij Speeltijdtimer."
     },
     "update": {
         "checking": "Controleren op updates...",

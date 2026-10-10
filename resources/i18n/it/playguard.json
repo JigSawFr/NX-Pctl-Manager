@@ -94,7 +94,8 @@
         "bad_pin_format": "il sistema ha rifiutato il formato del PIN",
         "pctl_refused": "rifiutato dal servizio del filtro famiglia",
         "relock_failed": "la console è stata sbloccata ma non è stato possibile bloccarla di nuovo: bloccala ora (Sicurezza e app › Blocca ora)",
-        "not_applied": "la console non ha accettato la modifica, quindi sono state ripristinate le impostazioni precedenti"
+        "not_applied": "la console non ha accettato la modifica, quindi sono state ripristinate le impostazioni precedenti",
+        "not_saved": "PlayGuard non è riuscito a salvare sulla scheda SD ciò che dovrà ripristinare in seguito, quindi non è stato scritto nulla"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -473,7 +474,8 @@
         "start_off": "L'orologio di rete è sfasato di {} (secondo {}). Il tempo di gioco si basa su di esso: vedi la scheda Orologio di rete.",
         "guided_body": "L'orologio di rete non è preciso, e il tempo di gioco si basa su di esso.\n\nVuoi misurare ora l'orario con {}? (La console deve essere connessa a Internet.) Prima di impostare l'orologio ti verrà chiesta conferma.",
         "guided_measure": "Misura ora",
-        "guided_fine": "L'orologio di rete è preciso: non c'è nulla da fare."
+        "guided_fine": "L'orologio di rete è preciso: non c'è nulla da fare.",
+        "confirm_apply_resets": "\n\nCambiare l'orologio azzera il tempo di gioco di oggi: l'intero limite giornaliero torna disponibile."
     },
     "pairing": {
         "section": "App Filtro famiglia per Nintendo Switch",
@@ -717,7 +719,8 @@
         "restored": "Impostazioni ripristinate.",
         "restore_err": "Non ripristinato: {}",
         "before_delete_err": "Non è stato possibile salvare prima un backup ({}).\n\nVuoi eliminare comunque tutto?",
-        "delete_anyway": "Elimina comunque"
+        "delete_anyway": "Elimina comunque",
+        "bedtime_not_restored": "Questo backup aveva attivo Sogni d'oro: non viene ripristinato, impostalo di nuovo in Tempo di gioco se serve."
     },
     "update": {
         "checking": "Ricerca di aggiornamenti...",

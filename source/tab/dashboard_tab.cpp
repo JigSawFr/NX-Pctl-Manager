@@ -189,6 +189,8 @@ void DashboardTab::refresh()
         linked(remaining, "playguard/dashboard/remaining_unlocked"_i18n);
     else if (!pt.enabled || pt.day_min[today] == PT_DAY_NOLIMIT)
         linked(remaining, "playguard/common/no_limit"_i18n);
+    else if (pt.restricted_valid && pt.restricted)   // as the gauge says: nothing left
+        linked(remaining, ui::fmt_played(0));
     else if (pt.remaining_valid && pt.remaining_ns > 0)
         linked(remaining, ui::fmt_duration_ns(pt.remaining_ns));
     else if (log_ok)

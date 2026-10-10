@@ -40,11 +40,24 @@ void lock(std::function<void()> refresh)
         }
         const std::vector<int> prev(now.day_min, now.day_min + 7);
         const uint16_t zero[7] = { 0, 0, 0, 0, 0, 0, 0 };
+        // The limits to put back are saved before they are replaced: should
+        // the app stop between the two, turning the lock off still restores
+        // them. Not saved, nothing is written (they would be lost).
+        auto& cfg = config::get();
+        cfg.console_lock_prev = prev;
+        cfg.console_lock = true;
+        if (!ui::save_config()) {
+            cfg.console_lock_prev.clear();
+            cfg.console_lock = false;
+            pt_flow::finish_write(NXM_RC_NOT_SAVED, did_unlock, "", "playguard/play_timer/write_err"_i18n, refresh);
+            return;
+        }
         Result rc = pt_flow::write_days(zero, "console_lock");
         if (R_SUCCEEDED(rc)) {
-            config::get().console_lock_prev = prev;
-            set_flag(true);
             history_flow::record_values("console_lock", { 0 }, { 1 });
+        } else {
+            cfg.console_lock_prev.clear();
+            set_flag(false);
         }
         pt_flow::finish_write(rc, did_unlock, "playguard/console_lock/on_done"_i18n,
                               "playguard/play_timer/write_err"_i18n, refresh);
