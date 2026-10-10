@@ -3,6 +3,8 @@
 
 #include <borealis/extern/nlohmann/json.hpp>
 #include <climits>
+#include <cstdio>
+#include <sys/stat.h>
 
 #include "util/backup.hpp"
 #include "util/paths.hpp"
@@ -55,22 +57,43 @@ bool values_ok(const std::string& kind, const std::vector<int>& v)
     return true;
 }
 
-nlohmann::json load_array()
+// The entries in the file, and whether there is a file at all: one that is
+// there but cannot be read or parsed is damaged, which is not the same as
+// none (a new history must not silently replace it).
+bool load_array(nlohmann::json& entries)
 {
+    entries = nlohmann::json::array();
     std::string text;
-    if (!paths::read_file(paths::history_file(), text)) return nlohmann::json::array();
+    if (!paths::read_file(paths::history_file(), text)) {
+        struct stat st;
+        return stat(paths::history_file().c_str(), &st) != 0;   // missing: fine
+    }
     try {
         nlohmann::json j = nlohmann::json::parse(text);
-        if (j.is_object() && j.contains("entries") && j["entries"].is_array()) return j["entries"];
+        if (j.is_object() && j.contains("entries") && j["entries"].is_array()) {
+            entries = j["entries"];
+            return true;
+        }
     } catch (...) {
     }
-    return nlohmann::json::array();   // damaged: start again
+    return false;
 }
 }   // namespace
 
 bool append(const Entry& e, std::string* error)
 {
-    nlohmann::json entries = load_array();
+    nlohmann::json entries;
+    if (!load_array(entries)) {
+        // Damaged or unreadable: put it aside as history.json.bad (its undo
+        // values can still be read by hand) and start again. Should that
+        // fail too, write nothing: it would overwrite the old file.
+        const std::string path = paths::history_file(), bad = path + ".bad";
+        std::remove(bad.c_str());
+        if (std::rename(path.c_str(), bad.c_str()) != 0) {
+            if (error) *error = "the change history could not be read, nor put aside";
+            return false;
+        }
+    }
     nlohmann::json j;
     j["when"]   = e.when;
     j["kind"]   = e.kind;
@@ -95,7 +118,8 @@ bool append(const Entry& e, std::string* error)
 std::vector<Entry> load()
 {
     std::vector<Entry> out;
-    const nlohmann::json entries = load_array();
+    nlohmann::json entries;
+    load_array(entries);   // damaged: shown empty; the next change puts it aside
     for (auto it = entries.rbegin(); it != entries.rend(); ++it) {   // newest first
         const nlohmann::json& j = *it;
         if (!j.is_object()) continue;

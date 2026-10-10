@@ -2,9 +2,11 @@
 // system's own PIN screen) before PlayGuard changes anything, or before it
 // opens at all.
 //
-//   off      never (the default);
+//   off      never, except before "Show the PIN" (the PIN opens everything);
 //   changes  before the first change or "Show the PIN", then not again for
-//            5 minutes: anyone can look, only the parent can change;
+//            5 minutes: anyone can look, only the parent can change (the
+//            default, also when config.json is missing, damaged or holds an
+//            unknown value);
 //   open     to open PlayGuard (a lock screen until it is entered).
 //
 // The check sits in the service layer (write_guard.h), so no change can skip
@@ -28,6 +30,10 @@ bool at_start();
 
 // Asks for the PIN now. True when it was entered, or when no PIN is set.
 bool ask();
+// Before showing the PIN: in "changes" and "open" the change check asks (or
+// already did); in "off" this asks. True when it may be shown. On a refusal it
+// says why.
+bool before_show_pin();
 // What to tell the user after ask() said no: "the PIN was not entered", with
 // the result the PIN screen gave (its code tells a cancel from a refusal).
 std::string refusal_text();

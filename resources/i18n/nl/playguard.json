@@ -18,7 +18,10 @@
     "hints": {
         "refresh": "Vernieuwen",
         "open": "Openen",
-        "exit_again": "Druk nogmaals op B om af te sluiten"
+        "exit_again": "Druk nogmaals op B om af te sluiten",
+        "exit_unlocked": "Ouderlijk toezicht is nog tijdelijk ontgrendeld: er kan zonder limiet worden gespeeld tot het weer wordt vergrendeld of de console opnieuw start.\n\nVergrendelen voor het afsluiten?",
+        "exit_lock": "Vergrendelen en afsluiten",
+        "exit_leave": "Afsluiten zonder vergrendelen"
     },
     "common": {
         "yes": "Ja",
@@ -91,7 +94,8 @@
         "bad_pin_format": "het systeem heeft de opmaak van de pincode geweigerd",
         "pctl_refused": "geweigerd door de dienst voor ouderlijk toezicht",
         "relock_failed": "de console is ontgrendeld maar kon niet opnieuw worden vergrendeld: vergrendel hem nu (Beveiliging & app › Nu vergrendelen)",
-        "not_applied": "de console heeft de wijziging niet overgenomen, dus de vorige instellingen zijn teruggezet"
+        "not_applied": "de console heeft de wijziging niet overgenomen, dus de vorige instellingen zijn teruggezet",
+        "not_saved": "PlayGuard kon niet op de SD-kaart opslaan wat het later moet terugzetten, dus er is niets weggeschreven"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -470,7 +474,8 @@
         "start_off": "De netwerkklok wijkt {} af (gecontroleerd met {}). De speeltijdtimer is ervan afhankelijk: zie het tabblad Netwerkklok.",
         "guided_body": "De netwerkklok is onnauwkeurig, en de speeltijdtimer is ervan afhankelijk.\n\nNu de tijd meten met {}? (De console moet online zijn.) Daarna krijg je eerst nog de vraag of de klok mag worden ingesteld.",
         "guided_measure": "Nu meten",
-        "guided_fine": "De netwerkklok is nauwkeurig: niets te doen."
+        "guided_fine": "De netwerkklok is nauwkeurig: niets te doen.",
+        "confirm_apply_resets": "\n\nDe klok wijzigen zet de speeltijd van vandaag terug op nul: de hele daglimiet is weer beschikbaar."
     },
     "pairing": {
         "section": "App Nintendo Switch Ouderlijk toezicht",
@@ -522,7 +527,7 @@
             "open": "Om PlayGuard te openen"
         },
         "notes": {
-            "off": "Iedereen die de console vasthoudt, kan hier de instellingen wijzigen.",
+            "off": "Iedereen die de console vasthoudt, kan hier de instellingen wijzigen. Voor het tonen van de pincode wordt er nog steeds om gevraagd.",
             "changes": "Iedereen kan kijken; alleen de ouder kan iets wijzigen (na 5 minuten wordt opnieuw gevraagd). Voor opnieuw vergrendelen is nooit een pincode nodig.",
             "open": "Een vergrendelscherm totdat de pincode is ingevoerd. Voor opnieuw vergrendelen is nooit een pincode nodig."
         },
@@ -553,8 +558,8 @@
         "reset_pin": "Nieuwe pincode instellen",
         "continue": "PlayGuard openen",
         "note": "U bent hier gekomen via het RESCUE-bestand, dus hier wordt geen pincode gevraagd. Stel een nieuwe pincode in of verwijder het ouderlijk toezicht en open daarna PlayGuard.",
-        "note_failed": "Het herstel is niet vanzelf voltooid. U kunt het hier opnieuw proberen, of de SD-kaart verwijderen en de instellingen op een computer aanpassen.",
-        "note_refused": "Alle ouderlijk toezicht zou zijn verwijderd, maar het verzoekbestand kon niet van de SD-kaart worden verwijderd en zou bij elke start opnieuw worden uitgevoerd. Verwijder het via een computer en probeer het opnieuw, of gebruik de acties hieronder.",
+        "note_failed": "Het herstel is niet voltooid, dus zonder de pincode kan hier niets worden gewijzigd. Probeer het opnieuw met het RESCUE-bestand, of verwijder de SD-kaart en pas de instellingen op een computer aan.",
+        "note_refused": "Alle ouderlijk toezicht zou zijn verwijderd, maar het verzoekbestand kon niet van de SD-kaart worden verwijderd en zou bij elke start opnieuw worden uitgevoerd. Verwijder het via een computer en probeer het opnieuw.",
         "request_kept": "Het bestand {} kon niet van de SD-kaart worden verwijderd: zolang het er staat, wordt de console bij elke start opnieuw ontgrendeld. Verwijder het via een computer.",
         "note_deleted": "Het ouderlijk toezicht is volledig verwijderd, inclusief de pincode. Open PlayGuard: daar kunt u het op elk moment opnieuw instellen.",
         "note_no_pin": "Er was geen pincode voor ouderlijk toezicht ingesteld, dus er was niets te ontgrendelen. U kunt er hier een instellen en daarna PlayGuard openen.",
@@ -564,13 +569,15 @@
             "deleted": "Het ouderlijk toezicht is volledig verwijderd.",
             "no_pin": "Er was geen pincode om te herstellen: er is geen pincode voor ouderlijk toezicht ingesteld.",
             "failed": "Het herstel kon niet worden voltooid.",
-            "refused": "Er is niets verwijderd: het RESCUE-bestand kon niet van de SD-kaart worden verwijderd."
+            "refused": "Er is niets verwijderd: het RESCUE-bestand kon niet van de SD-kaart worden verwijderd.",
+            "unconfirmed": "De console toont het herstel dat dit rapport beschrijft niet."
         },
         "hint": {
             "show_pin": "als u hem vergeten bent",
             "reset_pin": "een nieuwe kiezen",
             "delete": "alles verwijderen"
-        }
+        },
+        "note_unconfirmed": "Zonder de pincode kan hier niets worden gewijzigd, en PlayGuard opent zoals gewoonlijk. Buitengesloten? Zet het RESCUE-bestand terug op de SD-kaart, met de herstel-sysmodule geïnstalleerd, en start de console opnieuw."
     },
     "tools": {
         "section_diag": "Diagnose",
@@ -712,7 +719,8 @@
         "restored": "Instellingen teruggezet.",
         "restore_err": "Niet teruggezet: {}",
         "before_delete_err": "Er kon vooraf geen back-up worden opgeslagen ({}).\n\nToch alles verwijderen?",
-        "delete_anyway": "Toch verwijderen"
+        "delete_anyway": "Toch verwijderen",
+        "bedtime_not_restored": "In deze back-up stond een bedtijdalarm aan: dat wordt niet teruggezet. Stel het zo nodig opnieuw in bij Speeltijdtimer."
     },
     "update": {
         "checking": "Controleren op updates...",

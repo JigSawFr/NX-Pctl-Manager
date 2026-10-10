@@ -102,6 +102,16 @@ std::string summary(const backup::Snapshot& s)
     if (same > 0 && !changes.empty()) out += "\n\n" + brls::getStr("playguard/backup/same_count", same);
     // The PIN is not in the backup (after "Delete all", there is none).
     if (st.pin_length_ok && st.pin_length == 0) out += "\n\n" + "playguard/backup/no_pin_note"_i18n;
+    // The bedtime is kept in the backup's raw block, but not written back:
+    // say so when the backup had one on.
+    pt_block::Block raw;
+    if (!s.raw_block.empty() && pt_block::from_hex(s.raw_block, &raw)) {
+        PtBedtime bed[7];
+        pt_bedtime_decode(raw.data(), bed);
+        bool any = false;
+        for (const PtBedtime& b : bed) any = any || b.on;
+        if (any) out += "\n\n" + "playguard/backup/bedtime_not_restored"_i18n;
+    }
     return out;
 }
 
@@ -114,7 +124,9 @@ void write_all(const backup::Snapshot& s, bool did_unlock, std::function<void()>
     pctl_status_fetch(&was);
     Result first = 0;
     std::vector<std::string> failed;
+    size_t tried = 0;
     auto check = [&](Result rc, const std::string& what) {
+        tried++;
         if (R_SUCCEEDED(rc)) return;
         if (R_SUCCEEDED(first)) first = rc;
         failed.push_back(what);
@@ -147,7 +159,9 @@ void write_all(const backup::Snapshot& s, bool did_unlock, std::function<void()>
     if (s.days_ok) check(pt_flow::write_days(s.days.data(), "backup"), "playguard/play_timer/section_limit"_i18n);
     if (s.alarm_ok && config::get().advanced)
         check(pt_flow::write_alarm_disabled(s.alarm_disabled, "backup"), "playguard/play_timer/alarm"_i18n);
-    history_flow::record_event("restore", "", s.created);
+    // Recorded only when something was restored: every write refused
+    // changed nothing.
+    if (tried > failed.size()) history_flow::record_event("restore", "", s.created);
 
     std::string what;
     for (const auto& f : failed) what += (what.empty() ? "" : ", ") + f;

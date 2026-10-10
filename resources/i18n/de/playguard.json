@@ -18,7 +18,10 @@
     "hints": {
         "refresh": "Aktualisieren",
         "open": "Öffnen",
-        "exit_again": "Zum Beenden erneut B drücken"
+        "exit_again": "Zum Beenden erneut B drücken",
+        "exit_unlocked": "Die Altersbeschränkungen sind noch vorübergehend aufgehoben: Bis sie wieder aktiviert werden oder die Konsole neu startet, kann ohne Limit gespielt werden.\n\nVor dem Beenden wieder aktivieren?",
+        "exit_lock": "Aktivieren und beenden",
+        "exit_leave": "Ohne Aktivieren beenden"
     },
     "common": {
         "yes": "Ja",
@@ -91,7 +94,8 @@
         "bad_pin_format": "das System hat das Format der Geheimzahl abgelehnt",
         "pctl_refused": "vom Dienst der Altersbeschränkungen abgelehnt",
         "relock_failed": "die Konsole wurde entsperrt, konnte aber nicht wieder gesperrt werden: Sperre sie jetzt (Sicherheit & App › Jetzt aktivieren)",
-        "not_applied": "die Konsole hat die Änderung nicht übernommen, daher wurden die vorherigen Einstellungen wiederhergestellt"
+        "not_applied": "die Konsole hat die Änderung nicht übernommen, daher wurden die vorherigen Einstellungen wiederhergestellt",
+        "not_saved": "PlayGuard konnte nicht auf der SD-Karte speichern, was später wiederhergestellt werden muss, daher wurde nichts geschrieben"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -470,7 +474,8 @@
         "start_off": "Die Netzwerkuhr weicht um {} ab (geprüft mit {}). Die Spielzeitbegrenzung verlässt sich darauf: siehe Tab Netzwerkuhr.",
         "guided_body": "Die Netzwerkuhr ist ungenau, und die Spielzeitbegrenzung verlässt sich darauf.\n\nJetzt die Zeit mit {} messen? (Die Konsole muss online sein.) Bevor die Uhr gestellt wird, werden Sie gefragt.",
         "guided_measure": "Jetzt messen",
-        "guided_fine": "Die Netzwerkuhr ist genau: nichts zu tun."
+        "guided_fine": "Die Netzwerkuhr ist genau: nichts zu tun.",
+        "confirm_apply_resets": "\n\nDas Ändern der Uhrzeit setzt die heutige Spielzeit zurück: Das ganze Tageslimit steht wieder zur Verfügung."
     },
     "pairing": {
         "section": "App für die Nintendo Switch-Altersbeschränkungen",
@@ -522,7 +527,7 @@
             "open": "Beim Öffnen von PlayGuard"
         },
         "notes": {
-            "off": "Jeder, der die Konsole in der Hand hat, kann die Einstellungen hier ändern.",
+            "off": "Jeder, der die Konsole in der Hand hat, kann die Einstellungen hier ändern. Zum Anzeigen der Geheimzahl wird sie trotzdem abgefragt.",
             "changes": "Jeder kann sich alles ansehen; nur Eltern können etwas ändern (erneute Abfrage nach 5 Minuten). Zum erneuten Aktivieren wird nie gefragt.",
             "open": "Ein Sperrbildschirm, bis die Geheimzahl eingegeben wird. Zum erneuten Aktivieren wird nie gefragt."
         },
@@ -553,8 +558,8 @@
         "reset_pin": "Neue Geheimzahl festlegen",
         "continue": "PlayGuard öffnen",
         "note": "Sie sind über die RESCUE-Datei hierher gelangt, daher wird hier keine Geheimzahl abgefragt. Legen Sie eine neue Geheimzahl fest oder entfernen Sie die Altersbeschränkungen und öffnen Sie dann PlayGuard.",
-        "note_failed": "Die Wiederherstellung wurde nicht von selbst abgeschlossen. Sie können es hier noch einmal versuchen oder die SD-Karte entnehmen und die Einstellungen an einem Computer ändern.",
-        "note_refused": "Alle Jugendschutzeinstellungen wären gelöscht worden, aber die Anforderungsdatei konnte nicht von der SD-Karte entfernt werden und wäre bei jedem Start erneut ausgeführt worden. Entferne sie an einem Computer und versuche es erneut, oder nutze die Aktionen unten.",
+        "note_failed": "Die Wiederherstellung wurde nicht abgeschlossen, daher kann hier ohne Geheimzahl nichts geändert werden. Versuchen Sie es erneut mit der RESCUE-Datei, oder entnehmen Sie die SD-Karte und ändern Sie die Einstellungen an einem Computer.",
+        "note_refused": "Alle Jugendschutzeinstellungen wären gelöscht worden, aber die Anforderungsdatei konnte nicht von der SD-Karte entfernt werden und wäre bei jedem Start erneut ausgeführt worden. Entferne sie an einem Computer und versuche es erneut.",
         "request_kept": "Die Datei {} konnte nicht von der SD-Karte entfernt werden: Solange sie da ist, wird die Konsole bei jedem Start erneut entsperrt. Entferne sie an einem Computer.",
         "note_deleted": "Alle Altersbeschränkungen wurden entfernt, einschließlich der Geheimzahl. Öffnen Sie PlayGuard – dort können Sie sie jederzeit neu einrichten.",
         "note_no_pin": "Es war keine Geheimzahl für die Altersbeschränkungen festgelegt, daher gab es nichts aufzuheben. Sie können hier eine festlegen und dann PlayGuard öffnen.",
@@ -564,13 +569,15 @@
             "deleted": "Alle Altersbeschränkungen wurden gelöscht.",
             "no_pin": "Es gab keine Geheimzahl wiederherzustellen: Es ist keine Geheimzahl festgelegt.",
             "failed": "Die Wiederherstellung konnte nicht abgeschlossen werden.",
-            "refused": "Nichts wurde gelöscht: Die RESCUE-Datei konnte nicht von der SD-Karte entfernt werden."
+            "refused": "Nichts wurde gelöscht: Die RESCUE-Datei konnte nicht von der SD-Karte entfernt werden.",
+            "unconfirmed": "Die Konsole zeigt die in diesem Bericht beschriebene Wiederherstellung nicht."
         },
         "hint": {
             "show_pin": "falls vergessen",
             "reset_pin": "eine neue wählen",
             "delete": "alles entfernen"
-        }
+        },
+        "note_unconfirmed": "Ohne Geheimzahl kann hier nichts geändert werden, und PlayGuard öffnet sich wie gewohnt. Ausgesperrt? Legen Sie die RESCUE-Datei wieder auf die SD-Karte, mit installiertem Wiederherstellungs-Sysmodul, und starten Sie die Konsole neu."
     },
     "tools": {
         "section_diag": "Diagnose",
@@ -712,7 +719,8 @@
         "restored": "Einstellungen wiederhergestellt.",
         "restore_err": "Nicht wiederhergestellt: {}",
         "before_delete_err": "Es konnte vorher keine Sicherung gespeichert werden ({}).\n\nTrotzdem alles löschen?",
-        "delete_anyway": "Trotzdem löschen"
+        "delete_anyway": "Trotzdem löschen",
+        "bedtime_not_restored": "In dieser Sicherung war ein Gute-Nacht-Alarm aktiv: Er wird nicht wiederhergestellt. Stellen Sie ihn bei Bedarf unter Spielzeit neu ein."
     },
     "update": {
         "checking": "Suche nach Updates...",

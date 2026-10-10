@@ -18,7 +18,10 @@
     "hints": {
         "refresh": "Aggiorna",
         "open": "Apri",
-        "exit_again": "Premi di nuovo B per uscire"
+        "exit_again": "Premi di nuovo B per uscire",
+        "exit_unlocked": "Il filtro famiglia è ancora sbloccato temporaneamente: si può giocare senza limiti finché non viene bloccato di nuovo o la console si riavvia.\n\nBloccarlo prima di uscire?",
+        "exit_lock": "Blocca ed esci",
+        "exit_leave": "Esci senza bloccare"
     },
     "common": {
         "yes": "Sì",
@@ -91,7 +94,8 @@
         "bad_pin_format": "il sistema ha rifiutato il formato del PIN",
         "pctl_refused": "rifiutato dal servizio del filtro famiglia",
         "relock_failed": "la console è stata sbloccata ma non è stato possibile bloccarla di nuovo: bloccala ora (Sicurezza e app › Blocca ora)",
-        "not_applied": "la console non ha accettato la modifica, quindi sono state ripristinate le impostazioni precedenti"
+        "not_applied": "la console non ha accettato la modifica, quindi sono state ripristinate le impostazioni precedenti",
+        "not_saved": "PlayGuard non è riuscito a salvare sulla scheda SD ciò che dovrà ripristinare in seguito, quindi non è stato scritto nulla"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -470,7 +474,8 @@
         "start_off": "L'orologio di rete è sfasato di {} (secondo {}). Il tempo di gioco si basa su di esso: vedi la scheda Orologio di rete.",
         "guided_body": "L'orologio di rete non è preciso, e il tempo di gioco si basa su di esso.\n\nVuoi misurare ora l'orario con {}? (La console deve essere connessa a Internet.) Prima di impostare l'orologio ti verrà chiesta conferma.",
         "guided_measure": "Misura ora",
-        "guided_fine": "L'orologio di rete è preciso: non c'è nulla da fare."
+        "guided_fine": "L'orologio di rete è preciso: non c'è nulla da fare.",
+        "confirm_apply_resets": "\n\nCambiare l'orologio azzera il tempo di gioco di oggi: l'intero limite giornaliero torna disponibile."
     },
     "pairing": {
         "section": "App Filtro famiglia per Nintendo Switch",
@@ -522,7 +527,7 @@
             "open": "Per aprire PlayGuard"
         },
         "notes": {
-            "off": "Chiunque abbia in mano la console può modificare le impostazioni qui.",
+            "off": "Chiunque abbia in mano la console può modificare le impostazioni qui. Per mostrare il PIN viene comunque chiesto.",
             "changes": "Tutti possono consultare; solo il genitore può modificare (il PIN viene richiesto di nuovo dopo 5 minuti). Per bloccare di nuovo non viene mai richiesto.",
             "open": "Una schermata di blocco fino all'inserimento del PIN. Per bloccare di nuovo non viene mai richiesto."
         },
@@ -553,8 +558,8 @@
         "reset_pin": "Imposta un nuovo PIN",
         "continue": "Apri PlayGuard",
         "note": "Sei arrivato a questa schermata con il file RESCUE, quindi qui il PIN non viene richiesto. Imposta un nuovo PIN o elimina il filtro famiglia, poi apri PlayGuard.",
-        "note_failed": "Il recupero non si è concluso da solo. Puoi riprovare da qui, oppure estrarre la scheda SD e modificare le impostazioni da un computer.",
-        "note_refused": "Tutto il filtro famiglia sarebbe stato eliminato, ma non è stato possibile rimuovere il file di richiesta dalla scheda SD, che sarebbe stato rieseguito a ogni avvio. Rimuovilo da un computer e riprova, oppure usa le azioni qui sotto.",
+        "note_failed": "Il recupero non si è concluso, quindi qui non si può modificare nulla senza il PIN. Riprova con il file RESCUE, oppure estrai la scheda SD e modifica le impostazioni da un computer.",
+        "note_refused": "Tutto il filtro famiglia sarebbe stato eliminato, ma non è stato possibile rimuovere il file di richiesta dalla scheda SD, che sarebbe stato rieseguito a ogni avvio. Rimuovilo da un computer e riprova.",
         "request_kept": "Non è stato possibile rimuovere il file {} dalla scheda SD: finché resta lì, la console viene sbloccata di nuovo a ogni avvio. Rimuovilo da un computer.",
         "note_deleted": "Il filtro famiglia è stato eliminato, PIN compreso. Apri PlayGuard: da lì potrai configurarlo di nuovo quando vuoi.",
         "note_no_pin": "Non era impostato alcun PIN del filtro famiglia, quindi non c'era nulla da sbloccare. Puoi impostarne uno qui, poi aprire PlayGuard.",
@@ -564,13 +569,15 @@
             "deleted": "Il filtro famiglia è stato eliminato.",
             "no_pin": "Non c'era alcun PIN da recuperare: nessun PIN del filtro famiglia è impostato.",
             "failed": "Il recupero non è riuscito a concludersi.",
-            "refused": "Non è stato eliminato nulla: non è stato possibile rimuovere il file RESCUE dalla scheda SD."
+            "refused": "Non è stato eliminato nulla: non è stato possibile rimuovere il file RESCUE dalla scheda SD.",
+            "unconfirmed": "La console non mostra il recupero descritto da questo rapporto."
         },
         "hint": {
             "show_pin": "se l'hai dimenticato",
             "reset_pin": "scegline uno nuovo",
             "delete": "rimuovi tutto"
-        }
+        },
+        "note_unconfirmed": "Senza il PIN qui non si può modificare nulla, e PlayGuard si apre come al solito. Bloccato? Rimetti il file RESCUE sulla scheda SD, con il sysmodule di recupero installato, poi riavvia la console."
     },
     "tools": {
         "section_diag": "Diagnostica",
@@ -712,7 +719,8 @@
         "restored": "Impostazioni ripristinate.",
         "restore_err": "Non ripristinato: {}",
         "before_delete_err": "Non è stato possibile salvare prima un backup ({}).\n\nVuoi eliminare comunque tutto?",
-        "delete_anyway": "Elimina comunque"
+        "delete_anyway": "Elimina comunque",
+        "bedtime_not_restored": "Questo backup aveva attivo Sogni d'oro: non viene ripristinato, impostalo di nuovo in Tempo di gioco se serve."
     },
     "update": {
         "checking": "Ricerca di aggiornamenti...",

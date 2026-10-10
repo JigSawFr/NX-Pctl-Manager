@@ -103,7 +103,7 @@ void sanitize(Config& c)
     if (!language_ok) c.language = "system";
     one_of(c.theme, { "system", "light", "dark" }, "system");
     one_of(c.update_via, { "auto", "sphaira", "appstore", "manual" }, "auto");
-    one_of(c.pin_lock, { "off", "changes", "open" }, "off");
+    one_of(c.pin_lock, { "off", "changes", "open" }, "changes");
     one_of(c.fw_gate_choice, { "", "read_only", "probe", "risk" }, "");
     if (c.fw_gate_choice.empty()) c.fw_gate_fw.clear(), c.fw_gate_app.clear();
     if (c.ntp_server.size() > MAX_HOST) c.ntp_server.clear();
