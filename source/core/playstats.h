@@ -54,10 +54,6 @@ size_t playstats_accounts(PlayAccount *out, size_t max, Result *rc);
 // played are left out.
 void playstats_fetch_for(PlayStats *out, const PlayAccount *account);
 void playstats_fetch(PlayStats *out);   // playstats_fetch_for(out, NULL)
-// playstats_fetch_for() without the time in `skip` (PlayGuard's own sessions
-// over a game, util/own_time.hpp) in today / 7 days / each day. The all-time
-// totals are the system's and keep it.
-void playstats_fetch_skip(PlayStats *out, const PlayAccount *account, const PlayLogSpan *skip, size_t n_skip);
 
 // What the agent sysmodule reads (it cannot afford ns and its 147 KiB of
 // control data per game): the last 7 days per game from the play log alone

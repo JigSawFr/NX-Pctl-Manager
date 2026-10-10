@@ -37,6 +37,15 @@ NVGcolor color_text();      // plain label text colour
 // there is no code to look up.
 std::string rc_text(Result rc);
 
+// Runs `task` on a thread of its own, rather than brls::async: that single
+// queue runs one task after the other, so a network request queued there
+// waits behind reading the play log and loading game icons (minutes, on a
+// console with many games), or behind another request's timeout. Every
+// network task goes here; the play log and the icons stay on the queue, one
+// at a time on the console's services. Queued there when no thread can be
+// had. `what` names it in the log.
+void in_background(const char* what, std::function<void()> task);
+
 // Deferred to the next frame (toasts fired right after a system applet returns
 // were dropped on fw 22.1.0).
 void notify(const std::string& text);
@@ -46,6 +55,10 @@ void notify(const std::string& text);
 void error(const std::string& text);
 // config::save(), with a toast when the SD card refused the write.
 bool save_config();
+// `next` in place of the current screen. Borealis never pops the first
+// activity, so a start screen (lock, rescue) gets `next` pushed over it
+// instead: popping it would silently do nothing.
+void replace_screen(brls::Activity* next);
 // Success: `ok_text` as a toast. Failure: `error_prefix — reason` as a dialog.
 void notify_result(Result rc, const std::string& ok_text, const std::string& error_prefix);
 

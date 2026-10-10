@@ -381,7 +381,7 @@
         "first": "初めて遊んだ日",
         "last": "最後に遊んだ日",
         "less_than_minute": "1分未満",
-        "note": "本体のプレイ記録から、すべてのユーザー分を読み込んでいます。本体の時計を変更した場合、時間はおおよそになります。ゲームの上で開いたPlayGuardの時間は、今日と過去7日間からは除外されますが、本体が記録する累計には残ります。"
+        "note": "本体のプレイ記録から、すべてのユーザー分を読み込んでいます。本体の時計を変更した場合、時間はおおよそになります。ゲームの上で開いたPlayGuardは、起動時に選んだユーザーのそのゲームのプレイとして記録されます。保護者のユーザーで開いてください。"
     },
     "restrictions": {
         "section_level": "制限レベル",
@@ -666,7 +666,7 @@
         "flag_read_only": "閲覧のみ",
         "flag_dev": "開発者",
         "upload": "レポートをオンラインで送信",
-        "upload_note": "レポートを dpaste.org に送信し、そのリンクを QR コードで表示します。サポートしてくれる人に渡すか、バグ報告に使ってください。"
+        "upload_note": "レポートを bpa.st（GitHub にサインインしている場合はシークレット Gist）に送信し、そのリンクを QR コードで表示します。サポートしてくれる人に渡すか、バグ報告に使ってください。"
     },
     "about": {
         "section_changelog": "{}の更新内容",
@@ -735,8 +735,14 @@
         "current": "このレポートとデバッグファイル",
         "saved": "保存したレポート {}",
         "part_report": "診断レポート",
-        "confirm": "dpaste.org に送信しますか？（{} KB）",
-        "confirm_public": "リンクを知っている人は誰でも 30 日間閲覧でき、その後削除されます。PIN やシリアル番号は含まれません。",
+        "confirm": "{} に送信しますか？（{} KB）",
+        "confirm_public": "リンクを知っている人は誰でも 1 か月間閲覧でき、その後 bpa.st が削除します。PIN やシリアル番号は含まれません。",
+        "confirm_gist": "GitHub アカウントのシークレット Gist：GitHub で削除するまで、リンクを知っている人は誰でも閲覧できます。PIN やシリアル番号は含まれません。",
+        "where_gist": "GitHub のシークレット Gist",
+        "host": "送信先",
+        "host_gist": "GitHub のシークレット Gist（あなたのアカウント）",
+        "host_bpaste": "bpa.st（1 か月後に削除）",
+        "relogin": "GitHub が Gist を拒否しました。Gist を許可するには、サインアウトしてもう一度サインインしてください（開発者ツールの GitHub アカウント）。または bpa.st に送信してください。",
         "send": "送信",
         "sending": "送信しています…",
         "failed": "レポートを送信できませんでした: {}",
@@ -765,7 +771,7 @@
         "pt_block_report": "SDカードに保存",
         "pt_block_new": "新しい基準",
         "pt_log": "Record the play timer",
-        "pt_log_note": "Every 30 s while PlayGuard is open, one line of what the play timer reports (time left, time spent, 1459, the settings block) in logs/play_timer_log.csv. Leave PlayGuard open over midnight, or until the time is up, to see what the console does then. Sent with the diagnostic report.",
+        "pt_log_note": "Every 30 s while PlayGuard is open, one line of what the play timer reports (time left, time spent, 1459, the settings block) in logs/play_timer_log.csv, and one more right after each change PlayGuard makes, saying which. A clock that moved more than the time that went by is noted too. Leave PlayGuard open over midnight, or until the time is up, to see what the console does then. Sent with the diagnostic report.",
         "pt_log_on": "Recording every 30 s in {}",
         "gate": "ファームウェア画面をもう一度表示",
         "forget": "ファームウェアの選択を忘れる",
@@ -789,11 +795,13 @@
         "loading": "ビルドを探しています…",
         "busy": "すでに実行中です…",
         "list_failed": "ビルドの一覧を取得できませんでした: {}",
+        "list_stale": "リストを更新できませんでした ({})。前回のリストを表示します。",
         "downloading": "ダウンロードしています（{} MB）…",
         "failed": "ビルドをインストールできませんでした: {}\n\nインストール済みの PlayGuard は変更されていません。",
         "done_manual": "{} をインストールしました。PlayGuard を閉じて、もう一度開いてください。",
         "no_path": "PlayGuard は自身の .nro ファイルの場所を把握していないため（hbloader を使わずに起動しましたか？）、置き換えられません。GitHub から手動でインストールしてください。",
-        "sign_in": "main とプルリクエストのビルドを使うには GitHub にログイン"
+        "sign_in": "main とプルリクエストのビルドを使うには GitHub にログイン",
+        "refresh": "リストを更新 ({} 分前に確認)"
     },
     "github": {
         "account": "GitHub アカウント",
@@ -801,13 +809,13 @@
         "signed_in_short": "ログイン済み",
         "starting": "GitHub に接続しています…",
         "code_body": "スマートフォンかパソコンで {} を開き（またはコードを読み取り）、次のコードを入力してください:",
-        "code_note": "PlayGuard は権限を要求しません。GitHub 上の公開情報のみ読み取れます。承認を待っています…",
+        "code_note": "PlayGuard が要求するのは、開発ビルドをインストールするためのビルドワークフローのファイルの読み取り (Actions) と、レポート送信のための Gist 作成のみです。それ以外は GitHub 上の公開情報しか読み取れません。承認を待っています…",
         "signed_in": "GitHub にログインしました。",
         "failed": "GitHub にログインできませんでした: {}",
         "denied": "GitHub へのログインが拒否されました。",
         "expired": "入力される前にコードの有効期限が切れました。もう一度お試しください。",
         "sign_out": "ログアウト",
-        "sign_out_body": "GitHub からログアウトしますか？PlayGuard はトークンを破棄します。トークンを取り消すには: GitHub › Settings › Applications › Authorized OAuth Apps › PlayGuard。",
+        "sign_out_body": "GitHub からログアウトしますか？PlayGuard はトークンを破棄します。トークンを取り消すには: GitHub › Settings › Applications › Authorized GitHub Apps › PlayGuard dev builds。",
         "signed_out": "GitHub からログアウトしました。"
     },
     "toast": {

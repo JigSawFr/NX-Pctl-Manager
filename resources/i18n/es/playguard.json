@@ -381,7 +381,7 @@
         "first": "Primera partida",
         "last": "Última partida",
         "less_than_minute": "< 1 min",
-        "note": "Leído del registro de actividad de la consola, para todos los usuarios. Los tiempos son aproximados si se cambió el reloj de la consola. El tiempo de PlayGuard abierto sobre un juego se descuenta de hoy y de los últimos 7 días, pero sigue en los totales, que lleva la consola."
+        "note": "Leído del registro de actividad de la consola, para todos los usuarios. Los tiempos son aproximados si se cambió el reloj de la consola. PlayGuard abierto sobre un juego cuenta como ese juego para el usuario elegido al iniciar: ábrelo con el usuario de un adulto."
     },
     "restrictions": {
         "section_level": "Nivel de restricción",
@@ -666,7 +666,7 @@
         "flag_read_only": "solo lectura",
         "flag_dev": "desarrollador",
         "upload": "Enviar un informe en línea",
-        "upload_note": "Envía un informe a dpaste.org y muestra su enlace con un código QR: dáselo a quien te ayude o abre con él un informe de error."
+        "upload_note": "Envía un informe a bpa.st, o a un gist secreto si has iniciado sesión en GitHub, y muestra su enlace con un código QR: dáselo a quien te ayude o abre con él un informe de error."
     },
     "about": {
         "section_changelog": "Novedades de la {}",
@@ -735,8 +735,14 @@
         "current": "Este informe y los archivos de depuración",
         "saved": "Informe guardado {}",
         "part_report": "Informe de diagnóstico",
-        "confirm": "¿Enviar a dpaste.org ({} KB)?",
-        "confirm_public": "Cualquiera con el enlace puede leerlo durante 30 días; después se elimina. Nunca contiene el PIN ni el número de serie.",
+        "confirm": "¿Enviar a {} ({} KB)?",
+        "confirm_public": "Cualquiera con el enlace puede leerlo durante un mes; después bpa.st lo elimina. Nunca contiene el PIN ni el número de serie.",
+        "confirm_gist": "Un gist secreto en tu cuenta de GitHub: cualquiera con el enlace puede leerlo hasta que lo elimines en GitHub. Nunca contiene el PIN ni el número de serie.",
+        "where_gist": "un gist secreto en GitHub",
+        "host": "¿Dónde enviarlo?",
+        "host_gist": "Gist secreto en GitHub (tu cuenta)",
+        "host_bpaste": "bpa.st (se elimina al cabo de un mes)",
+        "relogin": "GitHub rechazó el gist. Cierra sesión y vuelve a iniciarla (Cuenta de GitHub, en las herramientas de desarrollador) para permitir gists, o envíalo a bpa.st.",
         "send": "Enviar",
         "sending": "Enviando...",
         "failed": "No se pudo enviar el informe: {}",
@@ -765,7 +771,7 @@
         "pt_block_report": "Guardar en la tarjeta SD",
         "pt_block_new": "Nueva referencia",
         "pt_log": "Record the play timer",
-        "pt_log_note": "Every 30 s while PlayGuard is open, one line of what the play timer reports (time left, time spent, 1459, the settings block) in logs/play_timer_log.csv. Leave PlayGuard open over midnight, or until the time is up, to see what the console does then. Sent with the diagnostic report.",
+        "pt_log_note": "Every 30 s while PlayGuard is open, one line of what the play timer reports (time left, time spent, 1459, the settings block) in logs/play_timer_log.csv, and one more right after each change PlayGuard makes, saying which. A clock that moved more than the time that went by is noted too. Leave PlayGuard open over midnight, or until the time is up, to see what the console does then. Sent with the diagnostic report.",
         "pt_log_on": "Recording every 30 s in {}",
         "gate": "Volver a la pantalla de firmware",
         "forget": "Olvidar la elección del firmware",
@@ -789,11 +795,13 @@
         "loading": "Buscando compilaciones...",
         "busy": "Ya en curso...",
         "list_failed": "No se pudieron listar las compilaciones: {}",
+        "list_stale": "No se pudo actualizar la lista ({}): se muestra la última.",
         "downloading": "Descargando ({} MB)...",
         "failed": "No se pudo instalar la compilación: {}\n\nEl PlayGuard instalado no ha cambiado.",
         "done_manual": "{} está instalada. Cierra PlayGuard y vuelve a abrirlo para usarla.",
         "no_path": "PlayGuard no sabe dónde está su archivo .nro (¿iniciado sin hbloader?), así que no puede sustituirlo. Instala la compilación a mano desde GitHub.",
-        "sign_in": "Iniciar sesión en GitHub para las compilaciones de main y de las pull requests"
+        "sign_in": "Iniciar sesión en GitHub para las compilaciones de main y de las pull requests",
+        "refresh": "Actualizar la lista (comprobada hace {} min)"
     },
     "github": {
         "account": "Cuenta de GitHub",
@@ -801,13 +809,13 @@
         "signed_in_short": "Sesión iniciada",
         "starting": "Conectando con GitHub...",
         "code_body": "En un teléfono u ordenador, abre {} (o escanea el código) e introduce:",
-        "code_note": "PlayGuard no pide ningún permiso: solo puede leer lo que es público en GitHub. Esperando tu aprobación...",
+        "code_note": "PlayGuard solo pide leer los archivos del workflow de compilación (Actions), para instalar builds de desarrollo, y crear gists, para enviar informes; por lo demás solo puede leer lo que es público en GitHub. Esperando tu aprobación...",
         "signed_in": "Sesión iniciada en GitHub.",
         "failed": "No se pudo iniciar sesión en GitHub: {}",
         "denied": "Se rechazó el inicio de sesión en GitHub.",
         "expired": "El código caducó antes de introducirse. Inténtalo de nuevo.",
         "sign_out": "Cerrar sesión",
-        "sign_out_body": "¿Cerrar sesión en GitHub? PlayGuard olvida su token. Para revocarlo también: GitHub › Settings › Applications › Authorized OAuth Apps › PlayGuard.",
+        "sign_out_body": "¿Cerrar sesión en GitHub? PlayGuard olvida su token. Para revocarlo también: GitHub › Settings › Applications › Authorized GitHub Apps › PlayGuard dev builds.",
         "signed_out": "Sesión de GitHub cerrada."
     },
     "toast": {

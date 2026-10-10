@@ -245,11 +245,6 @@ void playstats_fetch(PlayStats *out)
 
 void playstats_fetch_for(PlayStats *out, const PlayAccount *account)
 {
-    playstats_fetch_skip(out, account, NULL, 0);
-}
-
-void playstats_fetch_skip(PlayStats *out, const PlayAccount *account, const PlayLogSpan *skip, size_t n_skip)
-{
     memset(out, 0, sizeof(*out));
     time_local_now(&out->now, NULL);   // live, unlike time() (calendar.h)
 
@@ -326,8 +321,8 @@ void playstats_fetch_skip(PlayStats *out, const PlayAccount *account, const Play
         }
         if (R_SUCCEEDED(out->events_rc)) {
             static PlayLogTotal totals[PLAYSTATS_MAX];
-            const size_t n = playlog_fold_days_skip(events, event_count, out->now, day_starts,
-                                                    skip, n_skip, totals, PLAYSTATS_MAX);
+            const size_t n = playlog_fold_days(events, event_count, out->now, day_starts,
+                                               totals, PLAYSTATS_MAX);
             for (size_t i = 0; i < n; i++) {
                 GameStat *g = find_or_add(out, totals[i].app_id);   // also games deleted since
                 if (!g) break;

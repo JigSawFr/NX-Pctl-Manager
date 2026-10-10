@@ -55,3 +55,8 @@ bool platform_random(void *buf, size_t size)
     randomGet(buf, size);
     return true;
 }
+
+void platform_crash(void)
+{
+    diagAbortWithResult(MAKERESULT(Module_Libnx, LibnxError_ShouldNotHappen));
+}

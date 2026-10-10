@@ -381,7 +381,7 @@
         "first": "Première partie",
         "last": "Dernière partie",
         "less_than_minute": "< 1 min",
-        "note": "Lu dans le journal d'activité de la console, pour tous les comptes. Les durées sont approximatives si l'horloge de la console a été modifiée. Le temps passé dans PlayGuard ouvert par-dessus un jeu est retiré d'aujourd'hui et des 7 derniers jours, mais reste dans les totaux depuis toujours, tenus par la console."
+        "note": "Lu dans le journal d'activité de la console, pour tous les comptes. Les durées sont approximatives si l'horloge de la console a été modifiée. PlayGuard ouvert par-dessus un jeu compte comme ce jeu pour le compte choisi au lancement : ouvrez-le avec le compte d'un parent."
     },
     "restrictions": {
         "section_level": "Niveau de restriction",
@@ -666,7 +666,7 @@
         "flag_read_only": "lecture seule",
         "flag_dev": "développeur",
         "upload": "Envoyer un rapport en ligne",
-        "upload_note": "Envoie un rapport sur dpaste.org et affiche son lien avec un QR code : donnez-le à la personne qui vous aide, ou ouvrez un signalement de bug avec."
+        "upload_note": "Envoie un rapport sur bpa.st, ou dans un gist secret si vous êtes connecté à GitHub, et affiche son lien avec un QR code : donnez-le à la personne qui vous aide, ou ouvrez un signalement de bug avec."
     },
     "about": {
         "section_changelog": "Nouveautés de la {}",
@@ -735,8 +735,14 @@
         "current": "Ce rapport et les fichiers de débogage",
         "saved": "Rapport enregistré {}",
         "part_report": "Rapport de diagnostic",
-        "confirm": "Envoyer sur dpaste.org ({} Ko) ?",
-        "confirm_public": "Toute personne qui a le lien peut le lire pendant 30 jours, puis il est supprimé. Il ne contient jamais le code PIN ni le numéro de série.",
+        "confirm": "Envoyer vers {} ({} Ko) ?",
+        "confirm_public": "Toute personne qui a le lien peut le lire pendant un mois, puis bpa.st le supprime. Il ne contient jamais le code PIN ni le numéro de série.",
+        "confirm_gist": "Un gist secret dans votre compte GitHub : toute personne qui a le lien peut le lire, jusqu'à ce que vous le supprimiez sur GitHub. Il ne contient jamais le code PIN ni le numéro de série.",
+        "where_gist": "un gist secret GitHub",
+        "host": "Où l'envoyer ?",
+        "host_gist": "Gist secret sur GitHub (votre compte)",
+        "host_bpaste": "bpa.st (supprimé après un mois)",
+        "relogin": "GitHub a refusé le gist. Déconnectez-vous puis reconnectez-vous (Compte GitHub, dans les outils développeur) pour autoriser les gists, ou envoyez-le sur bpa.st.",
         "send": "Envoyer",
         "sending": "Envoi...",
         "failed": "Impossible d'envoyer le rapport : {}",
@@ -765,7 +771,7 @@
         "pt_block_report": "Enregistrer sur la carte SD",
         "pt_block_new": "Nouvelle référence",
         "pt_log": "Enregistrer le temps de jeu",
-        "pt_log_note": "Toutes les 30 s tant que PlayGuard est ouvert, une ligne de ce que rapporte le temps de jeu (temps restant, temps écoulé, 1459, le bloc des réglages) dans logs/play_timer_log.csv. Laissez PlayGuard ouvert après minuit, ou jusqu'à la fin du temps, pour voir ce que fait alors la console. Envoyé avec le rapport de diagnostic.",
+        "pt_log_note": "Toutes les 30 s tant que PlayGuard est ouvert, une ligne de ce que rapporte le temps de jeu (temps restant, temps écoulé, 1459, le bloc des réglages) dans logs/play_timer_log.csv, et une de plus juste après chaque modification faite par PlayGuard, qui dit laquelle. Une horloge qui a bougé plus que le temps écoulé est notée aussi. Laissez PlayGuard ouvert après minuit, ou jusqu'à la fin du temps, pour voir ce que fait alors la console. Envoyé avec le rapport de diagnostic.",
         "pt_log_on": "Enregistrement toutes les 30 s dans {}",
         "gate": "Revoir l'écran firmware",
         "forget": "Oublier le choix pour le firmware",
@@ -789,11 +795,13 @@
         "loading": "Recherche des builds...",
         "busy": "Déjà en cours...",
         "list_failed": "Impossible de lister les builds : {}",
+        "list_stale": "Impossible d'actualiser la liste ({}) : voici la dernière.",
         "downloading": "Téléchargement ({} Mo)...",
         "failed": "Impossible d'installer le build : {}\n\nLe PlayGuard installé n'a pas changé.",
         "done_manual": "{} est installé. Fermez PlayGuard et rouvrez-le pour l'utiliser.",
         "no_path": "PlayGuard ne sait pas où se trouve son fichier .nro (lancé sans hbloader ?) et ne peut donc pas le remplacer. Installez le build à la main depuis GitHub.",
-        "sign_in": "Se connecter à GitHub pour les builds de main et des pull requests"
+        "sign_in": "Se connecter à GitHub pour les builds de main et des pull requests",
+        "refresh": "Actualiser la liste (vérifiée il y a {} min)"
     },
     "github": {
         "account": "Compte GitHub",
@@ -801,13 +809,13 @@
         "signed_in_short": "Connecté",
         "starting": "Connexion à GitHub...",
         "code_body": "Sur un téléphone ou un ordinateur, ouvrez {} (ou scannez le code) et saisissez :",
-        "code_note": "PlayGuard ne demande aucune autorisation : il ne peut lire que ce qui est public sur GitHub. En attente de votre accord...",
+        "code_note": "PlayGuard demande seulement à lire les fichiers du workflow de build (Actions), pour installer les builds de développement, et à créer des gists, pour envoyer des rapports ; sinon il ne peut lire que ce qui est public sur GitHub. En attente de votre accord...",
         "signed_in": "Connecté à GitHub.",
         "failed": "Impossible de se connecter à GitHub : {}",
         "denied": "La connexion à GitHub a été refusée.",
         "expired": "Le code a expiré avant d'être saisi. Réessayez.",
         "sign_out": "Se déconnecter",
-        "sign_out_body": "Se déconnecter de GitHub ? PlayGuard oublie son jeton. Pour le révoquer aussi : GitHub › Settings › Applications › Authorized OAuth Apps › PlayGuard.",
+        "sign_out_body": "Se déconnecter de GitHub ? PlayGuard oublie son jeton. Pour le révoquer aussi : GitHub › Settings › Applications › Authorized GitHub Apps › PlayGuard dev builds.",
         "signed_out": "Déconnecté de GitHub."
     },
     "toast": {

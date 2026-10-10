@@ -165,6 +165,75 @@ std::vector<Build> combine(const std::vector<Artifact>& artifacts, const std::ve
     return out;
 }
 
+namespace
+{
+const char* kind_name(Kind k)
+{
+    switch (k) {
+        case Kind::Release: return "release";
+        case Kind::Main: return "main";
+        case Kind::PullRequest: return "pr";
+    }
+    return "";
+}
+}   // namespace
+
+std::string encode_cache(const Cache& cache)
+{
+    json list = json::array();
+    for (const Build& b : cache.builds)
+        list.push_back({ { "kind", kind_name(b.kind) }, { "artifact", b.artifact }, { "version", b.version },
+                         { "pr", b.pr }, { "title", b.title }, { "commit", b.commit }, { "date", b.date },
+                         { "url", b.url }, { "size", b.size }, { "sha256", b.sha256 } });
+    const json j = { { "version", 1 }, { "fetched_at", cache.fetched_at }, { "needs_login", cache.needs_login },
+                     { "builds", list } };
+    return j.dump(1) + "\n";
+}
+
+bool decode_cache(const std::string& text, Cache* out)
+{
+    return parse(text, [out](const json& j) {
+        if (!j.is_object() || integer(j, "version") != 1 || !j.contains("builds") || !j["builds"].is_array()) return false;
+        Cache c;
+        c.fetched_at = integer(j, "fetched_at");
+        c.needs_login = j.value("needs_login", true);
+        for (const auto& x : j["builds"]) {
+            if (!x.is_object()) continue;
+            Build b;
+            const std::string kind = str(x, "kind");
+            if (kind == "release") b.kind = Kind::Release;
+            else if (kind == "main") b.kind = Kind::Main;
+            else if (kind == "pr") b.kind = Kind::PullRequest;
+            else continue;
+            b.artifact = x.value("artifact", false);
+            b.version = str(x, "version");
+            b.pr = (int)integer(x, "pr");
+            b.title = str(x, "title");
+            b.commit = str(x, "commit");
+            b.date = str(x, "date");
+            b.url = str(x, "url");
+            b.sha256 = str(x, "sha256");
+            const int64_t size = integer(x, "size");
+            const bool commit_ok = b.kind == Kind::Release ? b.commit.empty() : short_commit(b.commit) == b.commit;
+            const bool sha_ok = b.sha256.empty() || (b.sha256.size() == 64 && is_hex(b.sha256) && lower(b.sha256) == b.sha256);
+            if (!https(b.url) || size <= 0 || !commit_ok || !sha_ok) continue;
+            if (b.kind == Kind::Release ? b.version.empty() : !b.artifact) continue;
+            if (b.kind == Kind::PullRequest && b.pr <= 0) continue;
+            b.size = (uint64_t)size;
+            c.builds.push_back(b);
+        }
+        *out = c;
+        return true;
+    });
+}
+
+bool cache_fresh(const Cache& cache, int64_t now, bool needs_login)
+{
+    const int64_t age = now - cache.fetched_at;
+    return cache.fetched_at > 0 && age >= 0 && age < CACHE_MAX_AGE_S && cache.needs_login == needs_login &&
+           !cache.builds.empty();
+}
+
 std::string digest_hex(const std::string& digest)
 {
     static const std::string PREFIX = "sha256:";

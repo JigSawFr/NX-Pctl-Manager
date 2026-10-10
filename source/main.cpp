@@ -5,7 +5,13 @@
 // General Public License v3 or later; it comes with NO WARRANTY. See the
 // LICENSE file or <https://www.gnu.org/licenses/gpl-3.0.html> for details.
 #include <borealis.hpp>
+#include <cstdio>
 #include <cstdlib>
+#include <ctime>
+#include <exception>
+#include <fcntl.h>
+#include <typeinfo>
+#include <unistd.h>
 
 #include "action/fw_gate.hpp"
 #include "action/pin_lock.hpp"
@@ -17,6 +23,7 @@
 #include "activity/main_activity.hpp"
 #include "activity/rescue_activity.hpp"
 #include "app.hpp"
+#include "core/platform.h"
 #include "tab/about_tab.hpp"
 #include "tab/activity_tab.hpp"
 #include "tab/clock_tab.hpp"
@@ -29,7 +36,7 @@
 #include "ui/ui.hpp"
 #include "util/config.hpp"
 #include "util/http.hpp"
-#include "util/own_time.hpp"
+#include "util/paths.hpp"
 #include "util/sync_files.hpp"
 #include "view/made_in_france.hpp"
 #include "view/scroll_view.hpp"
@@ -40,8 +47,48 @@
 
 using namespace brls::literals;
 
+namespace
+{
+// An exception nothing caught: what it said goes to logs/crash.txt, then
+// PlayGuard ends as a crash, so Atmosphère's report shows where it was
+// thrown (the stack is not unwound yet). Left to std::terminate, it would
+// abort(), which hbloader takes as a normal exit: back in hbmenu, borealis'
+// task thread, still running, crashed hbmenu instead.
+[[noreturn]] void on_terminate()
+{
+    std::string what = "no exception (std::terminate called directly)";
+    if (std::exception_ptr e = std::current_exception()) {
+        try {
+            std::rethrow_exception(e);
+        } catch (const std::exception& x) {
+            what = std::string(typeid(x).name()) + ": " + x.what();
+        } catch (...) {
+            what = "an exception not derived from std::exception";
+        }
+    }
+    char when[32] = "?";
+    const std::time_t now = std::time(nullptr);
+    if (const std::tm* t = std::localtime(&now)) std::strftime(when, sizeof(when), "%Y-%m-%d %H:%M:%S", t);
+    if (paths::ensure_dir(paths::logs_dir())) {
+        // Created 0644 (as util/pt_log.cpp), not fopen's 0666.
+        const int fd = ::open((paths::logs_dir() + "/crash.txt").c_str(), O_WRONLY | O_APPEND | O_CREAT, 0644);
+        if (std::FILE* f = fd < 0 ? nullptr : ::fdopen(fd, "a")) {
+            std::fprintf(f, "%s  PlayGuard %s (%s): uncaught %s\n", when, app::version().c_str(),
+                         app::commit().empty() ? "?" : app::commit().c_str(), what.c_str());
+            std::fclose(f);
+        } else if (fd >= 0) {
+            ::close(fd);
+        }
+    }
+    std::fprintf(stderr, "uncaught %s\n", what.c_str());
+    platform_crash();
+    std::abort();
+}
+}   // namespace
+
 int main(int argc, char* argv[])
 {
+    std::set_terminate(on_terminate);
     app::set_self_path(argc > 0 ? argv[0] : nullptr);
 
     // Preferences first: the locale must be chosen before borealis loads i18n.
@@ -129,13 +176,6 @@ int main(int argc, char* argv[])
         brls::Application::pushActivity(new InitErrorActivity());
     }
 
-    // Started over a game, PlayGuard's time counts as that game's: noted, so
-    // the Activity tab can leave it out.
-    {
-        SysInfo si;
-        sysinfo_get(&si);
-        own_time::start(!si.applet_mode);
-    }
     pt_log_flow::apply();   // Developer › Record the play timer, when on
 
     while (brls::Application::mainLoop())
@@ -143,7 +183,6 @@ int main(int argc, char* argv[])
 
     sync_flow::stop();   // "offline" while the network is still up
     pt_log_flow::stop();
-    own_time::stop();
     app::shutdown();
     http::cleanup();
     return EXIT_SUCCESS;

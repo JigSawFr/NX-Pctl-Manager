@@ -83,7 +83,7 @@ void on_main_screen()
     SysInfo si;
     sysinfo_get(&si);
     const uint32_t hos = si.hos_version;
-    brls::async([hos]() {
+    ui::in_background("update check", [hos]() {
         const update::Result r = update::check(hos);
         if (r.verdict != update::Verdict::UpdateSupports) return;
         brls::sync([r]() {

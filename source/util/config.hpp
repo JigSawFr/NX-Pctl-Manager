@@ -1,4 +1,5 @@
 // config — small persistent settings in sd:/switch/playguard/config.json.
+// Every key, its values and default: docs/config.md (keep it in step).
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 

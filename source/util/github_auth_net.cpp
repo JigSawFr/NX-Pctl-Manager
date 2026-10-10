@@ -37,7 +37,7 @@ bool start(DeviceCode* out, std::string* error)
     } else
 #endif
     if (!http::post("https://github.com/login/device/code",
-                    "client_id=" + std::string(CLIENT_ID) + "&scope=", "application/x-www-form-urlencoded", &body,
+                    "client_id=" + std::string(CLIENT_ID), "application/x-www-form-urlencoded", &body,
                     error, nullptr, 8 * 1024, 30, JSON))
         return false;
     if (!parse_device_code(body, out)) {
@@ -53,7 +53,7 @@ Poll poll(const DeviceCode& code, std::string* token, std::string* error)
 #ifndef __SWITCH__
     if (const char* s = sim()) {
         body = std::strcmp(s, "denied") == 0 ? R"({"error": "access_denied"})"
-                                             : R"({"access_token": "gho_simulated", "token_type": "bearer"})";
+                                             : R"({"access_token": "ghu_simulated", "token_type": "bearer"})";
     } else
 #endif
     if (!http::post("https://github.com/login/oauth/access_token",

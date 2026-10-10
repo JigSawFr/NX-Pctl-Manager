@@ -17,7 +17,8 @@ to sphaira (simulated hbloader).
 The "devbuild" scenario turns the developer mode on, signs in to a simulated
 GitHub (PLAYGUARD_SIM_GITHUB_LOGIN) from the build list, then installs a pull
 request's build out of its artifact zip (PLAYGUARD_SIM_DEV_BUILDS): the file
-must replace the simulated playguard.nro and be handed to hbloader.
+must replace the simulated playguard.nro and be handed to hbloader. On the
+way, the list must be kept (opened again at once) and Refresh fetch it again.
 
 The "errors" scenario starts with today's limit reached, the temporary unlock
 failing and "Synchronise clock via Internet" off (PLAYGUARD_SIM_FAIL & co.):
@@ -52,7 +53,7 @@ The "modules" scenario carries a made-up recovery module
 the simulated SD card (exefs.nsp, boot2.flag, toolbox.json, version.txt), its
 start at boot turned off, then removed, each change in the history.
 
-Usage: tools/desktop_smoke.py <out-dir> [gate|errors|rescue|devbuild|sync|agent|agent-update|agent-rollback|modules]   (needs DISPLAY, xdotool, ImageMagick)
+Usage: tools/desktop_smoke.py <out-dir> [gate|errors|rescue|lock|devbuild|sync|agent|agent-update|agent-rollback|modules]   (needs DISPLAY, xdotool, ImageMagick)
 Environment knobs of the simulated backend (PLAYGUARD_SIM_*) are passed through;
 the console time is fixed (PLAYGUARD_SIM_NOW, TZ) unless set.
 """
@@ -69,6 +70,7 @@ SCENARIO = sys.argv[2] if len(sys.argv) > 2 else ""
 GATE = SCENARIO == "gate"
 ERRORS = SCENARIO == "errors"
 RESCUE = SCENARIO == "rescue"
+LOCK = SCENARIO == "lock"
 DEVBUILD = SCENARIO == "devbuild"
 SYNC = SCENARIO == "sync"
 MODULES = SCENARIO == "modules"
@@ -114,6 +116,9 @@ if DEVBUILD:
     token_file = os.path.join(run_dir, "playguard_data", "github_token")
     if os.path.exists(token_file):
         os.remove(token_file)   # starts signed out
+    kept_list = os.path.join(run_dir, "playguard_data", "cache", "dev_builds.json")
+    if os.path.exists(kept_list):
+        os.remove(kept_list)    # and with no list kept from an earlier run
     pr_content = b"\0" * 16 + b"NRO0" + b"pull request build" * 100
     pr_zip = os.path.join(sim, "pr.zip")
     with zipfile.ZipFile(pr_zip, "w", zipfile.ZIP_DEFLATED) as z:
@@ -239,7 +244,10 @@ if MODULES:
         os.remove(history)
 if not GATE and not ERRORS and not DEVBUILD and not SYNC and not AGENT and not AGENT_UPDATE and not MODULES:
     env.setdefault("PLAYGUARD_SIM_NUMPAD", "1:30")   # what the system number pad returns
-    env.setdefault("PLAYGUARD_SIM_PASTE", "https://dpaste.org/SmOkE1")   # what dpaste.org answers
+    env.setdefault("PLAYGUARD_SIM_PASTE", "https://bpa.st/SMOKE")   # what bpa.st (or GitHub) answers
+    github_token = os.path.join(run_dir, "playguard_data", "github_token")
+    if os.path.exists(github_token):
+        os.remove(github_token)   # signed out: the first report goes to bpa.st
 if ERRORS:
     env.setdefault("PLAYGUARD_SIM_FAIL", "unlock")
     env.setdefault("PLAYGUARD_SIM_RESTRICTED", "1")
@@ -253,6 +261,12 @@ if RESCUE:
     history = os.path.join(run_dir, "playguard_data", "history.json")
     if os.path.exists(history):
         os.remove(history)   # a clean history: the rescue entry must be the only one
+if LOCK:
+    # Security › Ask for the PIN › To open PlayGuard: the lock screen comes
+    # first, and the right PIN (the simulated PIN screen accepts) opens the
+    # app. It is the first screen, which borealis never pops.
+    os.makedirs(os.path.dirname(config_file), exist_ok=True)
+    json.dump({"schema": 1, "pin_lock": "open"}, open(config_file, "w"))
 log = open(os.path.join(OUT, "app.log"), "w")
 def have(tool):
     return subprocess.run(["which", tool], capture_output=True).returncode == 0
@@ -417,7 +431,22 @@ if DEVBUILD:
     time.sleep(3)
     if not os.path.exists(token_file):
         fail("no GitHub token saved in " + token_file)
-    shot("03_dev_builds")      # the list again: release, main ×2, the pull request
+    shot("03_dev_builds")      # the list again: release, main ×2, the pull request, Refresh
+    cache_file = os.path.join(run_dir, "playguard_data", "cache", "dev_builds.json")
+    if not os.path.exists(cache_file) or len(json.load(open(cache_file))["builds"]) != 4:
+        fail("the list was not kept in " + cache_file)
+    loading = "Looking for builds..."
+    fetched = messages().count(loading)
+    key("Escape")              # closed, then opened again: the list kept is shown at once
+    key("Return")
+    shot("03b_dev_builds_kept")
+    if messages().count(loading) != fetched:
+        fail("a list fetched a moment ago was fetched again")
+    key("Down", 4)             # Refresh the list: fetched again
+    key("Return")
+    time.sleep(2)
+    if messages().count(loading) != fetched + 1:
+        fail("Refresh the list did not fetch it again")
     key("Down", 3)             # the pull request
     key("Return")
     shot("04_dev_build_confirm")
@@ -683,6 +712,16 @@ if MODULES:
         if kinds.count("module") != 3:
             fail(f"expected 3 module entries in the history, got {kinds}")
     finish(recorded)
+def main_opened():
+    log.flush()
+    return any("main screen opened" in l for l in open(os.path.join(OUT, "app.log"), errors="replace"))
+
+
+if LOCK:
+    shot("01_unlocked")        # the PIN screen answered at once: the Overview
+    if not main_opened():
+        fail("the right PIN left the lock screen up; messages: " + repr(messages()))
+    finish()
 if RESCUE:
     shot("01_recovery")        # the recovery screen, in place of the usual first screen
     key("Down", 3)             # past Show the PIN / Set a new PIN / Delete: Open PlayGuard
@@ -690,6 +729,8 @@ if RESCUE:
     shot("02_opened")          # the Overview: the app opened after the rescue
     if not alive():
         fail("app exited instead of opening after recovery")
+    if not main_opened():
+        fail("the app did not open after recovery")
     report_path = os.path.join(run_dir, "playguard_data", "rescue_report.txt")
     if os.path.exists(report_path):
         fail("the rescue report was not removed after it was read")
@@ -781,7 +822,7 @@ shot("27_back")
 # Send a report online: the confirmation, then the link and its QR codes.
 uploads = os.path.join(run_dir, "playguard_data", "logs", "uploads.txt")
 def upload_count():
-    return open(uploads).read().count("https://dpaste.org/SmOkE1") if os.path.exists(uploads) else 0
+    return open(uploads).read().count("https://bpa.st/SMOKE") if os.path.exists(uploads) else 0
 uploads_before = upload_count()
 logs = os.path.join(run_dir, "playguard_data", "logs")
 saved = [f for f in (os.listdir(logs) if os.path.isdir(logs) else []) if f[:8].isdigit() and f.endswith(".txt")]
@@ -796,6 +837,21 @@ shot("27_upload_link")
 if upload_count() != uploads_before + 1:
     fail("the report link was not recorded in " + uploads)
 key("Return")              # OK
+# Signed in to GitHub: where to send it comes first, a secret gist by default.
+open(github_token, "w").write("ghu_smoke")
+key("Return")              # Send a report online (still focused)
+if any(f[:8].isdigit() and f.endswith(".txt") for f in os.listdir(logs)):
+    key("Return")          # this report, the first choice
+shot("27_upload_host")
+key("Return")              # Secret gist on GitHub
+shot("27_upload_gist_confirm")
+key("Right")               # Send
+key("Return")
+shot("27_upload_gist_link")
+if upload_count() != uploads_before + 2:
+    fail("the gist link was not recorded in " + uploads)
+key("Return")              # OK
+os.remove(github_token)
 
 # Activity: one game's screen, then a PDF export to the (simulated) SD card.
 exports = os.path.join(run_dir, "playguard_data", "exports")

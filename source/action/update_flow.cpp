@@ -75,7 +75,7 @@ void run_check(std::function<void(const update::Result&)> done)
     SysInfo si;
     sysinfo_get(&si);
     const uint32_t fw = si.hos_version;
-    brls::async([fw, done]() {
+    ui::in_background("update check", [fw, done]() {
         const update::Result r = update::check(fw);
         brls::sync([r, done]() {
             s_checking = false;

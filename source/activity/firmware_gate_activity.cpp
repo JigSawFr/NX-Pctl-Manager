@@ -54,7 +54,7 @@ void FirmwareGateActivity::onContentAvailable()
     sysinfo_get(&si);
     const uint32_t hos = si.hos_version;
     std::weak_ptr<bool> weak = this->alive;
-    brls::async([this, weak, hos, fw]() {
+    ui::in_background("update check", [this, weak, hos, fw]() {
         const update::Result r = update::check(hos);
         brls::sync([this, weak, r, fw]() {
             if (weak.expired() || this->chosen) return;

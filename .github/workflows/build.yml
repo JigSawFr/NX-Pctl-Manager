@@ -29,7 +29,7 @@ jobs:
   host-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true   # nlohmann/json (bundled with borealis) for the backup and export tests
       - name: Unit tests (service layer — writable and read-only — and UI-free helpers)
@@ -53,7 +53,7 @@ jobs:
       CCACHE_COMPRESS: "1"
       CCACHE_MAXSIZE: 400M
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.tag || github.ref }}
           submodules: true
@@ -65,7 +65,7 @@ jobs:
           sudo apt-get install -y cmake ccache libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev \
             libxcursor-dev libxi-dev libxkbcommon-dev libwayland-dev wayland-protocols libdbus-1-dev \
             libcurl4-openssl-dev xvfb xdotool imagemagick dbus mosquitto mosquitto-clients
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .ccache
           key: ccache-desktop-${{ github.sha }}
@@ -80,6 +80,8 @@ jobs:
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-errors errors
       - name: Smoke test (recovery screen from a rescue report)
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-rescue rescue
+      - name: Smoke test (PIN asked to open PlayGuard)
+        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-lock lock
       - name: Smoke test (install a development build in place)
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-devbuild devbuild
       - name: Smoke test (remote link against a local Mosquitto)
@@ -113,7 +115,7 @@ jobs:
           done
       - name: Upload screenshots
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: desktop_smoke_screenshots
           path: |
@@ -136,22 +138,31 @@ jobs:
   # toolchain; to move to a newer devkitPro, replace the digest (from
   # `docker buildx imagetools inspect devkitpro/devkita64:latest`) here and in
   # "Build identity" below.
+  # The image is pulled before any step runs, and Docker Hub's anonymous limit
+  # (per runner IP, shared with every other job on it) can refuse it. With the
+  # DOCKERHUB_USERNAME and DOCKERHUB_TOKEN secrets (a read-only access token)
+  # the pull is made logged in; where secrets are missing (a fork's pull request,
+  # Dependabot) it pulls anonymously as before. The workflow rejects an empty
+  # username or password, so without both secrets credentials is an empty
+  # mapping, and the runner skips the login when it has no username.
   switch:
     runs-on: ubuntu-latest
-    container: devkitpro/devkita64@sha256:1fc388c3a0d34bd2045a6dadcb1020e069d5f876a187fd705de14b4440c00282
+    container:
+      image: devkitpro/devkita64@sha256:1fc388c3a0d34bd2045a6dadcb1020e069d5f876a187fd705de14b4440c00282
+      credentials: ${{ (secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '') && fromJSON(format('{{"username":{0},"password":{1}}}', toJSON(secrets.DOCKERHUB_USERNAME), toJSON(secrets.DOCKERHUB_TOKEN))) || fromJSON('{}') }}
     env:
       CMAKE_C_COMPILER_LAUNCHER: ccache
       CMAKE_CXX_COMPILER_LAUNCHER: ccache
       CCACHE_COMPRESS: "1"
       CCACHE_MAXSIZE: 400M
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.tag || github.ref }}
           submodules: true
       - name: ccache
         run: apt-get update -qq && apt-get install -y -qq --no-install-recommends ccache
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .ccache
           key: ccache-switch-${{ github.sha }}
@@ -199,7 +210,7 @@ jobs:
       # Install another build downloads on the console (source/util/dev_builds.hpp),
       # so it holds the raw .nro and the small text files only; the zips the
       # release attaches are in playguard_packages.
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: playguard_release
           path: |
@@ -207,7 +218,7 @@ jobs:
             compat.json
             build-info.txt
             SHA256SUMS.txt
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: playguard_packages
           path: |
@@ -215,7 +226,7 @@ jobs:
             playguard-rescue.zip
             playguard-agent.zip
       - name: Linker map (what makes the .nro big)
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: playguard_linker_map
           path: build/borealis.map
@@ -238,7 +249,7 @@ jobs:
       id-token: write
       attestations: write
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.tag }}
       - name: Tag matches the app version
@@ -247,11 +258,11 @@ jobs:
         run: |
           v=$(sed -n 's/^set(VERSION_\(MAJOR\|MINOR\|ALTER\) "\([0-9]*\)").*/\2/p' CMakeLists.txt | paste -sd.)
           test "v$v" = "$TAG" || { echo "tag $TAG != CMake version $v"; exit 1; }
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: playguard_release
           path: dist
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: playguard_packages
           path: dist
@@ -268,7 +279,7 @@ jobs:
             dist/playguard-agent.zip
             dist/compat.json
       - name: Attach to the GitHub release
-        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           tag_name: ${{ inputs.tag }}
           files: |

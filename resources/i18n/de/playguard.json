@@ -381,7 +381,7 @@
         "first": "Erstmals gespielt",
         "last": "Zuletzt gespielt",
         "less_than_minute": "< 1 min",
-        "note": "Aus dem Aktivitätsprotokoll der Konsole gelesen, für alle Nutzer. Die Zeiten sind ungefähr, wenn die Konsolenuhr geändert wurde. Die Zeit in PlayGuard über einem Spiel wird bei heute und den letzten 7 Tagen weggelassen, bleibt aber in den Gesamtzeiten, die die Konsole führt."
+        "note": "Aus dem Aktivitätsprotokoll der Konsole gelesen, für alle Nutzer. Die Zeiten sind ungefähr, wenn die Konsolenuhr geändert wurde. PlayGuard über einem Spiel geöffnet zählt als dieses Spiel für den beim Start gewählten Nutzer: öffne es mit dem Nutzer eines Elternteils."
     },
     "restrictions": {
         "section_level": "Einschränkungskategorie",
@@ -666,7 +666,7 @@
         "flag_read_only": "schreibgeschützt",
         "flag_dev": "Entwickler",
         "upload": "Bericht online senden",
-        "upload_note": "Sendet einen Bericht an dpaste.org und zeigt seinen Link mit einem QR-Code: Gib ihn der Person, die dir hilft, oder eröffne damit einen Fehlerbericht."
+        "upload_note": "Sendet einen Bericht an bpa.st oder, wenn du bei GitHub angemeldet bist, in einen geheimen Gist und zeigt seinen Link mit einem QR-Code: Gib ihn der Person, die dir hilft, oder eröffne damit einen Fehlerbericht."
     },
     "about": {
         "section_changelog": "Neu in {}",
@@ -735,8 +735,14 @@
         "current": "Dieser Bericht und die Debug-Dateien",
         "saved": "Gespeicherter Bericht {}",
         "part_report": "Diagnosebericht",
-        "confirm": "An dpaste.org senden ({} KB)?",
-        "confirm_public": "Jeder mit dem Link kann ihn 30 Tage lang lesen, danach wird er gelöscht. Er enthält nie die PIN oder die Seriennummer.",
+        "confirm": "An {} senden ({} KB)?",
+        "confirm_public": "Jeder mit dem Link kann ihn einen Monat lang lesen, danach löscht bpa.st ihn. Er enthält nie die PIN oder die Seriennummer.",
+        "confirm_gist": "Ein geheimer Gist in deinem GitHub-Konto: Jeder mit dem Link kann ihn lesen, bis du ihn auf GitHub löschst. Er enthält nie die PIN oder die Seriennummer.",
+        "where_gist": "einen geheimen Gist auf GitHub",
+        "host": "Wohin senden?",
+        "host_gist": "Geheimer Gist auf GitHub (dein Konto)",
+        "host_bpaste": "bpa.st (nach einem Monat gelöscht)",
+        "relogin": "GitHub hat den Gist abgelehnt. Melde dich ab und wieder an (GitHub-Konto, in den Entwicklerwerkzeugen), um Gists zu erlauben, oder sende ihn an bpa.st.",
         "send": "Senden",
         "sending": "Wird gesendet...",
         "failed": "Bericht konnte nicht gesendet werden: {}",
@@ -765,7 +771,7 @@
         "pt_block_report": "Auf SD-Karte speichern",
         "pt_block_new": "Neue Referenz",
         "pt_log": "Record the play timer",
-        "pt_log_note": "Every 30 s while PlayGuard is open, one line of what the play timer reports (time left, time spent, 1459, the settings block) in logs/play_timer_log.csv. Leave PlayGuard open over midnight, or until the time is up, to see what the console does then. Sent with the diagnostic report.",
+        "pt_log_note": "Every 30 s while PlayGuard is open, one line of what the play timer reports (time left, time spent, 1459, the settings block) in logs/play_timer_log.csv, and one more right after each change PlayGuard makes, saying which. A clock that moved more than the time that went by is noted too. Leave PlayGuard open over midnight, or until the time is up, to see what the console does then. Sent with the diagnostic report.",
         "pt_log_on": "Recording every 30 s in {}",
         "gate": "Firmware-Bildschirm wieder zeigen",
         "forget": "Firmware-Wahl vergessen",
@@ -789,11 +795,13 @@
         "loading": "Builds werden gesucht...",
         "busy": "Läuft bereits...",
         "list_failed": "Builds konnten nicht aufgelistet werden: {}",
+        "list_stale": "Liste konnte nicht aktualisiert werden ({}): die letzte wird angezeigt.",
         "downloading": "Wird heruntergeladen ({} MB)...",
         "failed": "Build konnte nicht installiert werden: {}\n\nDas installierte PlayGuard ist unverändert.",
         "done_manual": "{} ist installiert. Schließe PlayGuard und öffne es erneut, um ihn zu verwenden.",
         "no_path": "PlayGuard weiß nicht, wo seine .nro-Datei liegt (ohne hbloader gestartet?), und kann sie daher nicht ersetzen. Installiere den Build manuell von GitHub.",
-        "sign_in": "Bei GitHub anmelden für die Builds von main und Pull Requests"
+        "sign_in": "Bei GitHub anmelden für die Builds von main und Pull Requests",
+        "refresh": "Liste aktualisieren (vor {} Min. geprüft)"
     },
     "github": {
         "account": "GitHub-Konto",
@@ -801,13 +809,13 @@
         "signed_in_short": "Angemeldet",
         "starting": "Verbindung zu GitHub...",
         "code_body": "Öffne auf einem Handy oder Computer {} (oder scanne den Code) und gib ein:",
-        "code_note": "PlayGuard fordert keine Berechtigung an: Es kann nur lesen, was auf GitHub öffentlich ist. Warte auf deine Zustimmung...",
+        "code_note": "PlayGuard fordert nur an, die Dateien des Build-Workflows zu lesen (Actions), um Entwicklungs-Builds zu installieren, und Gists zu erstellen, um Berichte zu senden; sonst kann es nur lesen, was auf GitHub öffentlich ist. Warte auf deine Zustimmung...",
         "signed_in": "Bei GitHub angemeldet.",
         "failed": "Anmeldung bei GitHub fehlgeschlagen: {}",
         "denied": "Die Anmeldung bei GitHub wurde abgelehnt.",
         "expired": "Der Code ist abgelaufen, bevor er eingegeben wurde. Versuche es erneut.",
         "sign_out": "Abmelden",
-        "sign_out_body": "Von GitHub abmelden? PlayGuard vergisst sein Token. Um es auch zu widerrufen: GitHub › Settings › Applications › Authorized OAuth Apps › PlayGuard.",
+        "sign_out_body": "Von GitHub abmelden? PlayGuard vergisst sein Token. Um es auch zu widerrufen: GitHub › Settings › Applications › Authorized GitHub Apps › PlayGuard dev builds.",
         "signed_out": "Von GitHub abgemeldet."
     },
     "toast": {

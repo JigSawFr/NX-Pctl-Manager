@@ -77,9 +77,10 @@ bool extract(const std::string& zip_path, const std::string& name, const std::st
     {
         FILE* f = std::fopen(zip_path.c_str(), "rb");
         if (!f) return fail(error, "cannot read the archive");
-        unsigned char buf[64 * 1024];
+        // On the heap, as the other buffer below: this runs on a thread's small stack.
+        std::vector<unsigned char> buf(64 * 1024);
         size_t n;
-        while ((n = std::fread(buf, 1, sizeof(buf), f)) > 0) z.insert(z.end(), buf, buf + n);
+        while ((n = std::fread(buf.data(), 1, buf.size(), f)) > 0) z.insert(z.end(), buf.begin(), buf.begin() + n);
         std::fclose(f);
     }
     Entry e;
@@ -109,15 +110,15 @@ bool extract(const std::string& zip_path, const std::string& name, const std::st
         ok = inflateInit2(&s, -MAX_WBITS) == Z_OK;   // raw deflate, as zip stores it
         s.next_in = &z[data];
         s.avail_in = e.packed;
-        unsigned char buf[64 * 1024];
+        std::vector<unsigned char> buf(64 * 1024);
         int rc = Z_OK;
         while (ok && rc != Z_STREAM_END) {
-            s.next_out = buf;
-            s.avail_out = sizeof(buf);
+            s.next_out = buf.data();
+            s.avail_out = (uInt)buf.size();
             rc = inflate(&s, Z_NO_FLUSH);
-            const size_t n = sizeof(buf) - s.avail_out;
+            const size_t n = buf.size() - s.avail_out;
             written += n;
-            ok = (rc == Z_OK || rc == Z_STREAM_END) && written <= e.size && write_all(out, buf, n, &crc);
+            ok = (rc == Z_OK || rc == Z_STREAM_END) && written <= e.size && write_all(out, buf.data(), n, &crc);
             if (rc == Z_OK && n == 0 && s.avail_in == 0) ok = false;   // truncated
         }
         inflateEnd(&s);

@@ -381,7 +381,7 @@
         "first": "Voor het eerst gespeeld",
         "last": "Laatst gespeeld",
         "less_than_minute": "< 1 min",
-        "note": "Gelezen uit het activiteitenlogboek van de console, voor alle gebruikers. De tijden zijn bij benadering als de klok van de console is gewijzigd. De tijd in PlayGuard over een spel wordt weggelaten bij vandaag en de laatste 7 dagen, maar blijft in de totalen die de console bijhoudt."
+        "note": "Gelezen uit het activiteitenlogboek van de console, voor alle gebruikers. De tijden zijn bij benadering als de klok van de console is gewijzigd. PlayGuard geopend over een spel telt als dat spel voor de gebruiker die bij het starten is gekozen: open het met de gebruiker van een ouder."
     },
     "restrictions": {
         "section_level": "Beperkingsniveau",
@@ -666,7 +666,7 @@
         "flag_read_only": "alleen-lezen",
         "flag_dev": "ontwikkelaar",
         "upload": "Rapport online versturen",
-        "upload_note": "Verstuurt een rapport naar dpaste.org en toont de link met een QR-code: geef hem aan wie je helpt, of open er een bugmelding mee."
+        "upload_note": "Verstuurt een rapport naar bpa.st, of naar een geheime gist als je bij GitHub bent aangemeld, en toont de link met een QR-code: geef hem aan wie je helpt, of open er een bugmelding mee."
     },
     "about": {
         "section_changelog": "Nieuw in {}",
@@ -735,8 +735,14 @@
         "current": "Dit rapport en de debugbestanden",
         "saved": "Opgeslagen rapport {}",
         "part_report": "Diagnoserapport",
-        "confirm": "Naar dpaste.org versturen ({} KB)?",
-        "confirm_public": "Iedereen met de link kan het 30 dagen lezen, daarna wordt het verwijderd. Het bevat nooit de pincode of het serienummer.",
+        "confirm": "Naar {} versturen ({} KB)?",
+        "confirm_public": "Iedereen met de link kan het een maand lezen, daarna verwijdert bpa.st het. Het bevat nooit de pincode of het serienummer.",
+        "confirm_gist": "Een geheime gist in je GitHub-account: iedereen met de link kan hem lezen, tot je hem op GitHub verwijdert. Hij bevat nooit de pincode of het serienummer.",
+        "where_gist": "een geheime gist op GitHub",
+        "host": "Waarheen versturen?",
+        "host_gist": "Geheime gist op GitHub (je account)",
+        "host_bpaste": "bpa.st (na een maand verwijderd)",
+        "relogin": "GitHub heeft de gist geweigerd. Meld je af en weer aan (GitHub-account, in de ontwikkelaarstools) om gists toe te staan, of verstuur het naar bpa.st.",
         "send": "Versturen",
         "sending": "Versturen...",
         "failed": "Kon het rapport niet versturen: {}",
@@ -765,7 +771,7 @@
         "pt_block_report": "Opslaan op de SD-kaart",
         "pt_block_new": "Nieuwe referentie",
         "pt_log": "Record the play timer",
-        "pt_log_note": "Every 30 s while PlayGuard is open, one line of what the play timer reports (time left, time spent, 1459, the settings block) in logs/play_timer_log.csv. Leave PlayGuard open over midnight, or until the time is up, to see what the console does then. Sent with the diagnostic report.",
+        "pt_log_note": "Every 30 s while PlayGuard is open, one line of what the play timer reports (time left, time spent, 1459, the settings block) in logs/play_timer_log.csv, and one more right after each change PlayGuard makes, saying which. A clock that moved more than the time that went by is noted too. Leave PlayGuard open over midnight, or until the time is up, to see what the console does then. Sent with the diagnostic report.",
         "pt_log_on": "Recording every 30 s in {}",
         "gate": "Firmwarescherm opnieuw tonen",
         "forget": "Firmwarekeuze vergeten",
@@ -789,11 +795,13 @@
         "loading": "Builds zoeken...",
         "busy": "Al bezig...",
         "list_failed": "Kon de builds niet ophalen: {}",
+        "list_stale": "Kan de lijst niet vernieuwen ({}): de laatste wordt getoond.",
         "downloading": "Downloaden ({} MB)...",
         "failed": "Kon de build niet installeren: {}\n\nDe geïnstalleerde PlayGuard is ongewijzigd.",
         "done_manual": "{} is geïnstalleerd. Sluit PlayGuard en open het opnieuw om hem te gebruiken.",
         "no_path": "PlayGuard weet niet waar zijn .nro-bestand staat (gestart zonder hbloader?) en kan het dus niet vervangen. Installeer de build handmatig vanaf GitHub.",
-        "sign_in": "Aanmelden bij GitHub voor de builds van main en pull requests"
+        "sign_in": "Aanmelden bij GitHub voor de builds van main en pull requests",
+        "refresh": "Lijst vernieuwen ({} min geleden gecontroleerd)"
     },
     "github": {
         "account": "GitHub-account",
@@ -801,13 +809,13 @@
         "signed_in_short": "Aangemeld",
         "starting": "Verbinden met GitHub...",
         "code_body": "Open op een telefoon of computer {} (of scan de code) en voer in:",
-        "code_note": "PlayGuard vraagt geen toestemming: het kan alleen lezen wat openbaar is op GitHub. Wachten op je goedkeuring...",
+        "code_note": "PlayGuard vraagt alleen om de bestanden van de build-workflow te lezen (Actions), om ontwikkelbuilds te installeren, en om gists te maken, om rapporten te versturen; verder kan het alleen lezen wat openbaar is op GitHub. Wachten op je goedkeuring...",
         "signed_in": "Aangemeld bij GitHub.",
         "failed": "Kon niet aanmelden bij GitHub: {}",
         "denied": "Aanmelden bij GitHub is geweigerd.",
         "expired": "De code is verlopen voordat hij werd ingevoerd. Probeer het opnieuw.",
         "sign_out": "Afmelden",
-        "sign_out_body": "Afmelden bij GitHub? PlayGuard vergeet zijn token. Om het ook in te trekken: GitHub › Settings › Applications › Authorized OAuth Apps › PlayGuard.",
+        "sign_out_body": "Afmelden bij GitHub? PlayGuard vergeet zijn token. Om het ook in te trekken: GitHub › Settings › Applications › Authorized GitHub Apps › PlayGuard dev builds.",
         "signed_out": "Afgemeld bij GitHub."
     },
     "toast": {

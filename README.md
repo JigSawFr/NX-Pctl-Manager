@@ -69,7 +69,7 @@ Driving the console's own controls also opens the door to much more: reporting p
 |---|---|---|
 | **Firmware** | **21.0.0 → 23.0.1** | The play-time limit layout (0x44 bytes) exists since 21.0.0; below that, every tab works except the play timer. |
 | **Atmosphère** | **1.11.x → 1.12.0** | 1.12.0 adds 23.0.0 support. The app shows the detected version. |
-| **Launchers** | hbmenu, **sphaira**, **Homebrew App Store** | Launching over a game (title override) is recommended. The app says whether it runs as an application or as an applet (album). Over a game, the console counts PlayGuard's time as that game's (play timer, activity of the user picked at launch): open it with a parent's user; its Activity tab leaves that time out. |
+| **Launchers** | hbmenu, **sphaira**, **Homebrew App Store** | Launching over a game (title override) is recommended. The app says whether it runs as an application or as an applet (album). Over a game, the console counts PlayGuard's time as that game's. In the activity, it goes to the user picked at launch: open it with a parent's user, not a child's. The play timer is the console's, the same for every user: it counts that time whoever opened PlayGuard (unless the timer is off). |
 | **Tested on hardware** | 22.1.0 / Atmosphère 1.11.1 | 23.0.1 / 1.12.0 is covered by the command table ([switchbrew](https://switchbrew.org/wiki/Parental_Control_services)) but not yet tested on hardware — reports are welcome. |
 
 **Newer firmware?** PlayGuard opens **read-only** and checks whether a newer release supports it. If one does, it offers to update through sphaira or the Homebrew App Store. Otherwise you choose: read-only, read-only with the developer tools (to investigate the firmware), or every feature at your own risk. The choice can be remembered for that firmware and app version; *Tools › Compatibility* brings the screen back.
@@ -93,18 +93,17 @@ All in `sd:/switch/playguard/`:
 
 | Path | Content |
 |---|---|
-| `config.json` | Preferences (language, theme, NTP server, *Ask for the PIN* …) |
+| `config.json` | Preferences (language, theme, NTP server, *Ask for the PIN* …); every key in [docs/config.md](docs/config.md) |
 | `history.json` | The change history (newest 200) |
 | `profiles/` | Saved play-time limit profiles |
 | `backups/` | Settings backups (never contain the PIN) |
 | `exports/` | Activity exports |
-| `own_time.txt` | When PlayGuard was open over a game (last 8 days), left out of the Activity tab |
-| `cache/` | The last play activity read (every account, and each account viewed), shown at once on the next start while the log is read again |
+| `cache/` | The last play activity read (every account, and each account viewed), shown at once on the next start while the log is read again; in developer mode, the list of *Install another build* (`dev_builds.json`) |
 | `github_token` | Developer mode only: the GitHub sign-in of *Install another build* (deleted by signing out) |
 | `rescue_report.txt` | Left by the recovery sysmodule after it acted, until PlayGuard shows it at start-up |
 | `sync.conf` | Only once *Remote access* was set up: the link's settings, the broker's password included (never in a report or an upload) |
-| `sync/` | Only with *Remote access*: what a future background module will need (records, profiles, game names) |
-| `logs/` | Diagnostic reports (never contain the PIN or the serial number), the developer tools' files, and `uploads.txt` (the links of the reports sent online) |
+| `sync/` | Only with *Remote access*: what the optional agent reads (records, profiles, game names) and writes (what it changed, its events) |
+| `logs/` | Diagnostic reports (never contain the PIN or the serial number), the developer tools' files, `uploads.txt` (the links of the reports sent online) and `crash.txt` (what made PlayGuard stop, if it ever crashed) |
 
 More in [packaging/README.md](packaging/README.md).
 </details>
@@ -259,7 +258,7 @@ PlayGuard drives the parental controls built into the console (the `pctl` servic
 1. *Tools › Export a diagnostic report* saves a text file in `sd:/switch/playguard/logs/`: firmware, Atmosphère version, clocks, storage, serial-blanking and game-patch status, and the raw result of every parental-control query. **It never contains the PIN or the serial number.**
 2. [Open an issue](https://github.com/JigSawFr/PlayGuard/issues/new) and attach it.
 
-Or, with the console online, *Tools › Send a report online* (Ⓧ on the diagnostic report in developer mode) sends it, with the debug files (the play-timer block reference, the end of the play-timer recording, the change history and PlayGuard's settings), to [dpaste.org](https://dpaste.org), after saying exactly what goes. It shows the link and two QR codes: the report, and the bug-report form with the link and your versions already filled in. Anyone with the link can read the report for 30 days, then dpaste.org deletes it; the links are kept in `logs/uploads.txt`. A report saved earlier in `logs/` can be sent the same way.
+Or, with the console online, *Tools › Send a report online* (Ⓧ on the diagnostic report in developer mode) sends it, with the debug files (the play-timer block reference, the end of the play-timer recording, the change history and PlayGuard's settings), to [bpa.st](https://bpa.st) or, when PlayGuard is signed in to GitHub (developer tools), to a secret gist in your account (offered first), after saying exactly what goes. It shows the link and two QR codes: the report, and the bug-report form with the link and your versions already filled in. Anyone with the link can read the report: for one month on bpa.st, which then deletes it, or until you delete the gist on GitHub. The links are kept in `logs/uploads.txt`, with bpa.st's removal link to delete a paste sooner. A report saved earlier in `logs/` can be sent the same way.
 
 <details>
 <summary>Developer mode (investigating a new firmware)</summary>
@@ -268,9 +267,9 @@ Press *About › Version* seven times; the developer tools appear at the end of 
 
 - a **read-only** switch — with it on, the app cannot change anything: the safe way to investigate a new firmware (the firmware screen offers it directly);
 - the diagnostic report on screen (Ⓨ saves it, Ⓧ sends it online), and a shortcut to export it from the Play timer tab;
-- **Install another build** in place, to test a fix before it is released: the latest release, one of the last 20 commits of `main`, or the newest build of an open pull request (forks included). The release needs nothing; the others are the build workflow's artifacts, which GitHub hands to signed-in users only: **GitHub account** signs in with a code and a QR code to scan with a phone (no permission asked: the token can only read what is public; it is kept in `github_token`, never sent with a report, and *GitHub account* signs out). PlayGuard downloads the build, checks it (size, the SHA-256 GitHub records, the NRO header), puts it in place of its own `.nro` and restarts on it (behind *Ask for the PIN* when that is on). The same list goes back to the release at any time; *About › Version* shows the commit in developer mode. Artifacts expire after 90 days;
+- **Install another build** in place, to test a fix before it is released: the latest release, one of the last 20 commits of `main`, or the newest build of an open pull request (forks included). The release needs nothing; the others are the build workflow's artifacts, which GitHub hands to signed-in users only: **GitHub account** signs in with a code and a QR code to scan with a phone (the only permissions asked are to read the build workflow's files (Actions) and to create gists, for *Send a report online*; otherwise the token can only read what is public; it is kept in `github_token`, never sent with a report, and *GitHub account* signs out). PlayGuard downloads the build, checks it (size, the SHA-256 GitHub records, the NRO header), puts it in place of its own `.nro` and restarts on it (behind *Ask for the PIN* when that is on). The list is kept for 10 minutes and shown at once (its last line, *Refresh the list*, fetches it again). The same list goes back to the release at any time; *About › Version* shows the commit in developer mode. Artifacts expire after 90 days;
 - **Compare the play-timer block**, to decode settings PlayGuard does not show yet: save the raw block as a reference, change one setting in the phone app, come back — PlayGuard lists the values that changed (saved in `logs/` on request). "Alarm only" vs "suspend the software" could be found this way, and the bedtime fields confirmed. Attach that file to an issue, or send it with the report (*Send a report online*).
-- **Record the play timer**: every 30 s while PlayGuard is open, one line of what the play timer reports (time left, time spent, the raw settings block…) in `logs/play_timer_log.csv`, a spreadsheet-ready file. Left open over midnight, or until the time is up, it shows what one report cannot: when the time spent resets, what the console says near the end. The switch is remembered; it only records in developer mode. What is known so far is in [docs/parental-controls.md](docs/parental-controls.md).
+- **Record the play timer**: every 30 s while PlayGuard is open, one line of what the play timer reports (time left, time spent, the raw settings block…) in `logs/play_timer_log.csv`, a spreadsheet-ready file, plus a line right after each change PlayGuard makes, saying which (its last column, `event`), and a note when the clock moved more than the time that went by. Left open over midnight, or until the time is up, it shows what one report cannot: when the time spent resets, what the console says near the end. The switch is remembered; it only records in developer mode. What is known so far is in [docs/parental-controls.md](docs/parental-controls.md).
 </details>
 
 ## Contributing

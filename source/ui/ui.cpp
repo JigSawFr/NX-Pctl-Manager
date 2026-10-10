@@ -17,6 +17,8 @@
 #include <ctime>
 #include <fmt/format.h>
 #include <memory>
+#include <system_error>
+#include <thread>
 
 #ifdef __SWITCH__
 #include <switch.h>
@@ -137,6 +139,16 @@ std::string rc_text(Result rc)
                         : brls::getStr("playguard/error/code_hint", code, hint);
 }
 
+void in_background(const char* what, std::function<void()> task)
+{
+    try {
+        std::thread(task).detach();
+    } catch (const std::system_error& e) {
+        brls::Logger::warning("{}: no thread ({}), queued instead", what, e.what());
+        brls::async(task);
+    }
+}
+
 void notify(const std::string& text)
 {
     // Logged too: the desktop smoke test checks what the user was told.
@@ -148,6 +160,13 @@ void error(const std::string& text)
 {
     brls::Logger::info("error: {}", text);
     brls::sync([text]() { info(text); });
+}
+
+void replace_screen(brls::Activity* next)
+{
+    const auto none = brls::TransitionAnimation::NONE;
+    if (!brls::Application::popActivity(none, [next, none]() { brls::Application::pushActivity(next, none); }))
+        brls::Application::pushActivity(next, none);
 }
 
 bool save_config()

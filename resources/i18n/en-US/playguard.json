@@ -381,7 +381,7 @@
         "first": "First played",
         "last": "Last played",
         "less_than_minute": "< 1 min",
-        "note": "Read from the console's activity log, for every account. Times are approximate if the console clock was changed. PlayGuard's own time over a game is left out of today and the last 7 days, but stays in the all-time totals, which the console keeps."
+        "note": "Read from the console's activity log, for every account. Times are approximate if the console clock was changed. PlayGuard opened over a game counts as that game for the account picked at launch: open it with a parent's account."
     },
     "restrictions": {
         "section_level": "Restriction level",
@@ -666,7 +666,7 @@
         "flag_read_only": "read-only",
         "flag_dev": "developer",
         "upload": "Send a report online",
-        "upload_note": "Sends a report to dpaste.org and shows its link with a QR code: give it to whoever helps you, or open a bug report with it."
+        "upload_note": "Sends a report to bpa.st, or to a secret gist when signed in to GitHub, and shows its link with a QR code: give it to whoever helps you, or open a bug report with it."
     },
     "about": {
         "section_changelog": "What's new in {}",
@@ -735,8 +735,14 @@
         "current": "This report and the debug files",
         "saved": "Saved report {}",
         "part_report": "Diagnostic report",
-        "confirm": "Send to dpaste.org ({} KB)?",
-        "confirm_public": "Anyone with the link can read it for 30 days, then it is deleted. It never contains the PIN or the serial number.",
+        "confirm": "Send to {} ({} KB)?",
+        "confirm_public": "Anyone with the link can read it for one month, then bpa.st deletes it. It never contains the PIN or the serial number.",
+        "confirm_gist": "A secret gist in your GitHub account: anyone with the link can read it, until you delete it on GitHub. It never contains the PIN or the serial number.",
+        "where_gist": "a secret gist on GitHub",
+        "host": "Where to send it",
+        "host_gist": "Secret gist on GitHub (your account)",
+        "host_bpaste": "bpa.st (deleted after one month)",
+        "relogin": "GitHub refused the gist. Sign out and sign in again (GitHub account, in the developer tools) to allow gists, or send it to bpa.st.",
         "send": "Send",
         "sending": "Sending...",
         "failed": "Could not send the report: {}",
@@ -765,7 +771,7 @@
         "pt_block_report": "Save to the SD card",
         "pt_block_new": "New reference",
         "pt_log": "Record the play timer",
-        "pt_log_note": "Every 30 s while PlayGuard is open, one line of what the play timer reports (time left, time spent, 1459, the settings block) in logs/play_timer_log.csv. Leave PlayGuard open over midnight, or until the time is up, to see what the console does then. Sent with the diagnostic report.",
+        "pt_log_note": "Every 30 s while PlayGuard is open, one line of what the play timer reports (time left, time spent, 1459, the settings block) in logs/play_timer_log.csv, and one more right after each change PlayGuard makes, saying which. A clock that moved more than the time that went by is noted too. Leave PlayGuard open over midnight, or until the time is up, to see what the console does then. Sent with the diagnostic report.",
         "pt_log_on": "Recording every 30 s in {}",
         "gate": "Show the firmware screen again",
         "forget": "Forget the firmware choice",
@@ -789,11 +795,13 @@
         "loading": "Looking for builds...",
         "busy": "Already in progress...",
         "list_failed": "Could not list the builds: {}",
+        "list_stale": "Could not refresh the list ({}): showing the last one.",
         "downloading": "Downloading ({} MB)...",
         "failed": "Could not install the build: {}\n\nThe installed PlayGuard is unchanged.",
         "done_manual": "{} is installed. Close PlayGuard and open it again to use it.",
         "no_path": "PlayGuard does not know where its .nro file is (started without hbloader?), so it cannot replace it. Install the build by hand from GitHub.",
-        "sign_in": "Sign in to GitHub for the builds of main and pull requests"
+        "sign_in": "Sign in to GitHub for the builds of main and pull requests",
+        "refresh": "Refresh the list (checked {} min ago)"
     },
     "github": {
         "account": "GitHub account",
@@ -801,13 +809,13 @@
         "signed_in_short": "Signed in",
         "starting": "Connecting to GitHub...",
         "code_body": "On a phone or a computer, open {} (or scan the code) and enter:",
-        "code_note": "PlayGuard asks for no permission: it can only read what is public on GitHub. Waiting for your approval...",
+        "code_note": "PlayGuard only asks to read the build workflow's files (Actions), to install development builds, and to create gists, to send reports; otherwise it can only read what is public on GitHub. Waiting for your approval...",
         "signed_in": "Signed in to GitHub.",
         "failed": "Could not sign in to GitHub: {}",
         "denied": "Signing in to GitHub was refused.",
         "expired": "The code expired before it was entered. Try again.",
         "sign_out": "Sign out",
-        "sign_out_body": "Sign out of GitHub? PlayGuard forgets its token. To revoke it as well: GitHub › Settings › Applications › Authorized OAuth Apps › PlayGuard.",
+        "sign_out_body": "Sign out of GitHub? PlayGuard forgets its token. To revoke it as well: GitHub › Settings › Applications › Authorized GitHub Apps › PlayGuard dev builds.",
         "signed_out": "Signed out of GitHub."
     },
     "toast": {
