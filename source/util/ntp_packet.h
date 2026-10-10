@@ -1,3 +1,6 @@
+// ntp_packet — the 48-byte SNTP request and the checks on its reply
+// (version, mode, stratum, our origin cookie, a time in range). Plain C for
+// the host tests (tests/ntp_packet).
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor. GPLv3-or-later (see LICENSE).
 #pragma once
 #include <stddef.h>

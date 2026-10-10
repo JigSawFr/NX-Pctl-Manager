@@ -91,6 +91,8 @@ Releases are automated with [release-please](https://github.com/googleapis/relea
 
 Each release also publishes `compat.json` (`tools/gen_compat.py`: the version and the newest checked firmware), which the app's update check reads, plus `build-info.txt` and `SHA256SUMS.txt`. Details in [`packaging/README.md`](packaging/README.md). The `.nro`, both `.zip` and `compat.json` also carry a [build provenance attestation](https://docs.github.com/actions/security-for-github-actions/using-artifact-attestations): `gh attestation verify playguard.nro -R JigSawFr/PlayGuard` checks that a download was built by this repository's CI.
 
+**Reproducible zips:** `make dist` and `make dist-rescue` give every file in the zip the date `SOURCE_DATE_EPOCH` (POSIX seconds; default: the last commit's time, `git log -1 --format=%ct`) and add the files in a fixed order without extra attributes, so the same commit and `.nro` give a byte-identical zip. Set `SOURCE_DATE_EPOCH=<seconds>` to rebuild one from another checkout.
+
 When a change is visible to users, update **both** [README.md](README.md) and [README.fr.md](README.fr.md).
 
 ## Translating PlayGuard

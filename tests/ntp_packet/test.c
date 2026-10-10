@@ -1,4 +1,4 @@
-#include <assert.h>
+#include "check.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -27,17 +27,17 @@ static void response(uint8_t *packet, uint64_t unix_seconds, uint32_t fraction)
 static void expect(const uint8_t *packet, size_t length, NtpPacketResult result)
 {
     uint64_t seconds = UINT64_MAX;
-    assert(ntp_packet_parse(packet, length, cookie, &seconds) == result);
-    if (result != NTP_PACKET_OK) assert(seconds == 0);
+    CHECK(ntp_packet_parse(packet, length, cookie, &seconds) == result);
+    if (result != NTP_PACKET_OK) CHECK(seconds == 0);
 }
 
 static void test_request_and_sizes(void)
 {
     uint8_t packet[64];
     ntp_packet_make_request(packet, cookie);
-    assert(packet[0] == 0x23);
-    for (unsigned i = 1; i < 40; ++i) assert(packet[i] == 0);
-    assert(memcmp(packet + 40, cookie, sizeof(cookie)) == 0);
+    CHECK(packet[0] == 0x23);
+    for (unsigned i = 1; i < 40; ++i) CHECK(packet[i] == 0);
+    CHECK(memcmp(packet + 40, cookie, sizeof(cookie)) == 0);
     response(packet, UINT64_C(1790553600), 0);
     for (size_t length = 0; length < 48; ++length)
         expect(packet, length, NTP_PACKET_TOO_SHORT);
@@ -46,10 +46,10 @@ static void test_request_and_sizes(void)
     expect(packet, sizeof(packet), NTP_PACKET_OK);
 
     uint64_t seconds = UINT64_MAX;
-    assert(ntp_packet_parse(NULL, 48, cookie, &seconds) == NTP_PACKET_BAD_ARGUMENT);
-    assert(seconds == 0);
-    assert(ntp_packet_parse(packet, 48, NULL, &seconds) == NTP_PACKET_BAD_ARGUMENT);
-    assert(ntp_packet_parse(packet, 48, cookie, NULL) == NTP_PACKET_BAD_ARGUMENT);
+    CHECK(ntp_packet_parse(NULL, 48, cookie, &seconds) == NTP_PACKET_BAD_ARGUMENT);
+    CHECK(seconds == 0);
+    CHECK(ntp_packet_parse(packet, 48, NULL, &seconds) == NTP_PACKET_BAD_ARGUMENT);
+    CHECK(ntp_packet_parse(packet, 48, cookie, NULL) == NTP_PACKET_BAD_ARGUMENT);
 }
 
 static void test_header_and_cookie(void)
@@ -100,19 +100,19 @@ static void test_dates_and_era(void)
     };
     for (unsigned i = 0; i < sizeof(valid_dates) / sizeof(valid_dates[0]); ++i) {
         response(packet, valid_dates[i], 1);
-        assert(ntp_packet_parse(packet, sizeof(packet), cookie, &seconds) == NTP_PACKET_OK);
-        assert(seconds == valid_dates[i]);
+        CHECK(ntp_packet_parse(packet, sizeof(packet), cookie, &seconds) == NTP_PACKET_OK);
+        CHECK(seconds == valid_dates[i]);
     }
     // Test actual wire values at rollover independently of the date encoder.
     response(packet, UINT64_C(1790553600), 0);
     memset(packet + 40, 0xff, 4);
     memset(packet + 44, 0, 4);
-    assert(ntp_packet_parse(packet, sizeof(packet), cookie, &seconds) == NTP_PACKET_OK);
-    assert(seconds == UINT64_C(2085978495));
+    CHECK(ntp_packet_parse(packet, sizeof(packet), cookie, &seconds) == NTP_PACKET_OK);
+    CHECK(seconds == UINT64_C(2085978495));
     memset(packet + 40, 0, 8);
     packet[47] = 1;
-    assert(ntp_packet_parse(packet, sizeof(packet), cookie, &seconds) == NTP_PACKET_OK);
-    assert(seconds == UINT64_C(2085978496));
+    CHECK(ntp_packet_parse(packet, sizeof(packet), cookie, &seconds) == NTP_PACKET_OK);
+    CHECK(seconds == UINT64_C(2085978496));
 
     const uint64_t invalid_dates[] = {UINT64_C(1577836799), UINT64_C(4102444800)};
     for (unsigned i = 0; i < sizeof(invalid_dates) / sizeof(invalid_dates[0]); ++i) {
@@ -126,6 +126,5 @@ int main(void)
     test_request_and_sizes();
     test_header_and_cookie();
     test_dates_and_era();
-    puts("NTP packet validation and era assertions passed");
-    return 0;
+    return CHECK_DONE("NTP packet validation and era assertions passed");
 }

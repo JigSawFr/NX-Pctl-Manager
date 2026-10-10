@@ -76,7 +76,7 @@ Set in *About*.
 |---|---|---|---|
 | `update_via` | string | how an update is installed: `"auto"` (Sphaira if installed, else the Homebrew App Store), `"sphaira"`, `"appstore"`, `"manual"` (only say an update exists) | `"auto"` |
 | `update_daily` | boolean | checks for an update at start-up, once a day | `false` |
-| `update_checked` | string | `"YYYY-MM-DD"` of the last check; anything not 10 characters long is cleared | `""` |
+| `update_checked` | string | `"YYYY-MM-DD"` of the last check; anything else is cleared | `""` |
 
 ## Reminders
 

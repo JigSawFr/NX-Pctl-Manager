@@ -8,7 +8,10 @@
 #
 # GL=1 builds the Switch .nro with OpenGL (mesa) instead of deko3d.
 # JOBS=n sets the parallel build jobs (default: every core). SAN= turns the
-# sanitizers of the host tests off (e.g. a compiler without them).
+# sanitizers of the host tests off (e.g. a compiler without them). COV=--coverage
+# builds them for gcov (CI: with gcc and SAN=, summarised by gcovr).
+# SOURCE_DATE_EPOCH (default: the last commit's time) dates every file of the
+# release zips, so the same commit gives the same zip.
 # CMAKE_C_COMPILER_LAUNCHER / CMAKE_CXX_COMPILER_LAUNCHER=ccache in the
 # environment are picked up by CMake (CI uses them). CMAKE_ARGS=... is passed
 # to the configure step of `make` and `make desktop` (CI:
@@ -22,7 +25,14 @@ CXX     ?= g++
 TESTOUT := $(BUILD)/host-tests
 JOBS    ?= $(shell nproc 2>/dev/null || echo 4)
 SAN     ?= -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=undefined
-CWARN   := -Wall -Wextra -Werror $(SAN)
+COV     ?=
+# -Itests: tests/check.h, the CHECK() every suite uses.
+CWARN   := -Wall -Wextra -Werror $(SAN) $(COV) -Itests
+SOURCE_DATE_EPOCH ?= $(shell git log -1 --format=%ct 2>/dev/null || echo 0)
+# A zip that depends only on the files: one date for all, entries in a fixed
+# order, no extra file attributes (-X), and TZ=UTC as a zip keeps local times.
+# Run inside the tree, the zip file last.
+ZIP_TREE = find . -exec touch -h -d @$(SOURCE_DATE_EPOCH) {} + && find . -mindepth 1 | LC_ALL=C sort | TZ=UTC zip -X -@
 CMAKE_ARGS ?=
 JSON_HPP := extern/borealis/library/include/borealis/extern/nlohmann/json.hpp
 
@@ -46,7 +56,7 @@ dist: all
 	@cp $(BUILD)/$(TARGET).nro out/switch/$(TARGET)/
 	@cp LICENSE out/switch/$(TARGET)/LICENSE.txt
 	@cp packaging/sphaira/$(TARGET).json out/config/sphaira/github/
-	@cd out && zip -rX ../$(TARGET).zip ./*
+	@cd out && $(ZIP_TREE) ../$(TARGET).zip
 
 # The optional recovery sysmodule (sysmodule/), as its own asset so it is a
 # deliberate install, never part of the default one. The zip drops into the
@@ -62,7 +72,7 @@ dist-rescue: rescue
 	@cp sysmodule/out/playguard-rescue.nsp out-rescue/atmosphere/contents/$(RESCUE_TID)/exefs.nsp
 	@touch out-rescue/atmosphere/contents/$(RESCUE_TID)/flags/boot2.flag
 	@cp LICENSE out-rescue/atmosphere/contents/$(RESCUE_TID)/LICENSE.txt
-	@cd out-rescue && zip -rX ../playguard-rescue.zip ./*
+	@cd out-rescue && $(ZIP_TREE) ../playguard-rescue.zip
 
 desktop:
 	@cmake -B $(DESKTOP) -S . -DPLATFORM_DESKTOP=ON -DCMAKE_BUILD_TYPE=Release $(CMAKE_ARGS)

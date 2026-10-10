@@ -2,7 +2,7 @@
 // each period (average per day, most played game, days played, busiest day,
 // average session), what is left out when a figure was not read, and the
 // games to rediscover.
-#include <cassert>
+#include "check.h"
 #include <cstdio>
 #include <cstring>
 #include <memory>
@@ -46,21 +46,21 @@ static void test_periods()
 {
     auto s = sample();
     Summary t = summarize(*s, Today);
-    assert(t.known && t.total_s == 30 * 60 && t.top == 0 && t.top_s == 30 * 60);
-    assert(t.days == 0 && t.days_played == -1 && t.busiest == -1 && t.session_s == 0);
+    CHECK(t.known && t.total_s == 30 * 60 && t.top == 0 && t.top_s == 30 * 60);
+    CHECK(t.days == 0 && t.days_played == -1 && t.busiest == -1 && t.session_s == 0);
 
     Summary w = summarize(*s, Week);
-    assert(w.known && w.total_s == 150 * 60);
-    assert(w.days == 7 && w.per_day_s == 150 * 60 / 7);
-    assert(w.top == 1 && w.top_s == 80 * 60);            // Farm, 80 min
-    assert(w.days_played == 2 && w.busiest == 2 && w.busiest_s == 120 * 60);
-    assert(w.session_s == 0);
+    CHECK(w.known && w.total_s == 150 * 60);
+    CHECK(w.days == 7 && w.per_day_s == 150 * 60 / 7);
+    CHECK(w.top == 1 && w.top_s == 80 * 60);            // Farm, 80 min
+    CHECK(w.days_played == 2 && w.busiest == 2 && w.busiest_s == 120 * 60);
+    CHECK(w.session_s == 0);
 
     Summary all = summarize(*s, AllTime);
-    assert(all.known && all.total_s == 1000 * 60 && all.top == 0);
-    assert(all.days == 100 && all.per_day_s == 600);      // 1000 min over 100 days
-    assert(all.session_s == 1000 * 60 / 40);              // 25 min a launch
-    assert(all.days_played == -1 && all.busiest == -1);
+    CHECK(all.known && all.total_s == 1000 * 60 && all.top == 0);
+    CHECK(all.days == 100 && all.per_day_s == 600);      // 1000 min over 100 days
+    CHECK(all.session_s == 1000 * 60 / 40);              // 25 min a launch
+    CHECK(all.days_played == -1 && all.busiest == -1);
 }
 
 static void test_edges()
@@ -70,28 +70,28 @@ static void test_edges()
     s->games[0].last_played = NOW - DAY;
     s->games[1].week_s = 70 * 60;
     s->games[1].last_played = NOW - 3600;
-    assert(summarize(*s, Week).top == 1);
+    CHECK(summarize(*s, Week).top == 1);
     s->games[1].last_played = NOW - 5 * DAY;
-    assert(summarize(*s, Week).top == 0);
+    CHECK(summarize(*s, Week).top == 0);
 
     // Nothing played today: no top game.
     s = sample();
     s->games[0].today_s = 0;
     Summary t = summarize(*s, Today);
-    assert(t.known && t.total_s == 0 && t.top == -1);
+    CHECK(t.known && t.total_s == 0 && t.top == -1);
 
     // The log unreadable: today and the week unknown, all time still known.
     s = sample();
     s->windows_ok = false;
-    assert(!summarize(*s, Today).known && !summarize(*s, Week).known && summarize(*s, AllTime).known);
+    CHECK(!summarize(*s, Today).known && !summarize(*s, Week).known && summarize(*s, AllTime).known);
     // The statistics unreadable: all time unknown.
     s = sample();
     s->stats_rc = 0x1A0C;
-    assert(!summarize(*s, AllTime).known && summarize(*s, Week).known);
+    CHECK(!summarize(*s, AllTime).known && summarize(*s, Week).known);
     // The game list unreadable: nothing.
     s = sample();
     s->rc = 0x1A0C;
-    for (int p = 0; p < 3; p++) assert(!summarize(*s, p).known);
+    for (int p = 0; p < 3; p++) CHECK(!summarize(*s, p).known);
 
     // A game without totals counts for none of them, and no first play known
     // means no average per day.
@@ -99,18 +99,18 @@ static void test_edges()
     s->games[1].totals_ok = false;
     for (uint32_t i = 0; i < s->count; i++) s->games[i].first_played = 0;
     Summary all = summarize(*s, AllTime);
-    assert(all.total_s == 600 * 60 && all.days == 0 && all.per_day_s == 0 && all.session_s == 600 * 60 / 20);
+    CHECK(all.total_s == 600 * 60 && all.days == 0 && all.per_day_s == 0 && all.session_s == 600 * 60 / 20);
     // No launch counted: no session length.
     s->games[0].launches = 0;
-    assert(summarize(*s, AllTime).session_s == 0);
+    CHECK(summarize(*s, AllTime).session_s == 0);
 
     // A first play "in the future" (the clock went back): one day.
     s = sample();
     s->games[0].first_played = s->games[1].first_played = NOW + DAY;
-    assert(summarize(*s, AllTime).days == 1);
+    CHECK(summarize(*s, AllTime).days == 1);
     // First played earlier today: one day.
     s->games[0].first_played = s->games[1].first_played = NOW - 60;
-    assert(summarize(*s, AllTime).days == 1);
+    CHECK(summarize(*s, AllTime).days == 1);
 
     // Nothing played this week: no busiest day.
     s = sample();
@@ -119,13 +119,13 @@ static void test_edges()
         std::memset(s->games[i].day_s, 0, sizeof s->games[i].day_s);
     }
     Summary w = summarize(*s, Week);
-    assert(w.days_played == 0 && w.busiest == -1 && w.per_day_s == 0 && w.top == -1);
+    CHECK(w.days_played == 0 && w.busiest == -1 && w.per_day_s == 0 && w.top == -1);
 }
 
 static void test_rediscover()
 {
     auto s = sample();
-    assert(rediscover(*s, 3).empty());   // both played recently, and long
+    CHECK(rediscover(*s, 3).empty());   // both played recently, and long
 
     add(*s, "Puzzle", 45, 2, 60);        // 45 min, 60 days ago
     add(*s, "Tennis", 45, 3, 90);        // as little, left aside longer
@@ -143,18 +143,18 @@ static void test_rediscover()
     future.last_played = NOW + DAY;      // the clock went back: out
 
     std::vector<int> r = rediscover(*s, 3);
-    assert(r.size() == 3);
-    assert(!std::strcmp(s->games[r[0]].name, "Quiz"));
-    assert(!std::strcmp(s->games[r[1]].name, "Tennis"));
-    assert(!std::strcmp(s->games[r[2]].name, "Puzzle"));
-    assert(rediscover(*s, 1).size() == 1 && rediscover(*s, 10).size() == 3);
+    if (!CHECK(r.size() == 3)) return;
+    CHECK(!std::strcmp(s->games[r[0]].name, "Quiz"));
+    CHECK(!std::strcmp(s->games[r[1]].name, "Tennis"));
+    CHECK(!std::strcmp(s->games[r[2]].name, "Puzzle"));
+    CHECK(rediscover(*s, 1).size() == 1 && rediscover(*s, 10).size() == 3);
 
     // Without the log, the "this week" check is left out.
     s->windows_ok = false;
-    assert(rediscover(*s, 10).size() == 4);
+    CHECK(rediscover(*s, 10).size() == 4);
     // Without the statistics, nothing.
     s->stats_rc = 0x1A0C;
-    assert(rediscover(*s, 10).empty());
+    CHECK(rediscover(*s, 10).empty());
 }
 
 int main()
@@ -162,6 +162,5 @@ int main()
     test_periods();
     test_edges();
     test_rediscover();
-    std::puts("activity_summary assertions passed");
-    return 0;
+    return CHECK_DONE("activity_summary assertions passed");
 }

@@ -1,4 +1,4 @@
-#include <assert.h>
+#include "check.h"
 #include <stdio.h>
 #include <string.h>
 #include "time_ops.h"
@@ -21,7 +21,7 @@ static struct {
 
 static void reset(void)
 {
-    assert(model.active == 0);
+    CHECK(model.active == 0);
     memset(&model, 0, sizeof(model));
     model.automatic = true;
     model.accuracy = true;
@@ -30,26 +30,26 @@ static void reset(void)
 
 static void assert_released(void)
 {
-    assert(model.active == 0);
-    assert(model.opened == model.closed);
+    CHECK(model.active == 0);
+    CHECK(model.opened == model.closed);
 }
 
 static void open_handle(Service *service, unsigned root_call, u32 kind)
 {
-    assert(service->handle == 0);
-    assert(model.next_handle + 1 < MAX_HANDLES);
+    CHECK(service->handle == 0);
+    CHECK(model.next_handle + 1 < MAX_HANDLES);
     service->handle = ++model.next_handle;
     model.handles[service->handle] = (Handle){ true, root_call, kind };
     model.active++;
     model.opened++;
     /* Only one root and its current child may be open at once. */
-    assert(model.active <= 2);
+    CHECK(model.active <= 2);
 }
 
 Result smGetService(Service *service, const char *name)
 {
-    assert(strcmp(name, "time:s") == 0);
-    assert(model.active == 0); /* A prior operation must have released its root. */
+    CHECK(strcmp(name, "time:s") == 0);
+    CHECK(model.active == 0); /* A prior operation must have released its root. */
     model.root_calls++;
     if (model.root_calls == model.fail_root_call) return MOCK_ERROR;
     open_handle(service, model.root_calls, ROOT_KIND);
@@ -59,10 +59,10 @@ Result smGetService(Service *service, const char *name)
 void serviceClose(Service *service)
 {
     if (service->handle == 0) return; /* libnx accepts an inactive service. */
-    assert(service->handle < MAX_HANDLES);
+    CHECK(service->handle < MAX_HANDLES);
     Handle *handle = &model.handles[service->handle];
-    assert(handle->active);
-    if (handle->kind == ROOT_KIND) assert(model.active == 1);
+    CHECK(handle->active);
+    if (handle->kind == ROOT_KIND) CHECK(model.active == 1);
     handle->active = false;
     model.active--;
     model.closed++;
@@ -72,32 +72,32 @@ void serviceClose(Service *service)
 Result mock_dispatch(Service *service, u32 command, void *out, size_t out_size,
                      const void *in, size_t in_size, SfDispatchParams params)
 {
-    assert(service->handle > 0 && service->handle < MAX_HANDLES);
+    REQUIRE(service->handle > 0 && service->handle < MAX_HANDLES);
     Handle *handle = &model.handles[service->handle];
-    assert(handle->active); /* No IPC may use a released handle. */
+    CHECK(handle->active); /* No IPC may use a released handle. */
     if (handle->kind == ROOT_KIND) {
-        assert(in == NULL && in_size == 0);
+        CHECK(in == NULL && in_size == 0);
         if (params.out_num_objects != 0) {
-            assert(params.out_num_objects == 1 && params.out_objects != NULL);
-            assert(out == NULL && out_size == 0);
-            assert(command == 0 || command == 1 || command == 3 || command == 4);
+            REQUIRE(params.out_num_objects == 1 && params.out_objects != NULL);
+            CHECK(out == NULL && out_size == 0);
+            CHECK(command == 0 || command == 1 || command == 3 || command == 4);
             if (handle->root_call == model.fail_child_root && command == model.fail_child_kind)
                 return MOCK_ERROR;
             open_handle(params.out_objects, handle->root_call, command);
             return 0;
         }
-        assert(command == 100 || command == 200);
-        assert(out != NULL && out_size == 1);
+        CHECK(command == 100 || command == 200);
+        REQUIRE(out != NULL && out_size == 1);
         if (handle->root_call == model.fail_flag_root && command == model.fail_flag_command)
             return MOCK_ERROR;
         bool value = command == 100 ? model.automatic : model.accuracy;
         memcpy(out, &value, sizeof(value));
         return 0;
     }
-    assert(params.out_num_objects == 0);
+    CHECK(params.out_num_objects == 0);
     if (in != NULL) {
-        assert(handle->kind == 1 && command == 1);
-        assert(in_size == sizeof(u64) && out == NULL);
+        CHECK(handle->kind == 1 && command == 1);
+        REQUIRE(in_size == sizeof(u64) && out == NULL);
         model.writes++;
         memcpy(&model.written, in, sizeof(model.written));
         if (model.fail_write) return MOCK_ERROR;
@@ -105,12 +105,12 @@ Result mock_dispatch(Service *service, u32 command, void *out, size_t out_size,
         return 0;
     }
     if (handle->kind == 3) { /* ITimeZoneService::GetDeviceLocationName */
-        assert(command == 0 && out != NULL && out_size == 0x24);
+        REQUIRE(command == 0 && out != NULL && out_size == 0x24);
         memset(out, 0, out_size);
         memcpy(out, "Europe/Paris", 12);
         return 0;
     }
-    assert(command == 0 && out != NULL && out_size == sizeof(u64));
+    REQUIRE(command == 0 && out != NULL && out_size == sizeof(u64));
     if (handle->root_call == model.fail_read_root && handle->kind == model.fail_read_kind)
         return MOCK_ERROR;
     u64 value = model.clock_value;
@@ -125,23 +125,23 @@ static void test_network_accuracy(void)
     bool accurate = true;
     reset();
     model.accuracy = false;
-    assert(time_network_accuracy(&accurate) == 0 && !accurate);
-    assert(model.root_calls == 1 && model.opened == 1);   /* no clock sub-session */
+    CHECK(time_network_accuracy(&accurate) == 0 && !accurate);
+    CHECK(model.root_calls == 1 && model.opened == 1);   /* no clock sub-session */
     assert_released();
 
     reset();
-    assert(time_network_accuracy(&accurate) == 0 && accurate);
+    CHECK(time_network_accuracy(&accurate) == 0 && accurate);
     assert_released();
 
     reset();
     model.fail_root_call = 1;
-    assert(time_network_accuracy(&accurate) == MOCK_ERROR && !accurate);
+    CHECK(time_network_accuracy(&accurate) == MOCK_ERROR && !accurate);
     assert_released();
 
     reset();
     model.fail_flag_root = 1;
     model.fail_flag_command = 200;
-    assert(time_network_accuracy(&accurate) == MOCK_ERROR && !accurate);
+    CHECK(time_network_accuracy(&accurate) == MOCK_ERROR && !accurate);
     assert_released();
 }
 
@@ -150,21 +150,21 @@ static void test_snapshot_failures(void)
     TimeSnapshot snapshot;
     reset();
     time_clock_snapshot(&snapshot);
-    assert(snapshot.service_rc == 0 && snapshot.user_rc == 0 && snapshot.network_rc == 0);
-    assert(snapshot.local_rc == 0 && snapshot.automatic_rc == 0 && snapshot.accuracy_rc == 0);
-    assert(snapshot.user_time == 1000 && snapshot.network_time == 1000 && snapshot.local_time == 1000);
-    assert(snapshot.automatic && snapshot.accuracy);
-    assert(snapshot.location_rc == 0 && strcmp(snapshot.location, "Europe/Paris") == 0);
+    CHECK(snapshot.service_rc == 0 && snapshot.user_rc == 0 && snapshot.network_rc == 0);
+    CHECK(snapshot.local_rc == 0 && snapshot.automatic_rc == 0 && snapshot.accuracy_rc == 0);
+    CHECK(snapshot.user_time == 1000 && snapshot.network_time == 1000 && snapshot.local_time == 1000);
+    CHECK(snapshot.automatic && snapshot.accuracy);
+    CHECK(snapshot.location_rc == 0 && strcmp(snapshot.location, "Europe/Paris") == 0);
     assert_released();
 
     reset();
     model.fail_root_call = 1;
     time_clock_snapshot(&snapshot);
-    assert(snapshot.service_rc == MOCK_ERROR && snapshot.user_rc == MOCK_ERROR);
-    assert(snapshot.network_rc == MOCK_ERROR && snapshot.local_rc == MOCK_ERROR);
-    assert(snapshot.automatic_rc == MOCK_ERROR && snapshot.accuracy_rc == MOCK_ERROR);
-    assert(!snapshot.automatic && !snapshot.accuracy);
-    assert(model.opened == 0);
+    CHECK(snapshot.service_rc == MOCK_ERROR && snapshot.user_rc == MOCK_ERROR);
+    CHECK(snapshot.network_rc == MOCK_ERROR && snapshot.local_rc == MOCK_ERROR);
+    CHECK(snapshot.automatic_rc == MOCK_ERROR && snapshot.accuracy_rc == MOCK_ERROR);
+    CHECK(!snapshot.automatic && !snapshot.accuracy);
+    CHECK(model.opened == 0);
     assert_released();
 
     const u32 clock_commands[] = { 0, 1, 4 };
@@ -182,8 +182,8 @@ static void test_snapshot_failures(void)
             Result results[] = { snapshot.user_rc, snapshot.network_rc, snapshot.local_rc };
             u64 values[] = { snapshot.user_time, snapshot.network_time, snapshot.local_time };
             for (unsigned j = 0; j < 3; j++) {
-                assert(results[j] == (i == j ? MOCK_ERROR : 0));
-                assert(values[j] == (i == j ? 0 : 1000));
+                CHECK(results[j] == (i == j ? MOCK_ERROR : 0));
+                CHECK(values[j] == (i == j ? 0 : 1000));
             }
             assert_released();
         }
@@ -193,8 +193,8 @@ static void test_snapshot_failures(void)
         model.fail_flag_root = 1;
         model.fail_flag_command = i ? 200 : 100;
         time_clock_snapshot(&snapshot);
-        assert((i ? snapshot.accuracy_rc : snapshot.automatic_rc) == MOCK_ERROR);
-        assert(!(i ? snapshot.accuracy : snapshot.automatic));
+        CHECK((i ? snapshot.accuracy_rc : snapshot.automatic_rc) == MOCK_ERROR);
+        CHECK(!(i ? snapshot.accuracy : snapshot.automatic));
         assert_released();
     }
 }
@@ -212,13 +212,13 @@ static void test_automatic_gate(bool read_only)
         }
         if (scenario == 2) model.fail_root_call = 1;
         time_clock_apply(2000, &apply);
-        assert(!apply.write_attempted && !apply.verify_attempted && !apply.verified);
-        assert(model.writes == 0);
+        CHECK(!apply.write_attempted && !apply.verify_attempted && !apply.verified);
+        CHECK(model.writes == 0);
         if (read_only) {
-            assert(apply.open_rc == NXM_RC_READ_ONLY);   /* read-only is checked first */
+            CHECK(apply.open_rc == NXM_RC_READ_ONLY);   /* read-only is checked first */
         } else {
-            assert(apply.refused_automatic);
-            assert(model.root_calls == 1);
+            CHECK(apply.refused_automatic);
+            CHECK(model.root_calls == 1);
         }
         assert_released();
     }
@@ -235,17 +235,17 @@ static void test_apply_failures(void)
         if (scenario == 2) model.fail_write = true;
         if (scenario == 3) { model.fail_read_root = 2; model.fail_read_kind = 1; }
         time_clock_apply(2000, &apply);
-        assert(!apply.verified);
+        CHECK(!apply.verified);
         if (scenario < 2) {
-            assert(apply.open_rc == MOCK_ERROR && !apply.write_attempted);
-            assert(model.writes == 0);
+            CHECK(apply.open_rc == MOCK_ERROR && !apply.write_attempted);
+            CHECK(model.writes == 0);
         } else {
-            assert(apply.open_rc == 0 && apply.write_attempted && model.writes == 1);
-            assert(apply.write_rc == (scenario == 2 ? MOCK_ERROR : 0));
-            assert(apply.verify_attempted == (scenario == 3));
-            if (scenario == 3) assert(apply.verify_rc == MOCK_ERROR);
+            CHECK(apply.open_rc == 0 && apply.write_attempted && model.writes == 1);
+            CHECK(apply.write_rc == (scenario == 2 ? MOCK_ERROR : 0));
+            CHECK(apply.verify_attempted == (scenario == 3));
+            if (scenario == 3) CHECK(apply.verify_rc == MOCK_ERROR);
         }
-        assert(apply.after.service_rc == 0);
+        CHECK(apply.after.service_rc == 0);
         assert_released();
     }
 }
@@ -259,11 +259,11 @@ static void test_readback_and_accuracy(void)
         model.use_readback = true;
         model.readback = readbacks[i];
         time_clock_apply(2000, &apply);
-        assert(apply.write_attempted && apply.verify_attempted);
-        assert(apply.write_rc == 0 && apply.verify_rc == 0);
-        assert(apply.verified == (i == 1 || i == 2));
-        assert(apply.readback == readbacks[i]);
-        assert(model.writes == 1 && model.written == 2000);
+        CHECK(apply.write_attempted && apply.verify_attempted);
+        CHECK(apply.write_rc == 0 && apply.verify_rc == 0);
+        CHECK(apply.verified == (i == 1 || i == 2));
+        CHECK(apply.readback == readbacks[i]);
+        CHECK(model.writes == 1 && model.written == 2000);
         assert_released();
     }
     for (unsigned failed_accuracy = 0; failed_accuracy < 2; failed_accuracy++) {
@@ -272,9 +272,9 @@ static void test_readback_and_accuracy(void)
         model.accuracy = false;
         if (failed_accuracy) { model.fail_flag_root = 3; model.fail_flag_command = 200; }
         time_clock_apply(2000, &apply);
-        assert(apply.verified); /* Readback success cannot manufacture accuracy. */
-        assert(!apply.before.accuracy && !apply.after.accuracy);
-        assert(apply.after.accuracy_rc == (failed_accuracy ? MOCK_ERROR : 0));
+        CHECK(apply.verified); /* Readback success cannot manufacture accuracy. */
+        CHECK(!apply.before.accuracy && !apply.after.accuracy);
+        CHECK(apply.after.accuracy_rc == (failed_accuracy ? MOCK_ERROR : 0));
         assert_released();
     }
     /* Overflow boundary: readback subtraction must never wrap into success. */
@@ -283,7 +283,7 @@ static void test_readback_and_accuracy(void)
     model.use_readback = true;
     model.readback = 0;
     time_clock_apply(UINT64_MAX, &apply);
-    assert(!apply.verified);
+    CHECK(!apply.verified);
     assert_released();
 }
 
@@ -293,17 +293,17 @@ static void test_read_only(void)
     reset();
     core_set_read_only(true);
     time_clock_apply(2000, &apply);
-    assert(apply.open_rc == NXM_RC_READ_ONLY);
-    assert(!apply.write_attempted && !apply.verify_attempted && !apply.verified);
-    assert(model.writes == 0 && model.clock_value == 1000);
-    assert(model.root_calls == 2); /* Both snapshots release their own handles. */
+    CHECK(apply.open_rc == NXM_RC_READ_ONLY);
+    CHECK(!apply.write_attempted && !apply.verify_attempted && !apply.verified);
+    CHECK(model.writes == 0 && model.clock_value == 1000);
+    CHECK(model.root_calls == 2); /* Both snapshots release their own handles. */
     assert_released();
 
     /* Leaving read-only mode makes the clock writable again. */
     reset();
     core_set_read_only(false);
     time_clock_apply(2000, &apply);
-    assert(apply.write_attempted && model.writes == 1);
+    CHECK(apply.write_attempted && model.writes == 1);
     assert_released();
 }
 
@@ -319,7 +319,7 @@ Result timeToCalendarTimeWithMyRule(u64 timestamp, TimeCalendarTime *caltime, Ti
 
 Result timeToPosixTimeWithMyRule(const TimeCalendarTime *caltime, u64 *list, s32 list_count, s32 *count)
 {
-    assert(caltime && list && count && list_count >= 2);
+    REQUIRE(caltime && list && count && list_count >= 2);
     if (model.posix_count < 0) return MOCK_ERROR;
     for (int i = 0; i < model.posix_count && i < list_count; i++) list[i] = model.posix0 + 3600u * (u64)i;
     *count = model.posix_count;
@@ -328,7 +328,7 @@ Result timeToPosixTimeWithMyRule(const TimeCalendarTime *caltime, u64 *list, s32
 
 Result timeGetCurrentTime(TimeType type, u64 *timestamp)
 {
-    assert(type == TimeType_UserSystemClock);   /* what the HOME menu shows */
+    CHECK(type == TimeType_UserSystemClock);   /* what the HOME menu shows */
     if (model.fail_now) return MOCK_ERROR;
     *timestamp = model.now;
     return 0;
@@ -344,7 +344,7 @@ static void test_change_check(void)
     core_set_change_check(refuse);
     TimeApply apply;
     time_clock_apply(2000, &apply);
-    assert(apply.open_rc == NXM_RC_NOT_CONFIRMED && !apply.write_attempted && model.writes == 0);
+    CHECK(apply.open_rc == NXM_RC_NOT_CONFIRMED && !apply.write_attempted && model.writes == 0);
     core_set_change_check(NULL);
     assert_released();
 }
@@ -355,44 +355,44 @@ static void test_local_time(void)
     model.now = 1791374592;
     u64 posix = 0;
     LocalTime l;
-    assert(time_local_now(&posix, &l));
-    assert(posix == model.now);
-    assert(l.year == 2026 && l.month == 10 && l.day == 7 && l.hour == 14 && l.minute == 3 && l.second == 12);
-    assert(l.wday == 3);
-    assert(time_local_now(&posix, NULL) && posix == model.now);
+    CHECK(time_local_now(&posix, &l));
+    CHECK(posix == model.now);
+    CHECK(l.year == 2026 && l.month == 10 && l.day == 7 && l.hour == 14 && l.minute == 3 && l.second == 12);
+    CHECK(l.wday == 3);
+    CHECK(time_local_now(&posix, NULL) && posix == model.now);
 
     /* The live clock unreadable: the C library's clock instead. */
     model.fail_now = true;
-    assert(time_local_now(&posix, &l) && posix > 1700000000u);
+    CHECK(time_local_now(&posix, &l) && posix > 1700000000u);
     /* No local time for it (the rule refuses 0): false, POSIX time still set. */
     model.fail_now = false;
     model.now = 0;
-    assert(!time_local_now(&posix, &l) && posix == 0);
+    CHECK(!time_local_now(&posix, &l) && posix == 0);
 
     /* The rule's wall-time lookup: 0, 1 or 2 answers, never more. */
     const TimeRule *rule = time_console_rule();
     const LocalTime wall = { 2026, 10, 25, 2, 30, 0, 0 };
     u64 c[2] = { 0, 0 };
     model.posix_count = 2; model.posix0 = 5000;
-    assert(rule->to_posix(rule->ctx, &wall, c) == 2 && c[0] == 5000 && c[1] == 8600);
+    CHECK(rule->to_posix(rule->ctx, &wall, c) == 2 && c[0] == 5000 && c[1] == 8600);
     model.posix_count = 1;
-    assert(rule->to_posix(rule->ctx, &wall, c) == 1);
+    CHECK(rule->to_posix(rule->ctx, &wall, c) == 1);
     model.posix_count = 0;
-    assert(rule->to_posix(rule->ctx, &wall, c) == 0);
+    CHECK(rule->to_posix(rule->ctx, &wall, c) == 0);
     model.posix_count = -1;   /* the service fails */
-    assert(rule->to_posix(rule->ctx, &wall, c) == 0);
-    assert(model.active == 0);   /* no time:s handle involved */
+    CHECK(rule->to_posix(rule->ctx, &wall, c) == 0);
+    CHECK(model.active == 0);   /* no time:s handle involved */
 }
 
 static void test_formatting(void)
 {
     char text[64];
     time_format_local(1, text, sizeof(text));
-    assert(strcmp(text, "2026-10-07 14:03:12") == 0);
+    CHECK(strcmp(text, "2026-10-07 14:03:12") == 0);
     time_format_local(0, text, sizeof(text)); /* falls back to UTC */
-    assert(strcmp(text, "1970-01-01 00:00:00 UTC") == 0);
+    CHECK(strcmp(text, "1970-01-01 00:00:00 UTC") == 0);
     time_format_utc(1791381792ULL, text, sizeof(text));
-    assert(strstr(text, " UTC") != NULL);
+    CHECK(strstr(text, " UTC") != NULL);
 }
 
 static void test_dump_and_repetition(void)
@@ -403,14 +403,14 @@ static void test_dump_and_repetition(void)
     model.fail_flag_root = 1;
     model.fail_flag_command = 200;
     time_clock_dump(dump, sizeof(dump));
-    assert(strstr(dump, "Network clock accuracy sufficient: rc=0x00000701 unavailable") != NULL);
-    assert(strstr(dump, "Clock service handles released.") != NULL);
+    CHECK(strstr(dump, "Network clock accuracy sufficient: rc=0x00000701 unavailable") != NULL);
+    CHECK(strstr(dump, "Clock service handles released.") != NULL);
     assert_released();
     for (unsigned i = 0; i < 20; i++) {
         reset();
         time_clock_snapshot(&snapshot);
         time_clock_dump(dump, sizeof(dump));
-        assert(model.writes == 0);
+        CHECK(model.writes == 0);
         assert_released();
     }
 }
@@ -428,6 +428,5 @@ int main(void)
     test_formatting();
     test_local_time();
     test_change_check();
-    puts("time_ops lifecycle and read-only tests passed");
-    return 0;
+    return CHECK_DONE("time_ops lifecycle and read-only tests passed");
 }
