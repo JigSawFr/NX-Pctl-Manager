@@ -10,7 +10,9 @@
 # JOBS=n sets the parallel build jobs (default: every core). SAN= turns the
 # sanitizers of the host tests off (e.g. a compiler without them).
 # CMAKE_C_COMPILER_LAUNCHER / CMAKE_CXX_COMPILER_LAUNCHER=ccache in the
-# environment are picked up by CMake (CI uses them).
+# environment are picked up by CMake (CI uses them). CMAKE_ARGS=... is passed
+# to the configure step of `make` and `make desktop` (CI:
+# CMAKE_ARGS=-DPLAYGUARD_WERROR=ON, warnings as errors).
 
 TARGET  := playguard
 BUILD   := build
@@ -21,13 +23,15 @@ TESTOUT := $(BUILD)/host-tests
 JOBS    ?= $(shell nproc 2>/dev/null || echo 4)
 SAN     ?= -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=undefined
 CWARN   := -Wall -Wextra -Werror $(SAN)
+CMAKE_ARGS ?=
+JSON_HPP := extern/borealis/library/include/borealis/extern/nlohmann/json.hpp
 
 .PHONY: all clean dist nxlink desktop test check rescue dist-rescue
 
 RENDERER := $(if $(GL),-DUSE_DEKO3D=OFF,-DUSE_DEKO3D=ON)
 
 all:
-	@cmake -B $(BUILD) -S . -DPLATFORM_SWITCH=ON $(RENDERER)
+	@cmake -B $(BUILD) -S . -DPLATFORM_SWITCH=ON $(RENDERER) $(CMAKE_ARGS)
 	@cmake --build $(BUILD) --target $(TARGET).nro -j $(JOBS)
 	@cp $(BUILD)/$(TARGET).nro  $(TARGET).nro
 	@cp $(BUILD)/$(TARGET).nacp $(TARGET).nacp
@@ -42,7 +46,7 @@ dist: all
 	@cp $(BUILD)/$(TARGET).nro out/switch/$(TARGET)/
 	@cp LICENSE out/switch/$(TARGET)/LICENSE.txt
 	@cp packaging/sphaira/$(TARGET).json out/config/sphaira/github/
-	@cd out && zip -r ../$(TARGET).zip ./*
+	@cd out && zip -rX ../$(TARGET).zip ./*
 
 # The optional recovery sysmodule (sysmodule/), as its own asset so it is a
 # deliberate install, never part of the default one. The zip drops into the
@@ -58,13 +62,14 @@ dist-rescue: rescue
 	@cp sysmodule/out/playguard-rescue.nsp out-rescue/atmosphere/contents/$(RESCUE_TID)/exefs.nsp
 	@touch out-rescue/atmosphere/contents/$(RESCUE_TID)/flags/boot2.flag
 	@cp LICENSE out-rescue/atmosphere/contents/$(RESCUE_TID)/LICENSE.txt
-	@cd out-rescue && zip -r ../playguard-rescue.zip ./*
+	@cd out-rescue && zip -rX ../playguard-rescue.zip ./*
 
 desktop:
-	@cmake -B $(DESKTOP) -S . -DPLATFORM_DESKTOP=ON -DCMAKE_BUILD_TYPE=Release
+	@cmake -B $(DESKTOP) -S . -DPLATFORM_DESKTOP=ON -DCMAKE_BUILD_TYPE=Release $(CMAKE_ARGS)
 	@cmake --build $(DESKTOP) -j $(JOBS)
 
 test:
+	@test -f $(JSON_HPP) || { echo "borealis is missing (nlohmann/json for the tests): run git submodule update --init"; exit 1; }
 	@mkdir -p $(TESTOUT)
 	$(CC) -std=gnu11 $(CWARN) -DNX_HOST_TEST -Itests/pctl_session -Isource/core source/core/pctl_ops.c source/core/pure.c source/core/write_guard.c tests/pctl_session/test.c -o $(TESTOUT)/pctl && $(TESTOUT)/pctl
 	$(CC) -std=gnu11 $(CWARN) -DNX_HOST_TEST -Itests/time_ops -Isource/core source/core/time_ops.c source/core/calendar.c source/core/write_guard.c tests/time_ops/test.c -o $(TESTOUT)/time && $(TESTOUT)/time

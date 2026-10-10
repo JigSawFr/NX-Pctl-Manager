@@ -6,7 +6,7 @@ Thanks for helping! This file covers building, testing, the code layout, release
 
 | Command | What it does | Needs |
 |---|---|---|
-| `make test` | Unit tests of the C service layer, with ASan + UBSan (`SAN=` to turn them off) | Any gcc — no devkitPro |
+| `make test` | Unit tests of the C service layer, with ASan + UBSan (`SAN=` to turn them off) | gcc and g++ with the sanitizers, zlib headers, the borealis submodule — no devkitPro |
 | `make desktop` | The real UI on Linux, against a simulated console | GLFW / X11 / D-Bus dev packages |
 | `make` | `./playguard.nro` — drawn with deko3d (`GL=1` for OpenGL) | devkitPro `switch-dev`, `DEVKITPRO` set |
 | `make dist` | `./playguard.zip` (SD-card layout) | as above |
@@ -40,7 +40,7 @@ Clone with submodules (`git clone --recursive`, or `git submodule update --init`
 | `PLAYGUARD_SIM_BACKGROUND=1` | PlayGuard out of focus |
 | `PLAYGUARD_SIM_REGION=2` | The console region |
 | `PLAYGUARD_SIM_LATEST=1.1.0:24.0.0` | The latest release and the newest firmware it supports, for the update check (`offline` for no network) |
-| `PLAYGUARD_SIM_PASTE=https://dpaste.org/AbC1` | What dpaste.org answers to *Send a report online* (`offline` for no network) |
+| `PLAYGUARD_SIM_PASTE=https://bpa.st/AbC1` | What bpa.st (or GitHub, signed in) answers to *Send a report online* (`offline` for no network) |
 | `PLAYGUARD_SIM_DEV_BUILDS=<folder>` | What the GitHub API returns for *Install another build*: `latest.json` (the latest release), `artifacts.json`, `pulls.json`; `https://<local path>` download URLs are copied from disk (`offline` for no network) |
 | `PLAYGUARD_SIM_GITHUB_LOGIN=ok` | The GitHub device flow of *GitHub account*: `ok` approves at once, `denied` refuses, `offline` fails |
 | `PLAYGUARD_SIM_HBLOADER=1` | A homebrew loader that can hand an update over to a store |
@@ -56,7 +56,7 @@ Game patches are read from `./playguard_data/sd/`, the simulated SD card root.
 - `tools/visual_check.py` — compares those screenshots with the references in `tests/visual/`. A difference is reported as a warning, not a failure; see [`tests/visual/README.md`](tests/visual/README.md) to update them.
 - `python3 tools/check_resources.py .` — checks the XML layouts and translation catalogs.
 
-CI runs all of the above plus the Switch build.
+CI runs all of the above plus the Switch build. The visual check compares the sets in `tests/visual/` and only warns. The desktop build turns PlayGuard's compiler warnings into errors (`make desktop CMAKE_ARGS=-DPLAYGUARD_WERROR=ON`); `check_resources.py` warns about sentences a catalog still has in English.
 
 ## Code layout
 
