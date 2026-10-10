@@ -3,10 +3,13 @@
 // on a RESCUE file: it says what happened and lets the parent show or reset
 // the PIN or delete every parental control, then continue to PlayGuard.
 //
-// While it is on screen the PIN-before-a-change check is off: the parent
-// reached here by proving they can edit the SD card (the same authority that
-// turns PlayGuard's own PIN prompt off), and they came here because they
-// forgot the PIN. Proceeding installs the normal gate and opens the app.
+// While it is on screen the PIN-before-a-change check is off, but only for a
+// report the console confirms (rescue::confirmed): the sysmodule really
+// unlocked or deleted, which needs it installed and the console restarted.
+// The parent came here because they forgot the PIN. A report the console does
+// not confirm (written by hand, or a recovery that failed) is only shown: no
+// action is offered and "Open PlayGuard" goes through the usual lock screen.
+// Proceeding installs the normal gate and opens the app.
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).
 #pragma once
 
@@ -17,7 +20,7 @@
 class RescueActivity : public brls::Activity
 {
   public:
-    explicit RescueActivity(RescueReport report);
+    RescueActivity(RescueReport report, bool confirmed);
 
     CONTENT_FROM_XML_RES("activity/rescue.xml");
 
@@ -26,6 +29,7 @@ class RescueActivity : public brls::Activity
 
   private:
     RescueReport report;
+    bool confirmed;
 
     void refresh();
     void proceed();

@@ -12,8 +12,8 @@
 
 using namespace brls::literals;
 
-RescueActivity::RescueActivity(RescueReport report)
-    : report(report)
+RescueActivity::RescueActivity(RescueReport report, bool confirmed)
+    : report(report), confirmed(confirmed)
 {
 }
 
@@ -22,17 +22,18 @@ void RescueActivity::onContentAvailable()
     outcome->setSingleLine(false);
     note->setSingleLine(false);
 
-    // The recovery screen is the trusted context (see the header): no PIN is
-    // asked before the changes made here.
-    core_set_change_check(nullptr);
+    // A confirmed recovery is the trusted context (see the header): no PIN is
+    // asked before the changes made here. Otherwise the actions are hidden and
+    // the usual check stays.
+    if (confirmed) core_set_change_check(nullptr);
 
-    show_pin->registerClickAction([](brls::View*) {
-        if (ui::refuse_read_only()) return true;
+    show_pin->registerClickAction([this](brls::View*) {
+        if (!confirmed || ui::refuse_read_only()) return true;
         brls::sync([]() { ui::show_pin_dialog(); });
         return true;
     });
     reset_pin->registerClickAction([this](brls::View*) {
-        if (ui::refuse_read_only()) return true;
+        if (!confirmed || ui::refuse_read_only()) return true;
         Result rc = pctl_set_pin();   // the system PIN screen, which sets a new one
         brls::Logger::info("pctl_set_pin returned 0x{:08X}", (unsigned)rc);
         if (R_SUCCEEDED(rc)) history_flow::record_event("pin", "rescue");
@@ -41,7 +42,7 @@ void RescueActivity::onContentAvailable()
         return true;
     });
     del->registerClickAction([this](brls::View*) {
-        if (ui::refuse_read_only()) return true;
+        if (!confirmed || ui::refuse_read_only()) return true;
         ui::confirm_danger("playguard/security/delete_body"_i18n, "playguard/security/delete_confirm"_i18n, [this]() {
             brls::sync([this]() {
                 ui::confirm_danger("playguard/security/delete_body2"_i18n, "playguard/security/delete_confirm2"_i18n, [this]() {
@@ -77,20 +78,27 @@ void RescueActivity::willAppear(bool resetState)
 
 void RescueActivity::refresh()
 {
-    const bool ok      = report.result == RescueResult_Ok;
-    const bool deleted = ok && report.mode == RescueMode_Delete;
+    // A report the console does not confirm says nothing true about it: say
+    // so instead of what the file claims (a failure or a refusal changed
+    // nothing, so its own words stand).
+    const bool claimed   = report.result == RescueResult_Ok || report.result == RescueResult_NoPin;
+    const bool doubted   = claimed && !confirmed;
+    const bool ok        = report.result == RescueResult_Ok && confirmed;
+    const bool deleted   = ok && report.mode == RescueMode_Delete;
 
     // What the sysmodule did, in the status colour that matches it.
-    const char* key = deleted                               ? "playguard/rescue/outcome/deleted"
+    const char* key = doubted                               ? "playguard/rescue/outcome/unconfirmed"
+                    : deleted                               ? "playguard/rescue/outcome/deleted"
                     : ok                                    ? "playguard/rescue/outcome/unlocked"
                     : report.result == RescueResult_NoPin   ? "playguard/rescue/outcome/no_pin"
                     : report.result == RescueResult_Refused ? "playguard/rescue/outcome/refused"
                                                             : "playguard/rescue/outcome/failed";
     outcome->setText(brls::getStr(key));
     outcome->setTextColor(ok ? ui::color_ok()
-                             : report.result == RescueResult_NoPin ? ui::color_warn() : ui::color_bad());
+                             : report.result == RescueResult_NoPin && !doubted ? ui::color_warn() : ui::color_bad());
 
-    std::string n = deleted                               ? "playguard/rescue/note_deleted"_i18n
+    std::string n = doubted                               ? "playguard/rescue/note_unconfirmed"_i18n
+                  : deleted                               ? "playguard/rescue/note_deleted"_i18n
                   : ok                                    ? "playguard/rescue/note"_i18n
                   : report.result == RescueResult_NoPin   ? "playguard/rescue/note_no_pin"_i18n
                   : report.result == RescueResult_Refused ? "playguard/rescue/note_refused"_i18n
@@ -122,7 +130,8 @@ void RescueActivity::refresh()
     // After the sysmodule deleted everything, only "Open PlayGuard" is left.
     // Otherwise: show the PIN and delete need one to exist; "Set a new PIN"
     // is always offered (it sets one when there is none).
-    const bool actions = !deleted;
+    // Nothing at all unless the console confirmed the recovery.
+    const bool actions = confirmed && !deleted;
     ui::set_visible_all({ { actions_header.getView(), actions },
                           { show_pin.getView(), actions && has_pin },
                           { reset_pin.getView(), actions },
@@ -137,6 +146,11 @@ void RescueActivity::proceed()
 {
     // Restore the normal PIN-before-a-change gate, then open the app. If the
     // parent reset the PIN, "ask to open" would apply next launch; not now.
+    // An unconfirmed report skips nothing: the lock screen comes first, as on
+    // any start.
     pin_lock::install();
-    ui::replace_screen(new MainActivity());
+    if (!confirmed && pin_lock::at_start())
+        ui::replace_screen(new LockActivity());
+    else
+        ui::replace_screen(new MainActivity());
 }

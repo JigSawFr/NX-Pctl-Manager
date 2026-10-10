@@ -7,7 +7,7 @@ body:
       value: |
         On a firmware newer than the ones it was checked against, PlayGuard opens
         **read-only** on purpose: it will not write the play timer until the layout is
-        confirmed. Developer mode (press *Tools & about › Version* seven times) adds
+        confirmed. Developer mode (press *About › Version* seven times) adds
         **Compare the play-timer block**, which shows what changed — attach its file below.
 
   - type: input

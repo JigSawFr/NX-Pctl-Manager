@@ -159,3 +159,16 @@ bool rescue_report_parse(const char *text, size_t len, RescueReport *out)
     *out = r;
     return true;
 }
+
+bool rescue_report_confirmed(const RescueReport *r, uint32_t pin_length, bool unlocked)
+{
+    if (!r) return false;
+    switch (r->result) {
+    case RescueResult_Ok:
+        return r->mode == RescueMode_Delete ? pin_length == 0 : pin_length > 0 && unlocked;
+    case RescueResult_NoPin:
+        return pin_length == 0;
+    default:
+        return false;   // nothing was done: nothing to confirm
+    }
+}

@@ -246,16 +246,6 @@ void playstats_fetch_for(PlayStats *out, const PlayAccount *account)
     out->stats_rc  = pdmqryInitialize();
     out->events_rc = out->stats_rc;
     if (R_SUCCEEDED(out->stats_rc)) {
-        // All-time totals of every installed game that was ever played.
-        for (size_t i = 0; i < id_count; i++) {
-            PdmPlayStatistics st;
-            if (R_FAILED(query_totals(ids[i], account, &st))) continue;
-            if (st.playtime == 0 && st.total_launches == 0) continue;
-            GameStat *g = find_or_add(out, ids[i]);
-            if (!g) break;
-            set_totals(g, &st);
-        }
-
         // Today and the last 7 days. A session can start up to a day before
         // the window and still end inside it.
         // Midnights through the console's rule: a day with a daylight-saving
@@ -290,15 +280,27 @@ void playstats_fetch_for(PlayStats *out, const PlayAccount *account)
                 g->today_s = totals[i].today_s;
                 g->week_s  = totals[i].week_s;
                 memcpy(g->day_s, totals[i].day_s, sizeof(g->day_s));
-                // Deleted since: not in the installed list above, but pdm
-                // still has its all-time totals.
-                if (!g->totals_ok) {
-                    PdmPlayStatistics st;
-                    if (R_SUCCEEDED(query_totals(g->app_id, account, &st)) && (st.playtime || st.total_launches))
-                        set_totals(g, &st);
-                }
+                // Its all-time totals too (pdm keeps them for a game deleted since).
+                PdmPlayStatistics st;
+                if (R_SUCCEEDED(query_totals(g->app_id, account, &st)) && (st.playtime || st.total_launches))
+                    set_totals(g, &st);
             }
             out->windows_ok = true;
+        }
+        // Then the all-time totals of every other installed game ever played,
+        // while there is room: the games of this week come first, so a large
+        // library never pushes today's play out of the list (PLAYSTATS_MAX).
+        for (size_t i = 0; i < id_count; i++) {
+            bool seen = false;
+            for (u32 k = 0; k < out->count && !seen; k++) seen = out->games[k].app_id == ids[i];
+            if (seen) continue;
+            if (out->count == PLAYSTATS_MAX) break;
+            PdmPlayStatistics st;
+            if (R_FAILED(query_totals(ids[i], account, &st))) continue;
+            if (st.playtime == 0 && st.total_launches == 0) continue;
+            GameStat *g = find_or_add(out, ids[i]);
+            if (!g) break;
+            set_totals(g, &st);
         }
         free(events);
         pdmqryExit();

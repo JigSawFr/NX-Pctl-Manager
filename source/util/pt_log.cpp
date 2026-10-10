@@ -191,7 +191,9 @@ bool append(const std::string& line, std::string* error)
     if (f && must_roll(f, &size)) {
         std::fclose(f);
         std::remove(old_path().c_str());
-        std::rename(p.c_str(), old_path().c_str());
+        // Should the rename fail, start the file again rather than let it
+        // grow past its limit at every tick.
+        if (std::rename(p.c_str(), old_path().c_str()) != 0) std::remove(p.c_str());
         f = open_append(p);
         if (f) must_roll(f, &size);
     }

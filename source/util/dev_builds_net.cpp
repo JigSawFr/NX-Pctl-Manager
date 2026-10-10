@@ -105,7 +105,9 @@ bool download(const Build& b, const std::string& path, std::string* error)
         // The API answers with a short-lived signed link to the zip, on
         // another host: fetched without the token.
         std::string link;
-        ok = http::redirect(b.url, &link, error, github_auth::api_headers(github_auth::token()));
+        // The token only ever goes to the API itself, whatever the list says.
+        const bool api = b.url.compare(0, 23, "https://api.github.com/") == 0;
+        ok = http::redirect(b.url, &link, error, github_auth::api_headers(api ? github_auth::token() : ""));
         // A token without the Actions permission (an older sign-in) lists the
         // builds but is refused the download.
         if (!ok && error && (*error == "HTTP 401" || *error == "HTTP 403"))

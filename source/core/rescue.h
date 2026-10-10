@@ -17,7 +17,9 @@
 //
 // Anyone who can edit the SD card can do this, as they can turn off
 // PlayGuard's own PIN prompt (pin_lock.hpp): it keeps a child out, not
-// someone with a computer. No PIN is ever written to either file.
+// someone with a computer. No PIN is ever written to either file. The report
+// is a plain file anyone can write, so PlayGuard trusts it only when the
+// console confirms it (rescue_report_confirmed).
 //
 // Plain C, no libnx: host-tested (tests/rescue).
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).
@@ -37,6 +39,8 @@ extern "C" {
 #define RESCUE_REQUEST_NAME_TXT "RESCUE.txt"
 #define RESCUE_REQUEST_NAME_DONE "RESCUE.done"   // a request that could not be removed
 #define RESCUE_REPORT_NAME      "rescue_report.txt"
+// Where the sysmodule is installed, from the SD card root.
+#define RESCUE_SYSMODULE_PATH   "atmosphere/contents/4200000000505247/exefs.nsp"
 
 typedef enum {
     RescueMode_Unlock = 0,   // unlock temporarily with the stored PIN
@@ -80,6 +84,14 @@ size_t rescue_report_format(const RescueReport *r, char *buf, size_t size);
 // "\r" ignored; mode and result are required. False, and *out unchanged,
 // for anything else.
 bool rescue_report_parse(const char *text, size_t len, RescueReport *out);
+
+// Whether the console's state confirms what the report says the sysmodule
+// did, read at start-up: an unlock that worked leaves parental controls
+// temporarily unlocked (1006), a delete that worked or a "no PIN" leaves no
+// PIN (1206 == 0). A failure or a refusal changed nothing, so nothing
+// confirms it. Only a confirmed report opens the recovery actions without the
+// PIN: a report written by hand on the SD card proves nothing.
+bool rescue_report_confirmed(const RescueReport *r, uint32_t pin_length, bool unlocked);
 
 const char *rescue_mode_name(RescueMode mode);         // "unlock" / "delete"
 const char *rescue_result_name(RescueResult result);   // "ok" / "no_pin" / "failed" / "refused"

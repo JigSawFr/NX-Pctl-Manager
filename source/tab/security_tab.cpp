@@ -67,8 +67,11 @@ SecurityTab::SecurityTab()
     });
     show_pin->registerClickAction([](brls::View*) {
         if (ui::refuse_read_only()) return true;
-        ui::confirm("playguard/security/show_pin_body"_i18n, "playguard/security/show_pin_confirm"_i18n,
-                    []() { brls::sync([]() { ui::show_pin_dialog(); }); });
+        ui::confirm("playguard/security/show_pin_body"_i18n, "playguard/security/show_pin_confirm"_i18n, []() {
+            brls::sync([]() {
+                if (pin_lock::before_show_pin()) ui::show_pin_dialog();
+            });
+        });
         return true;
     });
     unlock->registerClickAction([this](brls::View*) {

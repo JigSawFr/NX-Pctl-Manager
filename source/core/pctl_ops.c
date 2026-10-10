@@ -409,7 +409,11 @@ static Result pt_write_gate(Service *srv, bool *active)
     if (R_SUCCEEDED(rc)) rc = rd_bool(srv, 1455, &restricted);
     if (R_SUCCEEDED(rc)) rc = rd_bool(srv, 1006, &unlocked);
     if (R_FAILED(rc)) return rc;
-    if (active) *active = enabled || restricted;
+    // Temporarily unlocked, 1453 reads false even with a limit set
+    // (docs/parental-controls.md), and every write while the timer counts
+    // goes through that unlock: count it as active too, or a failed read of
+    // the block would let a zeroed one through.
+    if (active) *active = enabled || restricted || unlocked;
     return ((enabled || restricted) && !unlocked) ? NXM_RC_WRITE_GATED : 0;
 }
 
@@ -559,10 +563,30 @@ Result pctl_play_timer_set_days(const u16 days_min[7])
             return NXM_RC_STATE_UNKNOWN;
         }
     }
+    u16 before[PT_U16_COUNT];
+    memcpy(before, c, sizeof(before));
     pt_encode(c, days_min);
     rc = serviceDispatchIn(srv, 195101, c);
+    if (R_FAILED(rc)) {
+        pctl_ops_exit();
+        return rc;
+    }
+
+    // 195101 is a debug command: read the block back, as the bedtime write
+    // does, so "written" is never said of limits the console did not take.
+    // An unreadable block proves nothing either way: the write stands.
+    u16 back[PT_U16_COUNT], want[7], got[7];
+    if (R_SUCCEEDED(serviceDispatchOut(srv, 145601, back))) {
+        pt_decode(c, want);
+        pt_decode(back, got);
+        if (memcmp(want, got, sizeof(want)) != 0) {
+            if (have_current) rc = serviceDispatchIn(srv, 195101, before);
+            pctl_ops_exit();
+            return R_FAILED(rc) ? rc : NXM_RC_NOT_APPLIED;
+        }
+    }
     pctl_ops_exit();
-    return rc;
+    return 0;
 }
 
 Result pctl_play_timer_set_uniform(u16 minutes)
@@ -765,7 +789,11 @@ void pctl_dump(char *buf, size_t bufsz)
     rep_u32 (&p, e, srv, 1032, "GetSafetyLevel");
     rep_bool(&p, e, srv, 1031, "IsRestrictionEnabled");
     rep_bool(&p, e, srv, 1006, "IsRestrictionTemporaryUnlocked");
-    rep_u32 (&p, e, srv, 1206, "GetPinCodeLength");
+    // Whether a PIN is set, not its length: a report may be posted online,
+    // and the length narrows the guessing.
+    { u32 len = 0; Result r = rd_u32(srv, 1206, &len);
+      rep(&p, e, "%6u %-38s rc=0x%08X  %s\n", 1206u, "GetPinCodeLength", (unsigned)r,
+          R_SUCCEEDED(r) ? (len ? "set (length not recorded)" : "none") : "-"); }
     rep_u32 (&p, e, srv, 1037, "GetDefaultRatingOrganization");
     rep_u32 (&p, e, srv, 1039, "GetFreeCommunicationApplicationListCount");
     rep_bool(&p, e, srv, 1403, "IsPairingActive");
