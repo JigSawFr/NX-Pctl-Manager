@@ -134,7 +134,7 @@
         "pc_off": "Sin configurar",
         "pc_pin_only": "PIN definido, sin restricciones",
         "pin": "PIN",
-        "pin_set": "Definido ({} dígitos)",
+        "pin_set": "Definido",
         "level": "Nivel de restricción",
         "today_limit": "Límite de hoy ({})",
         "remaining": "Tiempo restante hoy",
@@ -198,7 +198,8 @@
         "step_alarm": "{}. Reactivar la alarma de «Se acabó el tiempo» (nada avisa al terminar)",
         "at_start": "Mostrar al iniciar mientras no haya PIN",
         "note": "El PIN es el de la propia consola; el límite se comprueba con el reloj de red, así que debe ser preciso. Abre PlayGuard con el usuario de un adulto: abierto sobre un juego, su tiempo cuenta como tiempo de juego.",
-        "close": "Cerrar"
+        "close": "Cerrar",
+        "step_protect": "{}. Proteger PlayGuard: pedir el PIN"
     },
     "compat": {
         "ok": "Comprobado",
@@ -536,7 +537,9 @@
         "delete_err": "No se ha podido eliminar el control parental",
         "pin_ok": "PIN actualizado.",
         "pin_err": "No se ha podido actualizar el PIN",
-        "rescue_note": "El sysmodule de recuperación está instalado: cualquiera que pueda modificar la tarjeta SD puede desbloquear la consola o eliminar todo el control parental en el próximo arranque. Quítelo cuando ya no lo necesite (carpeta atmosphere/contents/4200000000505247)."
+        "rescue_note": "El sysmodule de recuperación está instalado: cualquiera que pueda modificar la tarjeta SD puede desbloquear la consola o eliminar todo el control parental en el próximo arranque. Quítelo cuando ya no lo necesite (carpeta atmosphere/contents/4200000000505247).",
+        "show_pin_change_body": "¿Cambiar el PIN ahora?\n\nPuede que otra persona lo haya visto.",
+        "show_pin_change_confirm": "Cambiar"
     },
     "pin_lock": {
         "title": "Pedir el PIN",
@@ -548,7 +551,7 @@
         "notes": {
             "off": "Cualquiera que tenga la consola puede cambiar aquí los ajustes. Mostrar el PIN lo pide igualmente.",
             "changes": "Cualquiera puede consultar; solo el adulto puede hacer cambios (se vuelve a pedir pasados 5 minutos). Nunca se pide para volver a bloquear.",
-            "open": "Una pantalla de bloqueo hasta que se introduce el PIN. Nunca se pide para volver a bloquear."
+            "open": "Una pantalla de bloqueo hasta que se introduce el PIN, y de nuevo tras 5 minutos fuera de PlayGuard. Nunca se pide para volver a bloquear."
         },
         "no_pin": "Defina primero un PIN («Definir o cambiar el PIN»).",
         "set": "Pedir el PIN: {}",
@@ -592,7 +595,6 @@
             "unconfirmed": "La consola no muestra la recuperación que describe este informe."
         },
         "hint": {
-            "show_pin": "si lo ha olvidado",
             "reset_pin": "elegir uno nuevo",
             "delete": "borrarlo todo"
         },
@@ -876,7 +878,8 @@
             "restore": "Copia restaurada",
             "rescue": "Recuperación usada",
             "console_lock": "Bloqueo de la consola",
-            "bedtime": "Alarma de hora de dormir"
+            "bedtime": "Alarma de hora de dormir",
+            "pin_shown": "PIN mostrado"
         },
         "sources": {
             "uniform": "Mismo límite todos los días",

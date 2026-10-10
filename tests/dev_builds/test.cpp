@@ -165,8 +165,13 @@ static void test_cache()
     pr.size = 4000;
     Build bad = pr;
     bad.url = "http://x";   // not https: left out when read back
+    // An edited list: anywhere but GitHub is left out too.
+    Build elsewhere = rel, lookalike = pr, userinfo = rel;
+    elsewhere.url = "https://example.com/playguard.nro";
+    lookalike.url = "https://api.github.com.example.com/repos/o/r/actions/artifacts/1/zip";
+    userinfo.url = "https://github.com@example.com/playguard.nro";
     dev_builds::Cache c;
-    c.builds = { rel, pr, bad };
+    c.builds = { rel, pr, bad, elsewhere, lookalike, userinfo };
     c.needs_login = false;
     c.fetched_at = 1000000;
 

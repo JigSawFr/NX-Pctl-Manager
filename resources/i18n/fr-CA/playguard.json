@@ -134,7 +134,7 @@
         "pc_off": "Non configuré",
         "pc_pin_only": "NIP défini, sans restriction",
         "pin": "NIP",
-        "pin_set": "Défini ({} chiffres)",
+        "pin_set": "Défini",
         "level": "Niveau de restriction",
         "today_limit": "Limite d'aujourd'hui ({})",
         "remaining": "Temps restant aujourd'hui",
@@ -198,7 +198,8 @@
         "step_alarm": "{}. Réactiver l'alarme « temps écoulé » (rien ne prévient quand le temps est écoulé)",
         "at_start": "Afficher au lancement tant qu'aucun NIP n'est défini",
         "note": "Le NIP est celui de la console; la limite est vérifiée avec l'horloge réseau, qui doit donc être précise. Ouvrez PlayGuard avec le compte d'un parent : ouvert par-dessus un jeu, son temps compte comme du jeu.",
-        "close": "Fermer"
+        "close": "Fermer",
+        "step_protect": "{}. Protéger PlayGuard : demander le NIP"
     },
     "compat": {
         "ok": "Vérifié",
@@ -536,7 +537,9 @@
         "delete_err": "Impossible de supprimer le contrôle parental",
         "pin_ok": "NIP mis à jour.",
         "pin_err": "Impossible de mettre à jour le NIP",
-        "rescue_note": "Le sysmodule de récupération est installé : toute personne pouvant modifier la carte SD peut alors déverrouiller la console ou supprimer tout le contrôle parental au prochain démarrage. Supprimez-le quand vous n'en avez plus besoin (dossier atmosphere/contents/4200000000505247)."
+        "rescue_note": "Le sysmodule de récupération est installé : toute personne pouvant modifier la carte SD peut alors déverrouiller la console ou supprimer tout le contrôle parental au prochain démarrage. Supprimez-le quand vous n'en avez plus besoin (dossier atmosphere/contents/4200000000505247).",
+        "show_pin_change_body": "Changer le NIP maintenant?\n\nQuelqu'un d'autre a pu le voir.",
+        "show_pin_change_confirm": "Changer"
     },
     "pin_lock": {
         "title": "Demander le NIP",
@@ -548,7 +551,7 @@
         "notes": {
             "off": "Toute personne qui tient la console peut modifier les réglages ici. Afficher le NIP le demande quand même.",
             "changes": "Tout le monde peut consulter; seul le parent modifie (redemandé après 5 minutes). Reverrouiller ne le demande jamais.",
-            "open": "Un écran verrouillé jusqu'à la saisie du code. Reverrouiller ne le demande jamais."
+            "open": "Un écran verrouillé jusqu'à la saisie du code, et de nouveau après 5 minutes hors de PlayGuard. Reverrouiller ne le demande jamais."
         },
         "no_pin": "Définissez d'abord un NIP (Définir ou changer le NIP).",
         "set": "Demander le NIP : {}",
@@ -592,7 +595,6 @@
             "unconfirmed": "La console ne montre pas la récupération que décrit ce rapport."
         },
         "hint": {
-            "show_pin": "en cas d'oubli",
             "reset_pin": "en choisir un nouveau",
             "delete": "tout supprimer"
         },
@@ -876,7 +878,8 @@
             "restore": "Sauvegarde restaurée",
             "rescue": "Récupération utilisée",
             "console_lock": "Verrou de console",
-            "bedtime": "Alarme du coucher"
+            "bedtime": "Alarme du coucher",
+            "pin_shown": "NIP affiché"
         },
         "sources": {
             "uniform": "Même limite tous les jours",

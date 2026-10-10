@@ -199,7 +199,8 @@ Result pctl_unlock_restriction_temporarily(void)
 Result pctl_get_pin(char *out, size_t out_size)
 {
     if (out && out_size) memset(out, 0, out_size);
-    RO_GUARD();
+    Result g = core_reveal_allowed();
+    if (R_FAILED(g)) return g;
     FAIL_IF("pin");
     if (!out || out_size < 5) return NXM_RC_INVALID_ARGUMENT;
     if (!S.pin_length) return NXM_RC_STATE_UNKNOWN;
