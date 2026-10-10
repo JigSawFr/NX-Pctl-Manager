@@ -25,7 +25,7 @@ namespace github_auth
 {
 
 // The OAuth app's client ID (public: the device flow has no secret).
-constexpr const char* CLIENT_ID = "Ov23lig5ACc0BaheGdpQ";
+constexpr const char* CLIENT_ID = "Ov23liHzuTUSBieYajTV";
 
 struct DeviceCode
 {
