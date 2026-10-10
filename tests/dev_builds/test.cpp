@@ -288,9 +288,9 @@ static void test_auth()
     assert(!github_auth::parse_device_code("nope", &d));
 
     std::string token, error;
-    assert(github_auth::parse_poll(R"({"access_token": "gho_16C7e42F292c6912E7710c838347Ae178B4a", "token_type": "bearer", "scope": ""})",
+    assert(github_auth::parse_poll(R"({"access_token": "ghu_16C7e42F292c6912E7710c838347Ae178B4a", "token_type": "bearer", "scope": ""})",
                                    &token, &error) == github_auth::Poll::Token);
-    assert(token == "gho_16C7e42F292c6912E7710c838347Ae178B4a");
+    assert(token == "ghu_16C7e42F292c6912E7710c838347Ae178B4a");
     assert(github_auth::parse_poll(R"({"error": "authorization_pending"})", &token, &error) == github_auth::Poll::Pending);
     assert(github_auth::parse_poll(R"({"error": "slow_down", "interval": 10})", &token, &error) == github_auth::Poll::SlowDown);
     assert(github_auth::parse_poll(R"({"error": "expired_token"})", &token, &error) == github_auth::Poll::Expired);
@@ -298,23 +298,26 @@ static void test_auth()
     assert(github_auth::parse_poll(R"({"error": "incorrect_client_credentials"})", &token, &error) == github_auth::Poll::Failed &&
            error == "incorrect_client_credentials");
     // Nothing that could break an HTTP header is taken as a token.
-    assert(github_auth::parse_poll("{\"access_token\": \"gho_x\\r\\nX-Evil: 1\"}", &token, &error) == github_auth::Poll::Failed);
+    assert(github_auth::parse_poll("{\"access_token\": \"ghu_x\\r\\nX-Evil: 1\"}", &token, &error) == github_auth::Poll::Failed);
     assert(github_auth::parse_poll("garbage", &token, &error) == github_auth::Poll::Failed);
 
     // The token file: its own, not config.json; forgotten on sign-out.
     assert(github_auth::token().empty());
     assert(github_auth::token_file() == paths::data_dir() + "/github_token");
-    assert(github_auth::save_token("gho_abc123", &error));
-    assert(github_auth::token() == "gho_abc123");
+    assert(github_auth::save_token("ghu_abc123", &error));
+    assert(github_auth::token() == "ghu_abc123");
+    // The earlier OAuth app's token reads as none: signed in again.
+    assert(github_auth::save_token("gho_old", &error) && github_auth::token().empty());
+    assert(github_auth::save_token("ghu_abc123", &error));
     assert(!github_auth::save_token("gho abc", &error));
-    assert(github_auth::token() == "gho_abc123");
+    assert(github_auth::token() == "ghu_abc123");
     assert(paths::atomic_write(github_auth::token_file(), "not a token!\n"));
     assert(github_auth::token().empty());
     github_auth::forget_token();
     assert(github_auth::token().empty());
 
-    const auto h = github_auth::api_headers("gho_abc");
-    assert(h.size() == 3 && h[2] == "Authorization: Bearer gho_abc");
+    const auto h = github_auth::api_headers("ghu_abc");
+    assert(h.size() == 3 && h[2] == "Authorization: Bearer ghu_abc");
     assert(github_auth::api_headers("").size() == 2);
 }
 

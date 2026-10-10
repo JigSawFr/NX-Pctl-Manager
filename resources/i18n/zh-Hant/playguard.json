@@ -807,13 +807,13 @@
         "signed_in_short": "已登入",
         "starting": "正在連線 GitHub…",
         "code_body": "請在手機或電腦上開啟 {}（或掃描 QR 碼）並輸入：",
-        "code_note": "PlayGuard 只要求建立 Gist 的權限，用於傳送報告；除此之外只能讀取 GitHub 上的公開內容。正在等待你的授權…",
+        "code_note": "PlayGuard 只要求讀取建置工作流程的檔案（Actions，用於安裝開發版本）和建立 Gist（用於傳送報告）的權限；除此之外只能讀取 GitHub 上的公開內容。正在等待你的授權…",
         "signed_in": "已登入 GitHub。",
         "failed": "無法登入 GitHub：{}",
         "denied": "GitHub 登入遭拒。",
         "expired": "代碼在輸入前已過期，請再試一次。",
         "sign_out": "登出",
-        "sign_out_body": "要登出 GitHub 嗎？PlayGuard 將刪除其權杖。如要一併撤銷：GitHub › Settings › Applications › Authorized OAuth Apps › PlayGuard。",
+        "sign_out_body": "要登出 GitHub 嗎？PlayGuard 將刪除其權杖。如要一併撤銷：GitHub › Settings › Applications › Authorized GitHub Apps › PlayGuard dev builds。",
         "signed_out": "已登出 GitHub。"
     },
     "toast": {

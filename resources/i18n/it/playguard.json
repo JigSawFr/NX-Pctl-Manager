@@ -807,13 +807,13 @@
         "signed_in_short": "Connesso",
         "starting": "Connessione a GitHub...",
         "code_body": "Su un telefono o un computer, apri {} (o scansiona il codice) e inserisci:",
-        "code_note": "PlayGuard chiede solo di creare gist, per inviare rapporti; altrimenti può leggere solo ciò che è pubblico su GitHub. In attesa della tua approvazione...",
+        "code_note": "PlayGuard chiede solo di leggere i file del workflow di build (Actions), per installare le build di sviluppo, e di creare gist, per inviare rapporti; altrimenti può leggere solo ciò che è pubblico su GitHub. In attesa della tua approvazione...",
         "signed_in": "Connesso a GitHub.",
         "failed": "Impossibile accedere a GitHub: {}",
         "denied": "L'accesso a GitHub è stato rifiutato.",
         "expired": "Il codice è scaduto prima di essere inserito. Riprova.",
         "sign_out": "Esci",
-        "sign_out_body": "Uscire da GitHub? PlayGuard dimentica il suo token. Per revocarlo anche: GitHub › Settings › Applications › Authorized OAuth Apps › PlayGuard.",
+        "sign_out_body": "Uscire da GitHub? PlayGuard dimentica il suo token. Per revocarlo anche: GitHub › Settings › Applications › Authorized GitHub Apps › PlayGuard dev builds.",
         "signed_out": "Disconnesso da GitHub."
     },
     "toast": {

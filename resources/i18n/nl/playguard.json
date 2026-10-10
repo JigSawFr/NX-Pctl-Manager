@@ -807,13 +807,13 @@
         "signed_in_short": "Aangemeld",
         "starting": "Verbinden met GitHub...",
         "code_body": "Open op een telefoon of computer {} (of scan de code) en voer in:",
-        "code_note": "PlayGuard vraagt alleen om gists te maken, om rapporten te versturen; verder kan het alleen lezen wat openbaar is op GitHub. Wachten op je goedkeuring...",
+        "code_note": "PlayGuard vraagt alleen om de bestanden van de build-workflow te lezen (Actions), om ontwikkelbuilds te installeren, en om gists te maken, om rapporten te versturen; verder kan het alleen lezen wat openbaar is op GitHub. Wachten op je goedkeuring...",
         "signed_in": "Aangemeld bij GitHub.",
         "failed": "Kon niet aanmelden bij GitHub: {}",
         "denied": "Aanmelden bij GitHub is geweigerd.",
         "expired": "De code is verlopen voordat hij werd ingevoerd. Probeer het opnieuw.",
         "sign_out": "Afmelden",
-        "sign_out_body": "Afmelden bij GitHub? PlayGuard vergeet zijn token. Om het ook in te trekken: GitHub › Settings › Applications › Authorized OAuth Apps › PlayGuard.",
+        "sign_out_body": "Afmelden bij GitHub? PlayGuard vergeet zijn token. Om het ook in te trekken: GitHub › Settings › Applications › Authorized GitHub Apps › PlayGuard dev builds.",
         "signed_out": "Afgemeld bij GitHub."
     },
     "toast": {

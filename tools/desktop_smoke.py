@@ -467,7 +467,7 @@ if upload_count() != uploads_before + 1:
     fail("the report link was not recorded in " + uploads)
 key("Return")              # OK
 # Signed in to GitHub: where to send it comes first, a secret gist by default.
-open(github_token, "w").write("gho_smoke")
+open(github_token, "w").write("ghu_smoke")
 key("Return")              # Send a report online (still focused)
 if any(f[:8].isdigit() and f.endswith(".txt") for f in os.listdir(logs)):
     key("Return")          # this report, the first choice

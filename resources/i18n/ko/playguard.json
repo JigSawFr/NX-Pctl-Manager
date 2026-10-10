@@ -807,13 +807,13 @@
         "signed_in_short": "로그인됨",
         "starting": "GitHub에 연결 중...",
         "code_body": "휴대폰이나 컴퓨터에서 {}을(를) 열고(또는 코드를 스캔하고) 다음을 입력하세요:",
-        "code_note": "PlayGuard는 보고서를 보내기 위한 Gist 생성 권한만 요청하며, 그 외에는 GitHub의 공개 정보만 읽을 수 있습니다. 승인을 기다리는 중...",
+        "code_note": "PlayGuard는 개발 빌드를 설치하기 위한 빌드 워크플로 파일 읽기(Actions)와 보고서를 보내기 위한 Gist 생성 권한만 요청하며, 그 외에는 GitHub의 공개 정보만 읽을 수 있습니다. 승인을 기다리는 중...",
         "signed_in": "GitHub에 로그인했습니다.",
         "failed": "GitHub에 로그인할 수 없습니다: {}",
         "denied": "GitHub 로그인이 거부되었습니다.",
         "expired": "코드를 입력하기 전에 만료되었습니다. 다시 시도하세요.",
         "sign_out": "로그아웃",
-        "sign_out_body": "GitHub에서 로그아웃할까요? PlayGuard가 토큰을 삭제합니다. 토큰을 취소하려면: GitHub › Settings › Applications › Authorized OAuth Apps › PlayGuard.",
+        "sign_out_body": "GitHub에서 로그아웃할까요? PlayGuard가 토큰을 삭제합니다. 토큰을 취소하려면: GitHub › Settings › Applications › Authorized GitHub Apps › PlayGuard dev builds.",
         "signed_out": "GitHub에서 로그아웃했습니다."
     },
     "toast": {

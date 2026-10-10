@@ -807,13 +807,13 @@
         "signed_in_short": "Вход выполнен",
         "starting": "Подключение к GitHub...",
         "code_body": "На телефоне или компьютере откройте {} (или отсканируйте код) и введите:",
-        "code_note": "PlayGuard запрашивает только создание gist для отправки отчётов; в остальном он может читать только то, что публично на GitHub. Ожидание вашего подтверждения...",
+        "code_note": "PlayGuard запрашивает только чтение файлов workflow сборки (Actions), чтобы устанавливать сборки для разработки, и создание gist для отправки отчётов; в остальном он может читать только то, что публично на GitHub. Ожидание вашего подтверждения...",
         "signed_in": "Вход в GitHub выполнен.",
         "failed": "Не удалось войти в GitHub: {}",
         "denied": "Вход в GitHub отклонён.",
         "expired": "Срок действия кода истёк до ввода. Попробуйте снова.",
         "sign_out": "Выйти",
-        "sign_out_body": "Выйти из GitHub? PlayGuard забудет свой токен. Чтобы также отозвать его: GitHub › Settings › Applications › Authorized OAuth Apps › PlayGuard.",
+        "sign_out_body": "Выйти из GitHub? PlayGuard забудет свой токен. Чтобы также отозвать его: GitHub › Settings › Applications › Authorized GitHub Apps › PlayGuard dev builds.",
         "signed_out": "Выход из GitHub выполнен."
     },
     "toast": {
