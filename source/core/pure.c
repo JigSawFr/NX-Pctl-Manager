@@ -53,8 +53,8 @@ static bool pt_rule_plausible(const u16 c[PT_U16_COUNT], int d)
 
 bool pt_plausible(const u16 c[PT_U16_COUNT])
 {
-    for (int i = 0; i < 4; i++)
-        if (pt_byte(c, i) > 3) return false;
+    // The four mode bytes (00..03) are not decoded: an unseen companion-app
+    // setting may live there, so any value passes.
     if (!pt_rule_plausible(c, 4)) return false;
     for (int n = 0; n < 7; n++)
         if (!pt_rule_plausible(c, pt_day(n))) return false;

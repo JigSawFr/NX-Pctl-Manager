@@ -709,6 +709,10 @@ static void test_block_not_understood(void)
     off[3] = 0;
     off[9] = PT_DAY_NOLIMIT;   /* minutes "no limit" */
     CHECK(pt_plausible(off));
+    off[9] = 0;
+    off[0] = 0x0704;   /* mode bytes are not decoded: any value passes */
+    off[1] = 0xFF02;
+    CHECK(pt_plausible(off));
 
     struct { int at; u16 v; } bad[] = {
         { 9, 1441 },     /* Sunday: more than a day */
@@ -720,8 +724,6 @@ static void test_block_not_understood(void)
         { 7, 0x063C },   /* Sunday's alarm at :60 */
         { 7, 0x1800 },   /* allowed again at 24 h */
         { 8, 0x013C },   /* allowed again at :60 */
-        { 0, 0x0104 },   /* a mode byte of 4 */
-        { 1, 0xFF01 },
         { 2, 0x0002 },   /* the header rule's bedtime switch */
     };
     for (unsigned i = 0; i < sizeof(bad) / sizeof(bad[0]); i++) {

@@ -150,7 +150,8 @@ One day (8 bytes):
 What PlayGuard accepts as this layout (`pt_plausible`, `source/core/pure.c`):
 in each day and in the header's rule `04..0B`, the bedtime and limit
 switches `0` or `1`, hours below 24, minutes below 60, the limit 0 to 1440
-minutes (or `FFFF`); the header's four mode bytes at most `03`. Only what the
+minutes (or `FFFF`). The header's four mode bytes are not decoded, so any
+value passes there. Only what the
 layout cannot hold is refused, so an unseen companion-app setting does not
 block PlayGuard. A block that fails (a firmware that changed the layout, or
 garbage) is not shown, and every play-timer write refuses it without writing
