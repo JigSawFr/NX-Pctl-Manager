@@ -5,6 +5,8 @@
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).
 #pragma once
 
+#include <string>
+
 namespace pt_log_flow
 {
 
@@ -14,5 +16,10 @@ void apply();
 // At exit.
 void stop();
 bool running();
+
+// A line right away (once the caller has returned), with `event` in its last
+// column, while recording: what PlayGuard just changed (history_flow), so the
+// readings before and after it can be told apart.
+void note(const std::string& event);
 
 }   // namespace pt_log_flow

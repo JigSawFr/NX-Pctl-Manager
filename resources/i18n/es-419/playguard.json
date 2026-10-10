@@ -769,7 +769,7 @@
         "pt_block_report": "Guardar en la tarjeta SD",
         "pt_block_new": "Nueva referencia",
         "pt_log": "Record the play timer",
-        "pt_log_note": "Every 30 s while PlayGuard is open, one line of what the play timer reports (time left, time spent, 1459, the settings block) in logs/play_timer_log.csv. Leave PlayGuard open over midnight, or until the time is up, to see what the console does then. Sent with the diagnostic report.",
+        "pt_log_note": "Every 30 s while PlayGuard is open, one line of what the play timer reports (time left, time spent, 1459, the settings block) in logs/play_timer_log.csv, and one more right after each change PlayGuard makes, saying which. A clock that moved more than the time that went by is noted too. Leave PlayGuard open over midnight, or until the time is up, to see what the console does then. Sent with the diagnostic report.",
         "pt_log_on": "Recording every 30 s in {}",
         "gate": "Volver a la pantalla de firmware",
         "forget": "Olvidar la elección del firmware",

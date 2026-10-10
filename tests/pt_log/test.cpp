@@ -44,7 +44,8 @@ static void test_rows()
 {
     const std::string head = pt_log::header();
     const int columns = count(head, ',') + 1;
-    assert(columns == 15 && head.back() == '\n');
+    assert(columns == 16 && head.back() == '\n');
+    assert(head.compare(head.size() - 7, 7, ",event\n") == 0);
 
     pt_log::Previous prev;
     const PtSample s = reading();
@@ -90,6 +91,28 @@ static void test_rows()
     assert(count(fourth, ',') + 1 == columns && fourth.find(",!0x00000701,!0x00000701,") != std::string::npos);
 }
 
+// The last column: why a line was written, quoted when CSV needs it.
+static void test_events()
+{
+    pt_log::Previous prev;
+    const PtSample s = reading();
+    std::string line = pt_log::row("t", 1, s, &prev, "limits per_day [120 0 0 0 0 120 120] -> [180 0 0 0 0 120 180]");
+    const std::string end = ",limits per_day [120 0 0 0 0 120 120] -> [180 0 0 0 0 120 180]\n";
+    assert(line.size() > end.size() && line.compare(line.size() - end.size(), end.size(), end) == 0);
+    line = pt_log::row("t", 2, s, &prev, "profile \"School, week\"");
+    assert(line.find(",\"profile \"\"School, week\"\"\"\n") != std::string::npos);
+    assert(count(pt_log::row("t", 3, s, &prev), ',') + 1 == 16);
+
+    // The clock against the time that went by: the evening of 2026-10-09.
+    pt_log::Clock c;
+    assert(pt_log::clock_moved(&c, 1791569454, 1000).empty());           // first reading
+    assert(pt_log::clock_moved(&c, 1791569484, 1030).empty());           // 30 s, 30 s
+    assert(pt_log::clock_moved(&c, 1791569518, 1060).empty());           // 4 s off: within the slack
+    assert(pt_log::clock_moved(&c, 1791570959, 1090) == "clock +1411 s vs elapsed");   // automatic correction on
+    assert(pt_log::clock_moved(&c, 1791569602, 1120) == "clock -1387 s vs elapsed");   // NTP: back
+    assert(c.known && c.posix == 1791569602 && c.steady_s == 1120);
+}
+
 static void test_tail()
 {
     std::string text = pt_log::header();
@@ -124,6 +147,15 @@ static void test_file()
     assert(pt_log::append("c\n", &error));
     assert(paths::read_file(pt_log::path(), text) && text == pt_log::header() + "c\n");
     assert(paths::read_file(pt_log::old_path(), text) && text.size() > pt_log::MAX_BYTES);
+
+    // A file of an earlier version (other columns) is put aside, not mixed.
+    assert(paths::atomic_write(pt_log::path(), "local_time,posix,old\nx,1,2\n"));
+    assert(pt_log::append("d\n", &error));
+    assert(paths::read_file(pt_log::path(), text) && text == pt_log::header() + "d\n");
+    assert(paths::read_file(pt_log::old_path(), text) && text == "local_time,posix,old\nx,1,2\n");
+    // Ours is kept: the next line follows.
+    assert(pt_log::append("e\n", &error));
+    assert(paths::read_file(pt_log::path(), text) && text == pt_log::header() + "d\ne\n");
 }
 
 int main()
@@ -133,6 +165,7 @@ int main()
     assert(chdir(dir) == 0);   // paths::data_dir() is ./playguard_data on the host
 
     test_rows();
+    test_events();
     test_tail();
     test_file();
 

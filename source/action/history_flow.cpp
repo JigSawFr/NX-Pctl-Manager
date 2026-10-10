@@ -5,6 +5,7 @@
 #include <fmt/format.h>
 
 #include "action/pt_flow.hpp"
+#include "action/pt_log_flow.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
 #include "util/config.hpp"
@@ -114,6 +115,19 @@ static void store(history::Entry e)
     e.when = ui::now_stamp();
     std::string err;
     if (!history::append(e, &err)) brls::Logger::warning("history: not saved ({})", err);
+    // Developer › Record the play timer: a line marking the change.
+    std::string event = e.kind;
+    for (const std::string* part : { &e.source, &e.detail })
+        if (!part->empty()) event += " " + *part;
+    if (!e.before.empty() || !e.after.empty()) {
+        auto list = [](const std::vector<int>& v) {
+            std::string out;
+            for (int x : v) out += (out.empty() ? "" : " ") + std::to_string(x);
+            return out;
+        };
+        event += " [" + list(e.before) + "] -> [" + list(e.after) + "]";
+    }
+    pt_log_flow::note(event);
 }
 
 void record_values(const char* kind, std::vector<int> before, std::vector<int> after,

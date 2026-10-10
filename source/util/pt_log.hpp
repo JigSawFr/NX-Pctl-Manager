@@ -41,14 +41,31 @@ struct Previous
 // UTC seconds), `local` being the same time as the console shows it
 // ("2026-10-09 20:10:52"). A failed read is written "!" and its result code
 // ("!0x0001188E"); times are in seconds, decimals only when not whole.
-std::string row(const std::string& local, uint64_t posix, const PtSample& s, Previous* prev);
+// `event`, the last column, says why this line was written when it was not
+// the 30 s tick (an action of PlayGuard, the clock moving…), quoted as CSV
+// needs.
+std::string row(const std::string& local, uint64_t posix, const PtSample& s, Previous* prev,
+                const std::string& event = "");
+
+// The user clock against the time that really went by (a steady clock, in
+// seconds) since the last reading: "clock +1411 s vs elapsed" when they
+// differ by CLOCK_SLACK_S or more (the clock was changed, or the console
+// slept), "" otherwise and on the first reading. Updates *last.
+constexpr int64_t CLOCK_SLACK_S = 5;
+struct Clock
+{
+    bool     known = false;
+    uint64_t posix = 0, steady_s = 0;
+};
+std::string clock_moved(Clock* last, uint64_t posix, uint64_t steady_s);
 
 // The end of `text` (a CSV of this format) in at most `max_bytes`, cut at a
 // line start, with the header line put back in front when it was cut off.
 std::string tail(const std::string& text, size_t max_bytes);
 
 // Appends `line` to path(), writing the header first in a new file, and moves
-// the file to old_path() once it is over MAX_BYTES. False, and a short
+// the file to old_path() once it is over MAX_BYTES, or when it starts with
+// another header (columns of an earlier version). False, and a short
 // English reason in *error, when the SD card refused.
 bool append(const std::string& line, std::string* error = nullptr);
 

@@ -61,14 +61,43 @@ uint64_t le64(const uint8_t* b)
     return v;
 }
 
-// Opened for appending, created 0644 (as util/http.cpp), not fopen's 0666.
+// Opened for appending (and reading), created 0644 (as util/http.cpp), not
+// fopen's 0666.
 FILE* open_append(const std::string& p)
 {
-    const int fd = ::open(p.c_str(), O_WRONLY | O_APPEND | O_CREAT, 0644);
+    const int fd = ::open(p.c_str(), O_RDWR | O_APPEND | O_CREAT, 0644);
     if (fd < 0) return nullptr;
-    FILE* f = ::fdopen(fd, "ab");
+    FILE* f = ::fdopen(fd, "a+b");
     if (!f) ::close(fd);
     return f;
+}
+
+// Whether the open file must be put aside: over MAX_BYTES, or begun with
+// another header (an earlier version's columns). *size: its size.
+bool must_roll(FILE* f, long* size)
+{
+    *size = std::fseek(f, 0, SEEK_END) == 0 ? std::ftell(f) : -1;
+    if (*size > (long)MAX_BYTES) return true;
+    if (*size <= 0) return false;
+    const std::string head = header();
+    std::string first(head.size(), '\0');
+    std::rewind(f);
+    const size_t n = std::fread(&first[0], 1, first.size(), f);
+    std::fseek(f, 0, SEEK_END);
+    return n != head.size() || first != head;
+}
+
+// A CSV cell: quoted (quotes doubled) when it holds a comma, a quote or a
+// line break.
+std::string csv(const std::string& text)
+{
+    if (text.find_first_of(",\"\r\n") == std::string::npos) return text;
+    std::string out = "\"";
+    for (char c : text) {
+        if (c == '"') out += '"';
+        out += c;
+    }
+    return out + "\"";
 }
 
 // The cell, or "" when it is what the line before held.
@@ -88,10 +117,11 @@ std::string header()
 {
     return "local_time,posix,unlocked_1006,enabled_1453,restricted_1455,alarm_off_1458,"
            "remaining_s_1454,spent_s_1952,remaining_plus_spent_s,display0_1459,display_remaining_s_1459,"
-           "bedtime_1954,extra_s_1960,display_hex_1459,block_hex_145601\n";
+           "bedtime_1954,extra_s_1960,display_hex_1459,block_hex_145601,event\n";
 }
 
-std::string row(const std::string& local, uint64_t posix, const PtSample& s, Previous* prev)
+std::string row(const std::string& local, uint64_t posix, const PtSample& s, Previous* prev,
+                const std::string& event)
 {
     std::string sum = R_SUCCEEDED(s.remaining_rc) && R_SUCCEEDED(s.spent_rc) ? seconds(s.remaining_ns + s.spent_ns) : "";
     std::string disp0, disp_left, disp_hex;
@@ -116,9 +146,24 @@ std::string row(const std::string& local, uint64_t posix, const PtSample& s, Pre
          { std::to_string((unsigned long long)posix), flag(s.unlocked_rc, s.unlocked), flag(s.enabled_rc, s.enabled),
            flag(s.restricted_rc, s.restricted), flag(s.alarm_off_rc, s.alarm_off), time_cell(s.remaining_rc, s.remaining_ns),
            time_cell(s.spent_rc, s.spent_ns), sum, disp0, disp_left, bedtime, time_cell(s.extra_rc, s.extra_ns),
-           changed(disp_hex, &prev->display), changed(block, &prev->block) })
+           changed(disp_hex, &prev->display), changed(block, &prev->block), csv(event) })
         out += "," + cell;
     return out + "\n";
+}
+
+std::string clock_moved(Clock* last, uint64_t posix, uint64_t steady_s)
+{
+    std::string out;
+    if (last->known) {
+        const int64_t gap = ((int64_t)posix - (int64_t)last->posix) - ((int64_t)steady_s - (int64_t)last->steady_s);
+        if (gap >= CLOCK_SLACK_S || gap <= -CLOCK_SLACK_S) {
+            char buf[48];
+            std::snprintf(buf, sizeof(buf), "clock %+" PRId64 " s vs elapsed", gap);
+            out = buf;
+        }
+    }
+    *last = { true, posix, steady_s };
+    return out;
 }
 
 std::string tail(const std::string& text, size_t max_bytes)
@@ -142,13 +187,13 @@ bool append(const std::string& line, std::string* error)
     }
     // The size is read from the open file, not from the path beforehand.
     FILE* f = open_append(p);
-    long size = f && std::fseek(f, 0, SEEK_END) == 0 ? std::ftell(f) : -1;
-    if (f && size > (long)MAX_BYTES) {
+    long size = -1;
+    if (f && must_roll(f, &size)) {
         std::fclose(f);
         std::remove(old_path().c_str());
         std::rename(p.c_str(), old_path().c_str());
         f = open_append(p);
-        size = f && std::fseek(f, 0, SEEK_END) == 0 ? std::ftell(f) : -1;
+        if (f) must_roll(f, &size);
     }
     if (!f) {
         if (error) *error = std::string("cannot open ") + p + ": " + std::strerror(errno);

@@ -769,7 +769,7 @@
         "pt_block_report": "Enregistrer sur la carte SD",
         "pt_block_new": "Nouvelle référence",
         "pt_log": "Enregistrer le temps de jeu",
-        "pt_log_note": "Toutes les 30 s tant que PlayGuard est ouvert, une ligne de ce que rapporte le temps de jeu (temps restant, temps écoulé, 1459, le bloc des réglages) dans logs/play_timer_log.csv. Laissez PlayGuard ouvert après minuit, ou jusqu'à la fin du temps, pour voir ce que fait alors la console. Envoyé avec le rapport de diagnostic.",
+        "pt_log_note": "Toutes les 30 s tant que PlayGuard est ouvert, une ligne de ce que rapporte le temps de jeu (temps restant, temps écoulé, 1459, le bloc des réglages) dans logs/play_timer_log.csv, et une de plus juste après chaque modification faite par PlayGuard, qui dit laquelle. Une horloge qui a bougé plus que le temps écoulé est notée aussi. Laissez PlayGuard ouvert après minuit, ou jusqu'à la fin du temps, pour voir ce que fait alors la console. Envoyé avec le rapport de diagnostic.",
         "pt_log_on": "Enregistrement toutes les 30 s dans {}",
         "gate": "Revoir l'écran firmware",
         "forget": "Oublier le choix pour le firmware",
