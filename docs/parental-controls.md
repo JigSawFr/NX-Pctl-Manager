@@ -396,7 +396,14 @@ From the same 20:10 report:
    turn on *Developer tools › Record the play timer* instead: one CSV line
    every 30 s in `logs/play_timer_log.csv` while PlayGuard is open (its own
    time counts, so the time runs down with PlayGuard alone). The two hex
-   columns are written only when they change. Its last 48 KB go with *Send a
+   columns are written only when they change. The last column, `event`, says
+   why a line was written off the 30 s tick: `recording started`, each change
+   PlayGuard makes, as its change history words it (`limits per_day [120 …]
+   -> [180 …]`, `clock`, `unlock` …), written right after it, and
+   `clock +1411 s vs elapsed` when the user clock moved more than the time
+   that went by (5 s of slack): a clock changed in System Settings, or the
+   console asleep in between. What is done outside PlayGuard (System
+   Settings, the PIN typed in the HOME menu) is not named: note it down. Its last 48 KB go with *Send a
    report online*. PlayGuard does not run in the background: the recording
    stops while a game is open, and while the console sleeps.
 2. Note the firmware, the date and exactly what was changed between the two.
