@@ -30,7 +30,9 @@ struct Config
     bool clock_check_at_start = false; // measure the network clock at start-up, say when it is off
     // Security › Ask for the PIN: "off", "changes" (before the first change,
     // then not for 5 min) or "open" (to open PlayGuard). See pin_lock.hpp.
-    std::string pin_lock = "off";
+    // "changes" by default, and when the value is missing or unknown: a
+    // damaged file must not turn the prompt off.
+    std::string pin_lock = "changes";
     // First steps opens by itself at start-up while no PIN is set, unless
     // its "Show at start-up" switch was turned off.
     bool onboarding_at_start = true;

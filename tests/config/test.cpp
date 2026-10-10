@@ -166,7 +166,7 @@ static void test_preferences()
     config::Config d;
     assert(d.start_tab == "dashboard" && d.extra_amounts == std::vector<int>({ 15, 30, 60 }));
     assert(d.activity_period == 1 && d.export_format == 0 && d.backup_keep == 0);
-    assert(!d.update_daily && d.update_checked.empty() && !d.clock_check_at_start && d.pin_lock == "off");
+    assert(!d.update_daily && d.update_checked.empty() && !d.clock_check_at_start && d.pin_lock == "changes");
     assert(d.onboarding_at_start);
     assert(d.support_reminder && d.support_reminded.empty() && d.seen_version.empty());
     write_config(R"({"support_reminder": false, "support_reminded": "2026-10-09", "seen_version": "1.1.0"})");
@@ -182,9 +182,19 @@ static void test_preferences()
     write_config(R"({"pin_lock": "open"})");
     config::load();
     assert(config::get().pin_lock == "open");
+    write_config(R"({"pin_lock": "off"})");
+    config::load();
+    assert(config::get().pin_lock == "off");   // chosen on purpose: kept
+    // Unknown, of the wrong type, or damaged: the prompt stays on.
     write_config(R"({"pin_lock": "always"})");
     config::load();
-    assert(config::get().pin_lock == "off");
+    assert(config::get().pin_lock == "changes");
+    write_config(R"({"pin_lock": 0})");
+    config::load();
+    assert(config::get().pin_lock == "changes");
+    write_config(R"({"pin_lock": "off")");
+    config::load();
+    assert(config::get().pin_lock == "changes");
 
     // Values from the lists are kept.
     write_config(R"({"start_tab": "activity", "extra_amounts": [30, 60, 90], "activity_period": 2,

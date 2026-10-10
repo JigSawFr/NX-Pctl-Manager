@@ -367,6 +367,7 @@ static void test_reads(void)
         pctl_dump(report, sizeof(report));
         assert(strstr(report, "content=not recorded") != NULL);
         assert(strstr(report, model.pin) == NULL);
+        assert(strstr(report, "set (length not recorded)") != NULL);   /* whether, not how long */
         assert(strstr(report, "Tool-owned pctl session released.") != NULL);
         assert(model.refs == 0 && model.writes == 0);
     }

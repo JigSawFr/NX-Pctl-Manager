@@ -19,6 +19,12 @@ namespace rescue
 // entry in the change history.
 std::optional<RescueReport> take();
 
+// Whether the console confirms `report` (rescue_report_confirmed, from a
+// fresh read of 1206 and 1006), with the sysmodule installed on the SD card
+// (a console a parent left temporarily unlocked would otherwise confirm a
+// report written by hand). False when the read fails.
+bool confirmed(const RescueReport& report);
+
 // Whether a report is waiting (without removing it): decides at start-up
 // whether to show the recovery screen instead of the lock screen.
 bool pending();

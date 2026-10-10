@@ -67,6 +67,14 @@ bool ask()
     return rc == NXM_RC_NO_PIN;   // nothing to ask for
 }
 
+bool before_show_pin()
+{
+    if (config::get().pin_lock != "off") return true;   // the change check asks
+    if (ask()) return true;
+    ui::notify(refusal_text());
+    return false;
+}
+
 std::string refusal_text()
 {
     if (R_SUCCEEDED(s_last_rc) || NXM_IS_APP_RESULT(s_last_rc)) return ui::rc_text(NXM_RC_NOT_CONFIRMED);

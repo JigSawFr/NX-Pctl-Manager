@@ -360,8 +360,8 @@ Result pctl_play_timer_clear(void)        { u16 d[7]; for (int i = 0; i < 7; i++
 void pctl_dump(char *buf, size_t n)
 {
     int used = snprintf(buf, n, "=== pctl state (simulated desktop backend) ===\n"
-                        "safety_level=%u pin_length=%u enabled=%d temp_unlocked=%d\n145601 block:",
-                        (unsigned)S.safety_level, (unsigned)S.pin_length, (int)S.restriction_enabled, (int)S.temp_unlocked);
+                        "safety_level=%u pin=%s enabled=%d temp_unlocked=%d\n145601 block:",
+                        (unsigned)S.safety_level, S.pin_length ? "set" : "none", (int)S.restriction_enabled, (int)S.temp_unlocked);
     for (int i = 0; i < PT_U16_COUNT && used > 0 && (size_t)used < n; i++)
         used += snprintf(buf + used, n - (size_t)used, " %04X", S.block[i]);
     if (used > 0 && (size_t)used < n) snprintf(buf + used, n - (size_t)used, "\n");
