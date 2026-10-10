@@ -138,7 +138,5 @@ void RescueActivity::proceed()
     // Restore the normal PIN-before-a-change gate, then open the app. If the
     // parent reset the PIN, "ask to open" would apply next launch; not now.
     pin_lock::install();
-    brls::Application::popActivity(brls::TransitionAnimation::NONE, []() {
-        brls::Application::pushActivity(new MainActivity());
-    });
+    ui::replace_screen(new MainActivity());
 }

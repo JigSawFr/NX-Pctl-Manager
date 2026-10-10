@@ -25,7 +25,7 @@ failing and "Synchronise clock via Internet" off (PLAYGUARD_SIM_FAIL & co.):
 a limit change must end in the "could not unlock" dialog, with the app alive,
 and the clock tab must say why the network clock cannot be set.
 
-Usage: tools/desktop_smoke.py <out-dir> [gate|errors|rescue|devbuild]   (needs DISPLAY, xdotool, ImageMagick)
+Usage: tools/desktop_smoke.py <out-dir> [gate|errors|rescue|lock|devbuild]   (needs DISPLAY, xdotool, ImageMagick)
 Environment knobs of the simulated backend (PLAYGUARD_SIM_*) are passed through;
 the console time is fixed (PLAYGUARD_SIM_NOW, TZ) unless set.
 """
@@ -42,6 +42,7 @@ SCENARIO = sys.argv[2] if len(sys.argv) > 2 else ""
 GATE = SCENARIO == "gate"
 ERRORS = SCENARIO == "errors"
 RESCUE = SCENARIO == "rescue"
+LOCK = SCENARIO == "lock"
 DEVBUILD = SCENARIO == "devbuild"
 os.makedirs(OUT, exist_ok=True)
 run_dir = os.path.join(OUT, "run")
@@ -135,6 +136,12 @@ if RESCUE:
     history = os.path.join(run_dir, "playguard_data", "history.json")
     if os.path.exists(history):
         os.remove(history)   # a clean history: the rescue entry must be the only one
+if LOCK:
+    # Security › Ask for the PIN › To open PlayGuard: the lock screen comes
+    # first, and the right PIN (the simulated PIN screen accepts) opens the
+    # app. It is the first screen, which borealis never pops.
+    os.makedirs(os.path.dirname(config_file), exist_ok=True)
+    json.dump({"schema": 1, "pin_lock": "open"}, open(config_file, "w"))
 log = open(os.path.join(OUT, "app.log"), "w")
 def have(tool):
     return subprocess.run(["which", tool], capture_output=True).returncode == 0
@@ -353,6 +360,16 @@ if ERRORS:
         if not any(t.startswith("Could not unlock parental controls") for t in messages()):
             fail("no 'could not unlock' dialog; messages: " + repr(messages()))
     finish(told_unlock_failed)
+def main_opened():
+    log.flush()
+    return any("main screen opened" in l for l in open(os.path.join(OUT, "app.log"), errors="replace"))
+
+
+if LOCK:
+    shot("01_unlocked")        # the PIN screen answered at once: the Overview
+    if not main_opened():
+        fail("the right PIN left the lock screen up; messages: " + repr(messages()))
+    finish()
 if RESCUE:
     shot("01_recovery")        # the recovery screen, in place of the usual first screen
     key("Down", 3)             # past Show the PIN / Set a new PIN / Delete: Open PlayGuard
@@ -360,6 +377,8 @@ if RESCUE:
     shot("02_opened")          # the Overview: the app opened after the rescue
     if not alive():
         fail("app exited instead of opening after recovery")
+    if not main_opened():
+        fail("the app did not open after recovery")
     report_path = os.path.join(run_dir, "playguard_data", "rescue_report.txt")
     if os.path.exists(report_path):
         fail("the rescue report was not removed after it was read")

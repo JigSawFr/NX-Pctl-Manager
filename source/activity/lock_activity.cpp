@@ -28,7 +28,5 @@ void LockActivity::try_unlock()
         return;
     }
     // The main screen in place of this one (nothing to come back to).
-    brls::Application::popActivity(brls::TransitionAnimation::NONE, []() {
-        brls::Application::pushActivity(new MainActivity());
-    });
+    ui::replace_screen(new MainActivity());
 }

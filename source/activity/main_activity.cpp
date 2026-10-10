@@ -33,6 +33,8 @@ static void compact_sidebar(brls::View* tab_frame)
 
 void MainActivity::onContentAvailable()
 {
+    // For the desktop smoke test: the start screens (lock, rescue) lead here.
+    brls::Logger::info("main screen opened");
     this->update_title();
     compact_sidebar(this->getView("main_tabs"));
 

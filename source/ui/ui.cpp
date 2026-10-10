@@ -160,6 +160,13 @@ void error(const std::string& text)
     brls::sync([text]() { info(text); });
 }
 
+void replace_screen(brls::Activity* next)
+{
+    const auto none = brls::TransitionAnimation::NONE;
+    if (!brls::Application::popActivity(none, [next, none]() { brls::Application::pushActivity(next, none); }))
+        brls::Application::pushActivity(next, none);
+}
+
 bool save_config()
 {
     if (config::save()) return true;

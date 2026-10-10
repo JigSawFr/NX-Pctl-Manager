@@ -55,6 +55,10 @@ void notify(const std::string& text);
 void error(const std::string& text);
 // config::save(), with a toast when the SD card refused the write.
 bool save_config();
+// `next` in place of the current screen. Borealis never pops the first
+// activity, so a start screen (lock, rescue) gets `next` pushed over it
+// instead: popping it would silently do nothing.
+void replace_screen(brls::Activity* next);
 // Success: `ok_text` as a toast. Failure: `error_prefix — reason` as a dialog.
 void notify_result(Result rc, const std::string& ok_text, const std::string& error_prefix);
 
