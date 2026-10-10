@@ -151,11 +151,12 @@ void PlayTimerTab::refresh()
     profiles_cell->setDetailText(!current.empty() ? current
                                  : saved ? brls::getStr("playguard/play_timer/profiles_count", (int)saved) : "");
 
-    // "Same limit every day": the value when all days agree, else the range
-    // they span ("1 h to 3 h"; a dash would read as "unavailable").
+    // "Same limit every day": the value when all days agree, else that they
+    // differ, as the bedtime row says it (a range such as "1 h to 3 h" read
+    // as a limit that is set; a dash would read as "unavailable").
     bool uniform = this->pt.valid;
     for (int i = 1; i < 7 && uniform; i++) uniform = this->pt.day_min[i] == this->pt.day_min[0];
-    quick->setDetailText(uniform ? ui::fmt_minutes(this->pt.day_min[0]) : ui::days_summary(this->pt.day_min));
+    quick->setDetailText(uniform ? ui::fmt_minutes(this->pt.day_min[0]) : "playguard/play_timer/bedtime_varies"_i18n);
 
     // The bedtime as the block holds it, every day, once the console's answer
     // confirms where it is (pt_logic::bedtime_layout_ok); else what the

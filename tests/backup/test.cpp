@@ -1,6 +1,6 @@
 // Host tests for source/util/backup.cpp: the JSON format, the validation that
 // keeps a damaged file away from the console, and save / list / load.
-#include <cassert>
+#include "check.h"
 #include <cstdio>
 #include <cstdlib>
 #include <string>
@@ -54,7 +54,7 @@ static std::string with(const std::string& from, const std::string& to)
 {
     std::string text = backup::to_json(full());
     const size_t at = text.find(from);
-    assert(at != std::string::npos);
+    CHECK(at != std::string::npos);
     return text.replace(at, from.size(), to);
 }
 
@@ -62,111 +62,111 @@ static void test_round_trip()
 {
     backup::Snapshot in = full(), out;
     const std::string text = backup::to_json(in);
-    assert(text.find("\"days_from_sunday\"") != std::string::npos);
-    assert(text.find("null") != std::string::npos);   // no limit on Wednesday
-    assert(text.find("pin") == std::string::npos);
-    assert(backup::from_json(text, out) && same(in, out));
+    CHECK(text.find("\"days_from_sunday\"") != std::string::npos);
+    CHECK(text.find("null") != std::string::npos);   // no limit on Wednesday
+    CHECK(text.find("pin") == std::string::npos);
+    CHECK(backup::from_json(text, out) && same(in, out));
 
     // Values that could not be read are left out, and stay unset when read back.
     in = backup::Snapshot();
     in.vr_ok = true;
     in.vr_restricted = false;
     const std::string partial = backup::to_json(in);
-    assert(partial.find("\"level\"") == std::string::npos && partial.find("play_timer") == std::string::npos);
+    CHECK(partial.find("\"level\"") == std::string::npos && partial.find("play_timer") == std::string::npos);
     out = full();
-    assert(backup::from_json(partial, out));
-    assert(out.vr_ok && !out.vr_restricted && !out.level_ok && !out.custom_ok && !out.days_ok);
+    CHECK(backup::from_json(partial, out));
+    CHECK(out.vr_ok && !out.vr_restricted && !out.level_ok && !out.custom_ok && !out.days_ok);
 
     // Nothing at all to restore: refused.
-    assert(!parses(backup::to_json(backup::Snapshot())));
+    CHECK(!parses(backup::to_json(backup::Snapshot())));
 }
 
 static void test_validation()
 {
-    assert(!parses(""));
-    assert(!parses("not json"));
-    assert(!parses("[]"));
-    assert(!parses("{\"restrictions\":{\"level\":3}}"));                 // no format
-    assert(!parses("{\"format\":2,\"restrictions\":{\"level\":3}}"));    // unknown format
-    assert(parses("{\"format\":1,\"restrictions\":{\"level\":3}}"));
+    CHECK(!parses(""));
+    CHECK(!parses("not json"));
+    CHECK(!parses("[]"));
+    CHECK(!parses("{\"restrictions\":{\"level\":3}}"));                 // no format
+    CHECK(!parses("{\"format\":2,\"restrictions\":{\"level\":3}}"));    // unknown format
+    CHECK(parses("{\"format\":1,\"restrictions\":{\"level\":3}}"));
 
-    assert(!parses(with("\"level\": 1", "\"level\": 5")));
-    assert(!parses(with("\"level\": 1", "\"level\": -1")));
-    assert(!parses(with("\"level\": 1", "\"level\": 1.5")));
-    assert(!parses(with("\"level\": 1", "\"level\": \"1\"")));
-    assert(!parses(with("\"rating_age\": 12", "\"rating_age\": 22")));
-    assert(!parses(with("\"rating_age\": 12,", "")));                    // custom settings incomplete
-    assert(!parses(with("\"sns_post_restricted\": true", "\"sns_post_restricted\": 1")));
-    assert(!parses(with("\"vr_restricted\": true", "\"vr_restricted\": \"yes\"")));
-    assert(!parses(with("180", "1441")));
-    assert(!parses(with("180", "-5")));
-    assert(!parses(with("180,", "")));                                   // six days
-    assert(!parses(with("\"days_from_sunday\"", "\"days\"")));
-    assert(parses(with("180", "0")));
+    CHECK(!parses(with("\"level\": 1", "\"level\": 5")));
+    CHECK(!parses(with("\"level\": 1", "\"level\": -1")));
+    CHECK(!parses(with("\"level\": 1", "\"level\": 1.5")));
+    CHECK(!parses(with("\"level\": 1", "\"level\": \"1\"")));
+    CHECK(!parses(with("\"rating_age\": 12", "\"rating_age\": 22")));
+    CHECK(!parses(with("\"rating_age\": 12,", "")));                    // custom settings incomplete
+    CHECK(!parses(with("\"sns_post_restricted\": true", "\"sns_post_restricted\": 1")));
+    CHECK(!parses(with("\"vr_restricted\": true", "\"vr_restricted\": \"yes\"")));
+    CHECK(!parses(with("180", "1441")));
+    CHECK(!parses(with("180", "-5")));
+    CHECK(!parses(with("180,", "")));                                   // six days
+    CHECK(!parses(with("\"days_from_sunday\"", "\"days\"")));
+    CHECK(parses(with("180", "0")));
 
     // The fields kept for the record are validated too.
-    assert(!parses(with("\"alarm_disabled\": true", "\"alarm_disabled\": 1")));
-    assert(!parses(with("\"rating_organization\": 6", "\"rating_organization\": 13")));
-    assert(!parses(with("\"raw_0x44\": \"0000", "\"raw_0x44\": \"zz00")));
-    assert(!parses(with("\"raw_0x44\": \"0000", "\"raw_0x44\": \"00")));       // 134 digits
-    assert(parses(with("\"raw_0x44\": \"0000", "\"raw_0x44\": \"abcd")));      // either case
+    CHECK(!parses(with("\"alarm_disabled\": true", "\"alarm_disabled\": 1")));
+    CHECK(!parses(with("\"rating_organization\": 6", "\"rating_organization\": 13")));
+    CHECK(!parses(with("\"raw_0x44\": \"0000", "\"raw_0x44\": \"zz00")));
+    CHECK(!parses(with("\"raw_0x44\": \"0000", "\"raw_0x44\": \"00")));       // 134 digits
+    CHECK(parses(with("\"raw_0x44\": \"0000", "\"raw_0x44\": \"abcd")));      // either case
 
     // A backup from before these fields still reads.
     backup::Snapshot old_one = full();
     old_one.alarm_ok = old_one.rating_org_ok = false;
     old_one.raw_block.clear();
     backup::Snapshot back;
-    assert(backup::from_json(backup::to_json(old_one), back) && !back.alarm_ok && !back.rating_org_ok && back.raw_block.empty());
+    CHECK(backup::from_json(backup::to_json(old_one), back) && !back.alarm_ok && !back.rating_org_ok && back.raw_block.empty());
 }
 
 static void test_files()
 {
     char dir[] = "/tmp/playguard_backup_XXXXXX";
-    assert(mkdtemp(dir) != nullptr);
-    assert(chdir(dir) == 0);   // paths::data_dir() is ./playguard_data on the host
+    REQUIRE(mkdtemp(dir) != nullptr);
+    REQUIRE(chdir(dir) == 0);   // paths::data_dir() is ./playguard_data on the host
 
-    assert(backup::list().empty());
+    CHECK(backup::list().empty());
     std::string err;
     const std::string first = backup::save(full(), &err);
-    assert(!first.empty() && err.empty());
+    CHECK(!first.empty() && err.empty());
     backup::Snapshot second_snap = full();
     second_snap.level = 3;
     const std::string second = backup::save(second_snap, &err);   // same second: a suffixed name
-    assert(!second.empty() && second != first);
+    CHECK(!second.empty() && second != first);
 
     const auto names = backup::list();
-    assert(names.size() == 2);
-    assert(paths::backups_dir() + "/" + names[0] == second);       // newest first
+    CHECK(names.size() == 2);
+    CHECK(paths::backups_dir() + "/" + names[0] == second);       // newest first
     backup::Snapshot s;
-    assert(backup::load(names[0], s) && s.level == 3);
-    assert(backup::load(names[1], s) && s.level == 1);
-    assert(!backup::load("missing.json", s));
+    CHECK(backup::load(names[0], s) && s.level == 3);
+    CHECK(backup::load(names[1], s) && s.level == 1);
+    CHECK(!backup::load("missing.json", s));
 
     // A damaged file is listed but cannot be loaded.
-    assert(paths::atomic_write(paths::backups_dir() + "/00000000_000000.json", "{\"format\":1"));
-    assert(backup::list().size() == 3 && backup::list().back() == "00000000_000000.json");
-    assert(!backup::load("00000000_000000.json", s));
+    CHECK(paths::atomic_write(paths::backups_dir() + "/00000000_000000.json", "{\"format\":1"));
+    CHECK(backup::list().size() == 3 && backup::list().back() == "00000000_000000.json");
+    CHECK(!backup::load("00000000_000000.json", s));
 
     // Keeping the 2 newest deletes the oldest (the damaged one); 0 keeps all.
-    assert(backup::prune(0) == 0 && backup::list().size() == 3);
-    assert(backup::prune(2) == 1);
+    CHECK(backup::prune(0) == 0 && backup::list().size() == 3);
+    CHECK(backup::prune(2) == 1);
     const auto kept = backup::list();
-    assert(kept.size() == 2 && kept == names);
-    assert(backup::prune(5) == 0 && backup::prune(1) == 1 && backup::list().front() == names[0]);
+    CHECK(kept.size() == 2 && kept == names);
+    CHECK(backup::prune(5) == 0 && backup::prune(1) == 1 && backup::list().front() == names[0]);
 
     // A backup made with the clock in the past sorts oldest: the one just
     // written is still kept, and counts as one of the kept.
-    assert(paths::atomic_write(paths::backups_dir() + "/29990101_000000.json", backup::to_json(full())));
+    CHECK(paths::atomic_write(paths::backups_dir() + "/29990101_000000.json", backup::to_json(full())));
     const std::string past = paths::backups_dir() + "/20000101_000000.json";
-    assert(paths::atomic_write(past, backup::to_json(full())));
-    assert(backup::list().size() == 3 && paths::backups_dir() + "/" + backup::list().back() == past);
-    assert(backup::prune(2, past) == 1);
+    CHECK(paths::atomic_write(past, backup::to_json(full())));
+    CHECK(backup::list().size() == 3 && paths::backups_dir() + "/" + backup::list().back() == past);
+    CHECK(backup::prune(2, past) == 1);
     const auto after = backup::list();
-    assert(after.size() == 2 && after[0] == "29990101_000000.json" && after[1] == "20000101_000000.json");
-    assert(backup::prune(1, past) == 1 && backup::list() == std::vector<std::string>{ "20000101_000000.json" });
+    CHECK(after.size() == 2 && after[0] == "29990101_000000.json" && after[1] == "20000101_000000.json");
+    CHECK(backup::prune(1, past) == 1 && backup::list() == std::vector<std::string>{ "20000101_000000.json" });
 
     const std::string cleanup = std::string("rm -rf '") + dir + "'";
-    assert(std::system(cleanup.c_str()) == 0);
+    CHECK(std::system(cleanup.c_str()) == 0);
 }
 
 int main()
@@ -174,6 +174,5 @@ int main()
     test_round_trip();
     test_validation();
     test_files();
-    std::puts("backup format, validation and file assertions passed");
-    return 0;
+    return CHECK_DONE("backup format, validation and file assertions passed");
 }

@@ -1,7 +1,7 @@
 // Host tests for source/util/launcher.cpp against a fake core/platform.h:
 // which store is found on the SD card for each preference, and what reaches
 // hbloader (an "sdmc:/" path, nothing when PlayGuard was not started by it).
-#include <cassert>
+#include "check.h"
 #include <cstdio>
 #include <cstdlib>
 #include <string>
@@ -27,9 +27,9 @@ extern "C" bool platform_set_next_load(const char* path)
 static void install(const std::string& sd_path)
 {
     const std::string full = paths::sd_root() + sd_path;
-    assert(std::system(("mkdir -p '" + full.substr(0, full.rfind('/')) + "'").c_str()) == 0);
+    CHECK(std::system(("mkdir -p '" + full.substr(0, full.rfind('/')) + "'").c_str()) == 0);
     std::FILE* f = std::fopen(full.c_str(), "w");
-    assert(f);
+    if (!CHECK(f)) return;
     std::fputs("NRO0", f);
     std::fclose(f);
 }
@@ -37,43 +37,42 @@ static void install(const std::string& sd_path)
 int main()
 {
     char dir[] = "/tmp/playguard_launcher_XXXXXX";
-    assert(mkdtemp(dir) != nullptr);
-    assert(chdir(dir) == 0);   // paths::sd_root() is ./playguard_data/sd on the host
+    REQUIRE(mkdtemp(dir) != nullptr);
+    REQUIRE(chdir(dir) == 0);   // paths::sd_root() is ./playguard_data/sd on the host
 
     using launcher::Store;
     // Nothing installed: no store, whatever the preference.
-    for (const char* pref : { "auto", "sphaira", "appstore", "manual" }) assert(launcher::find(pref).store == Store::None);
+    for (const char* pref : { "auto", "sphaira", "appstore", "manual" }) CHECK(launcher::find(pref).store == Store::None);
 
     // A folder under a store's name is not the store.
-    assert(std::system("mkdir -p playguard_data/sd/switch/appstore/appstore.nro") == 0);
-    assert(launcher::find("appstore").store == Store::None);
-    assert(std::system("rmdir playguard_data/sd/switch/appstore/appstore.nro") == 0);
+    CHECK(std::system("mkdir -p playguard_data/sd/switch/appstore/appstore.nro") == 0);
+    CHECK(launcher::find("appstore").store == Store::None);
+    CHECK(std::system("rmdir playguard_data/sd/switch/appstore/appstore.nro") == 0);
 
     install("/switch/appstore/appstore.nro");
-    assert(launcher::find("auto").store == Store::AppStore);
-    assert(launcher::find("sphaira").store == Store::None);
+    CHECK(launcher::find("auto").store == Store::AppStore);
+    CHECK(launcher::find("sphaira").store == Store::None);
     install("/switch/sphaira.nro");   // sphaira's second place
-    assert(launcher::find("auto").path == "/switch/sphaira.nro");
+    CHECK(launcher::find("auto").path == "/switch/sphaira.nro");
     install("/switch/sphaira/sphaira.nro");
     const launcher::Target sphaira = launcher::find("auto");
-    assert(sphaira.store == Store::Sphaira && sphaira.path == "/switch/sphaira/sphaira.nro");
-    assert(launcher::find("appstore").path == "/switch/appstore/appstore.nro");
-    assert(launcher::find("manual").store == Store::None);
+    CHECK(sphaira.store == Store::Sphaira && sphaira.path == "/switch/sphaira/sphaira.nro");
+    CHECK(launcher::find("appstore").path == "/switch/appstore/appstore.nro");
+    CHECK(launcher::find("manual").store == Store::None);
     // Not started through hbloader: nothing to hand over.
-    assert(!launcher::can_launch() && !launcher::launch(sphaira) && g_next.empty());
+    CHECK(!launcher::can_launch() && !launcher::launch(sphaira) && g_next.empty());
     g_hbloader = true;
-    assert(launcher::can_launch());
-    assert(launcher::launch(sphaira) && g_next == "sdmc:/switch/sphaira/sphaira.nro");
+    CHECK(launcher::can_launch());
+    CHECK(launcher::launch(sphaira) && g_next == "sdmc:/switch/sphaira/sphaira.nro");
     const int calls = g_calls;
-    assert(!launcher::launch(launcher::Target{}) && g_calls == calls);   // Store::None never reaches the loader
-    assert(!launcher::launch(launcher::Target{ Store::Sphaira, "switch/x.nro" }) && g_calls == calls);
+    CHECK(!launcher::launch(launcher::Target{}) && g_calls == calls);   // Store::None never reaches the loader
+    CHECK(!launcher::launch(launcher::Target{ Store::Sphaira, "switch/x.nro" }) && g_calls == calls);
     // PlayGuard itself, after a development build replaced it.
-    assert(launcher::launch_nro("/switch/playguard/playguard.nro") && g_next == "sdmc:/switch/playguard/playguard.nro");
+    CHECK(launcher::launch_nro("/switch/playguard/playguard.nro") && g_next == "sdmc:/switch/playguard/playguard.nro");
     const int nro_calls = g_calls;
-    assert(!launcher::launch_nro("") && !launcher::launch_nro("switch/playguard.nro") && g_calls == nro_calls);
+    CHECK(!launcher::launch_nro("") && !launcher::launch_nro("switch/playguard.nro") && g_calls == nro_calls);
 
     const std::string cleanup = std::string("rm -rf '") + dir + "'";
-    assert(std::system(cleanup.c_str()) == 0);
-    std::puts("launcher store search and hbloader hand-off assertions passed");
-    return 0;
+    CHECK(std::system(cleanup.c_str()) == 0);
+    return CHECK_DONE("launcher store search and hbloader hand-off assertions passed");
 }

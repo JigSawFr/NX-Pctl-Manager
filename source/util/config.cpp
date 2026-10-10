@@ -58,14 +58,14 @@ bool read_int(const nlohmann::json& j, const char* key, int& out)
     return small_int(*it, out);
 }
 
-// A list of integers; one value out of range refuses the whole list (left
-// empty, which sanitize() never keeps).
+// A list of integers; one value of another type (30.5, "30") or out of range
+// refuses the whole list (left empty, which sanitize() never keeps), as for
+// a single value: skipping it would turn [15, 30.5, 30, 60] into a valid set.
 std::vector<int> read_int_list(const nlohmann::json& list)
 {
     std::vector<int> v;
     for (const auto& a : list) {
         int n;
-        if (!a.is_number_integer()) continue;
         if (!small_int(a, n)) return {};
         v.push_back(n);
     }
@@ -119,7 +119,7 @@ void sanitize(Config& c)
     bool keep_ok = false;
     for (int k : BACKUP_KEEP) keep_ok |= c.backup_keep == k;
     if (!keep_ok) c.backup_keep = 0;
-    if (!c.update_checked.empty() && c.update_checked.size() != 10) c.update_checked.clear();
+    if (!is_date(c.update_checked)) c.update_checked.clear();
     if (!is_date(c.support_reminded)) c.support_reminded.clear();
     if (c.seen_version.size() > 32) c.seen_version.clear();
 
@@ -190,15 +190,16 @@ void load()
         c.extra_amounts = read_int_list(*amounts);   // sanitize() keeps it only when it is one of EXTRA_SETS
     read_bool(j, "relock_pending", c.relock_pending);
 
-    // The firmware choice and the extra-time record are all-or-nothing.
-    const bool gate_ok = read_string(j, "fw_gate_fw", c.fw_gate_fw) &
-                         read_string(j, "fw_gate_app", c.fw_gate_app) &
-                         read_string(j, "fw_gate_choice", c.fw_gate_choice);
+    // The firmware choice and the extra-time record are all-or-nothing. Every
+    // field is read (&=, no short circuit; clang warns about a bool `a & b`).
+    bool gate_ok = read_string(j, "fw_gate_fw", c.fw_gate_fw);
+    gate_ok &= read_string(j, "fw_gate_app", c.fw_gate_app);
+    gate_ok &= read_string(j, "fw_gate_choice", c.fw_gate_choice);
     if (!gate_ok) c.fw_gate_fw.clear(), c.fw_gate_app.clear(), c.fw_gate_choice.clear();
-    const bool extra_ok = read_int(j, "extra_weekday", c.extra_weekday) &
-                          read_string(j, "extra_date", c.extra_date) &
-                          read_int(j, "extra_base", c.extra_base) &
-                          read_int(j, "extra_value", c.extra_value);
+    bool extra_ok = read_int(j, "extra_weekday", c.extra_weekday);
+    extra_ok &= read_string(j, "extra_date", c.extra_date);
+    extra_ok &= read_int(j, "extra_base", c.extra_base);
+    extra_ok &= read_int(j, "extra_value", c.extra_value);
     if (!extra_ok) clear_extra(c);
     auto servers = j.find("custom_servers");
     if (servers != j.end() && servers->is_array())

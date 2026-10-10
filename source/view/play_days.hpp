@@ -1,7 +1,8 @@
 // PlayDaysView — play time on each of the last 7 days (every game, or one
 // game's, all accounts or one): one bar per day, oldest on the left, today on
 // the right and marked by a line under its name. With limits, each day's limit
-// is a line across its bar, and a day played above it is drawn in amber.
+// is a line across its bar, and a day played above it is drawn in amber with
+// a "!" before its time. A legend under the bars says all this.
 // Read from the Activity tab's data.
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).
 #pragma once
@@ -33,4 +34,5 @@ class PlayDaysView : public brls::Box
         brls::Rectangle* mark  = nullptr;
     };
     Column cols[7];   // left to right: six days ago … today
+    brls::Label* legend = nullptr;   // under the bars: the order, the limit line, the amber
 };

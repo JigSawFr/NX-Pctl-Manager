@@ -1,6 +1,6 @@
 // Host tests for util/play_cache.hpp: the cached play data's file and the
 // shift of its day windows.
-#include <cassert>
+#include "check.h"
 #include <cstdio>
 #include <cstring>
 #include <memory>
@@ -28,44 +28,43 @@ int main()
 
     // Round trip; only the games held are written.
     const std::string bytes = play_cache::encode(*s);
-    assert(bytes.size() < sizeof(PlayStats) / 10);
+    CHECK(bytes.size() < sizeof(PlayStats) / 10);
     auto back = std::make_unique<PlayStats>();
-    assert(play_cache::decode(bytes, *back));
-    assert(back->count == 2 && back->now == s->now && back->windows_ok);
-    assert(std::strcmp(back->games[0].name, "Game A") == 0 && back->games[0].total_s == 99999);
-    assert(back->games[1].day_s[6] == 60);
+    CHECK(play_cache::decode(bytes, *back));
+    CHECK(back->count == 2 && back->now == s->now && back->windows_ok);
+    CHECK(std::strcmp(back->games[0].name, "Game A") == 0 && back->games[0].total_s == 99999);
+    CHECK(back->games[1].day_s[6] == 60);
 
     // A broken or foreign file is refused.
-    assert(!play_cache::decode("", *back));
-    assert(!play_cache::decode(bytes.substr(0, bytes.size() - 1), *back));
+    CHECK(!play_cache::decode("", *back));
+    CHECK(!play_cache::decode(bytes.substr(0, bytes.size() - 1), *back));
     std::string other = bytes;
     other[0] = 'X';
-    assert(!play_cache::decode(other, *back));
+    CHECK(!play_cache::decode(other, *back));
     other = bytes;
     other[4] = 9;   // version
-    assert(!play_cache::decode(other, *back));
+    CHECK(!play_cache::decode(other, *back));
 
     // Two days later: today and yesterday empty, the rest moved back.
-    assert(play_cache::decode(bytes, *back));
+    CHECK(play_cache::decode(bytes, *back));
     play_cache::shift_days(*back, 2);
     const GameStat& a = back->games[0];
-    assert(a.day_s[0] == 0 && a.day_s[1] == 0 && a.day_s[2] == 100 && a.day_s[6] == 500);
-    assert(a.today_s == 0 && a.week_s == 100 + 200 + 300 + 400 + 500);
-    assert(back->games[1].week_s == 0);
-    assert(back->day_wday[0] == 5 && back->day_wday[2] == 3 && back->day_wday[6] == 6);   // Friday first
-    assert(a.total_s == 99999);   // all time untouched
+    CHECK(a.day_s[0] == 0 && a.day_s[1] == 0 && a.day_s[2] == 100 && a.day_s[6] == 500);
+    CHECK(a.today_s == 0 && a.week_s == 100 + 200 + 300 + 400 + 500);
+    CHECK(back->games[1].week_s == 0);
+    CHECK(back->day_wday[0] == 5 && back->day_wday[2] == 3 && back->day_wday[6] == 6);   // Friday first
+    CHECK(a.total_s == 99999);   // all time untouched
 
     // A week or more: nothing in the windows. The same day: unchanged.
-    assert(play_cache::decode(bytes, *back));
+    CHECK(play_cache::decode(bytes, *back));
     play_cache::shift_days(*back, 9);
-    assert(back->windows_ok && back->games[0].week_s == 0 && back->games[0].today_s == 0);
-    assert(play_cache::decode(bytes, *back));
+    CHECK(back->windows_ok && back->games[0].week_s == 0 && back->games[0].today_s == 0);
+    CHECK(play_cache::decode(bytes, *back));
     play_cache::shift_days(*back, 0);
-    assert(back->games[0].week_s == 2800);
+    CHECK(back->games[0].week_s == 2800);
 
     // The clock went back: the windows are not shown.
     play_cache::shift_days(*back, -1);
-    assert(!back->windows_ok);
-    puts("play_cache assertions passed");
-    return 0;
+    CHECK(!back->windows_ok);
+    return CHECK_DONE("play_cache assertions passed");
 }

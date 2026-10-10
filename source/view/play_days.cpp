@@ -6,12 +6,16 @@
 
 #include "ui/ui.hpp"
 
+using namespace brls::literals;
+
 namespace
 {
 constexpr float BAR_MAX   = 56.0f;
 constexpr float BAR_MIN   = 4.0f;
 constexpr float BAR_WIDTH = 30.0f;
 constexpr float LANE_WIDTH = BAR_WIDTH + 16.0f;   // the limit line overhangs the bar
+constexpr float LABEL_FONT = 20.0f;   // as big as the text around it
+constexpr float LEGEND_FONT = 18.0f;
 
 float bar_height(uint64_t seconds, uint64_t top)
 {
@@ -21,10 +25,14 @@ float bar_height(uint64_t seconds, uint64_t top)
 
 PlayDaysView::PlayDaysView()
 {
-    this->setAxis(brls::Axis::ROW);
-    this->setJustifyContent(brls::JustifyContent::SPACE_AROUND);
-    this->setAlignItems(brls::AlignItems::FLEX_END);
+    this->setAxis(brls::Axis::COLUMN);
+    this->setAlignItems(brls::AlignItems::STRETCH);
     this->setFocusable(false);
+
+    auto* row = new brls::Box(brls::Axis::ROW);
+    row->setJustifyContent(brls::JustifyContent::SPACE_AROUND);
+    row->setAlignItems(brls::AlignItems::FLEX_END);
+    this->addView(row);
 
     for (auto& c : this->cols) {
         auto* col = new brls::Box(brls::Axis::COLUMN);
@@ -33,9 +41,9 @@ PlayDaysView::PlayDaysView()
         col->setGrow(1.0f);
 
         c.value = new brls::Label();
-        c.value->setFontSize(16);
+        c.value->setFontSize(LABEL_FONT);
         c.value->setHorizontalAlign(brls::HorizontalAlign::CENTER);
-        c.value->setMarginBottom(4);
+        c.value->setMarginBottom(8);   // clear of a limit line at the top of the lane
         // A fixed lane: the bar grows from its bottom, the limit line is
         // placed in it by height, whatever the bar.
         auto* lane = new brls::Box(brls::Axis::COLUMN);
@@ -57,7 +65,7 @@ PlayDaysView::PlayDaysView()
         lane->addView(c.bar);
         lane->addView(c.limit);
         c.day = new brls::Label();
-        c.day->setFontSize(16);
+        c.day->setFontSize(LABEL_FONT);
         c.day->setHorizontalAlign(brls::HorizontalAlign::CENTER);
         c.day->setMarginTop(6);
         c.mark = new brls::Rectangle(ui::color_neutral());
@@ -70,8 +78,15 @@ PlayDaysView::PlayDaysView()
         col->addView(lane);
         col->addView(c.day);
         col->addView(c.mark);
-        this->addView(col);
+        row->addView(col);
     }
+
+    this->legend = new brls::Label();
+    this->legend->setFontSize(LEGEND_FONT);
+    this->legend->setHorizontalAlign(brls::HorizontalAlign::CENTER);
+    this->legend->setTextColor(ui::color_note());
+    this->legend->setMarginTop(10);
+    this->addView(this->legend);
 }
 
 void PlayDaysView::show(const PlayStats& s, const uint16_t limits[7])
@@ -90,6 +105,7 @@ void PlayDaysView::show(const uint32_t day_s[7], const uint8_t day_wday[7], cons
         if (limits && limits[k] != PT_DAY_NOLIMIT) top = std::max<uint64_t>(top, (uint64_t)limits[k] * 60);
     }
 
+    bool any_over = false;
     for (int col = 0; col < 7; col++) {
         const int k = 6 - col;   // days back
         Column& c = this->cols[col];
@@ -108,12 +124,21 @@ void PlayDaysView::show(const uint32_t day_s[7], const uint8_t day_wday[7], cons
             c.limit->setPositionBottom(std::max(0.0f, h - 1.0f));
             c.limit->setColor(over ? ui::color_warn() : nvgTransRGBA(ui::color_text(), 150));
         }
-        c.value->setText(day_s[k] ? ui::fmt_play_time(day_s[k]) : "—");
+        any_over = any_over || over;
+        // Over the limit is marked by "!", not by the colour alone.
+        const std::string played = day_s[k] ? ui::fmt_play_time(day_s[k]) : "—";
+        c.value->setText(over ? "! " + played : played);
         c.value->setTextColor(over ? ui::color_warn() : today ? ui::color_text() : ui::color_note());
         c.day->setText(brls::getStr(fmt::format("playguard/days_short/{}", (int)day_wday[k])));
         c.day->setTextColor(today ? ui::color_neutral() : ui::color_note());
         c.mark->setColor(today ? ui::color_neutral() : nvgTransRGBA(ui::color_neutral(), 0));
     }
+
+    // The order differs from the play timer's week (Monday first): say so,
+    // and what the line and the amber mean when they are shown.
+    std::string text = "playguard/chart/last_days"_i18n;
+    if (limits) text += "\n" + (any_over ? "playguard/chart/limit_over"_i18n : "playguard/chart/limit_line"_i18n);
+    this->legend->setText(text);
 }
 
 brls::View* PlayDaysView::create()

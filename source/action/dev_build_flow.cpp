@@ -1,6 +1,8 @@
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).
 #include "action/dev_build_flow.hpp"
 
+#include <algorithm>
+#include <atomic>
 #include <borealis.hpp>
 #include <cstdio>
 #include <ctime>
@@ -100,6 +102,77 @@ std::string label(const dev_builds::Build& b)
     return text;
 }
 
+// The download's dialog: a bar and "3 of 7 MB", updated from the download
+// thread (at most once per percent, through brls::sync). It cannot be
+// dismissed; close() takes it away once the download is over.
+class DownloadProgress
+{
+  public:
+    explicit DownloadProgress(uint64_t size) : size(size)
+    {
+        this->label = new brls::Label();
+        this->label->setFontSize(22);
+        this->label->setHorizontalAlign(brls::HorizontalAlign::CENTER);
+        this->label->setSingleLine(false);
+        this->label->setMarginBottom(24);
+        auto* track = new brls::Box(brls::Axis::ROW);
+        track->setWidth(BAR_WIDTH);
+        track->setHeight(12);
+        track->setCornerRadius(6);
+        track->setBackgroundColor(nvgTransRGBA(ui::color_neutral(), 50));
+        this->fill = new brls::Rectangle(ui::color_neutral());
+        this->fill->setWidth(0);
+        this->fill->setHeight(12);
+        this->fill->setCornerRadius(6);
+        track->addView(this->fill);
+        auto* box = new brls::Box(brls::Axis::COLUMN);
+        box->setAlignItems(brls::AlignItems::CENTER);
+        box->setJustifyContent(brls::JustifyContent::CENTER);
+        box->setPadding(40, 40, 40, 40);
+        box->addView(this->label);
+        box->addView(track);
+        this->dialog = new brls::Dialog(box);
+        this->dialog->setCancelable(false);
+        this->show(0, size);
+        this->dialog->open();
+    }
+
+    // From the download thread.
+    void received(uint64_t done, uint64_t total)
+    {
+        if (!total) total = this->size;
+        const int percent = total ? (int)std::min<uint64_t>(100, done * 100 / total) : 0;
+        if (percent == this->percent.exchange(percent)) return;
+        // `this` outlives every update: the shared_ptr is held by the
+        // close() task, queued after them.
+        brls::sync([this, done, total]() { this->show(done, total); });
+    }
+
+    void close()
+    {
+        if (this->dialog) this->dialog->close();
+        this->dialog = nullptr;
+    }
+
+  private:
+    static constexpr float BAR_WIDTH = 480.0f;
+    const uint64_t size;
+    std::atomic<int> percent{ -1 };
+    brls::Dialog* dialog = nullptr;
+    brls::Label* label = nullptr;
+    brls::Rectangle* fill = nullptr;
+
+    void show(uint64_t done, uint64_t total)
+    {
+        if (!this->dialog) return;
+        const float part = total ? std::min(1.0f, (float)done / (float)total) : 0.0f;
+        this->fill->setWidth(BAR_WIDTH * part);
+        // Whole MB, the total rounded up (never "0 of 0"), what came in down.
+        const uint64_t mb = 1024 * 1024;
+        this->label->setText(brls::getStr("playguard/dev_build/downloading", (int)(done / mb), (int)((total + mb - 1) / mb)));
+    }
+};
+
 void installed_now(const dev_builds::Build& b)
 {
     if (launcher::can_launch() && launcher::launch_nro(sd_path())) {
@@ -118,19 +191,22 @@ void install(const dev_builds::Build& b)
     }
     if (s_busy) return;
     s_busy = true;
-    ui::notify(brls::getStr("playguard/dev_build/downloading", (int)((b.size + 512 * 1024) / (1024 * 1024))));
     const std::string target = file_path(sd_path());
+    auto progress = std::make_shared<DownloadProgress>(b.size);
     // Not behind the play log or the game icons (ui::in_background).
-    ui::in_background("dev build download", [b, target]() {
+    ui::in_background("dev build download", [b, target, progress]() {
         std::string err;
         const std::string fresh = target + ".new";
-        bool ok = dev_builds::download(b, fresh, &err);
+        bool ok = dev_builds::download(b, fresh, &err, [progress](uint64_t done, uint64_t total) {
+            progress->received(done, total);
+        });
         if (ok) {
             ok = dev_builds::replace(target, fresh, &err);
             if (!ok) std::remove(fresh.c_str());
         }
-        brls::sync([b, ok, err]() {
+        brls::sync([b, ok, err, progress]() {
             s_busy = false;
+            progress->close();
             if (!ok) ui::info(brls::getStr("playguard/dev_build/failed", err));
             else installed_now(b);
         });
