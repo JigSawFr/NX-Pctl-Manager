@@ -501,7 +501,8 @@ void playstats_fetch_for(PlayStats *out, const PlayAccount *account)
         out->stats_rc = out->events_rc = (Result)0x1A0C;
         return;
     }
-    // Made-up games; the last one was deleted since (no name, no totals).
+    // Made-up games; one was deleted since (no name, no totals), the last one is
+    // to rediscover (little played, left aside for months).
     static const struct {
         u64 id; const char *name; u32 total_min, launches, today_min, week_min, days_ago;
     } games[] = {
@@ -511,6 +512,7 @@ void playstats_fetch_for(PlayStats *out, const PlayAccount *account)
         { 0x0100A1B2C3D43000ULL, "Dragon Valley Legends", 6100, 120,  0,   0, 12 },
         { 0x0100A1B2C3D44000ULL, "Puzzle Garden",          380,  52,  0,  30, 5 },
         { 0x0100A1B2C3D45000ULL, "",                          0,   0, 15,  15, 0 },
+        { 0x0100A1B2C3D46000ULL, "Space Farm Tales",        95,   4,  0,   0, 75 },
     };
     out->windows_ok = true;
     LocalTime today;

@@ -386,7 +386,19 @@
         "last": "Ultima partita",
         "less_than_minute": "< 1 min",
         "note": "Letto dal registro attività della console, per tutti gli utenti. I tempi sono approssimativi se l'orologio della console è stato modificato. PlayGuard aperto sopra un gioco conta come quel gioco per l'utente scelto all'avvio: aprilo con l'utente di un genitore.",
-        "show_all": "Mostra tutti i giochi"
+        "show_all": "Mostra tutti i giochi",
+        "section_summary": "Riepilogo",
+        "section_rediscover": "Da riscoprire",
+        "rediscover_note": "Installati, meno di 3 h in tutto e non giocati da un mese o più: vale la pena riprovarli?",
+        "summary": {
+            "per_day": "Media al giorno",
+            "per_day_over": "{} su {} giorni",
+            "top": "Il più giocato",
+            "days_played": "Giorni di gioco",
+            "days_played_value": "{} su 7",
+            "busiest": "Giorno più intenso",
+            "session": "Sessione media"
+        }
     },
     "restrictions": {
         "section_level": "Livello limitazioni",

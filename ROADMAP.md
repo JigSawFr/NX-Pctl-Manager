@@ -43,6 +43,10 @@ No unknown left; only code.
 
 ## To investigate
 
+- **Game categories and suggestions** in Activity: the console's control
+  data names no genre, so "the category played most" or suggestions of new
+  games would need an outside game database (downloaded, kept up to date).
+  Worth it only if it stays optional and offline-friendly.
 - **History of PIN entries** made from the HOME menu, as the phone app shows
   since 2.5.0: does the console log them anywhere PlayGuard can read?
   ([details](docs/companion-app.md#4-history-of-pin-entries))
