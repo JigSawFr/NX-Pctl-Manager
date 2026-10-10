@@ -491,7 +491,8 @@
         "unlink_confirm": "Scollega",
         "unlinked": "App Filtro famiglia scollegata.",
         "unlink_err": "Impossibile scollegare l'app Filtro famiglia",
-        "note": "Finché la console resta collegata, l'app Filtro famiglia sovrascrive le impostazioni effettuate qui alla sincronizzazione successiva."
+        "note": "Finché la console resta collegata, l'app Filtro famiglia sovrascrive le impostazioni effettuate qui alla sincronizzazione successiva.",
+        "unlink_dev_note": "Strumenti per sviluppatori: Confronta blocco tempo di gioco richiede una console ancora collegata. Salva prima il riferimento se vuoi decifrare un'impostazione."
     },
     "security": {
         "section_status": "Stato",
@@ -808,7 +809,7 @@
         "busy": "Già in corso...",
         "list_failed": "Impossibile elencare le build: {}",
         "list_stale": "Impossibile aggiornare l'elenco ({}): viene mostrato l'ultimo.",
-        "downloading": "Download in corso ({} MB)...",
+        "downloading": "Download della build in corso...\n{} di {} MB",
         "failed": "Impossibile installare la build: {}\n\nIl PlayGuard installato non è cambiato.",
         "done_manual": "{} è installata. Chiudi PlayGuard e riaprilo per usarla.",
         "no_path": "PlayGuard non sa dove si trova il suo file .nro (avviato senza hbloader?), quindi non può sostituirlo. Installa la build a mano da GitHub.",
@@ -891,5 +892,12 @@
         "undo_confirm": "Ripristina",
         "undone": "Valore precedente ripristinato.",
         "undo_err": "Impossibile ripristinare il valore precedente"
+    },
+    "chart": {
+        "last_days": "Gli ultimi 7 giorni, oggi a destra",
+        "limit_line": "La linea su una barra è il limite di quel giorno",
+        "limit_over": "La linea è il limite del giorno · ! in ambra: superato",
+        "week_order": "Da lunedì a domenica, oggi sottolineato",
+        "unsaved": "* in ambra: modificato, non ancora salvato"
     }
 }

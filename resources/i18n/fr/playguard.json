@@ -491,7 +491,8 @@
         "unlink_confirm": "Dissocier",
         "unlinked": "Application mobile dissociée.",
         "unlink_err": "Impossible de dissocier l'application mobile",
-        "note": "Tant que la console reste associée, l'application mobile écrase les réglages faits ici à sa prochaine synchronisation."
+        "note": "Tant que la console reste associée, l'application mobile écrase les réglages faits ici à sa prochaine synchronisation.",
+        "unlink_dev_note": "Outils développeur : Comparer le bloc du temps de jeu demande une console encore associée. Enregistrez d'abord la référence pour décoder un réglage."
     },
     "security": {
         "section_status": "État",
@@ -808,7 +809,7 @@
         "busy": "Déjà en cours...",
         "list_failed": "Impossible de lister les builds : {}",
         "list_stale": "Impossible d'actualiser la liste ({}) : voici la dernière.",
-        "downloading": "Téléchargement ({} Mo)...",
+        "downloading": "Téléchargement du build...\n{} sur {} Mo",
         "failed": "Impossible d'installer le build : {}\n\nLe PlayGuard installé n'a pas changé.",
         "done_manual": "{} est installé. Fermez PlayGuard et rouvrez-le pour l'utiliser.",
         "no_path": "PlayGuard ne sait pas où se trouve son fichier .nro (lancé sans hbloader ?) et ne peut donc pas le remplacer. Installez le build à la main depuis GitHub.",
@@ -891,5 +892,12 @@
         "undo_confirm": "Remettre",
         "undone": "Valeur précédente remise.",
         "undo_err": "Impossible de remettre la valeur précédente"
+    },
+    "chart": {
+        "last_days": "Les 7 derniers jours, aujourd'hui à droite",
+        "limit_line": "La ligne sur une barre est la limite de ce jour",
+        "limit_over": "La ligne est la limite du jour · ! en ambre : limite dépassée",
+        "week_order": "Du lundi au dimanche, aujourd'hui souligné",
+        "unsaved": "* en ambre : modifié, pas encore enregistré"
     }
 }

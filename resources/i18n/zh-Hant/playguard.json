@@ -491,7 +491,8 @@
         "unlink_confirm": "解除連動",
         "unlinked": "已解除手機應用程式的連動。",
         "unlink_err": "無法解除手機應用程式的連動",
-        "note": "只要主機仍處於連動狀態，手機應用程式下次同步時就會覆蓋在此所做的設定。"
+        "note": "只要主機仍處於連動狀態，手機應用程式下次同步時就會覆蓋在此所做的設定。",
+        "unlink_dev_note": "開發者工具：「比對遊玩時間限制資料區塊」需要仍然連動的主機。如要解讀某項設定，請先儲存參考。"
     },
     "security": {
         "section_status": "狀態",
@@ -808,7 +809,7 @@
         "busy": "已在進行中…",
         "list_failed": "無法列出建置：{}",
         "list_stale": "無法重新整理清單（{}）：顯示上次的清單。",
-        "downloading": "正在下載（{} MB）…",
+        "downloading": "正在下載版本…\n{} / {} MB",
         "failed": "無法安裝建置：{}\n\n已安裝的 PlayGuard 未變更。",
         "done_manual": "{} 已安裝。關閉 PlayGuard 後重新開啟即可使用。",
         "no_path": "PlayGuard 不知道自己的 .nro 檔案位置（未透過 hbloader 啟動？），因此無法替換。請從 GitHub 手動安裝該建置。",
@@ -891,5 +892,12 @@
         "undo_confirm": "改回",
         "undone": "已改回先前的數值。",
         "undo_err": "無法改回先前的數值"
+    },
+    "chart": {
+        "last_days": "最近 7 天，最右邊是今天",
+        "limit_line": "長條上的線是當天的上限",
+        "limit_over": "線是當天的上限 · 琥珀色 !：超過了上限",
+        "week_order": "週一到週日，有底線的是今天",
+        "unsaved": "琥珀色 *：已變更，尚未儲存"
     }
 }

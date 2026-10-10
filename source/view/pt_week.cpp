@@ -13,6 +13,8 @@ namespace
 constexpr float BAR_MAX   = 56.0f;
 constexpr float BAR_MIN   = 4.0f;
 constexpr float BAR_WIDTH = 30.0f;
+constexpr float LABEL_FONT = 20.0f;   // as big as the text around it
+constexpr float LEGEND_FONT = 18.0f;
 
 std::string short_minutes(uint16_t m)
 {
@@ -24,10 +26,14 @@ std::string short_minutes(uint16_t m)
 
 PtWeekView::PtWeekView()
 {
-    this->setAxis(brls::Axis::ROW);
-    this->setJustifyContent(brls::JustifyContent::SPACE_AROUND);
-    this->setAlignItems(brls::AlignItems::FLEX_END);
+    this->setAxis(brls::Axis::COLUMN);
+    this->setAlignItems(brls::AlignItems::STRETCH);
     this->setFocusable(false);
+
+    this->row = new brls::Box(brls::Axis::ROW);
+    this->row->setJustifyContent(brls::JustifyContent::SPACE_AROUND);
+    this->row->setAlignItems(brls::AlignItems::FLEX_END);
+    this->addView(this->row);
 
     for (int i = 1; i <= 7; i++) {   // Monday first, Sunday last
         const int d = i % 7;
@@ -47,7 +53,7 @@ PtWeekView::PtWeekView()
         Column& c = this->cols[d];
         c.box = col;
         c.value = new brls::Label();
-        c.value->setFontSize(16);
+        c.value->setFontSize(LABEL_FONT);
         c.value->setHorizontalAlign(brls::HorizontalAlign::CENTER);
         c.value->setMarginBottom(4);
         c.bar = new brls::Rectangle(ui::color_neutral());
@@ -55,7 +61,7 @@ PtWeekView::PtWeekView()
         c.bar->setHeight(BAR_MIN);
         c.bar->setCornerRadius(4);
         c.day = new brls::Label();
-        c.day->setFontSize(16);
+        c.day->setFontSize(LABEL_FONT);
         c.day->setHorizontalAlign(brls::HorizontalAlign::CENTER);
         c.day->setMarginTop(6);
         c.day->setText(brls::getStr(fmt::format("playguard/days_short/{}", d)));
@@ -69,8 +75,15 @@ PtWeekView::PtWeekView()
         col->addView(c.bar);
         col->addView(c.day);
         col->addView(c.mark);
-        this->addView(col);
+        this->row->addView(col);
     }
+
+    this->legend = new brls::Label();
+    this->legend->setFontSize(LEGEND_FONT);
+    this->legend->setHorizontalAlign(brls::HorizontalAlign::CENTER);
+    this->legend->setTextColor(ui::color_note());
+    this->legend->setMarginTop(6);
+    this->addView(this->legend);
 }
 
 void PtWeekView::set_on_pick(std::function<void(int)> on_pick)
@@ -84,7 +97,7 @@ void PtWeekView::set_editable(bool editable)
     for (int d = 0; d < 7; d++) this->cols[d].box->setFocusable(this->editable);
     // Today is where the eye is: the first press lands on it.
     const int today = ui::today_weekday();
-    this->setDefaultFocusedIndex((today + 6) % 7);
+    this->row->setDefaultFocusedIndex((today + 6) % 7);
 }
 
 void PtWeekView::show(const PtState& pt)
@@ -104,6 +117,7 @@ void PtWeekView::render(const uint16_t days[7], const uint16_t* live)
         if (days[d] != PT_DAY_NOLIMIT) top = std::max<int>(top, days[d]);
 
     const int today = ui::today_weekday();
+    bool any_unsaved = false;
     for (int d = 0; d < 7; d++) {
         Column& c = this->cols[d];
         const uint16_t m = days[d];
@@ -119,11 +133,18 @@ void PtWeekView::render(const uint16_t days[7], const uint16_t* live)
             if (!is_today && !unsaved) colour = nvgTransRGBA(colour, 120);
         }
         c.bar->setColor(colour);
-        c.value->setText(short_minutes(m));
+        any_unsaved = any_unsaved || unsaved;
+        // A changed day is marked by "*", not by the colour alone.
+        c.value->setText(unsaved ? "* " + short_minutes(m) : short_minutes(m));
         c.value->setTextColor(unsaved ? ui::color_warn() : is_today ? ui::color_text() : ui::color_note());
         c.day->setTextColor(is_today ? ui::color_neutral() : ui::color_note());
         c.mark->setColor(is_today ? ui::color_neutral() : nvgTransRGBA(ui::color_neutral(), 0));
     }
+
+    // The order differs from the Activity chart (the last 7 days): say so.
+    std::string text = "playguard/chart/week_order"_i18n;
+    if (any_unsaved) text += "\n" + "playguard/chart/unsaved"_i18n;
+    this->legend->setText(text);
 }
 
 brls::View* PtWeekView::create()

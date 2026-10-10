@@ -481,6 +481,48 @@ static void put_back_extra_record(const pt_logic::ExtraRecord& prev)
     ui::save_config();
 }
 
+// A list of actions, not of values: no row is checked as the current one
+// (borealis' Dropdown checks one, ui::pick the `selected`). The first row
+// takes the focus.
+class ActionList : public brls::Dropdown
+{
+  public:
+    ActionList(const std::string& title, const std::vector<std::string>& values, std::function<void(int)> on_pick)
+        : brls::Dropdown(
+              title, values, [this](int index) { this->chosen = index; }, 0,
+              [this, on_pick](int) {
+                  if (this->chosen >= 0 && on_pick) {
+                      const int index = this->chosen;
+                      brls::sync([on_pick, index]() { on_pick(index); });
+                  }
+              }),
+          labels(values)
+    {
+        // The rows Dropdown's constructor already made used its own
+        // cellForRow (this one did not exist yet): unchecked here.
+        uncheck(this);
+    }
+
+  private:
+    std::vector<std::string> labels;
+    int chosen = -1;
+
+    static void uncheck(brls::View* view)
+    {
+        if (auto* cell = dynamic_cast<brls::RadioCell*>(view)) cell->setSelected(false);
+        if (auto* box = dynamic_cast<brls::Box*>(view))
+            for (brls::View* child : box->getChildren()) uncheck(child);
+    }
+
+    brls::RecyclerCell* cellForRow(brls::RecyclerFrame* recycler, brls::IndexPath index) override
+    {
+        auto* cell = (brls::RadioCell*)recycler->dequeueReusableCell("Cell");
+        cell->title->setText(this->labels[index.row]);
+        cell->setSelected(false);
+        return cell;
+    }
+};
+
 void add_extra_time(const PtState& pt, std::function<void()> refresh)
 {
     if (refuse_console_lock()) return;
@@ -491,7 +533,7 @@ void add_extra_time(const PtState& pt, std::function<void()> refresh)
     std::vector<std::string> labels;
     for (int e : amounts) labels.push_back("+" + ui::fmt_minutes((uint16_t)e));
     const uint16_t base = pt.day_min[wd];
-    ui::pick("playguard/dashboard/extra_title"_i18n, labels, 0, [refresh, wd, base, amounts](int index) {
+    auto* list = new ActionList("playguard/dashboard/extra_title"_i18n, labels, [refresh, wd, base, amounts](int index) {
         const uint16_t extra = (uint16_t)amounts[index];
         // What gets put back later is the limit before any extra time today.
         const pt_logic::ExtraRecord rec = extra_record();
@@ -523,6 +565,7 @@ void add_extra_time(const PtState& pt, std::function<void()> refresh)
                          "playguard/play_timer/write_err"_i18n, refresh);
         });
     });
+    brls::Application::pushActivity(new brls::Activity(list));
 }
 
 void stop_today(const PtState& pt, std::function<void()> refresh)

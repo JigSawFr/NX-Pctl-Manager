@@ -47,7 +47,10 @@ SecurityTab::SecurityTab()
     });
     pr_unlink->registerClickAction([this](brls::View*) {
         if (ui::refuse_read_only()) return true;
-        ui::confirm_danger("playguard/pairing/unlink_body"_i18n, "playguard/pairing/unlink_confirm"_i18n, [this]() {
+        // Developer tools: the block comparison needs the link, so say it goes.
+        std::string body = "playguard/pairing/unlink_body"_i18n;
+        if (config::get().dev_mode) body += "\n\n" + "playguard/pairing/unlink_dev_note"_i18n;
+        ui::confirm_danger(body, "playguard/pairing/unlink_confirm"_i18n, [this]() {
             Result rc = pctl_delete_pairing();
             if (R_SUCCEEDED(rc)) history_flow::record_event("unlink");
             ui::notify_result(rc, "playguard/pairing/unlinked"_i18n, "playguard/pairing/unlink_err"_i18n);

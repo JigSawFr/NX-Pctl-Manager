@@ -491,7 +491,8 @@
         "unlink_confirm": "Trennen",
         "unlinked": "Smart-Geräte-App getrennt.",
         "unlink_err": "Smart-Geräte-App konnte nicht getrennt werden",
-        "note": "Solange die Konsole verknüpft bleibt, überschreibt die Smart-Geräte-App die hier vorgenommenen Einstellungen bei ihrer nächsten Synchronisierung."
+        "note": "Solange die Konsole verknüpft bleibt, überschreibt die Smart-Geräte-App die hier vorgenommenen Einstellungen bei ihrer nächsten Synchronisierung.",
+        "unlink_dev_note": "Entwicklertools: Spielzeit-Block vergleichen braucht eine noch verknüpfte Konsole. Speichern Sie zuerst die Referenz, wenn Sie eine Einstellung entschlüsseln möchten."
     },
     "security": {
         "section_status": "Status",
@@ -808,7 +809,7 @@
         "busy": "Läuft bereits...",
         "list_failed": "Builds konnten nicht aufgelistet werden: {}",
         "list_stale": "Liste konnte nicht aktualisiert werden ({}): die letzte wird angezeigt.",
-        "downloading": "Wird heruntergeladen ({} MB)...",
+        "downloading": "Build wird heruntergeladen...\n{} von {} MB",
         "failed": "Build konnte nicht installiert werden: {}\n\nDas installierte PlayGuard ist unverändert.",
         "done_manual": "{} ist installiert. Schließe PlayGuard und öffne es erneut, um ihn zu verwenden.",
         "no_path": "PlayGuard weiß nicht, wo seine .nro-Datei liegt (ohne hbloader gestartet?), und kann sie daher nicht ersetzen. Installiere den Build manuell von GitHub.",
@@ -891,5 +892,12 @@
         "undo_confirm": "Wiederherstellen",
         "undone": "Vorheriger Wert wiederhergestellt.",
         "undo_err": "Vorheriger Wert konnte nicht wiederhergestellt werden"
+    },
+    "chart": {
+        "last_days": "Die letzten 7 Tage, heute rechts",
+        "limit_line": "Die Linie über einem Balken ist das Limit dieses Tages",
+        "limit_over": "Die Linie ist das Limit des Tages · ! in Gelb: darüber gespielt",
+        "week_order": "Montag bis Sonntag, heute unterstrichen",
+        "unsaved": "* in Gelb: geändert, noch nicht gespeichert"
     }
 }
