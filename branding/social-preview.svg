@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <!-- GitHub social preview (1280x640), rendered to images/social-preview.png. -->
+  <rect width="1280" height="640" fill="#0B1424"/>
+  <rect width="1280" height="8" fill="#FFB547"/>
+  <g transform="translate(96 160) scale(1.25)">
+    <circle cx="128" cy="128" r="78" fill="#0B1424"/>
+    <circle cx="128" cy="128" r="62" fill="none" stroke="#1F3355" stroke-width="16"/>
+    <circle cx="128" cy="128" r="62" fill="none" stroke="#2EC4A6" stroke-width="16" stroke-linecap="round" stroke-dasharray="292 390" transform="rotate(-90 128 128)"/>
+    <path d="M112 100 L160 128 L112 156 Z" fill="#E8EEF7" stroke="#E8EEF7" stroke-width="8" stroke-linejoin="round"/>
+  </g>
+  <text x="456" y="300" font-family="Sora" font-weight="700" font-size="112" letter-spacing="-3" fill="#E8EEF7">Play<tspan fill="#2EC4A6">Guard</tspan></text>
+  <text x="460" y="358" font-family="Sora" font-weight="400" font-size="30" fill="#A9B6CC">Nintendo Switch parental controls,</text>
+  <text x="460" y="400" font-family="Sora" font-weight="400" font-size="30" fill="#A9B6CC">right on the console. Offline.</text>
+  <text x="460" y="470" font-family="Sora" font-weight="400" font-size="22" fill="#FFB547">Play-time limits · PIN · Restrictions · Activity · Network clock</text>
+</svg>

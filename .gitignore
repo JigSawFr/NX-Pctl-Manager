@@ -86,3 +86,6 @@ toolchain.txt
 *.nsp
 *.npdm
 *.nso
+
+# Python bytecode (tools/)
+__pycache__/
