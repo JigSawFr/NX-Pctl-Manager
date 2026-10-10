@@ -1,5 +1,5 @@
 // ToolsTab — first steps, change history, settings backup / restore,
-// diagnostic export, the console (firmware, storage, serial, game patches)
+// diagnostic export, the installed games check, the console (firmware, storage, serial, game patches)
 // and the developer tools (shown after seven presses on About › Version). The
 // preferences are in PreferencesTab, the version, updates and changelog in AboutTab.
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
@@ -21,6 +21,7 @@ class ToolsTab : public TabBase
 
     BRLS_BIND(brls::DetailCell,  first_steps, "tl_first_steps");
     BRLS_BIND(brls::DetailCell,  history, "tl_history");
+    BRLS_BIND(brls::DetailCell,  games,       "tl_games");
     BRLS_BIND(brls::DetailCell,  export_cell, "tl_export");
     BRLS_BIND(brls::Label,       export_note, "tl_export_note");
     BRLS_BIND(brls::DetailCell,  upload,      "tl_upload");

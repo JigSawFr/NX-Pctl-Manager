@@ -74,6 +74,7 @@ test:
 	$(CC) -std=gnu11 $(CWARN) -DNX_HOST_TEST -Itests/pctl_session -Isource/core source/core/pctl_ops.c source/core/pure.c source/core/write_guard.c tests/pctl_session/test.c -o $(TESTOUT)/pctl && $(TESTOUT)/pctl
 	$(CC) -std=gnu11 $(CWARN) -DNX_HOST_TEST -Itests/time_ops -Isource/core source/core/time_ops.c source/core/calendar.c source/core/write_guard.c tests/time_ops/test.c -o $(TESTOUT)/time && $(TESTOUT)/time
 	$(CC) -std=gnu11 $(CWARN) -DNX_HOST_TEST -Itests/sysinfo -Isource/core source/core/sysinfo.c source/core/pure.c tests/sysinfo/test.c -o $(TESTOUT)/sysinfo && $(TESTOUT)/sysinfo
+	$(CC) -std=gnu11 $(CWARN) -DNX_HOST_TEST -Itests/gamecheck -Isource/core source/core/gamecheck.c source/core/gamecheck_rules.c source/core/write_guard.c tests/gamecheck/test.c -o $(TESTOUT)/gamecheck && $(TESTOUT)/gamecheck
 	$(CC) -std=gnu11 $(CWARN) -Isource/core source/core/calendar.c tests/calendar/test.c -o $(TESTOUT)/calendar && $(TESTOUT)/calendar
 	$(CC) -std=c11 $(CWARN) -Isource/core source/core/rescue.c tests/rescue/test.c -o $(TESTOUT)/rescue && $(TESTOUT)/rescue
 	$(CC) -std=c11 $(CWARN) -Isource/util source/util/ntp_packet.c tests/ntp_packet/test.c -o $(TESTOUT)/ntp && $(TESTOUT)/ntp

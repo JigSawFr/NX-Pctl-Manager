@@ -681,6 +681,62 @@
         "upload": "Envoyer un rapport en ligne",
         "upload_note": "Envoie un rapport sur bpa.st, ou dans un gist secret si vous êtes connecté à GitHub, et affiche son lien avec un QR code : donnez-le à la personne qui vous aide, ou ouvrez un signalement de bug avec."
     },
+    "games": {
+        "open": "Vérifier les jeux installés",
+        "title": "Jeux installés",
+        "note": "Les jeux que le menu HOME ne peut pas lancer ou afficher (une icône qui charge sans fin, « ! », un cadre en pointillés), pourquoi, et quoi faire. A sur un jeu pour le détail.",
+        "scanning": "Vérification des jeux installés…",
+        "section": "Jeux avec un problème",
+        "none": "Les {} jeux installés semblent en bon état.",
+        "err_list": "Impossible de lister les jeux installés",
+        "truncated": "Seuls les {} premiers jeux ont été vérifiés.",
+        "many": "Plusieurs jeux à la fois : vérifiez la carte SD sur un ordinateur, et que la console a démarré sur la même mémoire ({} en ce moment) que lors de l'installation de ces jeux. Un jeu installé depuis sysMMC ne fonctionne pas depuis emuMMC, et inversement.",
+        "unnamed": "Jeu inconnu ({})",
+        "id": "ID du titre : {}",
+        "cause": "Cause",
+        "fix": "Que faire",
+        "remove": "Supprimer de la console",
+        "remove_body": "La suppression efface le jeu, sa mise à jour et ses contenus additionnels de la console et du menu HOME. Les sauvegardes sont conservées.",
+        "removed": "{} supprimé",
+        "remove_err": "Impossible de supprimer le jeu",
+        "issues": {
+            "archived": {
+                "short": "Rien d'installé (pointillés)",
+                "cause": "La console liste le jeu, mais plus rien n'en est installé : il a été archivé, ou ses fichiers ont été supprimés en dehors de la console.",
+                "fix": "Réinstallez le jeu, ou supprimez son entrée pour nettoyer le menu HOME."
+            },
+            "storage": {
+                "short": "Carte SD illisible",
+                "cause": "Le jeu est sur la carte SD, que la console ne peut pas lire pour l'instant.",
+                "fix": "Éteignez la console, retirez puis remettez la carte SD, puis vérifiez-la sur un ordinateur. Rien à supprimer : les fichiers sont toujours sur la carte."
+            },
+            "no_base": {
+                "short": "Jeu manquant (« ! »)",
+                "cause": "Seule une mise à jour ou un contenu additionnel de ce jeu est installé, pas le jeu lui-même.",
+                "fix": "Installez le jeu lui-même, ou supprimez l'entrée et ce qu'il en reste."
+            },
+            "files": {
+                "short": "Installation endommagée",
+                "cause": "Des fichiers du jeu ou de sa mise à jour manquent là où ils sont installés : une installation interrompue, ou une carte SD endommagée.",
+                "fix": "Supprimez le jeu, puis réinstallez-le. Si plusieurs jeux sont touchés, vérifiez d'abord la carte SD."
+            },
+            "firmware": {
+                "short": "Firmware {} requis",
+                "cause": "Le jeu ou sa mise à jour demande la version système {} ; cette console est en {}.",
+                "fix": "Mettez d'abord à jour Atmosphère, vers une version qui prend en charge le nouveau firmware, puis le firmware : dans l'autre ordre, la console ne démarre plus. Ou installez une version plus ancienne de la mise à jour."
+            },
+            "launch": {
+                "short": "Refusé par la console",
+                "cause": "La console refuse de le lancer : {}. En général, une mise à jour plus récente du jeu est requise.",
+                "fix": "Installez la dernière mise à jour du jeu. Si elle l'est déjà, supprimez le jeu et réinstallez-le."
+            },
+            "no_control": {
+                "short": "Nom et icône illisibles",
+                "cause": "Le jeu est installé, mais son nom et son icône ne peuvent pas être lus : le menu HOME affiche une icône qui charge sans fin.",
+                "fix": "Redémarrez la console. Si l'icône charge toujours, vérifiez les données dans Paramètres de la console › Gestion des données, ou supprimez le jeu et réinstallez-le."
+            }
+        }
+    },
     "about": {
         "section_changelog": "Nouveautés de la {}",
         "changelog_note": "Versions précédentes : {}",
@@ -863,7 +919,8 @@
             "restore": "Sauvegarde restaurée",
             "rescue": "Récupération utilisée",
             "console_lock": "Verrou de console",
-            "bedtime": "Alarme du coucher"
+            "bedtime": "Alarme du coucher",
+            "remove_game": "Jeu supprimé"
         },
         "sources": {
             "uniform": "Même limite tous les jours",

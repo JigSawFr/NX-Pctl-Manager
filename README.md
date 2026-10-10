@@ -200,12 +200,13 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 </details>
 
 <details>
-<summary><b>Tools</b> and <b>About</b> — history, backups, console info; version, updates, what's new, credits</summary>
+<summary><b>Tools</b> and <b>About</b> — history, backups, installed games, console info; version, updates, what's new, credits</summary>
 
 - **Change history:** what PlayGuard changed (limits, restriction level, PIN, unlocks, unlinking, the clock, restores …), when and from where. Ⓐ on a change shows it and, for a value, **puts the previous one back** — through the same unlock and PIN as any change, saying if it changed since.
 - **Back up / restore the settings** on the SD card: restriction level, custom settings, VR mode, rating organisation, daily limits, the "time's up" alarm (with the advanced actions on), and the raw play-timer block for the record — never the PIN. A restore lists only what would change, and says when the backup had a bedtime alarm on (it is not written back). Choose how many backups to keep.
 - **First steps** opens the guide again (with an *Unlink the companion app* step while linked, a *Turn the "Time's up" alarm back on* step while it is off, and a switch to stop it coming up at start-up). Below *Close*, *Support PlayGuard* shows the funding QR codes.
 - **Export a diagnostic report**, or **send one online** (see [Reporting a bug](#reporting-a-bug)).
+- **Installed games:** the games the HOME menu cannot start or draw — an icon that keeps loading, a "!", a dotted frame — with what is wrong (name and icon unreadable, the game itself missing behind its update, nothing installed any more, files missing, a newer firmware needed, the SD card unreadable, a launch the console refuses), what to do, and, where it helps, **Remove from the console** (the game, its update and add-ons, as *Data Management* does; save data stays, the removal is in the change history). Several broken games at once points to the SD card or to a game installed from the other storage (sysMMC / emuMMC).
 - **Console:** firmware, Atmosphère, compatibility, storage (emuMMC or sysMMC), whether Atmosphère **blanks the serial number** (partly hidden until Ⓐ; a warning on emuMMC when it is not), **game patches** (sys-patch or sigpatch files, recommending sys-patch when only files are used).
 - **About** (its own tab): version, launch mode and data folder; **updates** (check now or once a day at start-up; *Update with* sphaira, Homebrew App Store or by hand); **what's new** in the running version (its entry of the bundled changelog, in English); the credits, how to **support PlayGuard** ([GitHub Sponsors](https://github.com/sponsors/JigSawFr), [Ko-fi](https://ko-fi.com/jigsawfr), shown as QR codes to scan with a phone), and a small *Made in France* 🇫🇷. After an update, PlayGuard opens once on **What's new in X.Y.Z** (the same notes, then the QR codes).
 </details>
