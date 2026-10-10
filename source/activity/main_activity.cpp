@@ -80,7 +80,7 @@ void MainActivity::onContentAvailable()
         return true;
     });
 
-    // Tools › Start on: that tab rather than the Overview (first, so the
+    // Preferences › Start on: that tab rather than the Overview (first, so the
     // questions below keep the focus they take).
     int start = 0;
     for (const char* t : config::START_TABS) {

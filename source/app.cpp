@@ -31,7 +31,6 @@ void shutdown()
     s_ok = false;
 }
 
-bool        pctl_available()   { return s_ok; }
 uint32_t    pctl_init_result() { return s_init_result; }
 std::string version()          { return APP_VERSION; }
 std::string commit()           { return APP_COMMIT; }

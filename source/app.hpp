@@ -14,7 +14,6 @@ namespace app
 bool init();
 void shutdown();
 
-bool        pctl_available();
 uint32_t    pctl_init_result();   // 0 if the probe succeeded
 
 std::string version();            // "1.0.0"
