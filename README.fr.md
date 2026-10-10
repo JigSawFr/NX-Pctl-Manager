@@ -84,7 +84,7 @@ Au choix :
 | **sphaira › GitHub** | Le zip de la version contient déjà l'entrée (`/config/sphaira/github/playguard.json`) : après une première installation, mettez à jour depuis *GitHub* dans sphaira. |
 | **Manuellement** | Téléchargez `playguard.zip` dans la [dernière version](https://github.com/JigSawFr/PlayGuard/releases/latest) et extrayez-le à la **racine** de la carte SD. L'application arrive dans `sd:/switch/playguard/`. |
 
-Le **module système de récupération** optionnel (`playguard-rescue.zip`) se télécharge à part — voir [Console bloquée ?](#console-bloquée--console-doccasion-code-pin-oublié).
+Le **module système de récupération** optionnel s'installe depuis PlayGuard (*Outils › Modules facultatifs*, ou *Sécurité et appli › Bloqué ?*), ou à la main depuis son propre téléchargement (`playguard-rescue.zip`) — voir [Console bloquée ?](#console-bloquée--console-doccasion-code-pin-oublié).
 
 <details>
 <summary>Fichiers écrits par PlayGuard sur la carte SD</summary>
@@ -189,6 +189,7 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 - **Verrou de console :** un interrupteur qui met la limite de chaque jour à 0, donc un code PIN est nécessaire pour lancer un jeu — un verrou léger, sans classification par âge ni limite de communication. Il bloque le lancement des jeux, pas le menu HOME, et nécessite un code PIN. Les limites précédentes reviennent quand on le désactive. Tant qu'il est activé, *temps en plus* et *plus de jeu aujourd'hui* sont refusés, et des limites réglées autrement (un profil, une sauvegarde, l'historique…) le remplacent.
 - **Application mobile :** association de l'application Contrôle parental Nintendo Switch, dernière synchronisation, et **dissociation** (sinon sa prochaine synchronisation écrase les limites réglées ici).
 - **Supprimer tout le contrôle parental :** deux confirmations, irréversible ; une sauvegarde des réglages est d'abord enregistrée.
+- **Bloqué ?** installe le module de secours facultatif, pour un code PIN oublié avec une limite de 0 minute.
 </details>
 
 <details>
@@ -207,6 +208,7 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 <details>
 <summary><b>Outils</b> et <b>À propos</b> — historique, sauvegardes, infos console ; version, mises à jour, nouveautés, crédits</summary>
 
+- **Modules facultatifs :** installer, mettre à jour, lancer au démarrage ou supprimer le module de secours et l'agent du lien à distance, depuis les copies que contient PlayGuard (sans ordinateur ; chaque changement demande le code PIN quand *Sécurité* le demande).
 - **Historique des modifications :** ce que PlayGuard a changé (limites, niveau de restriction, code PIN, déverrouillages, dissociation, horloge, restaurations…), quand et depuis où. Ⓐ sur une modification l'affiche et, pour une valeur, **remet la précédente** — avec le même déverrouillage et le même code PIN que toute modification, en signalant si elle a changé depuis.
 - **Sauvegarder / restaurer les réglages** sur la carte SD : niveau de restriction, réglages personnalisés, mode VR, organisme de classification, limites quotidiennes, alarme « temps écoulé » (avec les actions avancées activées), et pour mémoire le bloc brut du minuteur — jamais le code PIN. La restauration ne liste que ce qui changerait. Nombre de sauvegardes conservées au choix.
 - **Premiers pas** rouvre le guide (avec une étape *Dissocier l'application mobile* tant qu'elle est associée, une étape *Réactiver l'alarme « temps écoulé »* tant qu'elle est désactivée, et un interrupteur pour qu'il ne s'ouvre plus au lancement). Sous *Fermer*, *Soutenir PlayGuard* affiche les QR codes de soutien.
@@ -235,7 +237,7 @@ PlayGuard ne voit que le contrôle parental du système sur lequel il tourne : *
 | **Console d'occasion :** vous connaissez le code PIN, mais l'application mobile de l'ancien propriétaire est toujours associée (la dissociation échoue, ou la réinitialisation demande son compte) | *Sécurité et appli › Dissocier l'application mobile*, puis, si vous ne voulez plus du tout de contrôle parental, *Supprimer tout le contrôle parental*. Les deux fonctionnent hors ligne, en emuMMC comme en sysMMC. |
 | **Code PIN oublié** | *Sécurité et appli › Afficher le code PIN*. Ou *Supprimer tout le contrôle parental* pour repartir de zéro (une sauvegarde des réglages est d'abord enregistrée ; elle ne contient jamais le code PIN). |
 | **Code PIN oublié, et *Demander le code PIN* réglé sur *Pour ouvrir PlayGuard* ou *Avant une modification*** | Ce réglage est exprès dans `sd:/switch/playguard/config.json` : mettez la carte SD dans un ordinateur et passez `"pin_lock"` à `"off"`. |
-| **Le minuteur bloque tout (limite à 0 min) et le code PIN est oublié** | PlayGuard lui-même ne peut pas démarrer. Installez **à l'avance** le module système de récupération optionnel (`playguard-rescue.zip`) ; une fois bloqué, déposez un fichier vide `switch/playguard/RESCUE` sur la carte SD et démarrez — il déverrouille la console pour que PlayGuard puisse s'ouvrir. Voir [`sysmodule/README.md`](sysmodule/README.md) (en anglais). |
+| **Le minuteur bloque tout (limite à 0 min) et le code PIN est oublié** | PlayGuard lui-même ne peut pas démarrer. Installez **à l'avance** le module système de récupération optionnel (*Sécurité et appli › Bloqué ? › Module de secours*, ou `playguard-rescue.zip` à la main) ; une fois bloqué, déposez un fichier vide `switch/playguard/RESCUE` sur la carte SD et démarrez — il déverrouille la console pour que PlayGuard puisse s'ouvrir. Voir [`sysmodule/rescue/README.md`](sysmodule/rescue/README.md) (en anglais). |
 | **Console non modifiée** | PlayGuard ne peut rien faire : il nécessite Atmosphère. La procédure officielle passe par la clé maîtresse du service client de Nintendo. |
 
 ## PlayGuard ou un sysmodule de remplacement ?

@@ -28,6 +28,9 @@ The latest release. Fixes are not backported.
   unless *every feature at your own risk* was chosen on the firmware screen.
 - **The recovery sysmodule** — acting without a `RESCUE` request file, acting twice on one
   request, or doing more than the request asks.
+- **Optional modules** — PlayGuard installing, updating, starting or removing a sysmodule
+  without the PIN while *Ask for the PIN* is set to *Before a change*, or installing
+  anything but the copy it carries (checked against its SHA-256).
 - **The update check and releases** — anything that makes PlayGuard trust a `compat.json`
   or a download that did not come from this repository's releases.
 - **The remote link (MQTT, Home Assistant)** — an order doing more than its entity allows
@@ -42,7 +45,7 @@ The latest release. Fixes are not backported.
 
 - **Physical access to the SD card.** Whoever can edit the card can already turn off
   PlayGuard's own PIN prompt in `config.json`, install the recovery sysmodule, or remove
-  parental controls with any pctl tool. See [`sysmodule/README.md`](sysmodule/README.md).
+  parental controls with any pctl tool. See [`sysmodule/rescue/README.md`](sysmodule/rescue/README.md).
 - **Custom firmware itself.** PlayGuard needs Atmosphère; a modded console can run any
   homebrew, including ones that change parental controls.
 - **Whoever can publish to the broker.** With the remote link on, the broker's users are

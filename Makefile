@@ -29,7 +29,9 @@ SYNC_PURE := source/sync/sync_json.c source/sync/mqtt_packet.c source/sync/sync_
 
 RENDERER := $(if $(GL),-DUSE_DEKO3D=OFF,-DUSE_DEKO3D=ON)
 
-all:
+# The optional sysmodules first: the .nro carries them in its romfs, so
+# Tools › Optional modules can install them (CMakeLists.txt, cmake/bundle_sysmodules.cmake).
+all: rescue
 	@cmake -B $(BUILD) -S . -DPLATFORM_SWITCH=ON $(RENDERER)
 	@cmake --build $(BUILD) --target $(TARGET).nro -j $(JOBS)
 	@cp $(BUILD)/$(TARGET).nro  $(TARGET).nro
@@ -47,19 +49,21 @@ dist: all
 	@cp packaging/sphaira/$(TARGET).json out/config/sphaira/github/
 	@cd out && zip -r ../$(TARGET).zip ./*
 
-# The optional recovery sysmodule (sysmodule/), as its own asset so it is a
-# deliberate install, never part of the default one. The zip drops into the
-# SD-card root: Atmosphère runs 4200000000505247 at boot (the boot2.flag).
+# The optional recovery sysmodule (sysmodule/rescue/), as its own asset so it
+# is a deliberate install, never part of the default one. The zip drops into
+# the SD-card root: Atmosphère runs 4200000000505247 at boot (the boot2.flag).
 RESCUE_TID := 4200000000505247
 rescue:
-	@$(MAKE) --no-print-directory -C sysmodule
+	@$(MAKE) --no-print-directory -C sysmodule/rescue
 
 dist-rescue: rescue
 	@echo making rescue dist ...
 	@rm -rf out-rescue/ playguard-rescue.zip
 	@mkdir -p out-rescue/atmosphere/contents/$(RESCUE_TID)/flags
-	@cp sysmodule/out/playguard-rescue.nsp out-rescue/atmosphere/contents/$(RESCUE_TID)/exefs.nsp
+	@cp sysmodule/rescue/out/playguard-rescue.nsp out-rescue/atmosphere/contents/$(RESCUE_TID)/exefs.nsp
 	@touch out-rescue/atmosphere/contents/$(RESCUE_TID)/flags/boot2.flag
+	@printf '{\n  "name": "PlayGuard rescue",\n  "tid": "%s",\n  "requires_reboot": true\n}\n' $(RESCUE_TID) \
+		> out-rescue/atmosphere/contents/$(RESCUE_TID)/toolbox.json
 	@cp LICENSE out-rescue/atmosphere/contents/$(RESCUE_TID)/LICENSE.txt
 	@cd out-rescue && zip -r ../playguard-rescue.zip ./*
 
@@ -95,6 +99,7 @@ test:
 	$(CXX) -std=c++17 $(CWARN) -Isource -Iextern/borealis/library/include source/util/paths.cpp source/util/config.cpp source/util/profiles.cpp source/util/sync_files.cpp $(TESTOUT)/sync_conf.o $(TESTOUT)/sync_records.o tests/sync_files/test.cpp -o $(TESTOUT)/sync_files && $(TESTOUT)/sync_files
 	$(CXX) -std=c++17 $(CWARN) -Isource -Iextern/borealis/library/include source/util/paths.cpp source/util/pt_block.cpp tests/pt_block/test.cpp -o $(TESTOUT)/pt_block && $(TESTOUT)/pt_block
 	$(CXX) -std=c++17 $(CWARN) -Isource source/util/paths.cpp source/util/launcher.cpp tests/launcher/test.cpp -o $(TESTOUT)/launcher && $(TESTOUT)/launcher
+	$(CXX) -std=c++17 $(CWARN) -Isource source/util/paths.cpp source/util/sha256.cpp source/util/modules.cpp tests/modules/test.cpp -o $(TESTOUT)/modules && $(TESTOUT)/modules
 	$(CXX) -std=c++17 $(CWARN) -Isource -Iextern/borealis/library/include source/util/paths.cpp source/util/history.cpp tests/history/test.cpp -o $(TESTOUT)/history && $(TESTOUT)/history
 	$(CXX) -std=c++17 $(CWARN) -Isource source/util/paths.cpp source/util/pt_log.cpp source/util/log_upload.cpp tests/log_upload/test.cpp -o $(TESTOUT)/log_upload && $(TESTOUT)/log_upload
 	$(CXX) -std=c++17 $(CWARN) -Isource -Iextern/borealis/library/include source/util/paths.cpp source/util/sha256.cpp source/util/dev_builds.cpp source/util/zip_read.cpp source/util/github_auth.cpp tests/dev_builds/test.cpp -lz -o $(TESTOUT)/dev_builds && $(TESTOUT)/dev_builds
@@ -110,7 +115,7 @@ check: test
 clean:
 	@echo clean ...
 	@rm -rf $(BUILD) $(DESKTOP) out out-rescue $(TARGET).zip playguard-rescue.zip $(TARGET).nro $(TARGET).nacp $(TARGET).elf
-	@$(MAKE) --no-print-directory -C sysmodule clean 2>/dev/null || true
+	@$(MAKE) --no-print-directory -C sysmodule/rescue clean 2>/dev/null || true
 
 nxlink: all
 	nxlink $(BUILD)/$(TARGET).nro

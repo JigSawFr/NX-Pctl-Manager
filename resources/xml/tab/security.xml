@@ -43,6 +43,9 @@
             <brls:Label id="pr_note" text="@i18n/playguard/pairing/note" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
             <brls:Header id="sc_danger_header" title="@i18n/playguard/security/section_danger" marginTop="24" marginBottom="8"/>
             <brls:DetailCell id="sc_delete" title="@i18n/playguard/security/delete"/>
+            <brls:Header title="@i18n/playguard/modules/locked_out" marginTop="24" marginBottom="8"/>
+            <brls:DetailCell id="sc_rescue" title="@i18n/playguard/modules/rescue/title"/>
+            <brls:Label id="sc_rescue_note" text="@i18n/playguard/modules/rescue/about" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
 
         </brls:Box>
 

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Tools › Optional modules: PlayGuard's two sysmodules (the recovery module
+     and the remote-link agent), installed from the copies PlayGuard carries.
+     Filled by source/activity/modules_activity.cpp. -->
+
+<brls:AppletFrame
+    iconInterpolation="linear">
+
+    <ScrollView
+        title="@i18n/playguard/modules/title"
+        icon="@res/img/app_icon.jpg"
+        width="auto"
+        height="auto"
+        axis="column"
+        alignItems="stretch"
+        grow="1.0">
+
+        <brls:Box
+            width="auto"
+            height="auto"
+            axis="column"
+            alignItems="stretch"
+            paddingTop="@style/brls/sidebar/padding_top"
+            paddingRight="@style/brls/sidebar/padding_right"
+            paddingBottom="@style/brls/sidebar/padding_bottom"
+            paddingLeft="@style/brls/sidebar/padding_left">
+
+            <brls:Label id="md_intro" text="" fontSize="20" marginBottom="16" textColor="@theme/brand/note"/>
+
+            <brls:Header title="@i18n/playguard/modules/rescue/title" marginBottom="8"/>
+            <brls:Label id="md_rescue_about" text="@i18n/playguard/modules/rescue/about" fontSize="20" marginBottom="10" textColor="@theme/brand/note"/>
+            <brls:DetailCell id="md_rescue_status" title="@i18n/playguard/modules/status"/>
+            <brls:DetailCell id="md_rescue_action" title="@i18n/playguard/modules/install"/>
+            <brls:BooleanCell id="md_rescue_boot"/>
+            <brls:DetailCell id="md_rescue_remove" title="@i18n/playguard/modules/remove"/>
+
+            <brls:Header title="@i18n/playguard/modules/agent/title" marginTop="24" marginBottom="8"/>
+            <brls:Label id="md_agent_about" text="@i18n/playguard/modules/agent/about" fontSize="20" marginBottom="10" textColor="@theme/brand/note"/>
+            <brls:DetailCell id="md_agent_status" title="@i18n/playguard/modules/status"/>
+            <brls:DetailCell id="md_agent_action" title="@i18n/playguard/modules/install"/>
+            <brls:BooleanCell id="md_agent_boot"/>
+            <brls:DetailCell id="md_agent_run" title="@i18n/playguard/modules/start"/>
+            <brls:DetailCell id="md_agent_remove" title="@i18n/playguard/modules/remove"/>
+
+        </brls:Box>
+
+    </ScrollView>
+
+</brls:AppletFrame>

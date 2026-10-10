@@ -65,7 +65,7 @@ Non-goals:
 - **All pctl calls run on the UI thread**; nothing in the app runs in the
   background and no thread is joined at exit. The link adds the first
   long-lived thread, and must never call pctl from it.
-- **The recovery sysmodule** (`sysmodule/`) is the template for building,
+- **The recovery sysmodule** (`sysmodule/rescue/`) is the template for building,
   packaging and shipping a boot sysmodule; it is one-shot and has no network.
 - **Positioning.** The README says "no internet" and "nothing runs in the
   background", and sells the latter against replacement sysmodules. When the

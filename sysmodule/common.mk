@@ -1,6 +1,8 @@
-# playguard-rescue — boot sysmodule (see source/main.c).
-# Produces out/playguard-rescue.nsp (exefs: main + main.npdm), which the
-# release zip places at atmosphere/contents/4200000000505247/exefs.nsp.
+# Shared by PlayGuard's optional sysmodules (rescue/, agent/): devkitPro's libnx
+# rules, the ARM flags and the two-pass build of out/<TARGET>.nsp (exefs: main
+# + main.npdm). A module's Makefile sets TARGET, SOURCES, INCLUDES, CFILES and
+# APP_JSON (EXTRA_CFLAGS and EXTRA_LIBS when it needs them), then includes
+# this file.
 #---------------------------------------------------------------------------------
 .SUFFIXES:
 #---------------------------------------------------------------------------------
@@ -12,22 +14,13 @@ endif
 TOPDIR ?= $(CURDIR)
 include $(DEVKITPRO)/libnx/switch_rules
 
-TARGET      := playguard-rescue
-BUILD       := build
-OUTDIR      := out
-# main.c lives here; rescue.c is the pure core shared with the app.
-SOURCES     := source ../source/core
-INCLUDES    := ../source/core
-APP_JSON    := $(TOPDIR)/playguard-rescue.json
-
-# Only these sources — ../source/core also holds the app's libnx service layer,
-# which this sysmodule must not pull in.
-CFILES      := main.c rescue.c
+BUILD   := build
+OUTDIR  := out
 
 ARCH    := -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
-CFLAGS  := -g -Wall -Wextra -O2 -ffunction-sections $(ARCH) $(INCLUDE) -D__SWITCH__ -std=gnu11
+CFLAGS  := -g -Wall -Wextra -O2 -ffunction-sections $(ARCH) $(INCLUDE) -D__SWITCH__ -std=gnu11 $(EXTRA_CFLAGS)
 LDFLAGS  = -specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
-LIBS    := -lnx
+LIBS    := $(EXTRA_LIBS) -lnx
 LIBDIRS := $(PORTLIBS) $(LIBNX)
 
 #---------------------------------------------------------------------------------

@@ -51,7 +51,7 @@ std::string kind_label(const std::string& kind)
 {
     static const char* known[] = { "limits", "level", "custom", "org", "vr", "alarm", "pin",
                                    "unlock", "relock", "unlink", "delete", "clock", "restore", "rescue",
-                                   "console_lock", "bedtime" };
+                                   "console_lock", "bedtime", "module" };
     for (const char* k : known)
         if (kind == k) return brls::getStr(std::string("playguard/history/kinds/") + k);
     return kind;

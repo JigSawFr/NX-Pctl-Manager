@@ -843,7 +843,8 @@
             "restore": "バックアップを復元",
             "rescue": "復旧を使用",
             "console_lock": "本体ロック",
-            "bedtime": "おやすみアラーム"
+            "bedtime": "おやすみアラーム",
+            "module": "Optional module"
         },
         "sources": {
             "uniform": "毎日同じ上限",
@@ -994,6 +995,69 @@
             "pctl_error": "the console refused",
             "waiting_for_confirmation": "waiting for a confirmation",
             "busy": "PlayGuard could not do it now"
+        }
+    },
+    "modules": {
+        "title": "Optional modules",
+        "open": "Optional modules",
+        "section": "Optional modules",
+        "count": "{} installed",
+        "intro": "Two small background programs (sysmodules) PlayGuard can put on the SD card. Neither is needed, and each does one thing. PlayGuard carries the version made with it and installs or updates it from here, without a computer. Every change asks for the PIN when Security asks for it before a change.",
+        "status": "State",
+        "install": "Install",
+        "update": "Update",
+        "at_boot": "Start at boot",
+        "start": "Start now",
+        "stop": "Stop now",
+        "remove": "Remove",
+        "removed": "Module removed.",
+        "started": "Module started.",
+        "stopped": "Module stopped.",
+        "error": "The module could not be changed",
+        "start_failed": "The new version did not start ({}): the previous one was put back.",
+        "locked_out": "Locked out?",
+        "state": {
+            "not_installed": "Not installed",
+            "not_bundled": "Not in this build",
+            "installed": "Installed, up to date",
+            "update": "Installed, an update is available",
+            "running": "running",
+            "stopped": "stopped",
+            "none": "None installed"
+        },
+        "details": {
+            "where": "Folder: {}",
+            "installed": "Installed: version {} ({})",
+            "by_hand": "installed by hand",
+            "bundled": "Carried by PlayGuard: version {} ({})",
+            "not_bundled": "This build of PlayGuard carries no copy of this module (a desktop build, or one made without devkitPro)."
+        },
+        "done": {
+            "installed": "{}: installed",
+            "updated": "{}: updated",
+            "removed": "{}: removed",
+            "boot_on": "{}: starts at boot",
+            "boot_off": "{}: does not start at boot",
+            "started": "{}: started",
+            "stopped": "{}: stopped"
+        },
+        "rescue": {
+            "title": "Recovery module (forgotten PIN)",
+            "about": "If a 0-minute limit keeps everything from starting and the PIN is forgotten, an empty file named RESCUE in switch/playguard on the SD card makes this module unlock the console at the next boot. It does nothing else, and stops at once.",
+            "install_body": "Install the recovery module (version {})? It runs at each boot and acts only when a RESCUE file is on the SD card.",
+            "update_body": "Update the recovery module to version {}?",
+            "installed": "Recovery module installed. It acts at the next boot when a RESCUE file is there.",
+            "updated": "Recovery module updated.",
+            "remove_body": "Remove the recovery module? Without it, a forgotten PIN with a 0-minute limit needs a computer to fix."
+        },
+        "agent": {
+            "title": "Remote link agent",
+            "about": "Keeps the link to Home Assistant (Preferences › Remote access) running while PlayGuard is closed: orders are carried out and the state stays up to date.",
+            "install_body": "Install and start the agent (version {})? It starts at each boot and uses the settings of Remote access.",
+            "update_body": "Update the agent to version {}? It stops for a moment and starts again.",
+            "installed": "Agent installed and started.",
+            "updated": "Agent updated.",
+            "remove_body": "Stop and remove the agent? The remote link then runs only while PlayGuard is open."
         }
     }
 }

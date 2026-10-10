@@ -47,6 +47,8 @@
             <brls:Label id="tl_serial_note" text="@i18n/playguard/tools/serial_note_emummc" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/warn"/>
             <brls:DetailCell id="tl_patches" title="@i18n/playguard/tools/patches"/>
             <brls:Label id="tl_patches_note" text="" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
+            <brls:Header title="@i18n/playguard/modules/section" marginTop="24" marginBottom="8"/>
+            <brls:DetailCell id="tl_modules" title="@i18n/playguard/modules/open"/>
             <brls:Header id="tl_dev_header" title="@i18n/playguard/dev/section" marginTop="24" marginBottom="8"/>
             <brls:BooleanCell id="tl_dev_mode"/>
             <brls:BooleanCell id="tl_dev_read_only"/>

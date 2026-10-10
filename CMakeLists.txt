@@ -147,7 +147,11 @@ set(ASSEMBLE_RESOURCES
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_RESOURCES}/i18n/en-US ${MERGED_RESOURCES}/i18n/en-GB
     # About shows the latest releases from it (util/changelog.cpp).
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/CHANGELOG.md ${MERGED_RESOURCES}/CHANGELOG.md
-    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_ICON} ${MERGED_RESOURCES}/img/app_icon.jpg)
+    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_ICON} ${MERGED_RESOURCES}/img/app_icon.jpg
+    # The optional sysmodules, when built (make rescue / make agent).
+    COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -DDEST=${MERGED_RESOURCES}/sysmodules
+            -DAPP_VERSION=${APP_VERSION} -DAPP_COMMIT=${APP_COMMIT}
+            -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/bundle_sysmodules.cmake)
 
 set(PLAYGUARD_COPY_SHADERS)
 if (PLATFORM_SWITCH AND USE_DEKO3D)

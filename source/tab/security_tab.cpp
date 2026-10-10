@@ -5,6 +5,7 @@
 #include "action/console_lock.hpp"
 #include "action/history_flow.hpp"
 #include "action/pin_lock.hpp"
+#include "activity/modules_activity.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
 #include "util/config.hpp"
@@ -85,6 +86,11 @@ SecurityTab::SecurityTab()
         this->refresh();
         return true;
     });
+    rescue_note->setSingleLine(false);
+    rescue->registerClickAction([](brls::View*) {
+        brls::Application::pushActivity(new ModulesActivity());
+        return true;
+    });
     del->registerClickAction([this](brls::View*) {
         if (ui::refuse_read_only()) return true;
         ui::confirm_danger("playguard/security/delete_body"_i18n, "playguard/security/delete_confirm"_i18n, [this]() {
@@ -107,6 +113,7 @@ SecurityTab::SecurityTab()
 
 void SecurityTab::refresh()
 {
+    rescue->setDetailText(ModulesActivity::summary(modules::Id::Rescue));
     PctlStatus s;
     pctl_status_fetch(&s);
     ui::note_unlocked(s.temp_unlocked_ok, s.temp_unlocked);

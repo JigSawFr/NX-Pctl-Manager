@@ -84,6 +84,8 @@ jobs:
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-devbuild devbuild
       - name: Smoke test (remote link against a local Mosquitto)
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-sync sync
+      - name: Smoke test (install and remove the recovery module)
+        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-modules modules
       # The screens against tests/visual (reference | now | changes in
       # smoke*/visual_diff/ when one changed; tests/visual/README.md says how
       # to update the references after a change that is meant). Not blocking:
@@ -116,6 +118,7 @@ jobs:
             smoke-devbuild/*.png
             smoke-sync/*.png
             smoke-sync/*.txt
+            smoke-modules/*.png
             smoke*/visual_diff/*.png
 
   # The real .nro, built in the official devkitPro image (same as ./run.sh),
@@ -157,7 +160,9 @@ jobs:
           git config --global --add safe.directory '*'
           export CCACHE_DIR="$GITHUB_WORKSPACE/.ccache" CCACHE_BASEDIR="$GITHUB_WORKSPACE"
           make dist
-          # The optional recovery sysmodule, as its own asset (sysmodule/).
+          # make dist builds the optional sysmodules first and bundles them in the
+          # romfs (Tools › Optional modules); the recovery one is also its own
+          # asset (sysmodule/rescue/).
           make dist-rescue
           ccache --show-stats
           dkp-pacman -Q libnx switch-tools switch-curl switch-glfw switch-mesa > toolchain.txt 2>/dev/null || true

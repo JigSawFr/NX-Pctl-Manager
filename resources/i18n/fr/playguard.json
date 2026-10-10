@@ -843,7 +843,8 @@
             "restore": "Sauvegarde restaurée",
             "rescue": "Récupération utilisée",
             "console_lock": "Verrou de console",
-            "bedtime": "Alarme du coucher"
+            "bedtime": "Alarme du coucher",
+            "module": "Module facultatif"
         },
         "sources": {
             "uniform": "Même limite tous les jours",
@@ -994,6 +995,69 @@
             "pctl_error": "la console a refusé",
             "waiting_for_confirmation": "en attente d'une confirmation",
             "busy": "PlayGuard n'a pas pu le faire maintenant"
+        }
+    },
+    "modules": {
+        "title": "Modules facultatifs",
+        "open": "Modules facultatifs",
+        "section": "Modules facultatifs",
+        "count": "{} installé(s)",
+        "intro": "Deux petits programmes en arrière-plan (sysmodules) que PlayGuard peut installer sur la carte SD. Aucun n'est nécessaire, et chacun fait une seule chose. PlayGuard contient la version faite avec lui et l'installe ou la met à jour d'ici, sans ordinateur. Chaque changement demande le code PIN quand Sécurité le demande avant un changement.",
+        "status": "État",
+        "install": "Installer",
+        "update": "Mettre à jour",
+        "at_boot": "Démarrer au démarrage de la console",
+        "start": "Démarrer maintenant",
+        "stop": "Arrêter maintenant",
+        "remove": "Supprimer",
+        "removed": "Module supprimé.",
+        "started": "Module démarré.",
+        "stopped": "Module arrêté.",
+        "error": "Le module n'a pas pu être modifié",
+        "start_failed": "La nouvelle version n'a pas démarré ({}) : la précédente a été remise.",
+        "locked_out": "Bloqué ?",
+        "state": {
+            "not_installed": "Non installé",
+            "not_bundled": "Absent de cette version",
+            "installed": "Installé, à jour",
+            "update": "Installé, une mise à jour est disponible",
+            "running": "en marche",
+            "stopped": "arrêté",
+            "none": "Aucun installé"
+        },
+        "details": {
+            "where": "Dossier : {}",
+            "installed": "Installé : version {} ({})",
+            "by_hand": "installé à la main",
+            "bundled": "Contenu dans PlayGuard : version {} ({})",
+            "not_bundled": "Cette version de PlayGuard ne contient pas ce module (une version pour ordinateur, ou faite sans devkitPro)."
+        },
+        "done": {
+            "installed": "{} : installé",
+            "updated": "{} : mis à jour",
+            "removed": "{} : supprimé",
+            "boot_on": "{} : démarre au démarrage",
+            "boot_off": "{} : ne démarre plus au démarrage",
+            "started": "{} : démarré",
+            "stopped": "{} : arrêté"
+        },
+        "rescue": {
+            "title": "Module de secours (code PIN oublié)",
+            "about": "Si une limite de 0 minute empêche tout de démarrer et que le code PIN est oublié, un fichier vide nommé RESCUE dans switch/playguard sur la carte SD fait déverrouiller la console par ce module au démarrage suivant. Il ne fait rien d'autre, et s'arrête aussitôt.",
+            "install_body": "Installer le module de secours (version {}) ? Il se lance à chaque démarrage et n'agit que si un fichier RESCUE est sur la carte SD.",
+            "update_body": "Mettre à jour le module de secours en version {} ?",
+            "installed": "Module de secours installé. Il agit au prochain démarrage si un fichier RESCUE est là.",
+            "updated": "Module de secours mis à jour.",
+            "remove_body": "Supprimer le module de secours ? Sans lui, un code PIN oublié avec une limite de 0 minute demande un ordinateur."
+        },
+        "agent": {
+            "title": "Agent du lien à distance",
+            "about": "Garde le lien avec Home Assistant (Préférences › Accès à distance) actif quand PlayGuard est fermé : les ordres sont exécutés et l'état reste à jour.",
+            "install_body": "Installer et démarrer l'agent (version {}) ? Il se lance à chaque démarrage et utilise les réglages de l'Accès à distance.",
+            "update_body": "Mettre à jour l'agent en version {} ? Il s'arrête un instant puis redémarre.",
+            "installed": "Agent installé et démarré.",
+            "updated": "Agent mis à jour.",
+            "remove_body": "Arrêter et supprimer l'agent ? Le lien à distance ne fonctionnera alors que quand PlayGuard est ouvert."
         }
     }
 }

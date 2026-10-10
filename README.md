@@ -84,7 +84,7 @@ Pick one:
 | **sphaira › GitHub** | The release zip already contains the entry (`/config/sphaira/github/playguard.json`): after a first install, update from *GitHub* in sphaira. |
 | **Manual** | Download `playguard.zip` from the [latest release](https://github.com/JigSawFr/PlayGuard/releases/latest) and extract it to the **root** of the SD card. The app lands in `sd:/switch/playguard/`. |
 
-The optional **recovery sysmodule** (`playguard-rescue.zip`) is a separate download — see [Locked out?](#locked-out-second-hand-console-forgotten-pin).
+The optional **recovery sysmodule** is installed from PlayGuard (*Tools › Optional modules*, or *Security & app › Locked out?*), or by hand from its own download (`playguard-rescue.zip`) — see [Locked out?](#locked-out-second-hand-console-forgotten-pin).
 
 <details>
 <summary>Files PlayGuard writes on the SD card</summary>
@@ -189,6 +189,7 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 - **Console lock:** one switch that sets every day's limit to 0, so a PIN is needed to start a game — a light lock without age ratings or communication limits. It blocks starting games, not the HOME menu, and needs a PIN. The previous limits come back when it is turned off. While it is on, *extra time* and *no more play today* are refused, and limits set another way (a profile, a backup, the history…) replace it.
 - **Companion app:** whether the Nintendo Switch Parental Controls app is linked, its last sync, and **unlink** (otherwise its next sync overwrites the limits set here).
 - **Delete all parental controls:** two confirmations, irreversible; a backup of the settings is saved first.
+- **Locked out?** installs the optional recovery module, for a forgotten PIN with a 0-minute limit.
 </details>
 
 <details>
@@ -207,6 +208,7 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 <details>
 <summary><b>Tools</b> and <b>About</b> — history, backups, console info; version, updates, what's new, credits</summary>
 
+- **Optional modules:** install, update, start at boot or remove the recovery module and the remote link's agent, from the copies PlayGuard carries (no computer needed; each change asks for the PIN when *Security* does).
 - **Change history:** what PlayGuard changed (limits, restriction level, PIN, unlocks, unlinking, the clock, restores …), when and from where. Ⓐ on a change shows it and, for a value, **puts the previous one back** — through the same unlock and PIN as any change, saying if it changed since.
 - **Back up / restore the settings** on the SD card: restriction level, custom settings, VR mode, rating organisation, daily limits, the "time's up" alarm (with the advanced actions on), and the raw play-timer block for the record — never the PIN. A restore lists only what would change. Choose how many backups to keep.
 - **First steps** opens the guide again (with an *Unlink the companion app* step while linked, a *Turn the "Time's up" alarm back on* step while it is off, and a switch to stop it coming up at start-up). Below *Close*, *Support PlayGuard* shows the funding QR codes.
@@ -235,7 +237,7 @@ PlayGuard only sees the parental controls of the system it runs on: **emuMMC and
 | **Second-hand console:** you know the PIN, but the previous owner's phone app is still linked (unlinking fails, or a factory reset asks for their account) | *Security & app › Unlink the companion app*, then, if you want no parental controls at all, *Delete all parental controls*. Both work offline, on emuMMC as on sysMMC. |
 | **PIN forgotten** | *Security & app › Show the PIN*. Or *Delete all parental controls* to start again (a settings backup is saved first; it never contains the PIN). |
 | **PIN forgotten, and *Ask for the PIN* is set to *To open PlayGuard* or *Before a change*** | That setting lives in `sd:/switch/playguard/config.json` on purpose: put the SD card in a computer and set `"pin_lock"` to `"off"`. |
-| **The play timer blocks everything (0-minute limit) and the PIN is forgotten** | PlayGuard itself cannot start then. Install the optional recovery sysmodule (`playguard-rescue.zip`) **beforehand**; when locked out, drop an empty `switch/playguard/RESCUE` file on the SD card and boot — it unlocks the console so PlayGuard can open. See [`sysmodule/README.md`](sysmodule/README.md). |
+| **The play timer blocks everything (0-minute limit) and the PIN is forgotten** | PlayGuard itself cannot start then. Install the optional recovery sysmodule **beforehand** (*Security & app › Locked out? › Recovery module*, or `playguard-rescue.zip` by hand); when locked out, drop an empty `switch/playguard/RESCUE` file on the SD card and boot — it unlocks the console so PlayGuard can open. See [`sysmodule/rescue/README.md`](sysmodule/rescue/README.md). |
 | **Console not modded** | PlayGuard cannot help: it needs Atmosphère. Nintendo support's master-key procedure is the official way. |
 
 ## PlayGuard or a replacement sysmodule?
