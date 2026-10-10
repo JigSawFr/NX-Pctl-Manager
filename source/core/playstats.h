@@ -54,10 +54,6 @@ size_t playstats_accounts(PlayAccount *out, size_t max, Result *rc);
 // played are left out.
 void playstats_fetch_for(PlayStats *out, const PlayAccount *account);
 void playstats_fetch(PlayStats *out);   // playstats_fetch_for(out, NULL)
-// playstats_fetch_for() without the time in `skip` (PlayGuard's own sessions
-// over a game, util/own_time.hpp) in today / 7 days / each day. The all-time
-// totals are the system's and keep it.
-void playstats_fetch_skip(PlayStats *out, const PlayAccount *account, const PlayLogSpan *skip, size_t n_skip);
 
 // One game's all-time play time per user account on the console (pdm:qry by
 // account, acc:u0 for the nicknames). Accounts that never played it are left

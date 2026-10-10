@@ -28,7 +28,6 @@
 #include "ui/ui.hpp"
 #include "util/config.hpp"
 #include "util/http.hpp"
-#include "util/own_time.hpp"
 #include "view/made_in_france.hpp"
 #include "view/scroll_view.hpp"
 #include "view/play_days.hpp"
@@ -113,20 +112,12 @@ int main(int argc, char* argv[])
         brls::Application::pushActivity(new InitErrorActivity());
     }
 
-    // Started over a game, PlayGuard's time counts as that game's: noted, so
-    // the Activity tab can leave it out.
-    {
-        SysInfo si;
-        sysinfo_get(&si);
-        own_time::start(!si.applet_mode);
-    }
     pt_log_flow::apply();   // Developer › Record the play timer, when on
 
     while (brls::Application::mainLoop())
         ;
 
     pt_log_flow::stop();
-    own_time::stop();
     app::shutdown();
     http::cleanup();
     return EXIT_SUCCESS;

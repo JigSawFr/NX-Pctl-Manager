@@ -381,7 +381,7 @@
         "first": "Première partie",
         "last": "Dernière partie",
         "less_than_minute": "< 1 min",
-        "note": "Lu dans le journal d'activité de la console, pour tous les comptes. Les durées sont approximatives si l'horloge de la console a été modifiée. Le temps passé dans PlayGuard ouvert par-dessus un jeu est retiré d'aujourd'hui et des 7 derniers jours, mais reste dans les totaux depuis toujours, tenus par la console."
+        "note": "Lu dans le journal d'activité de la console, pour tous les comptes. Les durées sont approximatives si l'horloge de la console a été modifiée. PlayGuard ouvert par-dessus un jeu compte comme ce jeu pour le compte choisi au lancement : ouvrez-le avec le compte d'un parent."
     },
     "restrictions": {
         "section_level": "Niveau de restriction",

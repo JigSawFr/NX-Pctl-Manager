@@ -57,24 +57,12 @@ size_t playlog_fold(const PlayLogEvent *events, size_t n, uint64_t now,
                     uint64_t day_start, uint64_t week_start,
                     PlayLogTotal *out, size_t max);
 
-// A span of user-clock time that is not play time although a game had the
-// focus: PlayGuard itself, started over that game (util/own_time.hpp).
-typedef struct {
-    uint64_t start, end;   // POSIX seconds, user clock, [start, end)
-} PlayLogSpan;
-
 // The same with every day of the window: `day_starts[k]` is when the day k
 // days back began (strictly decreasing: [0] today's midnight, [6] the
 // window's start). Days are taken as given, so a 23 or 25 h day (a
 // daylight-saving change, calendar.h) is one day.
 size_t playlog_fold_days(const PlayLogEvent *events, size_t n, uint64_t now,
                          const uint64_t day_starts[7], PlayLogTotal *out, size_t max);
-
-// playlog_fold_days() without the time inside `skip` (n_skip spans, in any
-// order, overlaps allowed): a session is cut around them.
-size_t playlog_fold_days_skip(const PlayLogEvent *events, size_t n, uint64_t now,
-                              const uint64_t day_starts[7], const PlayLogSpan *skip, size_t n_skip,
-                              PlayLogTotal *out, size_t max);
 
 // The log as one user account played it: a game counts for `uid` while it has
 // the focus AND that account is open in it (selected when the game started,

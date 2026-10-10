@@ -381,7 +381,7 @@
         "first": "Voor het eerst gespeeld",
         "last": "Laatst gespeeld",
         "less_than_minute": "< 1 min",
-        "note": "Gelezen uit het activiteitenlogboek van de console, voor alle gebruikers. De tijden zijn bij benadering als de klok van de console is gewijzigd. De tijd in PlayGuard over een spel wordt weggelaten bij vandaag en de laatste 7 dagen, maar blijft in de totalen die de console bijhoudt."
+        "note": "Gelezen uit het activiteitenlogboek van de console, voor alle gebruikers. De tijden zijn bij benadering als de klok van de console is gewijzigd. PlayGuard geopend over een spel telt als dat spel voor de gebruiker die bij het starten is gekozen: open het met de gebruiker van een ouder."
     },
     "restrictions": {
         "section_level": "Beperkingsniveau",
