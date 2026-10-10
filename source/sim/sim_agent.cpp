@@ -1,6 +1,10 @@
 // The desktop build's agent_client: an agent simulated in the process, with
 // the agent's own command dispatch (sysmodule/agent/source/agent_core.c).
-// PLAYGUARD_SIM_AGENT=running makes it present; PLAYGUARD_SIM_AGENT_ORDER=
+// With PLAYGUARD_SIM_AGENT=running it runs as long as the simulated agent
+// module does (PLAYGUARD_SIM_MODULES=agent:running; Tools › Optional modules
+// stops, starts and updates it): its exefs.nsp on the simulated SD card says
+// which agent it is, one holding "old agent" speaking another protocol and
+// one holding "broken agent" never answering. PLAYGUARD_SIM_AGENT_ORDER=
 // "limit_uniform=90" hands PlayGuard that order once it said Hello. What
 // PlayGuard pushes and answers is logged ("sim agent: …") for the smoke test.
 // No broker: the simulated agent says it is online.
@@ -10,6 +14,8 @@
 #include <cstring>
 
 #include "util/agent_client.hpp"
+#include "util/modules.hpp"
+#include "util/paths.hpp"
 
 extern "C" {
 #include "agent_core.h"
@@ -25,10 +31,29 @@ AgentShared* s_agent = nullptr;
 bool         s_open = false;
 bool         s_order_sent = false;
 
+// What the installed exefs.nsp says: "old", "broken" or "" (a good one).
+std::string kind()
+{
+    std::string nsp;
+    paths::read_file(modules::dir(paths::sd_root(), modules::get(modules::Id::Agent)) + "/exefs.nsp", nsp);
+    if (nsp.find("old agent") != std::string::npos) return "old";
+    if (nsp.find("broken agent") != std::string::npos) return "broken";
+    return "";
+}
+
 bool present()
 {
     const char* v = std::getenv("PLAYGUARD_SIM_AGENT");
-    return v && !std::strcmp(v, "running");
+    if (!v || std::strcmp(v, "running")) return false;
+    const bool up = module_running(modules::get(modules::Id::Agent).tid, nullptr) && kind() != "broken";
+    if (!up && s_agent) {
+        // The process ended: its session and its state with it.
+        brls::Logger::info("sim agent: stopped{}", s_open ? ", session lost" : "");
+        s_open = false;
+        delete s_agent;
+        s_agent = nullptr;
+    }
+    return up;
 }
 
 AgentShared& agent()
@@ -60,7 +85,7 @@ void publish_pushed()
 
 Result call(uint32_t cmd, AgentCall& c)
 {
-    if (!s_open && cmd != AgentCmd_Hello) return 1;
+    if (!present() || (!s_open && cmd != AgentCmd_Hello)) return 1;
     const Result rc = agent_dispatch(&agent(), cmd, &c);
     publish_pushed();
     return rc;
@@ -92,6 +117,12 @@ bool open(AgentHelloReply* reply, Result* rc_out)
 {
     std::memset(reply, 0, sizeof(*reply));
     if (!present()) return false;
+    if (kind() == "old") {
+        // An agent of an older protocol: the reply, no session.
+        std::snprintf(reply->version, sizeof(reply->version), "0.9.0-sim");
+        brls::Logger::info("sim agent: Hello -> refused (old agent)");
+        return true;
+    }
     AgentHello hello;
     std::memset(&hello, 0, sizeof(hello));
     hello.protocol = AGENT_PROTOCOL;
@@ -114,13 +145,13 @@ void close()
 {
     if (!s_open) return;
     s_open = false;
-    agent_session_closed(&agent());
+    if (s_agent) agent_session_closed(s_agent);
     brls::Logger::info("sim agent: session closed");
 }
 
 bool connected()
 {
-    return s_open;
+    return s_open && present();
 }
 
 Result set_foreground(bool on)

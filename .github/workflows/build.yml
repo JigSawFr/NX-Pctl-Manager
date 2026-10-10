@@ -86,6 +86,10 @@ jobs:
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-sync sync
       - name: Smoke test (the link handed to a simulated agent sysmodule)
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-agent agent
+      - name: Smoke test (update the agent from PlayGuard)
+        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-agent-update agent-update
+      - name: Smoke test (an agent update undone when the new one does not answer)
+        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-agent-rollback agent-rollback
       - name: Smoke test (install and remove the recovery module)
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-modules modules
       # The screens against tests/visual (reference | now | changes in
@@ -121,6 +125,8 @@ jobs:
             smoke-sync/*.png
             smoke-sync/*.txt
             smoke-agent/*.png
+            smoke-agent-update/*.png
+            smoke-agent-rollback/*.png
             smoke-modules/*.png
             smoke*/visual_diff/*.png
 

@@ -323,7 +323,7 @@ and come back from the broker for the agent.
 | 12 | `GetRecords` | | `AgentRecords` | What the agent changed (extra time, console lock, relock), for PlayGuard to adopt. |
 | 13 | `ReloadConfig` | | | Read `sync.conf` and `nro_state.txt` again (also done when their date changes). |
 | 14 | `GetLog` | | buffer: text | The agent's last 200 lines, oldest first. |
-| 15 | `PrepareShutdown` | | | Publish `offline`, disconnect, stay idle: first step of an update or a stop from PlayGuard. |
+| 15 | `PrepareShutdown` | | | Publish `offline`, disconnect, stay idle: first step of an update or a stop from PlayGuard. A later `Hello` of the same protocol brings the link back (the stop did not follow). |
 
 Everything but `Hello`, `GetStatus` and `GetLog` needs the session. The
 command dispatch is host-tested (`tests/agent/`); the HIPC framing runs only

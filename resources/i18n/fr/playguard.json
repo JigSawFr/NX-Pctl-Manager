@@ -1043,7 +1043,9 @@
             "boot_on": "{} : démarre au démarrage",
             "boot_off": "{} : ne démarre plus au démarrage",
             "started": "{} : démarré",
-            "stopped": "{} : arrêté"
+            "stopped": "{} : arrêté",
+            "rolled_back": "{} : mise à jour annulée, la version précédente est revenue",
+            "failed": "{} : la mise à jour a échoué"
         },
         "rescue": {
             "title": "Module de secours (code PIN oublié)",
@@ -1061,7 +1063,16 @@
             "update_body": "Mettre à jour l'agent en version {} ? Il s'arrête un instant puis redémarre.",
             "installed": "Agent installé et démarré.",
             "updated": "Agent mis à jour.",
-            "remove_body": "Arrêter et supprimer l'agent ? Le lien à distance ne fonctionnera alors que quand PlayGuard est ouvert."
+            "remove_body": "Arrêter et supprimer l'agent ? Le lien à distance ne fonctionnera alors que quand PlayGuard est ouvert.",
+            "installing": "Installation de l'agent...",
+            "updating": "Mise à jour de l'agent...",
+            "busy": "L'agent est en cours de mise à jour.",
+            "no_answer": "aucune réponse en 10 s",
+            "other_protocol": "il parle le protocole {}",
+            "install_undone": "L'agent n'a pas répondu ({}) : il a été retiré.",
+            "update_failed": "L'agent n'a pas pu être mis à jour ({}). Outils › Modules facultatifs montre ce qui est sur la carte SD maintenant.",
+            "offer_body": "L'agent du lien à distance présent sur la carte SD n'est pas celui que contient ce PlayGuard (version {}). Le mettre à jour maintenant ? Il s'arrête un instant, et le précédent est remis si le nouveau ne répond pas.",
+            "offer_refused": "Il parle un protocole plus ancien : le lien à distance ne fonctionne pas tant qu'il n'est pas mis à jour."
         }
     }
 }

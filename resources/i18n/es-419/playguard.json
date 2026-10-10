@@ -1043,7 +1043,9 @@
             "boot_on": "{}: starts at boot",
             "boot_off": "{}: does not start at boot",
             "started": "{}: started",
-            "stopped": "{}: stopped"
+            "stopped": "{}: stopped",
+            "rolled_back": "{}: update undone, the previous version is back",
+            "failed": "{}: the update failed"
         },
         "rescue": {
             "title": "Recovery module (forgotten PIN)",
@@ -1061,7 +1063,16 @@
             "update_body": "Update the agent to version {}? It stops for a moment and starts again.",
             "installed": "Agent installed and started.",
             "updated": "Agent updated.",
-            "remove_body": "Stop and remove the agent? The remote link then runs only while PlayGuard is open."
+            "remove_body": "Stop and remove the agent? The remote link then runs only while PlayGuard is open.",
+            "installing": "Installing the agent...",
+            "updating": "Updating the agent...",
+            "busy": "The agent is being updated.",
+            "no_answer": "no answer within 10 s",
+            "other_protocol": "it speaks protocol {}",
+            "install_undone": "The agent did not answer ({}): it was removed.",
+            "update_failed": "The agent could not be updated ({}). Tools › Optional modules shows what is on the SD card now.",
+            "offer_body": "The remote link agent on the SD card is not the one this PlayGuard carries (version {}). Update it now? It stops for a moment, and the previous one is put back if the new one does not answer.",
+            "offer_refused": "It speaks an older protocol: the remote link does not work until it is updated."
         }
     }
 }

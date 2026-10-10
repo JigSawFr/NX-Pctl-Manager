@@ -62,6 +62,8 @@ même lien quand PlayGuard est fermé, avec les mêmes réglages :
    démarrage.
 2. Rien d'autre à régler : il lit *Accès à distance*. Son **État** affiche
    alors *En ligne · par l'agent*.
+3. Après une mise à jour de PlayGuard, il propose de mettre l'agent à jour au
+   démarrage ; l'agent précédent est remis si le nouveau ne répond pas.
 
 Quand PlayGuard est ouvert, l'agent reste le seul client MQTT de la console
 (Home Assistant ne la voit jamais hors ligne) ; PlayGuard lui passe ce qu'il

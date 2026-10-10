@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <fmt/format.h>
 
+#include "action/agent_update.hpp"
 #include "action/history_flow.hpp"
 #include "action/pin_lock.hpp"
 #include "action/sync_flow.hpp"
@@ -38,6 +39,11 @@ void record(const modules::Module& m, const char* what)
     history_flow::record_event("module", "", brls::getStr(std::string("playguard/modules/done/") + what, m.title));
 }
 }   // namespace
+
+ModulesActivity::~ModulesActivity()
+{
+    *alive = false;
+}
 
 std::string ModulesActivity::bundle_dir()
 {
@@ -150,33 +156,28 @@ void ModulesActivity::install(const Row& row)
     ui::confirm(body, update ? "playguard/modules/update"_i18n : "playguard/modules/install"_i18n, [this, id, b, update]() {
         const modules::Module& m = modules::get(id);
         if (!allowed()) return;
-        const std::string sd = paths::sd_root();
-        // A resident module is stopped for the swap and started again; it
-        // must come back, or the previous one is put back.
-        const bool was_running = m.resident && module_running(m.tid, nullptr);
-        if (was_running) {
-            sync_flow::agent_stopping();
-            module_terminate(m.tid);
-        }
-        std::string err;
-        if (!modules::install(sd, m, b, m.resident, &err)) {
-            if (was_running) module_launch(m.tid);
-            ui::error("playguard/modules/error"_i18n + " — " + err);
-            sync_flow::reload();
-            this->refresh();
-            return;
-        }
         if (m.resident) {
-            const Result rc = module_launch(m.tid);
-            if (R_FAILED(rc) || !module_running(m.tid, nullptr)) {
-                std::string back;
-                if (update && modules::rollback(sd, m, &back) && was_running) module_launch(m.tid);
-                ui::error(brls::getStr("playguard/modules/start_failed", ui::rc_text(rc)));
-                sync_flow::reload();
-                this->refresh();
+            // The agent: stopped cleanly, swapped, started and seen answering,
+            // or the previous one put back (action/agent_update).
+            if (agent_update::running()) {
+                ui::notify("playguard/modules/agent/busy"_i18n);
                 return;
             }
-            sync_flow::agent_started();
+            ui::notify(update ? "playguard/modules/agent/updating"_i18n : "playguard/modules/agent/installing"_i18n);
+            std::shared_ptr<bool> alive = this->alive;
+            agent_update::run(bundle_dir(), [this, alive](const agent_update::Outcome& o) {
+                agent_update::tell(o);
+                if (*alive) this->refresh();
+            });
+            return;
+        }
+        // The recovery module only acts at boot: nothing to stop or start.
+        const std::string sd = paths::sd_root();
+        std::string err;
+        if (!modules::install(sd, m, b, false, &err)) {
+            ui::error("playguard/modules/error"_i18n + " — " + err);
+            this->refresh();
+            return;
         }
         modules::confirm(sd, m);
         record(m, update ? "updated" : "installed");

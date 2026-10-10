@@ -47,6 +47,9 @@ void changed();
 // then the agent's session takes the link over).
 void agent_stopping();
 void agent_started();
+// While an update of the agent runs (action/agent_update): the link does not
+// look for the agent, which comes and goes.
+void hold(bool on);
 
 struct Status
 {

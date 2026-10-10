@@ -55,6 +55,8 @@ same link while PlayGuard is closed, with the same settings:
    the SD card's root). It starts at once, and at every boot.
 2. Nothing else to set up: it reads *Remote access*. Its **Status** then reads
    *Online · through the agent*.
+3. After an update of PlayGuard, it offers to update the agent at start-up;
+   the previous agent is put back if the new one does not answer.
 
 While PlayGuard is open, the agent stays the console's only MQTT client
 (Home Assistant never sees it go offline); PlayGuard passes it what it reads

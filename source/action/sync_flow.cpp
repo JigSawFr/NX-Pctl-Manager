@@ -291,6 +291,7 @@ AgentHelloReply s_hello{};
 AgentStatus s_agent_status{};
 int s_agent_fg = -1;            // what the agent was last told (-1: nothing yet)
 Clock::time_point s_agent_state_at{}, s_last_probe{};
+bool s_hold = false;            // an update of the agent runs
 std::string s_agent_activity;
 std::deque<std::pair<std::string, std::string>> s_agent_finals;   // date, document: waiting for room
 
@@ -794,7 +795,7 @@ void tick()
     const auto now = Clock::now();
     // The agent started or stopped (Tools › Optional modules, a crash): the
     // link follows.
-    if (wanted() && !s_agent && now - s_last_probe >= PROBE_EVERY) {
+    if (!s_hold && wanted() && !s_agent && now - s_last_probe >= PROBE_EVERY) {
         s_last_probe = now;
         if (agent_client::available() ? !s_agent_refused : !s_shared) apply_conf();
     }
@@ -1058,6 +1059,11 @@ void agent_stopping()
         }
     }
     agent_leave();
+}
+
+void hold(bool on)
+{
+    s_hold = on;
 }
 
 void agent_started()

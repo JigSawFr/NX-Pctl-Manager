@@ -817,6 +817,10 @@ int main(int argc, char **argv)
             engine_stop();   // "offline", DISCONNECT
             g_stopped = true;
             slog("stopped for PlayGuard%s%s", NULL, NULL);
+        } else if (!shutdown && g_stopped) {
+            // PlayGuard said Hello again: the update or the stop did not happen.
+            g_stopped = false;
+            slog("resumed for PlayGuard%s%s", NULL, NULL);
         }
         if (g_stopped || !g_conf_ok || !g_conf.enabled || sync_conf_problem(&g_conf)) {
             if (!g_stopped) engine_stop();

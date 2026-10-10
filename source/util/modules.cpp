@@ -245,4 +245,41 @@ bool uninstall(const std::string& sd_root, const Module& m, std::string* error)
     return true;
 }
 
+Step first_step(bool running)
+{
+    return running ? Step::Shutdown : Step::Swap;
+}
+
+Step next_step(Step done, bool ok, bool was_running)
+{
+    switch (done) {
+        case Step::Shutdown: return Step::Stop;   // stopped anyway: the broker's last will says "offline"
+        case Step::Stop: return ok ? Step::Swap : Step::Failed;
+        // install() leaves the previous one in place when it fails.
+        case Step::Swap: return ok ? Step::Start : was_running ? Step::Restart : Step::Failed;
+        case Step::Start: return ok ? Step::Check : Step::StopNew;
+        case Step::Check: return ok ? Step::Confirm : Step::StopNew;
+        case Step::StopNew: return Step::Restore;
+        case Step::Restore: return !ok ? Step::Failed : was_running ? Step::Restart : Step::RolledBack;
+        case Step::Restart: return ok ? Step::RolledBack : Step::Failed;
+        case Step::Confirm: return Step::Done;
+        case Step::Done:
+        case Step::RolledBack:
+        case Step::Failed: return done;
+    }
+    return Step::Failed;
+}
+
+const char* step_name(Step s)
+{
+    static const char* const NAMES[] = { "shutdown", "stop",    "swap", "start",       "check", "stop_new",
+                                         "restore",  "restart", "confirm", "done", "rolled_back", "failed" };
+    return NAMES[(int)s];
+}
+
+bool step_final(Step s)
+{
+    return s == Step::Done || s == Step::RolledBack || s == Step::Failed;
+}
+
 }   // namespace modules

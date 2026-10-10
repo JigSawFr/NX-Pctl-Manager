@@ -9,6 +9,7 @@
 #pragma once
 
 #include <borealis.hpp>
+#include <memory>
 
 #include "util/modules.hpp"
 
@@ -17,6 +18,7 @@ class ModulesActivity : public brls::Activity
   public:
     CONTENT_FROM_XML_RES("activity/modules.xml");
 
+    ~ModulesActivity() override;
     void onContentAvailable() override;
 
     // Where PlayGuard's copies are (the romfs; PLAYGUARD_SIM_BUNDLED on the
@@ -36,6 +38,8 @@ class ModulesActivity : public brls::Activity
         brls::DetailCell* remove;
     };
     Row rows[2];
+    // False once the screen is closed: an agent update ends later.
+    std::shared_ptr<bool> alive = std::make_shared<bool>(true);
 
     void bind(Row& row);
     void refresh();

@@ -186,6 +186,10 @@ static void test_requests_status_log(void)
     assert(call(AgentCmd_SyncNow, NULL, 0, NULL, 0, NULL, 0, NULL) == 0 && S.want_sync_now);
     assert(call(AgentCmd_ReloadConfig, NULL, 0, NULL, 0, NULL, 0, NULL) == 0 && S.want_reload);
     assert(call(AgentCmd_PrepareShutdown, NULL, 0, NULL, 0, NULL, 0, NULL) == 0 && S.want_shutdown);
+    // The stop did not follow (an update that failed early): Hello again
+    // brings the link back; another protocol's Hello does not.
+    assert(hello(AGENT_PROTOCOL + 1, &r) == 0 && !r.accepted && S.want_shutdown);
+    assert(hello(AGENT_PROTOCOL, &r) == 0 && r.accepted && !S.want_shutdown);
 
     S.records.valid = 1;
     S.records.records.console_lock = true;

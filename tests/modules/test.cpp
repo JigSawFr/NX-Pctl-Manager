@@ -10,6 +10,7 @@
 #include <string>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <vector>
 
 #include "util/modules.hpp"
 #include "util/paths.hpp"
@@ -156,6 +157,51 @@ static void test_install_update_rollback()
     assert(uninstall(sd, m, &err));   // already gone
 }
 
+// Runs the update plan with the steps that fail, and returns the steps taken.
+static std::vector<Step> plan(bool running, std::vector<Step> failing)
+{
+    std::vector<Step> out;
+    Step s = first_step(running);
+    for (int guard = 0; guard < 20; guard++) {
+        out.push_back(s);
+        if (step_final(s)) return out;
+        bool ok = true;
+        for (Step f : failing) ok &= f != s;
+        s = next_step(s, ok, running);
+    }
+    assert(!"the update plan does not end");
+    return out;
+}
+
+static void test_update_plan()
+{
+    using S = Step;
+    // Running: stopped cleanly, swapped, started, answering, confirmed.
+    assert(plan(true, {}) == std::vector<S>({ S::Shutdown, S::Stop, S::Swap, S::Start, S::Check, S::Confirm, S::Done }));
+    // Not running: no stop; started and checked all the same.
+    assert(plan(false, {}) == std::vector<S>({ S::Swap, S::Start, S::Check, S::Confirm, S::Done }));
+    // A clean stop refused: stopped anyway.
+    assert(plan(true, { S::Shutdown }).back() == S::Done);
+    // Cannot be stopped: nothing changed.
+    assert(plan(true, { S::Stop }) == std::vector<S>({ S::Shutdown, S::Stop, S::Failed }));
+    // The swap failed (the previous one still in place): started again.
+    assert(plan(true, { S::Swap }) == std::vector<S>({ S::Shutdown, S::Stop, S::Swap, S::Restart, S::RolledBack }));
+    assert(plan(false, { S::Swap }) == std::vector<S>({ S::Swap, S::Failed }));
+    // The new one does not answer: stopped, the previous one back and started.
+    assert(plan(true, { S::Check }) == std::vector<S>({ S::Shutdown, S::Stop, S::Swap, S::Start, S::Check, S::StopNew,
+                                                        S::Restore, S::Restart, S::RolledBack }));
+    assert(plan(true, { S::Start }) == std::vector<S>({ S::Shutdown, S::Stop, S::Swap, S::Start, S::StopNew, S::Restore,
+                                                        S::Restart, S::RolledBack }));
+    // Not running before: put back, left stopped.
+    assert(plan(false, { S::Check }) == std::vector<S>({ S::Swap, S::Start, S::Check, S::StopNew, S::Restore, S::RolledBack }));
+    // Nothing to put back, or the previous one does not start again.
+    assert(plan(true, { S::Check, S::Restore }).back() == S::Failed);
+    assert(plan(true, { S::Check, S::Restart }).back() == S::Failed);
+    // StopNew going wrong changes nothing: the files are put back anyway.
+    assert(plan(true, { S::Check, S::StopNew }).back() == S::RolledBack);
+    assert(std::string(step_name(S::RolledBack)) == "rolled_back" && step_final(S::Failed) && !step_final(S::Check));
+}
+
 int main()
 {
     char base[] = "/tmp/playguard_modules_XXXXXX";
@@ -165,9 +211,10 @@ int main()
     test_table();
     test_bundle_and_state();
     test_install_update_rollback();
+    test_update_plan();
 
     const std::string cleanup = std::string("rm -rf '") + base + "'";
     assert(std::system(cleanup.c_str()) == 0);
-    std::puts("modules table, bundle, state, install, update, rollback and removal assertions passed");
+    std::puts("modules table, bundle, state, install, update, rollback, removal and update plan assertions passed");
     return 0;
 }

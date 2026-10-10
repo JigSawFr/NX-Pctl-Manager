@@ -122,6 +122,7 @@ void sanitize(Config& c)
     if (!c.update_checked.empty() && c.update_checked.size() != 10) c.update_checked.clear();
     if (!is_date(c.support_reminded)) c.support_reminded.clear();
     if (c.seen_version.size() > 32) c.seen_version.clear();
+    if (c.agent_update_skipped.size() > 64) c.agent_update_skipped.clear();
 
     std::vector<std::string> servers;
     for (const auto& s : c.custom_servers)
@@ -181,6 +182,7 @@ void load()
     read_bool(j, "support_reminder", c.support_reminder);
     read_string(j, "support_reminded", c.support_reminded);
     read_string(j, "seen_version", c.seen_version);
+    read_string(j, "agent_update_skipped", c.agent_update_skipped);
     read_bool(j, "console_lock", c.console_lock);
     auto prev = j.find("console_lock_prev");
     if (prev != j.end() && prev->is_array())
@@ -241,6 +243,7 @@ bool save()
     j["support_reminder"] = s_config.support_reminder;
     j["support_reminded"] = s_config.support_reminded;
     j["seen_version"]    = s_config.seen_version;
+    j["agent_update_skipped"] = s_config.agent_update_skipped;
     j["console_lock"]    = s_config.console_lock;
     j["console_lock_prev"] = s_config.console_lock_prev;
     j["fw_gate_fw"]      = s_config.fw_gate_fw;

@@ -87,4 +87,30 @@ bool uninstall(const std::string& sd_root, const Module& m, std::string* error =
 
 std::string toolbox_json(const Module& m);
 
+// Updating a module that stays running (the agent), as steps the caller
+// carries out one by one, saying each time whether it went through: asked to
+// stop cleanly, stopped, swapped (the previous one kept), started, seen
+// answering (the agent: a Hello accepted within 10 s), then the backup goes.
+// When the new one does not start or answer, it is stopped, the previous one
+// put back and started again.
+enum class Step
+{
+    Shutdown,   // ask it to leave the broker (PrepareShutdown)
+    Stop,
+    Swap,       // install(keep_backup)
+    Start,
+    Check,      // it answers
+    StopNew,    // the new one did not answer: stopped (whether it runs or not)
+    Restore,    // rollback()
+    Restart,    // the previous one started again
+    Confirm,    // confirm()
+    Done,       // updated
+    RolledBack, // not updated: the previous one is back (and runs again when it ran)
+    Failed,     // not updated, and the previous one could not be put back or started
+};
+Step first_step(bool running);
+Step next_step(Step done, bool ok, bool was_running);
+const char* step_name(Step s);
+bool step_final(Step s);
+
 }   // namespace modules

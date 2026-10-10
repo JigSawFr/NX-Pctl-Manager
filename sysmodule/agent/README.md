@@ -11,6 +11,15 @@ Optional modules*, which also starts it, stops it, updates it and removes it;
 it is also its own download (`playguard-agent.zip`, to extract at the SD-card
 root). It does nothing until *Preferences › Remote access* is set up.
 
+When the agent on the SD card is not the one PlayGuard carries (another
+build, or another protocol of `pg:agent`), PlayGuard offers the update at
+start-up (*Later* skips that build). An update asks the agent to leave the
+broker (`PrepareShutdown`), stops it, keeps the previous `exefs.nsp` as
+`exefs.nsp.bak`, starts the new one and waits up to 10 s for its `Hello`; when
+it does not answer, the new one is stopped and the previous one put back and
+started again (`source/action/agent_update.cpp`, the steps host-tested in
+`tests/modules/`).
+
 ## What it does
 
 - Connects to the broker set in `sd:/switch/playguard/sync.conf` (the same

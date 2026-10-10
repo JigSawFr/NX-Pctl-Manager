@@ -3,7 +3,8 @@
 **Status: phases A, B0 and B implemented** (the C core in `source/sync/`,
 PlayGuard's autonomous mode and its *Remote access* screen, CI against a
 local Mosquitto; the optional modules screen; the agent sysmodule, its
-`pg:agent` service and PlayGuard's agent mode, with a simulated agent in CI;
+`pg:agent` service, PlayGuard's agent mode and the agent's update from
+PlayGuard with its roll-back, with a simulated agent in CI;
 user guide in [`home-assistant.md`](home-assistant.md)). Not yet tried on a
 console: the agent itself (its IPC server, TLS, its start without a reboot).
 Phase C (the Home Assistant integration) is not done yet. This document records the decisions

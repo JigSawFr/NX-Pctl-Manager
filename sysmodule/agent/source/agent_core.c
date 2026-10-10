@@ -130,6 +130,8 @@ uint32_t agent_dispatch(AgentShared *s, uint32_t cmd, AgentCall *c)
         memcpy(c->out, &r, sizeof(r));
         c->out_len = sizeof(r);
         if (!r.accepted) return 0;
+        // A stop asked for (an update) that did not happen: the link again.
+        s->want_shutdown = false;
         s->app_protocol = h.protocol;
         snprintf(s->app_version, sizeof(s->app_version), "%s", h.version);
         if (!s->app_session) {
