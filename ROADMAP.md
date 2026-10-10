@@ -76,11 +76,13 @@ MQTT can join in, Home Assistant first:
 - **Chores that earn play time**: a chores app or add-on adds minutes when a
   task is done, or takes some away as a penalty.
 - **Live figures elsewhere**: time left today on a dashboard, on a
-  Busy Bar, on a phone. On an iPhone, an automation can start a **Live
-  Activity** when play begins (from a Home Assistant automation, or an app
-  that turns MQTT or Home Assistant data into Live Activities): the time left
-  counts down on the lock screen and in the Dynamic Island, and ends with the
-  session.
+  Busy Bar, on a phone. On an iPhone, a Home Assistant automation can start a
+  **Live Activity** when play begins, through an app such as
+  [Aivi](https://docs.getaivi.app/) (a Home Assistant blueprint, or a plain
+  HTTP call): the time left counts down on the lock screen and in the Dynamic
+  Island, on every parent's phone at once, and ends with the session. Between
+  sessions, a widget can keep today's play time on the Home Screen or the
+  Apple Watch.
 - **Notifications that can be answered**: "10 minutes left" or "asks for more
   time", with a button that adds a quarter of an hour.
 - **Several consoles at home** seen and set from one place.
