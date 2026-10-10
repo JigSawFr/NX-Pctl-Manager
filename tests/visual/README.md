@@ -1,7 +1,7 @@
 # Reference screenshots
 
 What `tools/desktop_smoke.py` shows on screens that come out the same in every
-run (console time fixed, footer clock masked), one folder per scenario:
+run (console time fixed, footer clock redrawn at the console's time, 16:00:00), one folder per scenario:
 `smoke/`, `errors/`, `gate/`, `rescue/`, `forged/`, `lock/`. CI compares each new run with them
 (`tools/visual_check.py`) and uploads the side-by-side images of any screen
 that changed. A changed screen does not fail the build: it is a warning on
