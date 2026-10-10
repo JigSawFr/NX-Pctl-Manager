@@ -12,9 +12,12 @@
 #include "util/paths.hpp"
 
 #include <algorithm>
+#include <atomic>
+#include <condition_variable>
 #include <ctime>
 #include <fmt/format.h>
 #include <memory>
+#include <mutex>
 #include <system_error>
 #include <thread>
 
@@ -138,14 +141,49 @@ std::string rc_text(Result rc)
                         : brls::getStr("playguard/error/code_hint", code, hint);
 }
 
+namespace
+{
+std::mutex s_bg_lock;
+std::condition_variable s_bg_done;
+int s_bg_running = 0;   // tasks of in_background on their own thread
+std::atomic<bool> s_quitting{ false };
+}   // namespace
+
 void in_background(const char* what, std::function<void()> task)
 {
+    {
+        std::lock_guard<std::mutex> lock(s_bg_lock);
+        s_bg_running++;
+    }
     try {
-        std::thread(task).detach();
+        std::thread([task]() {
+            task();
+            std::lock_guard<std::mutex> lock(s_bg_lock);
+            s_bg_running--;
+            s_bg_done.notify_all();
+        }).detach();
     } catch (const std::system_error& e) {
+        {
+            std::lock_guard<std::mutex> lock(s_bg_lock);
+            s_bg_running--;
+        }
         brls::Logger::warning("{}: no thread ({}), queued instead", what, e.what());
         brls::async(task);
     }
+}
+
+bool quitting()
+{
+    return s_quitting;
+}
+
+bool finish_background(std::chrono::milliseconds max)
+{
+    s_quitting = true;
+    std::unique_lock<std::mutex> lock(s_bg_lock);
+    const bool done = s_bg_done.wait_for(lock, max, []() { return s_bg_running == 0; });
+    if (!done) brls::Logger::warning("quitting with {} background task(s) still running", s_bg_running);
+    return done;
 }
 
 void notify(const std::string& text)

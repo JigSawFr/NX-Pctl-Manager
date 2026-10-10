@@ -15,6 +15,9 @@ class GameCell : public brls::DetailCell
     // A JPEG or PNG as the control data holds it; nothing happens without an
     // icon slot or with an empty image.
     void set_icon(const std::vector<unsigned char>& image);
+    // An NVG image someone else owns and keeps (the Activity tab's icon
+    // cache): shown without decoding again, never freed by this cell.
+    void set_icon_texture(int texture);
 
   private:
     brls::Image* icon = nullptr;

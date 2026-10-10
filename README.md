@@ -152,7 +152,7 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 
 - Time per game **today**, in the **last 7 days** and **in all**, from the console's own activity log — for every account or **one user account** (*Account*, when the console has several).
 - A chart of the last seven days, with each day's limit as a line and the time over it in amber; today's, the week's and all-time totals.
-- Sort by period; the first games show their icon (not in applet mode, to spare memory).
+- Sort by period; the first games show their icon (not in applet mode, to spare memory). A large library lists its first 50 games, then *Show every game*; the export always holds them all.
 - Ⓐ on a game: its last seven days as bars, launches, first and last play, time per user account. Deleted games keep their all-time figures.
 - **Export to the SD card** as CSV, JSON, XLSX (Excel) or PDF, one column per day.
 - Opens at once on the last figures read (kept on the SD card between runs), refreshed in the background when over a minute old; Ⓧ reads them again now, with a spinner.

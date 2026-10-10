@@ -25,7 +25,7 @@ failing and "Synchronise clock via Internet" off (PLAYGUARD_SIM_FAIL & co.):
 a limit change must end in the "could not unlock" dialog, with the app alive,
 and the clock tab must say why the network clock cannot be set.
 
-Usage: tools/desktop_smoke.py <out-dir> [gate|errors|rescue|forged|lock|devbuild]   (needs DISPLAY, xdotool, ImageMagick)
+Usage: tools/desktop_smoke.py <out-dir> [gate|errors|rescue|forged|lock|devbuild|library]   (needs DISPLAY, xdotool, ImageMagick)
 Environment knobs of the simulated backend (PLAYGUARD_SIM_*) are passed through;
 the console time is fixed (PLAYGUARD_SIM_NOW, TZ) unless set.
 """
@@ -45,6 +45,7 @@ RESCUE = SCENARIO == "rescue"
 FORGED = SCENARIO == "forged"
 LOCK = SCENARIO == "lock"
 DEVBUILD = SCENARIO == "devbuild"
+LIBRARY = SCENARIO == "library"
 os.makedirs(OUT, exist_ok=True)
 run_dir = os.path.join(OUT, "run")
 os.makedirs(run_dir, exist_ok=True)
@@ -158,6 +159,10 @@ if FORGED:
     os.makedirs(os.path.dirname(report), exist_ok=True)
     open(report, "w").write("mode=unlock\nresult=ok\nrc=0x00000000\nunlocks=1\n")
     json.dump({"schema": 1, "pin_lock": "open"}, open(config_file, "w"))
+if LIBRARY:
+    # A large library: the Activity list builds its first rows, then the
+    # rest on "Show every game".
+    env.setdefault("PLAYGUARD_SIM_GAMES", "120")
 if LOCK:
     # Security › Ask for the PIN › To open PlayGuard: the lock screen comes
     # first, and the right PIN (the simulated PIN screen accepts) opens the
@@ -387,6 +392,24 @@ def main_opened():
     return any("main screen opened" in l for l in open(os.path.join(OUT, "app.log"), errors="replace"))
 
 
+if LIBRARY:
+    def listed():
+        log.flush()
+        return [l.split("activity list: ", 1)[1].strip()
+                for l in open(os.path.join(OUT, "app.log"), errors="replace") if "activity list: " in l]
+    key("Down", steps("dashboard", "activity"))
+    key("Right")
+    shot("01_activity")
+    if not listed() or not listed()[-1].startswith("50 of "):
+        fail("the Activity list did not start with its first 50 games: " + repr(listed()))
+    key("Down", 70, hold=0.15)  # past the chart and the 50 games, to "Show every game"
+    shot("02_show_every_game")
+    key("Return")
+    shot("03_every_game")
+    total = listed()[-1].split(" of ")[1].split()[0]
+    if listed()[-1] != f"{total} of {total} games":
+        fail("\"Show every game\" did not list them all: " + repr(listed()))
+    finish()
 if LOCK:
     shot("01_unlocked")        # the PIN screen answered at once: the Overview
     if not main_opened():

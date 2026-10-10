@@ -385,7 +385,8 @@
         "first": "Jogado pela 1ª vez",
         "last": "Jogado pela última vez",
         "less_than_minute": "< 1 min",
-        "note": "Lido do registro de atividade do console, para todos os usuários. Os tempos são aproximados se o relógio do console foi alterado. O PlayGuard aberto sobre um jogo conta como esse jogo para o usuário escolhido ao iniciar: abra-o com o usuário de um responsável."
+        "note": "Lido do registro de atividade do console, para todos os usuários. Os tempos são aproximados se o relógio do console foi alterado. O PlayGuard aberto sobre um jogo conta como esse jogo para o usuário escolhido ao iniciar: abra-o com o usuário de um responsável.",
+        "show_all": "Mostrar todos os jogos"
     },
     "restrictions": {
         "section_level": "Nível de restrição",
