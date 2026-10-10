@@ -96,7 +96,8 @@
         "relock_failed": "主機已解鎖，但無法重新鎖定：請立即鎖定（安全與應用程式 › 立即鎖定）",
         "not_applied": "主機未接受變更，已還原先前的設定",
         "not_saved": "PlayGuard 無法在 SD 卡上儲存之後需要復原的內容，因此未寫入任何資料",
-        "next_step": "如果再次發生，請傳送報告：「工具 › 線上傳送報告」。"
+        "next_step": "如果再次發生，請傳送報告：「工具 › 線上傳送報告」。",
+        "pt_not_understood": "主機的遊玩時間設定格式PlayGuard無法識別，因此未變更任何設定。請傳送報告：「工具 › 線上傳送報告」。"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -107,7 +108,7 @@
     "fw_gate": {
         "title": "尚未支援此韌體",
         "headline": "尚未支援韌體{}",
-        "body": "PlayGuard {}已確認可用至韌體{}。為了安全起見，在您選擇繼續方式之前，不會變更任何設定。所有內容仍可檢視。",
+        "body": "PlayGuard {}已在主機上測試可用至韌體{}。為了安全起見，在您選擇繼續方式之前，不會變更任何設定。所有內容仍可檢視。",
         "status_checking": "正在尋找支援此韌體的PlayGuard版本…",
         "status_supports": "PlayGuard {}支援韌體{}：請更新，以便安全使用所有功能。",
         "status_no_support": "PlayGuard {}已推出，但尚未支援韌體{}。",
@@ -879,7 +880,8 @@
             "rescue": "已使用復原",
             "console_lock": "主機鎖定",
             "bedtime": "就寢鬧鐘",
-            "pin_shown": "已顯示PIN碼"
+            "pin_shown": "已顯示PIN碼",
+            "config_reset": "偏好設定已重設（檔案無法讀取）"
         },
         "sources": {
             "uniform": "每天相同上限",
@@ -914,5 +916,12 @@
         "limit_over": "線是當天的上限 · 橘色 !：超過了上限",
         "week_order": "週一到週日，有底線的是今天",
         "unsaved": "橘色 *：已變更，尚未儲存"
+    },
+    "data_notice": {
+        "config_reset": "無法讀取PlayGuard的偏好設定，已將其重設。損壞的檔案已保留為config.json.bad。",
+        "config_stuck": "無法讀取PlayGuard的偏好設定，也無法將其移到一旁：目前使用預設值，且暫時不會儲存任何內容，以免覆寫該檔案。請檢查SD卡。",
+        "history_reset": "無法讀取變更紀錄，已開始新的紀錄。損壞的檔案已保留為history.json.bad。",
+        "history_stuck": "無法讀取變更紀錄，也無法將其移到一旁：暫時不會在其中記錄任何變更。請檢查SD卡。",
+        "rescue_unreadable": "找到了復原用 sysmodule 的報告，但無法讀取，因此PlayGuard無法得知它做了什麼。請檢查PIN碼和遊玩時間限制。"
     }
 }

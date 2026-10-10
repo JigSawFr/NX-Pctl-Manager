@@ -96,7 +96,8 @@
         "relock_failed": "o console foi desbloqueado mas não pôde ser bloqueado de novo: bloqueie-o agora (Segurança e app › Bloquear agora)",
         "not_applied": "o console não aceitou a alteração, então as configurações anteriores foram restauradas",
         "not_saved": "o PlayGuard não conseguiu salvar no cartão SD o que precisará restaurar depois, então nada foi gravado",
-        "next_step": "Se acontecer de novo, envie um relatório: Ferramentas › Enviar um relatório online."
+        "next_step": "Se acontecer de novo, envie um relatório: Ferramentas › Enviar um relatório online.",
+        "pt_not_understood": "as configurações de tempo de jogo do console estão em um formato que o PlayGuard não entende, então nada foi alterado. Envie um relatório: Ferramentas › Enviar um relatório online."
     },
     "init_error": {
         "title": "PlayGuard",
@@ -107,7 +108,7 @@
     "fw_gate": {
         "title": "Firmware ainda não compatível",
         "headline": "O firmware {} ainda não é compatível",
-        "body": "O PlayGuard {} foi verificado até o firmware {}. Por segurança, nada será alterado até você escolher como continuar. Tudo ainda pode ser consultado.",
+        "body": "O PlayGuard {} foi testado em um console até o firmware {}. Por segurança, nada será alterado até você escolher como continuar. Tudo ainda pode ser consultado.",
         "status_checking": "Procurando uma versão do PlayGuard compatível...",
         "status_supports": "O PlayGuard {} é compatível com o firmware {}: atualize para usar todos os recursos com segurança.",
         "status_no_support": "O PlayGuard {} está disponível, mas ainda não é compatível com o firmware {}.",
@@ -879,7 +880,8 @@
             "rescue": "Recuperação usada",
             "console_lock": "Bloqueio do console",
             "bedtime": "Alarme de hora de dormir",
-            "pin_shown": "PIN mostrado"
+            "pin_shown": "PIN mostrado",
+            "config_reset": "Preferências redefinidas (arquivo ilegível)"
         },
         "sources": {
             "uniform": "Mesmo limite todos os dias",
@@ -914,5 +916,12 @@
         "limit_over": "A linha é o limite do dia · ! em âmbar: jogou mais do que isso",
         "week_order": "De segunda a domingo, hoje sublinhado",
         "unsaved": "* em âmbar: alterado, ainda não salvo"
+    },
+    "data_notice": {
+        "config_reset": "Não foi possível ler as preferências do PlayGuard, e elas foram redefinidas. O arquivo danificado foi mantido como config.json.bad.",
+        "config_stuck": "Não foi possível ler nem separar as preferências do PlayGuard: os valores padrão são usados e, por enquanto, nada será salvo, para não sobrescrever o arquivo. Verifique o cartão SD.",
+        "history_reset": "Não foi possível ler o histórico de alterações, então um novo foi iniciado. O arquivo danificado foi mantido como history.json.bad.",
+        "history_stuck": "Não foi possível ler nem separar o histórico de alterações: por enquanto, nenhuma alteração será registrada nele. Verifique o cartão SD.",
+        "rescue_unreadable": "Um relatório do sysmodule de recuperação foi encontrado, mas não pôde ser lido, então o PlayGuard não sabe o que ele fez. Verifique o PIN e o tempo de jogo."
     }
 }

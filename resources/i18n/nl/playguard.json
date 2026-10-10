@@ -96,7 +96,8 @@
         "relock_failed": "de console is ontgrendeld maar kon niet opnieuw worden vergrendeld: vergrendel hem nu (Beveiliging & app › Nu vergrendelen)",
         "not_applied": "de console heeft de wijziging niet overgenomen, dus de vorige instellingen zijn teruggezet",
         "not_saved": "PlayGuard kon niet op de SD-kaart opslaan wat het later moet terugzetten, dus er is niets weggeschreven",
-        "next_step": "Gebeurt dit opnieuw, verstuur dan een rapport: Tools › Rapport online versturen."
+        "next_step": "Gebeurt dit opnieuw, verstuur dan een rapport: Tools › Rapport online versturen.",
+        "pt_not_understood": "de speeltijdinstellingen van de console hebben een indeling die PlayGuard niet begrijpt, dus er is niets gewijzigd. Verstuur een rapport: Tools › Rapport online versturen."
     },
     "init_error": {
         "title": "PlayGuard",
@@ -107,7 +108,7 @@
     "fw_gate": {
         "title": "Firmware nog niet ondersteund",
         "headline": "Firmware {} wordt nog niet ondersteund",
-        "body": "PlayGuard {} is gecontroleerd tot en met firmware {}. Voor de veiligheid wordt er niets gewijzigd totdat je kiest hoe je verdergaat. Alles kan nog wel worden bekeken.",
+        "body": "PlayGuard {} is op een console getest tot en met firmware {}. Voor de veiligheid wordt er niets gewijzigd totdat je kiest hoe je verdergaat. Alles kan nog wel worden bekeken.",
         "status_checking": "Zoeken naar een PlayGuard-versie die deze firmware ondersteunt...",
         "status_supports": "PlayGuard {} ondersteunt firmware {}: werk bij om alle functies veilig te gebruiken.",
         "status_no_support": "PlayGuard {} is beschikbaar, maar ondersteunt firmware {} nog niet.",
@@ -879,7 +880,8 @@
             "rescue": "Herstel gebruikt",
             "console_lock": "Consolevergrendeling",
             "bedtime": "Bedtijdalarm",
-            "pin_shown": "Pincode getoond"
+            "pin_shown": "Pincode getoond",
+            "config_reset": "Voorkeuren teruggezet (bestand onleesbaar)"
         },
         "sources": {
             "uniform": "Elke dag dezelfde limiet",
@@ -914,5 +916,12 @@
         "limit_over": "De lijn is de limiet van die dag · ! in oranje: langer gespeeld",
         "week_order": "Maandag tot zondag, vandaag onderstreept",
         "unsaved": "* in oranje: gewijzigd, nog niet opgeslagen"
+    },
+    "data_notice": {
+        "config_reset": "De voorkeuren van PlayGuard konden niet worden gelezen en zijn teruggezet. Het beschadigde bestand is bewaard als config.json.bad.",
+        "config_stuck": "De voorkeuren van PlayGuard konden niet worden gelezen of opzijgezet: de standaardwaarden worden gebruikt en er wordt voorlopig niets opgeslagen, zodat het bestand niet wordt overschreven. Controleer de SD-kaart.",
+        "history_reset": "De wijzigingsgeschiedenis kon niet worden gelezen, dus er is een nieuwe begonnen. Het beschadigde bestand is bewaard als history.json.bad.",
+        "history_stuck": "De wijzigingsgeschiedenis kon niet worden gelezen of opzijgezet: er worden voorlopig geen wijzigingen in vastgelegd. Controleer de SD-kaart.",
+        "rescue_unreadable": "Er is een rapport van de herstel-sysmodule gevonden, maar het kon niet worden gelezen, dus PlayGuard weet niet wat die heeft gedaan. Controleer de pincode en de speeltijdtimer."
     }
 }

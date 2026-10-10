@@ -96,7 +96,8 @@
         "relock_failed": "die Konsole wurde entsperrt, konnte aber nicht wieder gesperrt werden: Sperre sie jetzt (Sicherheit & App › Jetzt aktivieren)",
         "not_applied": "die Konsole hat die Änderung nicht übernommen, daher wurden die vorherigen Einstellungen wiederhergestellt",
         "not_saved": "PlayGuard konnte nicht auf der SD-Karte speichern, was später wiederhergestellt werden muss, daher wurde nichts geschrieben",
-        "next_step": "Wenn das erneut passiert, senden Sie einen Bericht: Tools › Bericht online senden."
+        "next_step": "Wenn das erneut passiert, senden Sie einen Bericht: Tools › Bericht online senden.",
+        "pt_not_understood": "die Spielzeit-Einstellungen der Konsole liegen in einem Format vor, das PlayGuard nicht versteht, daher wurde nichts geändert. Senden Sie einen Bericht: Tools › Bericht online senden."
     },
     "init_error": {
         "title": "PlayGuard",
@@ -107,7 +108,7 @@
     "fw_gate": {
         "title": "Firmware noch nicht unterstützt",
         "headline": "Firmware {} wird noch nicht unterstützt",
-        "body": "PlayGuard {} wurde bis Firmware {} geprüft. Zur Sicherheit wird nichts geändert, bis Sie entscheiden, wie es weitergeht. Alles kann weiterhin angesehen werden.",
+        "body": "PlayGuard {} wurde bis Firmware {} auf einer Konsole getestet. Zur Sicherheit wird nichts geändert, bis Sie entscheiden, wie es weitergeht. Alles kann weiterhin angesehen werden.",
         "status_checking": "Suche nach einer PlayGuard-Version, die sie unterstützt...",
         "status_supports": "PlayGuard {} unterstützt Firmware {}: Aktualisieren Sie, um alle Funktionen sicher zu nutzen.",
         "status_no_support": "PlayGuard {} ist verfügbar, unterstützt Firmware {} aber noch nicht.",
@@ -879,7 +880,8 @@
             "rescue": "Wiederherstellung verwendet",
             "console_lock": "Konsolensperre",
             "bedtime": "Gute-Nacht-Alarm",
-            "pin_shown": "Geheimzahl angezeigt"
+            "pin_shown": "Geheimzahl angezeigt",
+            "config_reset": "Optionen zurückgesetzt (Datei unlesbar)"
         },
         "sources": {
             "uniform": "Jeden Tag gleiches Limit",
@@ -914,5 +916,12 @@
         "limit_over": "Die Linie ist das Limit des Tages · ! in Orange: darüber gespielt",
         "week_order": "Montag bis Sonntag, heute unterstrichen",
         "unsaved": "* in Orange: geändert, noch nicht gespeichert"
+    },
+    "data_notice": {
+        "config_reset": "Die Optionen von PlayGuard konnten nicht gelesen werden und wurden zurückgesetzt. Die beschädigte Datei wurde als config.json.bad aufbewahrt.",
+        "config_stuck": "Die Optionen von PlayGuard konnten weder gelesen noch beiseitegelegt werden: Es gelten die Standardwerte, und vorerst wird nichts gespeichert, damit die Datei nicht überschrieben wird. Prüfen Sie die SD-Karte.",
+        "history_reset": "Der Änderungsverlauf konnte nicht gelesen werden, daher wurde ein neuer begonnen. Die beschädigte Datei wurde als history.json.bad aufbewahrt.",
+        "history_stuck": "Der Änderungsverlauf konnte weder gelesen noch beiseitegelegt werden: Vorerst werden darin keine Änderungen aufgezeichnet. Prüfen Sie die SD-Karte.",
+        "rescue_unreadable": "Ein Bericht des Wiederherstellungs-Sysmoduls wurde gefunden, konnte aber nicht gelesen werden, daher weiß PlayGuard nicht, was es getan hat. Prüfen Sie die Geheimzahl und die Spielzeit."
     }
 }

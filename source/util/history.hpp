@@ -32,9 +32,17 @@ struct Entry
     std::vector<int> before, after;
 };
 
+// A history.json that is there but cannot be read or parsed is put aside as
+// history.json.bad (paths::put_aside: the previous .bad is kept as .bad.1)
+// and a new history starts. check() does it now (at start-up, so the parent
+// can be told); Stuck: it could not be moved, and nothing is written over it.
+enum class Damage { None, PutAside, Stuck };
+Damage check();
+
 // Adds `e` (newest) and keeps the newest MAX_ENTRIES. False when the SD card
-// refused the write (*error says why).
-bool append(const Entry& e, std::string* error = nullptr);
+// refused the write (*error says why). *put_aside: a damaged file found then
+// was put aside first (as check()).
+bool append(const Entry& e, std::string* error = nullptr, bool* put_aside = nullptr);
 
 // Every entry, newest first. A missing or damaged file is an empty history;
 // a damaged entry is skipped.

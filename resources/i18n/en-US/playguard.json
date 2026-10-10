@@ -96,7 +96,8 @@
         "relock_failed": "the console was unlocked but could not be locked again: lock it now (Security & app › Lock now)",
         "not_applied": "the console did not take the change, so the previous settings were put back",
         "not_saved": "PlayGuard could not save to the SD card what it must put back later, so nothing was written",
-        "next_step": "If it happens again, send a report: Tools › Send a report online."
+        "next_step": "If it happens again, send a report: Tools › Send a report online.",
+        "pt_not_understood": "the console's play-timer settings are in a format PlayGuard does not understand, so nothing was changed. Send a report: Tools › Send a report online."
     },
     "init_error": {
         "title": "PlayGuard",
@@ -107,7 +108,7 @@
     "fw_gate": {
         "title": "Firmware not supported yet",
         "headline": "Firmware {} is not supported yet",
-        "body": "PlayGuard {} was checked up to firmware {}. To be safe, nothing will be changed until you choose how to continue. Everything can still be viewed.",
+        "body": "PlayGuard {} was tested on a console up to firmware {}. To be safe, nothing will be changed until you choose how to continue. Everything can still be viewed.",
         "status_checking": "Looking for a PlayGuard version that supports it...",
         "status_supports": "PlayGuard {} supports firmware {}: update to use every feature safely.",
         "status_no_support": "PlayGuard {} is available, but it does not support firmware {} yet.",
@@ -879,7 +880,8 @@
             "rescue": "Recovery used",
             "console_lock": "Console lock",
             "bedtime": "Bedtime alarm",
-            "pin_shown": "PIN shown"
+            "pin_shown": "PIN shown",
+            "config_reset": "Settings reset (file unreadable)"
         },
         "sources": {
             "uniform": "Same limit every day",
@@ -914,5 +916,12 @@
         "limit_over": "The line is that day's limit · ! in amber: played over it",
         "week_order": "Monday to Sunday, today underlined",
         "unsaved": "* in amber: changed, not saved yet"
+    },
+    "data_notice": {
+        "config_reset": "PlayGuard's settings could not be read and were reset; the damaged file was kept as config.json.bad.",
+        "config_stuck": "PlayGuard's settings could not be read, nor put aside: the defaults are used, and nothing will be saved for now so the file is not overwritten. Check the SD card.",
+        "history_reset": "The change history could not be read, so a new one was started; the damaged file was kept as history.json.bad.",
+        "history_stuck": "The change history could not be read, nor put aside: no change will be recorded in it for now. Check the SD card.",
+        "rescue_unreadable": "A report from the recovery sysmodule was found but could not be read, so PlayGuard cannot tell what it did. Check the PIN and the play timer."
     }
 }

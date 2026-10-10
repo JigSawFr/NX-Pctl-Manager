@@ -96,7 +96,8 @@
         "relock_failed": "la console è stata sbloccata ma non è stato possibile bloccarla di nuovo: bloccala ora (Sicurezza e app › Blocca ora)",
         "not_applied": "la console non ha accettato la modifica, quindi sono state ripristinate le impostazioni precedenti",
         "not_saved": "PlayGuard non è riuscito a salvare sulla scheda SD ciò che dovrà ripristinare in seguito, quindi non è stato scritto nulla",
-        "next_step": "Se succede di nuovo, invia un rapporto: Strumenti › Invia un rapporto online."
+        "next_step": "Se succede di nuovo, invia un rapporto: Strumenti › Invia un rapporto online.",
+        "pt_not_understood": "le impostazioni del tempo di gioco della console sono in un formato che PlayGuard non comprende, quindi non è stato modificato nulla. Invia un rapporto: Strumenti › Invia un rapporto online."
     },
     "init_error": {
         "title": "PlayGuard",
@@ -107,7 +108,7 @@
     "fw_gate": {
         "title": "Firmware non ancora supportato",
         "headline": "Il firmware {} non è ancora supportato",
-        "body": "PlayGuard {} è stato verificato fino al firmware {}. Per sicurezza, non verrà modificato nulla finché non scegli come procedere. Puoi comunque consultare tutto.",
+        "body": "PlayGuard {} è stato testato su una console fino al firmware {}. Per sicurezza, non verrà modificato nulla finché non scegli come procedere. Puoi comunque consultare tutto.",
         "status_checking": "Ricerca di una versione di PlayGuard che lo supporti...",
         "status_supports": "PlayGuard {} supporta il firmware {}: aggiornalo per usare tutte le funzioni in sicurezza.",
         "status_no_support": "PlayGuard {} è disponibile, ma non supporta ancora il firmware {}.",
@@ -879,7 +880,8 @@
             "rescue": "Recupero usato",
             "console_lock": "Blocco della console",
             "bedtime": "Sogni d'oro",
-            "pin_shown": "PIN mostrato"
+            "pin_shown": "PIN mostrato",
+            "config_reset": "Preferenze ripristinate (file illeggibile)"
         },
         "sources": {
             "uniform": "Stesso limite ogni giorno",
@@ -914,5 +916,12 @@
         "limit_over": "La linea è il limite del giorno · ! in ambra: superato",
         "week_order": "Da lunedì a domenica, oggi sottolineato",
         "unsaved": "* in ambra: modificato, non ancora salvato"
+    },
+    "data_notice": {
+        "config_reset": "Non è stato possibile leggere le preferenze di PlayGuard, che sono state ripristinate. Il file danneggiato è stato conservato come config.json.bad.",
+        "config_stuck": "Non è stato possibile leggere né mettere da parte le preferenze di PlayGuard: vengono usati i valori predefiniti e per ora non verrà salvato nulla, per non sovrascrivere il file. Controlla la scheda SD.",
+        "history_reset": "Non è stato possibile leggere la cronologia delle modifiche, quindi ne è stata iniziata una nuova. Il file danneggiato è stato conservato come history.json.bad.",
+        "history_stuck": "Non è stato possibile leggere né mettere da parte la cronologia delle modifiche: per ora non vi verrà registrata alcuna modifica. Controlla la scheda SD.",
+        "rescue_unreadable": "È stato trovato un rapporto del sysmodule di recupero, ma non è stato possibile leggerlo, quindi PlayGuard non può sapere cosa ha fatto. Controlla il PIN e il tempo di gioco."
     }
 }

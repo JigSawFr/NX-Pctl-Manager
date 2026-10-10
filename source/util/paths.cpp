@@ -115,6 +115,24 @@ bool read_file(const std::string& path, std::string& out)
     return read_whole(path + ".tmp", out);
 }
 
+bool exists(const std::string& path)
+{
+    struct stat st;
+    return stat(path.c_str(), &st) == 0 || stat((path + ".tmp").c_str(), &st) == 0;
+}
+
+bool put_aside(const std::string& path)
+{
+    struct stat st;
+    const std::string bad = path + ".bad", older = bad + ".1";
+    if (stat(bad.c_str(), &st) == 0) {
+        std::remove(older.c_str());   // FAT rename does not replace an existing file
+        if (std::rename(bad.c_str(), older.c_str()) != 0) return false;
+    }
+    const std::string from = stat(path.c_str(), &st) == 0 ? path : path + ".tmp";
+    return std::rename(from.c_str(), bad.c_str()) == 0;
+}
+
 std::vector<std::string> list_files(const std::string& dir, const std::string& suffix)
 {
     std::vector<std::string> names;
