@@ -46,16 +46,20 @@ The code is the reference: `source/util/config.hpp` (fields and defaults) and
 
 | Value | In the app | What it does |
 |---|---|---|
-| `"off"` | Never | Nothing is asked. The default. |
-| `"changes"` | Before a change | Anyone can look; the first change (or *Show the PIN*) asks for the PIN, then nothing is asked for 5 minutes. |
+| `"off"` | Never | Nothing is asked, except before *Show the PIN* (the PIN opens everything else). |
+| `"changes"` | Before a change | Anyone can look; the first change (or *Show the PIN*) asks for the PIN, then nothing is asked for 5 minutes. The default. |
 | `"open"` | To open PlayGuard | A lock screen first; the right PIN opens the app, B quits. |
 
 - With no PIN on the console, nothing is asked whatever the value.
+- A missing file, a missing key or a value not in the list gives `"changes"`:
+  a damaged file never turns the prompt off. Only `"off"` written on purpose
+  does.
 - In the app, a lower setting asks for the PIN first. The file itself is not
   protected: it keeps a child out of PlayGuard, not someone who edits the SD
   card.
 - **PIN forgotten while this is `"changes"` or `"open"`:** put the SD card in a
-  computer and set `"pin_lock": "off"`.
+  computer and set `"pin_lock": "off"`. *Show the PIN* still asks for it: the
+  recovery sysmodule's screen is the way to see it again.
 
 ## Network clock
 

@@ -18,7 +18,10 @@
     "hints": {
         "refresh": "重新整理",
         "open": "開啟",
-        "exit_again": "再按一次B即可結束"
+        "exit_again": "再按一次B即可結束",
+        "exit_unlocked": "家長監護仍處於暫時解除狀態：在重新鎖定或主機重新啟動前，可以不受限制地遊玩。\n\n結束前重新鎖定？",
+        "exit_lock": "鎖定並結束",
+        "exit_leave": "不鎖定直接結束"
     },
     "common": {
         "yes": "是",
@@ -91,7 +94,8 @@
         "bad_pin_format": "系統不接受此PIN碼格式",
         "pctl_refused": "家長監護服務拒絕了此操作",
         "relock_failed": "主機已解鎖，但無法重新鎖定：請立即鎖定（安全與應用程式 › 立即鎖定）",
-        "not_applied": "主機未接受變更，已還原先前的設定"
+        "not_applied": "主機未接受變更，已還原先前的設定",
+        "not_saved": "PlayGuard 無法在 SD 卡上儲存之後需要復原的內容，因此未寫入任何資料"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -470,7 +474,8 @@
         "start_off": "網路時鐘偏差{}（與{}比對）。遊玩時間限制依據此時鐘：請查看「網路時鐘」分頁。",
         "guided_body": "網路時鐘不準確，而遊玩時間限制依據此時鐘。\n\n要立即以{}測量時間嗎？（主機必須連線至網路。）設定時鐘前會再次詢問您。",
         "guided_measure": "立即測量",
-        "guided_fine": "網路時鐘準確：不需要任何操作。"
+        "guided_fine": "網路時鐘準確：不需要任何操作。",
+        "confirm_apply_resets": "\n\n變更時鐘會讓今天的遊玩時間重新計算：每日上限將再次全部可用。"
     },
     "pairing": {
         "section": "「Nintendo Switch 家長監護」應用程式",
@@ -522,7 +527,7 @@
             "open": "開啟PlayGuard時"
         },
         "notes": {
-            "off": "任何拿到主機的人都能在此變更設定。",
+            "off": "任何拿到主機的人都能在此變更設定。顯示 PIN碼 時仍需輸入 PIN碼。",
             "changes": "任何人都能檢視；只有家長能變更（5分鐘後會再次詢問）。重新鎖定時不會詢問。",
             "open": "在輸入PIN碼前顯示鎖定畫面。重新鎖定時不會詢問。"
         },
@@ -553,8 +558,8 @@
         "reset_pin": "設定新PIN碼",
         "continue": "開啟PlayGuard",
         "note": "您是透過RESCUE檔案進入此畫面，因此這裡不會要求輸入PIN碼。請設定新PIN碼或刪除家長監護設定，然後開啟PlayGuard。",
-        "note_failed": "復原未能自動完成。您可以在這裡重試，或取出SD卡在電腦上變更設定。",
-        "note_refused": "原本會刪除所有家長監護設定，但無法從 SD 卡移除請求檔案，它會在每次啟動時再次執行。請在電腦上刪除後再試，或使用下方的操作。",
+        "note_failed": "復原未完成，因此沒有 PIN碼 就無法在此變更任何內容。請用 RESCUE 檔案重試，或取出 SD 卡在電腦上變更設定。",
+        "note_refused": "原本會刪除所有家長監護設定，但無法從 SD 卡移除請求檔案，它會在每次啟動時再次執行。請在電腦上刪除後再試。",
         "request_kept": "無法從 SD 卡移除 {} 檔案：在刪除之前，主機每次啟動都會再次解鎖。請在電腦上刪除它。",
         "note_deleted": "所有家長監護設定（包括PIN碼）都已刪除。開啟PlayGuard後隨時可以重新設定。",
         "note_no_pin": "未設定家長監護的PIN碼，因此沒有需要解除的內容。您可以在這裡設定PIN碼，然後開啟PlayGuard。",
@@ -564,13 +569,15 @@
             "deleted": "已刪除所有家長監護設定。",
             "no_pin": "沒有可復原的PIN碼：未設定家長監護的PIN碼。",
             "failed": "未能完成復原。",
-            "refused": "未刪除任何內容：無法從 SD 卡移除 RESCUE 檔案。"
+            "refused": "未刪除任何內容：無法從 SD 卡移除 RESCUE 檔案。",
+            "unconfirmed": "主機狀態與此報告所述的復原不符。"
         },
         "hint": {
             "show_pin": "忘記時",
             "reset_pin": "重新設定",
             "delete": "全部刪除"
-        }
+        },
+        "note_unconfirmed": "沒有 PIN碼 就無法在此變更任何內容，PlayGuard 會照常開啟。被鎖在外面？請在已安裝復原 sysmodule 的情況下把 RESCUE 檔案放回 SD 卡，然後重新啟動主機。"
     },
     "tools": {
         "section_diag": "診斷",
@@ -712,7 +719,8 @@
         "restored": "已還原設定。",
         "restore_err": "未還原：{}",
         "before_delete_err": "無法事先儲存備份（{}）。\n\n仍要刪除所有設定嗎？",
-        "delete_anyway": "仍要刪除"
+        "delete_anyway": "仍要刪除",
+        "bedtime_not_restored": "此備份中開啟了就寢鬧鐘：不會復原，如有需要請在「遊玩時間限制」中重新設定。"
     },
     "update": {
         "checking": "正在檢查更新…",

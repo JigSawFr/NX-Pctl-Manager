@@ -130,15 +130,15 @@ static void test_artifacts()
     assert(pulls.size() == 3 && pulls[0].number == 41 && pulls[1].head_repo == 2);
 
     const auto builds = dev_builds::combine(arts, pulls);
-    // main newest first, one per commit; the fork's "main" is not main.
-    assert(builds.size() == 4);
+    // main newest first, one per commit; the fork's "main" is not main, and a
+    // fork's pull request is not offered at all.
+    assert(builds.size() == 3);
     assert(builds[0].kind == Kind::Main && builds[0].commit == "bbbbbbb" && builds[0].artifact);
     assert(builds[1].kind == Kind::Main && builds[1].commit == "aaaaaaa" && builds[1].date == "2026-10-08T12:05:00Z");
     // Pull requests by number, highest first, each its newest build.
-    assert(builds[2].kind == Kind::PullRequest && builds[2].pr == 42 && builds[2].commit == "eeeeeee" &&
-           builds[2].title == "fix: from a fork");
-    assert(builds[3].pr == 41 && builds[3].commit == "ddddddd");
-    assert(dev_builds::combine(arts, pulls, 1).size() == 3);   // main kept to 1
+    assert(builds[2].kind == Kind::PullRequest && builds[2].pr == 41 && builds[2].commit == "ddddddd");
+    for (const auto& b : builds) assert(b.pr != 42);
+    assert(dev_builds::combine(arts, pulls, 1).size() == 2);   // main kept to 1
 
     std::vector<dev_builds::Artifact> none;
     assert(!dev_builds::parse_artifacts("[]", &none) && !dev_builds::parse_artifacts("x", &none));

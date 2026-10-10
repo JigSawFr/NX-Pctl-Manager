@@ -104,7 +104,13 @@ static void test_trim_and_damage()
     assert(all.size() == 1 && all[0].kind == "level");
     assert(paths::atomic_write(paths::history_file(), "not json"));
     assert(history::load().empty());
+    // The next change does not overwrite it: it is kept as history.json.bad.
     assert(history::append(limits(60, 90)) && history::load().size() == 1);
+    std::string kept;
+    assert(paths::read_file(paths::history_file() + ".bad", kept) && kept == "not json");
+    // A good file is appended to, and leaves the kept one alone.
+    assert(history::append(limits(90, 120)) && history::load().size() == 2);
+    assert(paths::read_file(paths::history_file() + ".bad", kept) && kept == "not json");
 }
 
 int main()

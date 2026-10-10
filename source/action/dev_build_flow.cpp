@@ -11,7 +11,6 @@
 #include "action/pin_lock.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
-#include "util/config.hpp"
 #include "util/dev_builds.hpp"
 #include "util/github_auth.hpp"
 #include "util/launcher.hpp"
@@ -169,8 +168,12 @@ void show(const dev_builds::Cache& cache)
         std::string body = brls::getStr("playguard/dev_build/confirm", running, label(b));
         if (b.sha256.empty()) body += "\n\n" + "playguard/dev_build/no_digest"_i18n;
         ui::confirm(body, "playguard/dev_build/install"_i18n, [b]() {
-            // Replacing PlayGuard is a change: Security › Ask for the PIN applies.
-            if (config::get().pin_lock != "off" && !pin_lock::ask()) return;
+            // Replacing PlayGuard can undo everything it guards: the PIN is
+            // asked whenever one is set, whatever Security › Ask for the PIN says.
+            if (!pin_lock::ask()) {
+                ui::notify(pin_lock::refusal_text());
+                return;
+            }
             install(b);
         });
     });
