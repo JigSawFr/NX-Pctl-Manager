@@ -19,8 +19,9 @@ Assistant is the easy path.
 ## What you need
 
 - Home Assistant with the **MQTT** integration set up, and a broker: the
-  **Mosquitto broker** add-on (Settings › Add-ons) or any other MQTT 3.1.1
-  broker.
+  **Mosquitto broker** add-on (Settings › Add-ons) or any other MQTT broker,
+  in version 5.0 or 3.1.1 (EMQX, HiveMQ, NanoMQ, VerneMQ …): *Remote access ›
+  MQTT version* is automatic (5.0, else 3.1.1).
 - A broker user for PlayGuard. With the Mosquitto add-on, any Home Assistant
   user can log in: create one named `playguard` (Settings › People › Users,
   "can only log in from the local network"), or add a login in the add-on's
@@ -203,6 +204,8 @@ Entity ids depend on the console's name; check them on the device's page.
 | *Not connected: connect: Connection refused* / *no answer from the broker* | Wrong address or port, the broker is stopped, or a firewall is in the way. |
 | *Not connected: the broker refused the connection: bad user name or password* | The user name or password. |
 | *Not connected: the broker refused a subscription* | The user's access list (above). |
+| *Not connected: the broker does not speak this MQTT version* | *MQTT version* is set to one the broker does not take: set it back to *Automatic*. |
+| *Not connected: the broker does not keep retained messages* | The broker (5.0) says it does not keep them; the link needs them: turn them on in its settings. |
 
 The console retries on its own: after 5 seconds, then twice as long each time,
 up to 5 minutes. *Sync now* publishes everything again at once.

@@ -136,30 +136,30 @@ static void test_publish_roundtrip(void)
 {
     uint8_t buf[512];
     const char *payload = "{\"x\":1}";
-    const size_t h = mqtt_encode_publish_head(buf, sizeof(buf), "playguard/id/state", strlen(payload), 0, true, false, 0);
+    const size_t h = mqtt_encode_publish_head(buf, sizeof(buf), MQTT_V311, "playguard/id/state", strlen(payload), 0, true, false, 0);
     assert(h > 0);
     memcpy(buf + h, payload, strlen(payload));
     MqttPacket p;
     assert(mqtt_parse(buf, h + strlen(payload), sizeof(buf), &p) == MQTT_OK);
     MqttPublish m;
-    assert(mqtt_decode_publish(&p, &m) == MQTT_OK);
+    assert(mqtt_decode_publish(&p, MQTT_V311, &m) == MQTT_OK);
     assert(m.retain && m.qos == 0 && !m.dup);
     assert(m.topic_len == strlen("playguard/id/state") && !memcmp(m.topic, "playguard/id/state", m.topic_len));
     assert(m.payload_len == strlen(payload) && !memcmp(m.payload, payload, m.payload_len));
 
     // QoS 1 carries a packet id (and refuses 0); QoS 2 is not sent.
-    assert(mqtt_encode_publish_head(buf, sizeof(buf), "t", 0, 1, false, false, 0) == 0);
-    const size_t h1 = mqtt_encode_publish_head(buf, sizeof(buf), "t", 0, 1, false, true, 0x1234);
+    assert(mqtt_encode_publish_head(buf, sizeof(buf), MQTT_V311, "t", 0, 1, false, false, 0) == 0);
+    const size_t h1 = mqtt_encode_publish_head(buf, sizeof(buf), MQTT_V311, "t", 0, 1, false, true, 0x1234);
     assert(h1 > 0 && (buf[0] & 0x0F) == 0x0A);
-    assert(mqtt_parse(buf, h1, sizeof(buf), &p) == MQTT_OK && mqtt_decode_publish(&p, &m) == MQTT_OK);
+    assert(mqtt_parse(buf, h1, sizeof(buf), &p) == MQTT_OK && mqtt_decode_publish(&p, MQTT_V311, &m) == MQTT_OK);
     assert(m.qos == 1 && m.dup && m.packet_id == 0x1234 && m.payload_len == 0);
-    assert(mqtt_encode_publish_head(buf, sizeof(buf), "t", 0, 2, false, false, 1) == 0);
+    assert(mqtt_encode_publish_head(buf, sizeof(buf), MQTT_V311, "t", 0, 2, false, false, 1) == 0);
     // Wildcards and empty topics cannot be published to.
-    assert(mqtt_encode_publish_head(buf, sizeof(buf), "a/+/b", 0, 0, false, false, 0) == 0);
-    assert(mqtt_encode_publish_head(buf, sizeof(buf), "a/#", 0, 0, false, false, 0) == 0);
-    assert(mqtt_encode_publish_head(buf, sizeof(buf), "", 0, 0, false, false, 0) == 0);
+    assert(mqtt_encode_publish_head(buf, sizeof(buf), MQTT_V311, "a/+/b", 0, 0, false, false, 0) == 0);
+    assert(mqtt_encode_publish_head(buf, sizeof(buf), MQTT_V311, "a/#", 0, 0, false, false, 0) == 0);
+    assert(mqtt_encode_publish_head(buf, sizeof(buf), MQTT_V311, "", 0, 0, false, false, 0) == 0);
     // An empty retained payload (clears a retained message).
-    const size_t he = mqtt_encode_publish_head(buf, sizeof(buf), "a/b/set", 0, 0, true, false, 0);
+    const size_t he = mqtt_encode_publish_head(buf, sizeof(buf), MQTT_V311, "a/b/set", 0, 0, true, false, 0);
     assert(he == 2 + 2 + 7 && buf[1] == 9);
 }
 
@@ -169,7 +169,7 @@ static void test_remaining_length(void)
     static uint8_t big[2100000 + 16];
     const size_t sizes[] = { 0, 1, 127 - 4, 128 - 4, 16383 - 4, 16384 - 4, 2097151 - 4, 2097152 - 4 };
     for (size_t i = 0; i < sizeof(sizes) / sizeof(sizes[0]); i++) {
-        const size_t h = mqtt_encode_publish_head(big, sizeof(big), "ab", sizes[i], 0, false, false, 0);
+        const size_t h = mqtt_encode_publish_head(big, sizeof(big), MQTT_V311, "ab", sizes[i], 0, false, false, 0);
         assert(h > 0);
         const size_t remaining = 2 + 2 + sizes[i];
         const size_t len_bytes = remaining < 128 ? 1 : remaining < 16384 ? 2 : remaining < 2097152 ? 3 : 4;
@@ -202,39 +202,39 @@ static void test_other_packets(void)
     uint8_t buf[256];
     const char *topics[] = { "playguard/id/+/set", "homeassistant/status" };
     const uint8_t qos[] = { 1, 0 };
-    const size_t n = mqtt_encode_subscribe(buf, sizeof(buf), 7, topics, qos, 2);
+    const size_t n = mqtt_encode_subscribe(buf, sizeof(buf), MQTT_V311, 7, topics, qos, 2);
     assert(n > 0 && buf[0] == 0x82);
     MqttPacket p;
     assert(mqtt_parse(buf, n, sizeof(buf), &p) == MQTT_OK && p.type == MQTT_SUBSCRIBE);
     assert(p.body[0] == 0 && p.body[1] == 7);
     assert(p.body[2] == 0 && p.body[3] == strlen(topics[0]));
     assert(p.body[4 + strlen(topics[0])] == 1);
-    assert(mqtt_encode_subscribe(buf, sizeof(buf), 0, topics, qos, 2) == 0);   // id 0
-    assert(mqtt_encode_subscribe(buf, sizeof(buf), 1, topics, qos, 0) == 0);   // nothing
+    assert(mqtt_encode_subscribe(buf, sizeof(buf), MQTT_V311, 0, topics, qos, 2) == 0);   // id 0
+    assert(mqtt_encode_subscribe(buf, sizeof(buf), MQTT_V311, 1, topics, qos, 0) == 0);   // nothing
 
     const uint8_t suback[] = { 0x90, 0x04, 0x00, 0x07, 0x01, 0x80 };
     assert(mqtt_parse(suback, sizeof(suback), 64, &p) == MQTT_OK);
     uint16_t id = 0;
     uint8_t codes[4];
     size_t count = 0;
-    assert(mqtt_decode_suback(&p, &id, codes, 4, &count) == MQTT_OK);
+    assert(mqtt_decode_suback(&p, MQTT_V311, &id, codes, 4, &count) == MQTT_OK);
     assert(id == 7 && count == 2 && codes[0] == 1 && codes[1] == 0x80);
     const uint8_t bad_suback[] = { 0x90, 0x03, 0x00, 0x07, 0x03 };
     assert(mqtt_parse(bad_suback, sizeof(bad_suback), 64, &p) == MQTT_OK);
-    assert(mqtt_decode_suback(&p, &id, codes, 4, &count) == MQTT_MALFORMED);
+    assert(mqtt_decode_suback(&p, MQTT_V311, &id, codes, 4, &count) == MQTT_MALFORMED);
 
     const uint8_t connack[] = { 0x20, 0x02, 0x01, 0x05 };
     MqttConnack ca;
-    assert(mqtt_parse(connack, 4, 64, &p) == MQTT_OK && mqtt_decode_connack(&p, &ca) == MQTT_OK);
+    assert(mqtt_parse(connack, 4, 64, &p) == MQTT_OK && mqtt_decode_connack(&p, MQTT_V311, &ca) == MQTT_OK);
     assert(ca.session_present && ca.return_code == 5);
     assert(!strcmp(mqtt_connack_text(5), "not authorised"));
     assert(!strcmp(mqtt_connack_text(4), "bad user name or password"));
     const uint8_t bad_connack[] = { 0x20, 0x02, 0x02, 0x00 };
-    assert(mqtt_parse(bad_connack, 4, 64, &p) == MQTT_OK && mqtt_decode_connack(&p, &ca) == MQTT_MALFORMED);
+    assert(mqtt_parse(bad_connack, 4, 64, &p) == MQTT_OK && mqtt_decode_connack(&p, MQTT_V311, &ca) == MQTT_MALFORMED);
 
     assert(mqtt_encode_puback(buf, sizeof(buf), 0xBEEF) == 4);
     assert(mqtt_parse(buf, 4, 64, &p) == MQTT_OK);
-    assert(mqtt_decode_puback(&p, &id) == MQTT_OK && id == 0xBEEF);
+    assert(mqtt_decode_puback(&p, MQTT_V311, &id) == MQTT_OK && id == 0xBEEF);
     assert(mqtt_encode_empty(buf, sizeof(buf), MQTT_PINGREQ) == 2 && buf[0] == 0xC0 && buf[1] == 0);
     assert(mqtt_encode_empty(buf, sizeof(buf), MQTT_DISCONNECT) == 2 && buf[0] == 0xE0);
     assert(mqtt_encode_empty(buf, sizeof(buf), MQTT_PUBLISH) == 0);
@@ -243,14 +243,130 @@ static void test_other_packets(void)
     const uint8_t cut[] = { 0x30, 0x03, 0x00, 0x05, 'a' };
     assert(mqtt_parse(cut, sizeof(cut), 64, &p) == MQTT_OK);
     MqttPublish m;
-    assert(mqtt_decode_publish(&p, &m) == MQTT_MALFORMED);
+    assert(mqtt_decode_publish(&p, MQTT_V311, &m) == MQTT_MALFORMED);
     const uint8_t wild[] = { 0x30, 0x04, 0x00, 0x02, 'a', '#' };
-    assert(mqtt_parse(wild, sizeof(wild), 64, &p) == MQTT_OK && mqtt_decode_publish(&p, &m) == MQTT_MALFORMED);
+    assert(mqtt_parse(wild, sizeof(wild), 64, &p) == MQTT_OK && mqtt_decode_publish(&p, MQTT_V311, &m) == MQTT_MALFORMED);
     const uint8_t nul[] = { 0x30, 0x04, 0x00, 0x02, 'a', 0 };
-    assert(mqtt_parse(nul, sizeof(nul), 64, &p) == MQTT_OK && mqtt_decode_publish(&p, &m) == MQTT_MALFORMED);
+    assert(mqtt_parse(nul, sizeof(nul), 64, &p) == MQTT_OK && mqtt_decode_publish(&p, MQTT_V311, &m) == MQTT_MALFORMED);
     // QoS 1 with packet id 0.
     const uint8_t qos1_zero[] = { 0x32, 0x05, 0x00, 0x01, 'a', 0x00, 0x00 };
-    assert(mqtt_parse(qos1_zero, sizeof(qos1_zero), 64, &p) == MQTT_OK && mqtt_decode_publish(&p, &m) == MQTT_MALFORMED);
+    assert(mqtt_parse(qos1_zero, sizeof(qos1_zero), 64, &p) == MQTT_OK && mqtt_decode_publish(&p, MQTT_V311, &m) == MQTT_MALFORMED);
+}
+
+// MQTT 5.0: the CONNECT's properties, the empty property lists the client
+// writes, and what it reads in the broker's CONNACK, SUBACK, PUBLISH and
+// DISCONNECT.
+static void test_mqtt5(void)
+{
+    uint8_t buf[512];
+    MqttConnect c;
+    memset(&c, 0, sizeof(c));
+    c.client_id = "pg-a1b2c3d4-app";
+    c.username = "user";
+    c.password = "pass";
+    c.will_topic = "playguard/a1b2c3d4/availability";
+    c.will_payload = "offline";
+    c.will_len = 7;
+    c.will_retain = true;
+    c.keepalive_s = 30;
+    c.clean_session = true;
+    c.version = MQTT_V5;
+    c.max_packet = 4096;
+    size_t n = mqtt_encode_connect(buf, sizeof(buf), &c);
+    MqttPacket p;
+    assert(n > 0 && mqtt_parse(buf, n, sizeof(buf), &p) == MQTT_OK && p.type == MQTT_CONNECT);
+    const uint8_t *b = p.body;
+    assert(b[6] == 5 && b[7] == (0x80 | 0x40 | 0x20 | 0x04 | 0x02) && b[8] == 0 && b[9] == 30);
+    // Properties: the maximum packet size only.
+    assert(b[10] == 5 && b[11] == 0x27 && b[12] == 0 && b[13] == 0 && b[14] == 0x10 && b[15] == 0);
+    size_t at = 16;
+    assert(b[at + 1] == strlen(c.client_id));
+    at += 2 + strlen(c.client_id);
+    assert(b[at] == 0);   // will properties: none
+    at += 1;
+    assert(b[at + 1] == strlen(c.will_topic));
+    at += 2 + strlen(c.will_topic) + 2 + 7 + 6 + 6;
+    assert(at == p.body_len);
+    // No maximum packet size: an empty property list.
+    c.max_packet = 0;
+    n = mqtt_encode_connect(buf, sizeof(buf), &c);
+    assert(mqtt_parse(buf, n, sizeof(buf), &p) == MQTT_OK && p.body[10] == 0);
+
+    // PUBLISH and SUBSCRIBE carry an empty property list.
+    n = mqtt_encode_publish_head(buf, sizeof(buf), MQTT_V5, "a/b", 2, 0, true, false, 0);
+    assert(n == 2 + 2 + 3 + 1 && buf[1] == 2 + 3 + 1 + 2 && buf[n - 1] == 0);
+    memcpy(buf + n, "on", 2);
+    MqttPublish m;
+    assert(mqtt_parse(buf, n + 2, sizeof(buf), &p) == MQTT_OK && mqtt_decode_publish(&p, MQTT_V5, &m) == MQTT_OK);
+    assert(m.topic_len == 3 && m.payload_len == 2 && !memcmp(m.payload, "on", 2) && m.retain);
+    const char *topics[] = { "playguard/id/+/set" };
+    const uint8_t qos[] = { 1 };
+    n = mqtt_encode_subscribe(buf, sizeof(buf), MQTT_V5, 9, topics, qos, 1);
+    assert(n > 0 && mqtt_parse(buf, n, sizeof(buf), &p) == MQTT_OK);
+    assert(p.body[2] == 0 && p.body[4] == strlen(topics[0]) && p.body[p.body_len - 1] == 1);
+
+    // A PUBLISH from the broker with properties (message expiry, a user
+    // property): skipped, the payload found.
+    const uint8_t pub[] = { 0x31, 0x16, 0x00, 0x01, 't', 0x0D, 0x02, 0x00, 0x00, 0x00, 0x3C,
+                            0x26, 0x00, 0x01, 'k', 0x00, 0x02, 'v', 'v', 'O', 'F', 'F', '!', '!' };
+    assert(mqtt_parse(pub, sizeof(pub), 64, &p) == MQTT_OK && mqtt_decode_publish(&p, MQTT_V5, &m) == MQTT_OK);
+    assert(m.retain && m.payload_len == 5 && !memcmp(m.payload, "OFF!!", 5));
+    // Property lengths that run past the packet, or an unknown property.
+    const uint8_t pub_cut[] = { 0x30, 0x06, 0x00, 0x01, 't', 0x09, 0x02, 0x00 };
+    assert(mqtt_parse(pub_cut, sizeof(pub_cut), 64, &p) == MQTT_OK && mqtt_decode_publish(&p, MQTT_V5, &m) == MQTT_MALFORMED);
+    const uint8_t pub_unknown[] = { 0x30, 0x06, 0x00, 0x01, 't', 0x02, 0x7E, 0x00 };
+    assert(mqtt_parse(pub_unknown, sizeof(pub_unknown), 64, &p) == MQTT_OK &&
+           mqtt_decode_publish(&p, MQTT_V5, &m) == MQTT_MALFORMED);
+
+    // CONNACK: accepted, with a server keep-alive, a maximum packet size and
+    // retained messages available.
+    const uint8_t ack[] = { 0x20, 0x0D, 0x00, 0x00, 0x0A, 0x13, 0x00, 0x3C, 0x27, 0x00, 0x01, 0x00, 0x00, 0x25, 0x01 };
+    MqttConnack ca;
+    assert(mqtt_parse(ack, sizeof(ack), 64, &p) == MQTT_OK && mqtt_decode_connack(&p, MQTT_V5, &ca) == MQTT_OK);
+    assert(ca.return_code == 0 && !ca.v311 && ca.has_server_keepalive && ca.server_keepalive == 60);
+    assert(ca.max_packet == 65536 && !ca.retain_unavailable && !ca.wildcard_unavailable && !ca.reason[0]);
+    // Refused, with a reason string; retained messages and wildcards unavailable.
+    const uint8_t refused[] = { 0x20, 0x14, 0x00, 0x87, 0x11, 0x25, 0x00, 0x28, 0x00, 0x1F, 0x00, 0x0A,
+                                'n', 'o', ' ', 'a', 'c', 'c', 'e', 's', 's', '\n' };
+    assert(mqtt_parse(refused, sizeof(refused), 64, &p) == MQTT_OK && mqtt_decode_connack(&p, MQTT_V5, &ca) == MQTT_OK);
+    assert(ca.return_code == 0x87 && ca.retain_unavailable && ca.wildcard_unavailable);
+    assert(!strcmp(ca.reason, "no access "));   // control characters blanked
+    assert(!strcmp(mqtt_reason_text(0x87), "not authorised"));
+    assert(!strcmp(mqtt_reason_text(MQTT_RC_UNSUPPORTED_VERSION), "the broker does not speak this MQTT version"));
+    // A 3.1.1 broker's answer to a 5.0 CONNECT.
+    const uint8_t old[] = { 0x20, 0x02, 0x00, 0x01 };
+    assert(mqtt_parse(old, sizeof(old), 64, &p) == MQTT_OK && mqtt_decode_connack(&p, MQTT_V5, &ca) == MQTT_OK);
+    assert(ca.v311 && ca.return_code == 1);
+    // A property list longer than the packet.
+    const uint8_t ack_cut[] = { 0x20, 0x04, 0x00, 0x00, 0x05, 0x13 };
+    assert(mqtt_parse(ack_cut, sizeof(ack_cut), 64, &p) == MQTT_OK && mqtt_decode_connack(&p, MQTT_V5, &ca) == MQTT_MALFORMED);
+    // 3.1.1 never has properties.
+    assert(mqtt_parse(ack, sizeof(ack), 64, &p) == MQTT_OK && mqtt_decode_connack(&p, MQTT_V311, &ca) == MQTT_MALFORMED);
+
+    // SUBACK: properties, then a reason code per topic (0x87: not authorised).
+    const uint8_t suback[] = { 0x90, 0x05, 0x00, 0x09, 0x00, 0x01, 0x87 };
+    uint16_t id = 0;
+    uint8_t codes[4];
+    size_t count = 0;
+    assert(mqtt_parse(suback, sizeof(suback), 64, &p) == MQTT_OK);
+    assert(mqtt_decode_suback(&p, MQTT_V5, &id, codes, 4, &count) == MQTT_OK);
+    assert(id == 9 && count == 2 && codes[0] == 1 && codes[1] == 0x87);
+    assert(mqtt_decode_suback(&p, MQTT_V311, &id, codes, 4, &count) == MQTT_MALFORMED);   // 0x87 is 5.0's
+    // PUBACK with a reason code and no properties.
+    const uint8_t puback[] = { 0x40, 0x03, 0x12, 0x34, 0x10 };
+    assert(mqtt_parse(puback, sizeof(puback), 64, &p) == MQTT_OK && mqtt_decode_puback(&p, MQTT_V5, &id) == MQTT_OK);
+    assert(id == 0x1234 && mqtt_decode_puback(&p, MQTT_V311, &id) == MQTT_MALFORMED);
+
+    // DISCONNECT from the broker: a reason code and a reason string.
+    const uint8_t disc[] = { 0xE0, 0x0A, 0x8E, 0x08, 0x1F, 0x00, 0x05, 't', 'a', 'k', 'e', 'n' };
+    uint8_t code = 0;
+    char reason[32];
+    assert(mqtt_parse(disc, sizeof(disc), 64, &p) == MQTT_OK);
+    assert(mqtt_decode_disconnect(&p, &code, reason, sizeof(reason)) == MQTT_OK);
+    assert(code == 0x8E && !strcmp(reason, "taken") && !strcmp(mqtt_reason_text(code), "session taken over by another client"));
+    const uint8_t disc_plain[] = { 0xE0, 0x00 };
+    assert(mqtt_parse(disc_plain, sizeof(disc_plain), 64, &p) == MQTT_OK);
+    assert(mqtt_decode_disconnect(&p, &code, reason, sizeof(reason)) == MQTT_OK && code == 0 && !reason[0]);
 }
 
 static void test_topic_matching(void)
@@ -274,6 +390,7 @@ static void test_conf(void)
     sync_conf_defaults(&c);
     assert(c.port == 1883 && c.policy == SyncPolicy_Ask && c.ha_discovery && !c.remote_timer_writes);
     assert(!strcmp(c.topic_prefix, "playguard") && !strcmp(c.discovery_prefix, "homeassistant"));
+    assert(c.mqtt_version == SyncMqtt_Auto);
     assert(sync_conf_problem(&c) != NULL);   // no host
 
     const char *text = "\xEF\xBB\xBF# comment\r\n"
@@ -281,6 +398,7 @@ static void test_conf(void)
                        "  host = broker.lan\n"           // spaces around the key, not the value
                        "port=8883\n"
                        "tls=on\n"
+                       "mqtt_version=3.1.1\n"
                        "username=parent\n"
                        "password= p=a ss#word\n"         // kept verbatim after '='
                        "console_id=a1b2c3d4\n"
@@ -294,7 +412,7 @@ static void test_conf(void)
                        "=novalue\n";
     sync_conf_defaults(&c);
     assert(sync_conf_parse(&c, text, strlen(text)));
-    assert(c.enabled && c.port == 8883 && c.tls);
+    assert(c.enabled && c.port == 8883 && c.tls && c.mqtt_version == SyncMqtt_V311);
     assert(!strcmp(c.host, " broker.lan"));
     assert(!strcmp(c.password, " p=a ss#word"));
     assert(!strcmp(c.console_id, "a1b2c3d4") && !strcmp(c.console_name, "Salon"));
@@ -307,11 +425,24 @@ static void test_conf(void)
     char out[2048];
     const size_t n = sync_conf_write(&c, out, sizeof(out));
     assert(n > 0 && contains(out, "future_key=keep me\n") && contains(out, "policy=auto\n"));
+    assert(contains(out, "mqtt_version=3.1.1\n"));
     SyncConf back;
     sync_conf_defaults(&back);
     assert(sync_conf_parse(&back, out, n));
     assert(!memcmp(&back, &c, sizeof(c)));
     assert(sync_conf_write(&c, out, 64) == 0);
+    // The MQTT version's spellings; anything else keeps the setting.
+    const struct { const char *text; SyncMqttVersion v; } versions[] = {
+        { "mqtt_version=5\n", SyncMqtt_V5 }, { "mqtt_version=5.0\n", SyncMqtt_V5 },
+        { "mqtt_version=auto\n", SyncMqtt_Auto }, { "mqtt_version=4\n", SyncMqtt_V311 },
+        { "mqtt_version=6\n", SyncMqtt_V311 },
+    };
+    SyncConf v = c;
+    for (size_t i = 0; i < sizeof(versions) / sizeof(versions[0]); i++) {
+        assert(sync_conf_parse(&v, versions[i].text, strlen(versions[i].text)));
+        assert(v.mqtt_version == versions[i].v);
+    }
+    assert(!strcmp(sync_mqtt_version_name(SyncMqtt_V5), "5") && !strcmp(sync_mqtt_version_name(SyncMqtt_Auto), "auto"));
 
     // What is still missing.
     SyncConf m = c;
@@ -723,6 +854,7 @@ int main(int argc, char **argv)
     test_publish_roundtrip();
     test_remaining_length();
     test_other_packets();
+    test_mqtt5();
     test_topic_matching();
     test_conf();
     test_records();

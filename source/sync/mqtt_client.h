@@ -1,4 +1,4 @@
-// mqtt_client — a small MQTT 3.1.1 client over any byte stream (SyncIo):
+// mqtt_client — a small MQTT 5.0 / 3.1.1 client over any byte stream (SyncIo):
 // plain TCP (sync_net.c), TLS through the console's ssl service
 // (nx/sync_tls_nx.c), or a scripted broker in the host tests. One thread
 // drives it; nothing is allocated (the receive buffer is the caller's).
@@ -6,6 +6,9 @@
 // Outbound publishes are QoS 0: the retained state heals itself at the next
 // publish, so there is nothing to resend. Inbound messages may be QoS 1 (the
 // subscription asks for it): each one is acknowledged after the callback.
+// The version is the CONNECT's (MqttConnect.version); in 5.0 the client
+// follows the broker's keep-alive and maximum packet size, and words its
+// refusals with the reason codes and strings it sends.
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).
 #pragma once
 
@@ -45,6 +48,11 @@ typedef struct {
     void         *user;
     uint64_t    (*now_ms)(void);
     uint32_t      dropped;          // oversized messages dropped
+    uint8_t       version;          // MQTT_V5 or MQTT_V311, as connected
+    uint32_t      max_out;          // 5.0: the largest packet the broker takes (0: no limit)
+    uint32_t      too_large;        // publishes not sent: larger than max_out
+    bool          version_refused;  // the last CONNECT was refused for its version, or the broker
+                                    // closed the stream without answering it
     char          error[128];
 } MqttClient;
 

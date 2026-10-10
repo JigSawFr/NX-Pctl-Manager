@@ -34,6 +34,7 @@ class SyncActivity : public brls::Activity
     BRLS_BIND(brls::DetailCell,  host,      "sy_host");
     BRLS_BIND(brls::DetailCell,  port,      "sy_port");
     BRLS_BIND(brls::BooleanCell, tls,       "sy_tls");
+    BRLS_BIND(brls::DetailCell,  mqtt_version, "sy_mqtt_version");
     BRLS_BIND(brls::DetailCell,  user,      "sy_user");
     BRLS_BIND(brls::DetailCell,  password,  "sy_password");
     BRLS_BIND(brls::DetailCell,  name,      "sy_name");

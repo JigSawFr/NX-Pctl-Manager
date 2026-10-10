@@ -22,7 +22,8 @@ Mosquitto de Home Assistant est le plus simple.
 
 - Home Assistant avec l'intégration **MQTT** configurée, et un broker : le
   module **Mosquitto broker** (Paramètres › Modules complémentaires) ou tout
-  autre broker MQTT 3.1.1.
+  autre broker MQTT, en version 5.0 ou 3.1.1 (EMQX, HiveMQ, NanoMQ, VerneMQ…) :
+  *Accès à distance › Version MQTT* est automatique (5.0, sinon 3.1.1).
 - Un utilisateur du broker pour PlayGuard. Avec le module Mosquitto, tout
   utilisateur de Home Assistant peut se connecter : créez-en un nommé
   `playguard` (Paramètres › Personnes › Utilisateurs, « connexion depuis le
@@ -217,6 +218,8 @@ lignes (en anglais) :
 | *Non connecté : connect: Connection refused* / *no answer from the broker* | Mauvaise adresse ou mauvais port, broker arrêté, ou pare-feu. |
 | *Non connecté : the broker refused the connection: bad user name or password* | Le nom d'utilisateur ou le mot de passe. |
 | *Non connecté : the broker refused a subscription* | La liste d'accès de l'utilisateur (plus haut). |
+| *Non connecté : the broker does not speak this MQTT version* | *Version MQTT* est réglée sur une version que le broker refuse : remettez *Automatique*. |
+| *Non connecté : the broker does not keep retained messages* | Le broker (5.0) dit ne pas garder les messages retenus ; le lien en a besoin : activez-les dans ses réglages. |
 
 La console réessaie d'elle-même : après 5 secondes, puis deux fois plus
 longtemps à chaque fois, jusqu'à 5 minutes. *Synchroniser maintenant* republie

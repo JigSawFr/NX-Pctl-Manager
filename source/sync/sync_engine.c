@@ -134,7 +134,8 @@ void sync_engine_reconfigure(SyncEngine *e, const SyncConf *conf)
                            strcmp(conf->password, e->conf.password) || strcmp(conf->console_id, e->conf.console_id) ||
                            strcmp(conf->topic_prefix, e->conf.topic_prefix) ||
                            strcmp(conf->discovery_prefix, e->conf.discovery_prefix) ||
-                           conf->allow_anonymous != e->conf.allow_anonymous || conf->enabled != e->conf.enabled;
+                           conf->allow_anonymous != e->conf.allow_anonymous || conf->enabled != e->conf.enabled ||
+                           conf->mqtt_version != e->conf.mqtt_version;
     const bool discovery_off = e->conf.ha_discovery && !conf->ha_discovery;
     if (reconnect || discovery_off) {
         // Clear the old discovery while still connected under the old identity.
@@ -146,7 +147,10 @@ void sync_engine_reconfigure(SyncEngine *e, const SyncConf *conf)
             e->discovery_published = false;
         }
     }
-    if (reconnect) sync_engine_stop(e);
+    if (reconnect) {
+        sync_engine_stop(e);
+        e->proto_ok = 0;   // another broker, or another version asked: "auto" tries 5.0 again
+    }
     e->conf = *conf;
     identity(e);
     e->backoff_ms = 0;
@@ -539,7 +543,27 @@ static int connect_now(SyncEngine *e)
     c.will_retain = true;
     c.keepalive_s = SYNC_KEEPALIVE_S;
     c.clean_session = true;
-    if (mqtt_client_connect(&e->mqtt, e->conf.host, e->conf.port, &c, CONNECT_TIMEOUT_MS) < 0) return -1;
+    // "auto": 5.0, else 3.1.1 when the broker refuses 5.0 (or the other way
+    // round once 3.1.1 worked), and the one that worked from then on.
+    uint8_t other = 0;
+    switch (e->conf.mqtt_version) {
+        case SyncMqtt_V5: c.version = MQTT_V5; break;
+        case SyncMqtt_V311: c.version = MQTT_V311; break;
+        default:
+            c.version = e->proto_ok ? e->proto_ok : MQTT_V5;
+            other = c.version == MQTT_V5 ? MQTT_V311 : MQTT_V5;
+            break;
+    }
+    int rc = mqtt_client_connect(&e->mqtt, e->conf.host, e->conf.port, &c, CONNECT_TIMEOUT_MS);
+    if (rc < 0 && other && e->mqtt.version_refused) {
+        logf_(e, "remote link: MQTT %s refused (%s), trying the other version", c.version == MQTT_V5 ? "5.0" : "3.1.1",
+              e->mqtt.error);
+        c.version = other;
+        rc = mqtt_client_connect(&e->mqtt, e->conf.host, e->conf.port, &c, CONNECT_TIMEOUT_MS);
+    }
+    if (rc < 0) return -1;
+    if (other) e->proto_ok = e->mqtt.version;
+    e->status.protocol = e->mqtt.version;
     if (mqtt_client_publish(&e->mqtt, will, "online", 6, true) < 0) return -1;
     if (subscribe(e) < 0) return -1;
     return 0;
@@ -577,7 +601,7 @@ int sync_engine_step(SyncEngine *e, int max_wait_ms)
         sync_engine_sync_now(e);
         e->next_state_ms = 0;
         e->next_activity_ms = 0;
-        logf_(e, "remote link: online (%s)%s", e->conf.host, NULL);
+        logf_(e, "remote link: online (%s, MQTT %s)", e->conf.host, e->mqtt.version == MQTT_V5 ? "5.0" : "3.1.1");
     }
 
     process_orders(e);

@@ -38,6 +38,7 @@
             <brls:DetailCell id="sy_host" title="@i18n/playguard/sync/host"/>
             <brls:DetailCell id="sy_port" title="@i18n/playguard/sync/port"/>
             <brls:BooleanCell id="sy_tls"/>
+            <brls:DetailCell id="sy_mqtt_version" title="@i18n/playguard/sync/mqtt_version"/>
             <brls:DetailCell id="sy_user" title="@i18n/playguard/sync/user"/>
             <brls:DetailCell id="sy_password" title="@i18n/playguard/sync/password"/>
 

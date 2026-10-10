@@ -31,6 +31,13 @@ typedef enum {
     SyncPolicy_Off  = 2,   // publish only, refuse every order
 } SyncPolicy;
 
+// The MQTT version spoken to the broker.
+typedef enum {
+    SyncMqtt_Auto = 0,   // 5.0, else 3.1.1 when the broker refuses 5.0 (then kept until the settings change)
+    SyncMqtt_V5   = 1,
+    SyncMqtt_V311 = 2,
+} SyncMqttVersion;
+
 typedef struct {
     int        schema;
     bool       enabled;
@@ -38,6 +45,7 @@ typedef struct {
     uint16_t   port;                    // 1883; 8883 turns tls on by default
     bool       tls;
     char       ca_file[SYNC_PATH_MAX];  // PEM, for a broker with a private certificate authority
+    SyncMqttVersion mqtt_version;
     char       username[SYNC_USER_MAX];
     char       password[SYNC_PASS_MAX];
     bool       allow_anonymous;         // connect without a user name
@@ -69,6 +77,8 @@ const char *sync_conf_problem(const SyncConf *c);
 bool sync_conf_id_valid(const char *id);
 // "ask" / "auto" / "off".
 const char *sync_policy_name(SyncPolicy p);
+// "auto" / "5" / "3.1.1", as sync.conf writes it.
+const char *sync_mqtt_version_name(SyncMqttVersion v);
 
 // The generic reader the other flat files use: calls `fn` for each
 // "key=value" line (key trimmed, value as written up to the line end, a

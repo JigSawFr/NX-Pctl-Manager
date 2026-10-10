@@ -49,7 +49,7 @@ Piloter le contrôle parental de la console ouvre aussi la porte à bien plus : 
 - 🕒 **Horloge réseau** — mesure sur des serveurs NTP publics et réglage, pour que le minuteur compte juste sur une console qui n'atteint jamais Nintendo.
 - 📱 **Application mobile** — voir si elle est associée et la **dissocier**, même sur une console d'occasion.
 - ↩️ **Historique, sauvegardes et retour arrière** — chaque modification faite par PlayGuard est consignée et peut être annulée ; les réglages peuvent être sauvegardés sur la carte SD.
-- 🏠 **Home Assistant (facultatif)** — par MQTT sur votre réseau local : l'état, les limites et le temps de jeu dans Home Assistant, des ordres depuis lui (temps en plus, limites, verrouillage), chacun demandé sur la console ou exécuté aussitôt. Désactivé par défaut ; fonctionne tant que PlayGuard est ouvert. [Guide](docs/home-assistant.fr.md).
+- 🏠 **Home Assistant (facultatif)** — par MQTT (5.0 ou 3.1.1, n'importe quel broker) sur votre réseau local : l'état, les limites et le temps de jeu dans Home Assistant, des ordres depuis lui (temps en plus, limites, verrouillage), chacun demandé sur la console ou exécuté aussitôt. Désactivé par défaut ; fonctionne tant que PlayGuard est ouvert, ou en permanence avec l'agent facultatif. [Guide](docs/home-assistant.fr.md).
 - 🌍 **Toutes les langues de la console** — 15 catalogues, thèmes clair et sombre.
 - 🛡️ **Écritures sûres** — le minuteur n'est jamais écrit pendant son décompte, et rien ne tourne en arrière-plan pendant que l'enfant joue.
 
@@ -201,7 +201,7 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 - Vérification de l'horloge réseau au lancement (une notification si elle a plus d'une minute d'écart ; elle ne règle jamais l'horloge).
 - Un **rappel mensuel pour soutenir PlayGuard** (activé par défaut, jamais le premier mois ni juste après une mise à jour ; *Ne plus afficher* sur le rappel ou cet interrupteur le désactive pour de bon, mises à jour comprises).
 - Actions avancées.
-- **Accès à distance (MQTT / Home Assistant) :** le broker, le nom de la console, que faire des ordres (demander sur la console, les exécuter, les refuser), s'ils peuvent changer le temps de jeu (désactivé par défaut), la découverte Home Assistant, l'état en direct, *Synchroniser maintenant* et le journal. Voir [docs/home-assistant.fr.md](docs/home-assistant.fr.md).
+- **Accès à distance (MQTT / Home Assistant) :** le broker et sa version MQTT, le nom de la console, que faire des ordres (demander sur la console, les exécuter, les refuser), s'ils peuvent changer le temps de jeu (désactivé par défaut), la découverte Home Assistant, l'état en direct, *Synchroniser maintenant* et le journal. Voir [docs/home-assistant.fr.md](docs/home-assistant.fr.md).
 </details>
 
 <details>

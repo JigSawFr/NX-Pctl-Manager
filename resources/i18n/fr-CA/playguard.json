@@ -905,6 +905,12 @@
         "port_prompt": "Le port du broker (1883, ou 8883 avec TLS)",
         "port_invalid": "Un port est un nombre de 1 à 65535.",
         "tls": "Connexion chiffrée (TLS)",
+        "mqtt_version": "Version MQTT",
+        "mqtt_versions": {
+            "auto": "Automatique (5.0, sinon 3.1.1)",
+            "v5": "MQTT 5.0",
+            "v311": "MQTT 3.1.1"
+        },
         "user": "Nom d'utilisateur",
         "user_enter": "Saisir un nom d'utilisateur...",
         "user_anonymous": "Aucun (un broker qui accepte les clients anonymes)",
@@ -951,6 +957,7 @@
         "status_counts": "Publications : {}. Ordres : {}, refusés : {}. En attente : {}.",
         "status_last": "Dernier ordre : {}",
         "status_error": "Dernière erreur : {}",
+        "status_protocol": "Protocole : MQTT {}",
         "status_agent": "L'agent {} tient le lien : PlayGuard lui passe ce qu'il lit et exécute les ordres qu'il lui transmet.",
         "status_agent_read_only": "Seul, l'agent ne change rien : PlayGuard était en mode lecture seule, ou le firmware a changé depuis le dernier lancement de PlayGuard.",
         "state_agent": "{} · par l'agent",

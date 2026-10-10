@@ -53,7 +53,7 @@ static int handle(MqttClient *c, const MqttPacket *p, uint8_t want, uint16_t wan
     switch (p->type) {
     case MQTT_PUBLISH: {
         MqttPublish msg;
-        if (mqtt_decode_publish(p, &msg) != MQTT_OK) return fail(c, "the broker sent a malformed message");
+        if (mqtt_decode_publish(p, c->version, &msg) != MQTT_OK) return fail(c, "the broker sent a malformed message");
         if (c->on_message) c->on_message(c->user, &msg);
         if (msg.qos == 1) {
             const size_t n = mqtt_encode_puback(c->tx, sizeof(c->tx), msg.packet_id);
@@ -81,6 +81,16 @@ static int handle(MqttClient *c, const MqttPacket *p, uint8_t want, uint16_t wan
             return fail(c, "the broker sent a second CONNACK");
         }
         return 0;
+    case MQTT_DISCONNECT: {
+        // 5.0: the broker says why it ends the connection.
+        if (c->version != MQTT_V5) return fail(c, "the broker sent a packet a client never receives");
+        uint8_t code = 0;
+        char reason[80], why[128];
+        if (mqtt_decode_disconnect(p, &code, reason, sizeof(reason)) != MQTT_OK) reason[0] = '\0';
+        snprintf(why, sizeof(why), "the broker disconnected: %s%s%.80s%s", mqtt_reason_text(code),
+                 reason[0] ? " (" : "", reason, reason[0] ? ")" : "");
+        return fail(c, why);
+    }
     default:
         return fail(c, "the broker sent a packet a client never receives");
     }
@@ -169,24 +179,59 @@ int mqtt_client_connect(MqttClient *c, const char *host, uint16_t port, const Mq
     c->rx_len = 0;
     c->skip = 0;
     c->ping_sent_ms = 0;
+    c->version = opts->version == MQTT_V5 ? MQTT_V5 : MQTT_V311;
+    c->max_out = 0;
+    c->version_refused = false;
     if (c->io.open(c->io.ctx, host, port, timeout_ms, c->error, sizeof(c->error)) < 0) {
         if (!c->error[0]) snprintf(c->error, sizeof(c->error), "cannot reach the broker");
         return -1;
     }
     c->open = true;
-    const size_t n = mqtt_encode_connect(c->tx, sizeof(c->tx), opts);
+    MqttConnect o = *opts;
+    o.version = c->version;
+    // 5.0: nothing larger than the receive buffer (the broker drops it, rather
+    // than this client skipping it).
+    if (c->version == MQTT_V5 && !o.max_packet) o.max_packet = (uint32_t)c->rx_cap;
+    const size_t n = mqtt_encode_connect(c->tx, sizeof(c->tx), &o);
     if (n == 0) return fail(c, "the connection settings are too long");
     if (send_bytes(c, c->tx, n) < 0) return -1;
-    uint8_t body[2];
+    // The CONNACK's body (5.0 properties included: a long reason string is
+    // cut, which only drops the properties after it).
+    uint8_t body[256];
     size_t len = 0;
-    if (await(c, MQTT_CONNACK, 0, timeout_ms, body, sizeof(body), &len) < 0) return -1;
-    if (len != 2) return fail(c, "the broker sent a malformed CONNACK");
-    if (body[1] != 0) {
-        char why[96];
-        snprintf(why, sizeof(why), "the broker refused the connection: %s", mqtt_connack_text(body[1]));
+    if (await(c, MQTT_CONNACK, 0, timeout_ms, body, sizeof(body), &len) < 0) {
+        // A broker that does not know the version may just close the stream.
+        if (!strcmp(c->error, "the broker closed the connection")) c->version_refused = true;
+        return -1;
+    }
+    MqttPacket p;
+    memset(&p, 0, sizeof(p));
+    p.type = MQTT_CONNACK;
+    p.body = body;
+    p.body_len = len;
+    MqttConnack ack;
+    if (mqtt_decode_connack(&p, c->version, &ack) != MQTT_OK) {
+        if (len < sizeof(body) || len < 2) return fail(c, "the broker sent a malformed CONNACK");
+        // Properties cut short: keep the answer, without them.
+        p.body_len = 2;
+        mqtt_decode_connack(&p, MQTT_V311, &ack);
+        ack.v311 = false;
+    }
+    if (ack.return_code != 0) {
+        char why[128];
+        const char *text = ack.v311 ? mqtt_connack_text(ack.return_code) : mqtt_reason_text(ack.return_code);
+        c->version_refused = ack.v311 ? ack.return_code == 1 : ack.return_code == MQTT_RC_UNSUPPORTED_VERSION;
+        snprintf(why, sizeof(why), "the broker refused the connection: %s%s%.60s%s", text, ack.reason[0] ? " (" : "",
+                 ack.reason, ack.reason[0] ? ")" : "");
         return fail(c, why);
     }
-    c->keepalive_s = opts->keepalive_s;
+    if (c->version == MQTT_V5 && ack.v311) {
+        c->version_refused = true;
+        return fail(c, "the broker answered a 5.0 connection in 3.1.1");
+    }
+    if (ack.retain_unavailable) return fail(c, "the broker does not keep retained messages, which the link needs");
+    c->keepalive_s = ack.has_server_keepalive ? ack.server_keepalive : opts->keepalive_s;
+    c->max_out = ack.max_packet;
     c->connected = true;
     return 0;
 }
@@ -195,23 +240,44 @@ int mqtt_client_subscribe(MqttClient *c, const char *const *topics, const uint8_
 {
     if (!c->connected) return -1;
     const uint16_t id = take_id(c);
-    const size_t n = mqtt_encode_subscribe(c->tx, sizeof(c->tx), id, topics, qos, count);
+    const size_t n = mqtt_encode_subscribe(c->tx, sizeof(c->tx), c->version, id, topics, qos, count);
     if (n == 0) return fail(c, "the subscription does not fit");
     if (send_bytes(c, c->tx, n) < 0) return -1;
-    uint8_t body[2 + 16];
+    uint8_t body[256];
     size_t len = 0;
     if (await(c, MQTT_SUBACK, id, timeout_ms, body, sizeof(body), &len) < 0) return -1;
-    if (len < 2 + count) return fail(c, "the broker sent a malformed SUBACK");
-    for (size_t i = 0; i < count; i++)
-        if (body[2 + i] == 0x80u) return fail(c, "the broker refused a subscription (check the user's access list)");
+    MqttPacket p;
+    memset(&p, 0, sizeof(p));
+    p.type = MQTT_SUBACK;
+    p.body = body;
+    p.body_len = len;
+    uint16_t got_id = 0;
+    uint8_t codes[16];
+    size_t got = 0;
+    if (mqtt_decode_suback(&p, c->version, &got_id, codes, sizeof(codes), &got) != MQTT_OK || got < count)
+        return fail(c, "the broker sent a malformed SUBACK");
+    for (size_t i = 0; i < count; i++) {
+        if (codes[i] < 0x80u) continue;
+        char why[128];
+        if (c->version == MQTT_V5 && codes[i] != 0x80u)
+            snprintf(why, sizeof(why), "the broker refused a subscription: %s", mqtt_reason_text(codes[i]));
+        else
+            snprintf(why, sizeof(why), "the broker refused a subscription (check the user's access list)");
+        return fail(c, why);
+    }
     return 0;
 }
 
 int mqtt_client_publish(MqttClient *c, const char *topic, const void *payload, size_t len, bool retain)
 {
     if (!c->connected) return -1;
-    const size_t n = mqtt_encode_publish_head(c->tx, sizeof(c->tx), topic, len, 0, retain, false, 0);
+    const size_t n = mqtt_encode_publish_head(c->tx, sizeof(c->tx), c->version, topic, len, 0, retain, false, 0);
     if (n == 0) return -1;   // a topic that cannot be published to: the connection is fine
+    if (c->max_out && n + len > c->max_out) {
+        // Larger than the broker takes (5.0): it would disconnect.
+        c->too_large++;
+        return -1;
+    }
     if (send_bytes(c, c->tx, n) < 0) return -1;
     if (len && send_bytes(c, payload, len) < 0) return -1;
     return 0;

@@ -23,10 +23,17 @@ using namespace brls::literals;
 namespace
 {
 const SyncPolicy POLICIES[] = { SyncPolicy_Ask, SyncPolicy_Auto, SyncPolicy_Off };
+const SyncMqttVersion VERSIONS[] = { SyncMqtt_Auto, SyncMqtt_V5, SyncMqtt_V311 };
 
 std::string policy_text(SyncPolicy p)
 {
     return brls::getStr(std::string("playguard/sync/policies/") + sync_policy_name(p));
+}
+
+std::string version_text(SyncMqttVersion v)
+{
+    static const char* const KEYS[] = { "auto", "v5", "v311" };
+    return brls::getStr(std::string("playguard/sync/mqtt_versions/") + KEYS[v <= SyncMqtt_V311 ? v : 0]);
 }
 
 template <size_t N>
@@ -117,6 +124,21 @@ void SyncActivity::onContentAvailable()
         SyncConf next = this->conf;
         next.tls = on;
         if (!this->commit(next)) tls->setOn(this->conf.tls, false);
+    });
+
+    mqtt_version->registerClickAction([this](brls::View*) {
+        std::vector<std::string> labels;
+        int selected = 0;
+        for (size_t i = 0; i < 3; i++) {
+            labels.push_back(version_text(VERSIONS[i]));
+            if (VERSIONS[i] == conf.mqtt_version) selected = (int)i;
+        }
+        ui::pick("playguard/sync/mqtt_version"_i18n, labels, selected, [this](int index) {
+            SyncConf next = this->conf;
+            next.mqtt_version = VERSIONS[index];
+            this->commit(next);
+        });
+        return true;
     });
 
     user->registerClickAction([this](brls::View*) {
@@ -220,6 +242,8 @@ void SyncActivity::onContentAvailable()
         if (st.running) {
             text += "\n\n" + brls::getStr("playguard/sync/status_counts", (int)l.publishes, (int)l.orders,
                                           (int)l.rejected, (int)st.pending);
+            if (l.protocol)
+                text += "\n" + brls::getStr("playguard/sync/status_protocol", l.protocol == MQTT_V5 ? "5.0" : "3.1.1");
             if (l.last_result[0]) text += "\n" + brls::getStr("playguard/sync/status_last", l.last_result);
             if (l.error[0]) text += "\n" + brls::getStr("playguard/sync/status_error", l.error);
         }
@@ -286,6 +310,7 @@ void SyncActivity::refresh()
     host->setDetailText(or_none(conf.host));
     port->setDetailText(std::to_string(conf.port));
     tls->setOn(conf.tls, false);
+    mqtt_version->setDetailText(version_text(conf.mqtt_version));
     user->setDetailText(conf.username[0] ? std::string(conf.username)
                                          : conf.allow_anonymous ? "playguard/sync/anonymous"_i18n
                                                                 : "playguard/sync/none"_i18n);

@@ -39,6 +39,7 @@ typedef enum {
 
 typedef struct {
     SyncLinkState state;
+    uint8_t       protocol;           // MQTT_V5 or MQTT_V311 once connected (the last one), 0 never
     char          error[128];         // the last failure ("" none)
     uint64_t      online_since_ms;
     uint64_t      last_publish_ms;
@@ -95,6 +96,7 @@ typedef struct {
     char        client_id[24];
 
     uint64_t    backoff_ms;
+    uint8_t     proto_ok;        // "auto": the version the broker took (0: try 5.0 first)
     bool        want_state, want_activity, want_discovery, want_names, want_online;
     uint64_t    next_state_ms, next_activity_ms;
     bool        discovery_published;

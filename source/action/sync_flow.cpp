@@ -1130,9 +1130,10 @@ std::string report_section()
     static const char* const STATES[] = { "off", "waiting", "connecting", "online" };
     std::string out = "\n=== Remote link ===\n";
     if (!sync_files::exists()) return out + "not set up\n";
-    out += fmt::format("settings    : enabled={} ready={} tls={} user={} anonymous={} policy={} timer_writes={} "
+    out += fmt::format("settings    : enabled={} ready={} tls={} mqtt={} user={} anonymous={} policy={} timer_writes={} "
                        "discovery={} report={} activity={} poll={}s\n",
-                       c.enabled ? 1 : 0, st.ready ? 1 : 0, c.tls ? 1 : 0, c.username[0] ? "set" : "none",
+                       c.enabled ? 1 : 0, st.ready ? 1 : 0, c.tls ? 1 : 0, sync_mqtt_version_name(c.mqtt_version),
+                       c.username[0] ? "set" : "none",
                        c.allow_anonymous ? 1 : 0, sync_policy_name(c.policy), c.remote_timer_writes ? 1 : 0,
                        c.ha_discovery ? 1 : 0, c.publish_report ? 1 : 0, c.publish_activity ? 1 : 0, c.poll_s);
     if (st.agent || st.agent_refused)
@@ -1141,9 +1142,10 @@ std::string report_section()
                                     : "(another protocol: not used)");
     if (!st.running) return out + "session     : not running\n";
     const SyncStatus& l = st.link;
-    out += fmt::format("session     : {} connects={} publishes={} orders={} rejected={} dropped={} pending={}\n",
-                       STATES[l.state <= SyncLink_Online ? l.state : 0], l.connects, l.publishes, l.orders,
-                       l.rejected, l.dropped, st.pending);
+    out += fmt::format("session     : {} mqtt={} connects={} publishes={} orders={} rejected={} dropped={} pending={}\n",
+                       STATES[l.state <= SyncLink_Online ? l.state : 0],
+                       l.protocol == MQTT_V5 ? "5.0" : l.protocol == MQTT_V311 ? "3.1.1" : "-", l.connects, l.publishes,
+                       l.orders, l.rejected, l.dropped, st.pending);
     if (l.error[0]) {
         // "cannot find <host>": reports are public, the broker's name is not.
         std::string error = l.error;

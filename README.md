@@ -49,7 +49,7 @@ Driving the console's own controls also opens the door to much more: reporting p
 - 🕒 **Network clock** — measure against public NTP servers and set it, so the play timer counts correctly on a console that never reaches Nintendo.
 - 📱 **Companion app** — see whether the phone app is linked and **unlink** it, even for a second-hand console.
 - ↩️ **Change history, backups and undo** — every change PlayGuard makes is logged and can be reverted; settings can be backed up to the SD card.
-- 🏠 **Home Assistant (optional)** — over MQTT on your local network: the state, the limits and play time in Home Assistant, orders from it (extra time, limits, lock), each one asked on the console or carried out at once. Off by default; runs while PlayGuard is open. [Guide](docs/home-assistant.md).
+- 🏠 **Home Assistant (optional)** — over MQTT (5.0 or 3.1.1, any broker) on your local network: the state, the limits and play time in Home Assistant, orders from it (extra time, limits, lock), each one asked on the console or carried out at once. Off by default; runs while PlayGuard is open, or all the time with the optional agent. [Guide](docs/home-assistant.md).
 - 🌍 **Every console language** — 15 catalogs, light and dark themes.
 - 🛡️ **Safe writes** — the play timer is never written while it counts down, and no background process runs while a child plays.
 
@@ -201,7 +201,7 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 - A network-clock check at start-up (a toast when it is more than a minute off; it never sets the clock).
 - A **monthly reminder to support PlayGuard** (on by default, never in the first month nor right after an update; *Don't show again* on the reminder or this switch turns it off for good, updates included).
 - Advanced actions.
-- **Remote access (MQTT / Home Assistant):** the broker, the console's name, what to do with orders (ask on the console, carry them out, refuse them), whether they may change the play timer (off by default), Home Assistant's discovery, the live status, *Sync now* and the log. See [docs/home-assistant.md](docs/home-assistant.md).
+- **Remote access (MQTT / Home Assistant):** the broker and its MQTT version, the console's name, what to do with orders (ask on the console, carry them out, refuse them), whether they may change the play timer (off by default), Home Assistant's discovery, the live status, *Sync now* and the log. See [docs/home-assistant.md](docs/home-assistant.md).
 </details>
 
 <details>

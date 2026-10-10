@@ -31,7 +31,9 @@ come online, publish the Home Assistant discovery, the state, today's
 activity and the names, carry out a limit order (event, retained order
 cleared, new state, change history), refuse one out of range, publish the
 discovery again when Home Assistant says it restarted, show the link online
-in Preferences › Remote access, and leave "offline" behind at exit.
+in Preferences › Remote access, and leave "offline" behind at exit. It
+connects in MQTT 5.0 ("auto"); "sync-311" runs the same with
+mqtt_version=3.1.1 (Mosquitto's log says which version the client spoke).
 
 The "agent" scenario runs with a simulated agent sysmodule
 (PLAYGUARD_SIM_AGENT=running, no broker): PlayGuard must hand the link to it
@@ -53,7 +55,7 @@ The "modules" scenario carries a made-up recovery module
 the simulated SD card (exefs.nsp, boot2.flag, toolbox.json, version.txt), its
 start at boot turned off, then removed, each change in the history.
 
-Usage: tools/desktop_smoke.py <out-dir> [gate|errors|rescue|lock|devbuild|sync|agent|agent-update|agent-rollback|modules]   (needs DISPLAY, xdotool, ImageMagick)
+Usage: tools/desktop_smoke.py <out-dir> [gate|errors|rescue|lock|devbuild|sync|sync-311|agent|agent-update|agent-rollback|modules]   (needs DISPLAY, xdotool, ImageMagick)
 Environment knobs of the simulated backend (PLAYGUARD_SIM_*) are passed through;
 the console time is fixed (PLAYGUARD_SIM_NOW, TZ) unless set.
 """
@@ -72,7 +74,8 @@ ERRORS = SCENARIO == "errors"
 RESCUE = SCENARIO == "rescue"
 LOCK = SCENARIO == "lock"
 DEVBUILD = SCENARIO == "devbuild"
-SYNC = SCENARIO == "sync"
+SYNC = SCENARIO in ("sync", "sync-311")
+MQTT311 = SCENARIO == "sync-311"
 MODULES = SCENARIO == "modules"
 AGENT = SCENARIO == "agent"
 AGENT_UPDATE = SCENARIO in ("agent-update", "agent-rollback")
@@ -174,6 +177,7 @@ if SYNC:
     open(sync_conf, "w").write(
         "enabled=1\nhost=127.0.0.1\n"
         f"port={mqtt_port}\nallow_anonymous=1\nconsole_id={SYNC_ID}\nconsole_name=Smoke\n"
+        f"mqtt_version={'3.1.1' if MQTT311 else 'auto'}\n"
         "policy=auto\nremote_timer_writes=1\npoll_s=10\n")
     history = os.path.join(run_dir, "playguard_data", "history.json")
     if os.path.exists(history):
@@ -531,6 +535,12 @@ if SYNC:
             fail(f"{topic} is not JSON: {text[:200]}")
 
     wait_for("availability online", lambda: mqtt_get(f"{BASE}/availability") == "online")
+    # The version the client spoke, as Mosquitto logs it: "as pg-<id>-app (p5, …"
+    # (its own numbering: p2 is 3.1.1, p5 is 5.0).
+    level = "p2" if MQTT311 else "p5"
+    broker_log = open(os.path.join(OUT, "mosquitto.log"), errors="replace").read()
+    if f"as pg-{SYNC_ID}-app ({level}," not in broker_log:
+        fail(f"the client did not connect with {level}: {broker_log[-600:]}")
     discovery = wait_for("discovery", lambda: doc(f"homeassistant/device/playguard_{SYNC_ID}/config"))
     if "limit_mon" not in discovery.get("cmps", {}) or discovery["dev"]["name"] != "Smoke":
         fail("the discovery lacks the timer entities or the console's name")

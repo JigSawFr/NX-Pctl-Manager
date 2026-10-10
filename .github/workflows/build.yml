@@ -86,6 +86,8 @@ jobs:
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-devbuild devbuild
       - name: Smoke test (remote link against a local Mosquitto)
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-sync sync
+      - name: Smoke test (remote link in MQTT 3.1.1)
+        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-sync-311 sync-311
       - name: Smoke test (the link handed to a simulated agent sysmodule)
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-agent agent
       - name: Smoke test (update the agent from PlayGuard)

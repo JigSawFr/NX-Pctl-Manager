@@ -1,5 +1,5 @@
 // Host tests for source/sync/sync_engine.c and mqtt_client.c against a fake
-// MQTT 3.1.1 broker kept in memory (retained messages, subscriptions, last
+// MQTT 5.0 / 3.1.1 broker kept in memory (retained messages, subscriptions, last
 // will, keep-alive), with a scripted clock: the connection and its last
 // will, the discovery, the state and activity, orders applied, refused,
 // merged, taken by the host or kept waiting, Home Assistant restarting,
@@ -32,7 +32,16 @@ typedef struct {
 
 static struct {
     bool     up;              // accepts connections
-    uint8_t  refuse_code;     // CONNACK return code
+    uint8_t  refuse_code;     // CONNACK return code (3.1.1's; mapped for a 5.0 client)
+    uint8_t  min_version, max_version;   // the protocol levels it speaks (4: 3.1.1, 5: 5.0)
+    bool     close_on_unknown;           // another level: closes the stream instead of answering
+    unsigned refused_versions;
+    uint8_t  version;         // the connected client's
+    uint32_t client_max_packet;          // what a 5.0 CONNECT said
+    uint16_t server_keepalive;           // 5.0 CONNACK properties (0: not sent)
+    uint32_t max_packet;
+    bool     no_retain;
+    char     reason[64];
     bool     connected;       // a client is connected (CONNECT accepted)
     bool     open;
     bool     answer_pings;
@@ -62,6 +71,8 @@ static void broker_reset(void)
     broker.up = true;
     broker.answer_pings = true;
     broker.next_id = 1;
+    broker.min_version = 4;
+    broker.max_version = 5;
 }
 
 static void emit(const uint8_t *b, size_t n)
@@ -74,7 +85,8 @@ static void emit(const uint8_t *b, size_t n)
 static void emit_publish(const char *topic, const char *payload, size_t len, bool retain, uint8_t qos)
 {
     uint8_t head[256];
-    const size_t h = mqtt_encode_publish_head(head, sizeof(head), topic, len, qos, retain, false, qos ? broker.next_id++ : 0);
+    const size_t h = mqtt_encode_publish_head(head, sizeof(head), broker.version ? broker.version : MQTT_V311, topic, len,
+                                              qos, retain, false, qos ? broker.next_id++ : 0);
     assert(h);
     emit(head, h);
     emit((const uint8_t *)payload, len);
@@ -131,6 +143,15 @@ static void broker_drop(bool send_will)
     broker.in_len = broker.out_len = 0;
 }
 
+// 5.0: the broker ends the connection itself, saying why.
+static void broker_kick(uint8_t code, const char *reason)
+{
+    const size_t n = strlen(reason);
+    uint8_t d[64] = { 0xE0, (uint8_t)(2 + 3 + n), code, (uint8_t)(3 + n), 0x1F, 0x00, (uint8_t)n };
+    memcpy(d + 7, reason, n);
+    emit(d, 7 + n);
+}
+
 static void read_str(const uint8_t **p, char *out, size_t cap)
 {
     const size_t n = ((size_t)(*p)[0] << 8) | (*p)[1];
@@ -144,12 +165,35 @@ static void broker_handle(const MqttPacket *pk)
 {
     switch (pk->type) {
     case MQTT_CONNECT: {
+        const uint8_t version = pk->body[6];
         const uint8_t *p = pk->body + 7;
         const uint8_t flags = *p++;
         p += 2;   // keep-alive
+        if (version == MQTT_V5) {
+            // The client's properties: only its maximum packet size.
+            const uint8_t n = *p++;
+            broker.client_max_packet = 0;
+            if (n == 5 && p[0] == 0x27)
+                broker.client_max_packet = ((uint32_t)p[1] << 24) | ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 8) | p[4];
+            p += n;
+        }
+        if (version < broker.min_version || version > broker.max_version) {
+            // A broker of another version: "unacceptable protocol version"
+            // in 3.1.1's words, or nothing at all.
+            broker.refused_versions++;
+            if (broker.close_on_unknown) {
+                broker_drop(false);
+            } else {
+                const uint8_t ack[4] = { 0x20, 0x02, 0x00, 0x01 };
+                emit(ack, 4);
+            }
+            break;
+        }
+        broker.version = version;
         read_str(&p, broker.client_id, sizeof(broker.client_id));
         broker.has_will = flags & 0x04;
         if (broker.has_will) {
+            if (version == MQTT_V5) p += 1 + p[0];   // will properties
             read_str(&p, broker.will.topic, sizeof(broker.will.topic));
             char tmp[64];
             read_str(&p, tmp, sizeof(tmp));
@@ -160,15 +204,46 @@ static void broker_handle(const MqttPacket *pk)
         broker.username[0] = broker.password[0] = '\0';
         if (flags & 0x80) read_str(&p, broker.username, sizeof(broker.username));
         if (flags & 0x40) read_str(&p, broker.password, sizeof(broker.password));
-        const uint8_t ack[4] = { 0x20, 0x02, 0x00, broker.refuse_code };
-        emit(ack, 4);
+        if (version == MQTT_V5) {
+            uint8_t props[96];
+            size_t np = 0;
+            if (broker.server_keepalive) {
+                props[np++] = 0x13;
+                props[np++] = (uint8_t)(broker.server_keepalive >> 8);
+                props[np++] = (uint8_t)broker.server_keepalive;
+            }
+            if (broker.max_packet) {
+                props[np++] = 0x27;
+                for (int i = 3; i >= 0; i--) props[np++] = (uint8_t)(broker.max_packet >> (8 * i));
+            }
+            if (broker.no_retain) {
+                props[np++] = 0x25;
+                props[np++] = 0;
+            }
+            if (broker.reason[0]) {
+                const size_t n = strlen(broker.reason);
+                props[np++] = 0x1F;
+                props[np++] = 0;
+                props[np++] = (uint8_t)n;
+                memcpy(props + np, broker.reason, n);
+                np += n;
+            }
+            const uint8_t rc = broker.refuse_code == 0 ? 0 : broker.refuse_code == 4 ? 0x86
+                             : broker.refuse_code == 5 ? 0x87 : 0x80;
+            uint8_t ack[128] = { 0x20, (uint8_t)(3 + np), 0x00, rc, (uint8_t)np };
+            memcpy(ack + 5, props, np);
+            emit(ack, 5 + np);
+        } else {
+            const uint8_t ack[4] = { 0x20, 0x02, 0x00, broker.refuse_code };
+            emit(ack, 4);
+        }
         broker.connects++;
         broker.connected = broker.refuse_code == 0;
         break;
     }
     case MQTT_PUBLISH: {
         MqttPublish m;
-        assert(mqtt_decode_publish(pk, &m) == MQTT_OK);
+        assert(mqtt_decode_publish(pk, broker.version, &m) == MQTT_OK);
         assert(m.qos == 0);   // the client publishes QoS 0 only
         char topic[160];
         memcpy(topic, m.topic, m.topic_len);
@@ -187,6 +262,7 @@ static void broker_handle(const MqttPacket *pk)
         const uint8_t *p = pk->body;
         const uint16_t id = (uint16_t)((p[0] << 8) | p[1]);
         p += 2;
+        if (broker.version == MQTT_V5) p += 1 + p[0];   // properties
         uint8_t codes[4];
         size_t n = 0;
         char filters[4][160];
@@ -201,9 +277,15 @@ static void broker_handle(const MqttPacket *pk)
             broker.sub_qos[k] = q;
             codes[n++] = q;
         }
-        uint8_t ack[8] = { 0x90, (uint8_t)(2 + n), (uint8_t)(id >> 8), (uint8_t)id };
-        memcpy(ack + 4, codes, n);
-        emit(ack, 4 + n);
+        if (broker.version == MQTT_V5) {
+            uint8_t ack[9] = { 0x90, (uint8_t)(3 + n), (uint8_t)(id >> 8), (uint8_t)id, 0x00 };
+            memcpy(ack + 5, codes, n);
+            emit(ack, 5 + n);
+        } else {
+            uint8_t ack[8] = { 0x90, (uint8_t)(2 + n), (uint8_t)(id >> 8), (uint8_t)id };
+            memcpy(ack + 4, codes, n);
+            emit(ack, 4 + n);
+        }
         // Retained messages matching a new subscription, RETAIN 1.
         for (size_t f = 0; f < n; f++)
             for (size_t i = 0; i < broker.n_retained; i++)
@@ -757,6 +839,111 @@ static void test_oversized_and_reconfigure(void)
     assert(engine.status.state == SyncLink_Off && strstr(engine.status.error, "host"));
 }
 
+// MQTT 5.0 by default; "auto" falls back to 3.1.1 when the broker refuses
+// 5.0 (answering in 3.1.1, or closing the stream), and keeps it; a version
+// asked for is not changed.
+static void test_mqtt_versions(void)
+{
+    setup(false, SyncPolicy_Auto);
+    turns(3);
+    assert(sync_engine_online(&engine) && broker.version == MQTT_V5 && engine.status.protocol == MQTT_V5);
+    assert(broker.client_max_packet == SYNC_RX_SIZE);
+    assert(find_retained("playguard/a1b2c3d4/state") && find_retained("homeassistant/device/playguard_a1b2c3d4/config"));
+    // Orders and their answers work the same.
+    ha_order("vr_restricted", "ON");
+    turns(2);
+    assert(host.orders == 1 && strstr(last_event(), "command_applied") && !retained_order("vr_restricted"));
+
+    // A 3.1.1 broker: refused, then 3.1.1 at once.
+    for (int closes = 0; closes < 2; closes++) {
+        setup(false, SyncPolicy_Auto);
+        broker.max_version = MQTT_V311;
+        broker.close_on_unknown = closes;
+        turns(3);
+        assert(sync_engine_online(&engine) && broker.version == MQTT_V311 && engine.status.protocol == MQTT_V311);
+        assert(broker.refused_versions == 1 && broker.connects == 1);
+        // Reconnecting: straight to 3.1.1.
+        broker_drop(true);
+        turns(1);
+        now += 6000;
+        turns(3);
+        assert(sync_engine_online(&engine) && broker.refused_versions == 1 && broker.version == MQTT_V311);
+    }
+
+    // 5.0 asked for: no fallback, the reason said.
+    setup(false, SyncPolicy_Auto);
+    broker.max_version = MQTT_V311;
+    conf.mqtt_version = SyncMqtt_V5;
+    sync_engine_reconfigure(&engine, &conf);
+    turns(1);
+    assert(!sync_engine_online(&engine) && strstr(engine.status.error, "does not speak this MQTT version"));
+    assert(broker.refused_versions == 1 && broker.connects == 0);
+    // "auto" again: the fallback.
+    conf.mqtt_version = SyncMqtt_Auto;
+    sync_engine_reconfigure(&engine, &conf);
+    turns(3);
+    assert(sync_engine_online(&engine) && broker.version == MQTT_V311);
+
+    // A 5.0-only broker: 3.1.1 asked for is refused; "auto" uses 5.0 again
+    // once the settings change (what worked is forgotten).
+    setup(false, SyncPolicy_Auto);
+    broker.min_version = MQTT_V5;
+    conf.mqtt_version = SyncMqtt_V311;
+    sync_engine_reconfigure(&engine, &conf);
+    turns(1);
+    assert(!sync_engine_online(&engine) && strstr(engine.status.error, "does not speak this MQTT version"));
+    conf.mqtt_version = SyncMqtt_Auto;
+    sync_engine_reconfigure(&engine, &conf);
+    turns(3);
+    assert(sync_engine_online(&engine) && broker.version == MQTT_V5 && engine.proto_ok == MQTT_V5);
+}
+
+// What a 5.0 broker says in its CONNACK and DISCONNECT.
+static void test_mqtt5_properties(void)
+{
+    // Its keep-alive replaces the client's.
+    setup(false, SyncPolicy_Auto);
+    broker.server_keepalive = 10;
+    turns(3);
+    assert(sync_engine_online(&engine) && engine.mqtt.keepalive_s == 10);
+    const unsigned pings = broker.pings;
+    for (int i = 0; i < 9 && broker.pings == pings; i++) {
+        now += 1000;
+        sync_engine_step(&engine, 0);
+    }
+    assert(broker.pings == pings + 1);
+
+    // A refusal with its reason string.
+    setup(false, SyncPolicy_Auto);
+    broker.refuse_code = 5;
+    strcpy(broker.reason, "acl denies pg-a1b2c3d4-app");
+    turns(1);
+    assert(!sync_engine_online(&engine) && strstr(engine.status.error, "not authorised (acl denies pg-a1b2c3d4-app)"));
+    assert(broker.refused_versions == 0);   // not a version problem: no 3.1.1 attempt
+
+    // No retained messages: the link cannot work.
+    setup(false, SyncPolicy_Auto);
+    broker.no_retain = true;
+    turns(1);
+    assert(!sync_engine_online(&engine) && strstr(engine.status.error, "retained messages"));
+
+    // A small maximum packet size: the discovery (about 13 KiB) is not sent,
+    // the rest is.
+    setup(false, SyncPolicy_Auto);
+    broker.max_packet = 2048;
+    turns(3);
+    assert(sync_engine_online(&engine) && engine.mqtt.too_large >= 1);
+    assert(!find_retained("homeassistant/device/playguard_a1b2c3d4/config") && find_retained("playguard/a1b2c3d4/state"));
+
+    // The broker ends the session, saying why.
+    setup(false, SyncPolicy_Auto);
+    turns(3);
+    broker_kick(0x8E, "taken");
+    turns(1);
+    assert(!sync_engine_online(&engine));
+    assert(strstr(engine.status.error, "session taken over by another client (taken)"));
+}
+
 int main(void)
 {
     static Message log[MAX_LOG];
@@ -770,6 +957,8 @@ int main(void)
     test_connection_failures();
     test_keepalive();
     test_oversized_and_reconfigure();
+    test_mqtt_versions();
+    test_mqtt5_properties();
     puts("sync_engine: all tests passed");
     return 0;
 }

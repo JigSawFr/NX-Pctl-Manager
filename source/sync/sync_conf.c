@@ -81,6 +81,15 @@ static bool prefix_valid(const char *s)
     return true;
 }
 
+const char *sync_mqtt_version_name(SyncMqttVersion v)
+{
+    switch (v) {
+        case SyncMqtt_V5: return "5";
+        case SyncMqtt_V311: return "3.1.1";
+        default: return "auto";
+    }
+}
+
 const char *sync_policy_name(SyncPolicy p)
 {
     switch (p) {
@@ -161,6 +170,10 @@ static void on_kv(void *vctx, const char *key, const char *value)
         if (sync_parse_bool(value, &b)) c->tls = b;
     } else if (!strcmp(key, "ca_file")) {
         str_field(c->ca_file, sizeof(c->ca_file), value);
+    } else if (!strcmp(key, "mqtt_version")) {
+        if (!strcmp(value, "auto")) c->mqtt_version = SyncMqtt_Auto;
+        else if (!strcmp(value, "5") || !strcmp(value, "5.0")) c->mqtt_version = SyncMqtt_V5;
+        else if (!strcmp(value, "3.1.1") || !strcmp(value, "4")) c->mqtt_version = SyncMqtt_V311;
     } else if (!strcmp(key, "username")) {
         str_field(c->username, sizeof(c->username), value);
     } else if (!strcmp(key, "password")) {
@@ -217,6 +230,7 @@ size_t sync_conf_write(const SyncConf *c, char *out, size_t cap)
         "port=%u\n"
         "tls=%d\n"
         "ca_file=%s\n"
+        "mqtt_version=%s\n"
         "username=%s\n"
         "password=%s\n"
         "allow_anonymous=%d\n"
@@ -232,7 +246,8 @@ size_t sync_conf_write(const SyncConf *c, char *out, size_t cap)
         "discovery_prefix=%s\n"
         "log_level=%d\n"
         "%s",
-        SYNC_CONF_SCHEMA, c->enabled, c->host, (unsigned)c->port, c->tls, c->ca_file, c->username, c->password,
+        SYNC_CONF_SCHEMA, c->enabled, c->host, (unsigned)c->port, c->tls, c->ca_file,
+        sync_mqtt_version_name(c->mqtt_version), c->username, c->password,
         c->allow_anonymous, c->console_id, c->console_name, sync_policy_name(c->policy), c->remote_timer_writes,
         c->publish_report, c->publish_activity, c->ha_discovery, (unsigned)c->poll_s, c->topic_prefix,
         c->discovery_prefix, c->log_level, c->extra);

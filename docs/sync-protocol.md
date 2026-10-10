@@ -31,6 +31,19 @@ is `null`, never a default. JSON consumers ignore unknown fields.
 | `homeassistant/device/playguard_<id>/config` | yes | console → | HA native discovery. Only when `ha_discovery` is on; cleared when it is turned off. |
 | `homeassistant/status` | — | ← HA | Subscribed: on `online`, the console republishes discovery, state and activity. |
 
+MQTT version: **5.0, or 3.1.1** (`mqtt_version` in `sync.conf`: `auto`, the
+default, connects in 5.0 and, when the broker refuses it, answering in 3.1.1
+or closing the connection, in 3.1.1 at once, then keeps the version that
+worked until the settings change; `5` or `3.1.1` force one). In 5.0 the
+console sends no property but its maximum packet size (4096 bytes, its
+receive buffer: the broker drops a larger message rather than sending it),
+and follows what the broker's CONNACK says: its keep-alive, its maximum
+packet size (a document larger than it is not published, and counted), and
+retained messages unavailable (the link needs them: it does not connect).
+A broker's reason codes and reason strings, in a refused CONNECT or
+SUBSCRIBE or a DISCONNECT it sends, are what *Remote access › Status* shows.
+Orders arrive the same way in both versions; topic aliases are never used.
+
 Client ids: `pg-<id>-agent` for the agent, `pg-<id>-app` for PlayGuard
 running without the agent (23 characters at most, as MQTT 3.1.1 promises). Only one of them connects at a time.
 Outbound publishes use QoS 0 (retained state heals itself at the next cycle);
@@ -273,7 +286,8 @@ session's counters, never the broker's address, the user name or the
 password.
 
 `sync.conf` keys: `schema=1`, `enabled`, `host`, `port` (1883; 8883 turns
-`tls` on by default), `tls`, `ca_file`, `username`, `password`,
+`tls` on by default), `tls`, `ca_file`, `mqtt_version` (`auto` / `5` /
+`3.1.1`), `username`, `password`,
 `allow_anonymous`, `console_id`, `console_name`, `policy` (`ask` / `auto` /
 `off`; the agent alone only applies `auto`), `remote_timer_writes`,
 `publish_report`, `publish_activity`, `ha_discovery`, `poll_s` (30, 10–300),

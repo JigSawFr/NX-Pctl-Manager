@@ -79,10 +79,14 @@ Non-goals:
 
 ### Transport: MQTT, broker-agnostic, Mosquitto by default
 
-**Decision.** The console speaks plain MQTT 3.1.1 (retained messages, last
-will, QoS 1 inbound) to any broker. The documentation sets up Mosquitto, HA's
-add-on, because that is what HA users have; nothing depends on a broker's
-own features (no `$SYS`, no MQTT 5, no dynamic security). TLS is optional per
+**Decision.** The console speaks plain MQTT (retained messages, last will,
+QoS 1 inbound) to any broker: 5.0 by default, 3.1.1 when the broker refuses
+5.0 (or when `mqtt_version` says so). The same few packets either way; 5.0
+only adds what the broker says back (its keep-alive and maximum packet size,
+whether it keeps retained messages, reason codes and strings). The
+documentation sets up Mosquitto, HA's add-on, because that is what HA users
+have; nothing depends on a broker's own features (no `$SYS`, no 5.0-only
+feature such as shared subscriptions or message expiry, no dynamic security). TLS is optional per
 broker, through the console's own `ssl` service (so no TLS library of ours),
 with an optional CA file for private brokers.
 
