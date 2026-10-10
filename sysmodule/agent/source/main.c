@@ -15,10 +15,12 @@
 // the agent changed), sync/agent_events.log (its orders, imported into
 // PlayGuard's history), logs/agent_*.txt (reports asked for).
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #include <switch.h>
 
 #include "agent_core.h"
@@ -62,7 +64,7 @@ void __libnx_initheap(void)
     extern char *fake_heap_start;
     extern char *fake_heap_end;
     fake_heap_start = g_heap;
-    fake_heap_end   = g_heap + sizeof(g_heap);
+    fake_heap_end   = g_heap + INNER_HEAP_SIZE;
 }
 
 void __appInit(void)
@@ -125,11 +127,22 @@ static size_t read_file(const char *path, char *out, size_t cap)
     return n;
 }
 
+// A file opened for writing, created owner-writable only (fopen would ask
+// for 0666; the SD card's FAT keeps no modes, but nothing should ask for it).
+static FILE *open_write(const char *path, bool append)
+{
+    const int fd = open(path, O_WRONLY | O_CREAT | (append ? O_APPEND : O_TRUNC), 0644);
+    if (fd < 0) return NULL;
+    FILE *f = fdopen(fd, append ? "ab" : "wb");
+    if (!f) close(fd);
+    return f;
+}
+
 static bool write_file(const char *path, const char *text, size_t len)
 {
     char tmp[160];
     snprintf(tmp, sizeof(tmp), "%s.tmp", path);
-    FILE *f = fopen(tmp, "wb");
+    FILE *f = open_write(tmp, false);
     if (!f) return false;
     const bool ok = fwrite(text, 1, len, f) == len;
     if (fclose(f) != 0 || !ok) {
@@ -448,7 +461,7 @@ static void append_event(const char *entity, const char *payload, const SyncOutc
     if (at > 0 && at < (int)sizeof(line)) at += snprintf(line + at, sizeof(line) - (size_t)at, "\t%d", o->console_lock_after);
     if (at <= 0 || at >= (int)sizeof(line) - 1) return;
     line[at++] = '\n';
-    FILE *f = fopen(AGENT_EVENTS, "ab");
+    FILE *f = open_write(AGENT_EVENTS, true);
     if (!f) return;
     fwrite(line, 1, (size_t)at, f);
     fclose(f);
