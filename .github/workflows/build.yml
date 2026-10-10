@@ -92,7 +92,7 @@ jobs:
       # test above is what fails the job.
       - name: Visual check (warning only)
         run: |
-          for set in "smoke smoke" "smoke-errors errors" "smoke-gate gate"; do
+          for set in "smoke smoke" "smoke-errors errors" "smoke-gate gate" "smoke-rescue rescue" "smoke-forged forged" "smoke-lock lock"; do
             set -- $set
             if python3 tools/visual_check.py "$1" "tests/visual/$2" > "$1-visual.txt" 2>&1; then
               tail -n 1 "$1-visual.txt"
