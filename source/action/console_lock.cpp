@@ -4,6 +4,7 @@
 
 #include <borealis.hpp>
 
+#include "action/console_lock_logic.hpp"
 #include "action/history_flow.hpp"
 #include "action/pt_flow.hpp"
 #include "ui/ui.hpp"
@@ -29,16 +30,14 @@ void lock(std::function<void()> refresh)
 
     pt_flow::confirm_write("playguard/console_lock/on_body"_i18n, "playguard/console_lock/on_confirm"_i18n,
                            [refresh](bool did_unlock) {
-        // What we put back later, read now: a limit that could not be read
-        // would be saved as "no limit", and turning the lock off would then
-        // remove every limit.
+        // What we put back later, read now (console_lock_logic::to_save).
         PtState now;
         pctl_play_timer_query(&now);
-        if (!now.valid) {
+        const std::vector<int> prev = console_lock_logic::to_save(now);
+        if (prev.empty()) {
             pt_flow::finish_write(NXM_RC_STATE_UNKNOWN, did_unlock, "", "playguard/play_timer/write_err"_i18n, refresh);
             return;
         }
-        const std::vector<int> prev(now.day_min, now.day_min + 7);
         const uint16_t zero[7] = { 0, 0, 0, 0, 0, 0, 0 };
         // The limits to put back are saved before they are replaced: should
         // the app stop between the two, turning the lock off still restores
@@ -67,19 +66,11 @@ void lock(std::function<void()> refresh)
 // Turn it off: put the saved limits back, or clear the limit if none saved.
 void unlock(std::function<void()> refresh)
 {
-    const std::vector<int> saved = config::get().console_lock_prev;
-    bool any = false;
-    for (int v : saved) any = any || v != (int)PT_DAY_NOLIMIT;
-    const bool restore = saved.size() == 7 && any;
-
-    uint16_t back[7];
-    for (int i = 0; i < 7; i++) back[i] = restore ? (uint16_t)saved[i] : PT_DAY_NOLIMIT;
+    const console_lock_logic::Unlock plan = console_lock_logic::plan_unlock(config::get().console_lock_prev);
 
     pt_flow::confirm_write("playguard/console_lock/off_body"_i18n, "playguard/console_lock/off_confirm"_i18n,
-                           [refresh, restore, saved](bool did_unlock) {
-        uint16_t days[7];
-        for (int i = 0; i < 7; i++) days[i] = restore ? (uint16_t)saved[i] : PT_DAY_NOLIMIT;
-        Result rc = restore ? pt_flow::write_days(days, "console_lock") : pt_flow::clear_days("console_lock");
+                           [refresh, plan](bool did_unlock) {
+        Result rc = plan.restore ? pt_flow::write_days(plan.days, "console_lock") : pt_flow::clear_days("console_lock");
         if (R_SUCCEEDED(rc)) {
             config::get().console_lock_prev.clear();
             set_flag(false);
@@ -87,7 +78,7 @@ void unlock(std::function<void()> refresh)
         }
         pt_flow::finish_write(rc, did_unlock, "playguard/console_lock/off_done"_i18n,
                               "playguard/play_timer/write_err"_i18n, refresh);
-    }, restore ? back : nullptr, true);
+    }, plan.restore ? plan.days : nullptr, true);
 }
 }   // namespace
 
