@@ -1,6 +1,7 @@
 // Renders branding/*.svg to the raster files the build and the stores use:
 //   icon.jpg (256x256, NRO icon), images/store/icon.png (256x150),
-//   images/store/banner.png (848x208).
+//   images/store/banner.png (848x208), images/social-preview.png (1280x640, the
+//   repository's social preview, uploaded by hand in Settings › General).
 // Needs Node + Playwright (Chromium); loads the Sora font from Google Fonts.
 //   node tools/render_branding.mjs
 import { chromium } from 'playwright';
@@ -13,6 +14,7 @@ const jobs = [
   { svg: 'branding/icon.svg',       out: 'icon.jpg',                w: 256, h: 256, type: 'jpeg' },
   { svg: 'branding/store-icon.svg', out: 'images/store/icon.png',   w: 256, h: 150, type: 'png' },
   { svg: 'branding/banner.svg',     out: 'images/store/banner.png', w: 848, h: 208, type: 'png' },
+  { svg: 'branding/social-preview.svg', out: 'images/social-preview.png', w: 1280, h: 640, type: 'png' },
 ];
 
 const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
