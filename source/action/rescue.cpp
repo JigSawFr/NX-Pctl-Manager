@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <sys/stat.h>
 
+#include "action/data_notice.hpp"
 #include "action/history_flow.hpp"
 #include "util/pctl_ops_c.hpp"
 #include "util/paths.hpp"
@@ -46,7 +47,10 @@ std::optional<RescueReport> take()
 
     RescueReport r;
     if (!rescue_report_parse(text.c_str(), text.size(), &r)) {
+        // The sysmodule may or may not have acted: the parent is told (once,
+        // on the main screen) rather than left guessing.
         brls::Logger::warning("rescue report present but unreadable");
+        data_notice::rescue_unreadable();
         return std::nullopt;
     }
     brls::Logger::info("rescue report: mode={} result={} rc=0x{:08X}",

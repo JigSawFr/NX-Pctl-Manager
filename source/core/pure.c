@@ -42,6 +42,25 @@ void pt_decode(const u16 c[PT_U16_COUNT], u16 days_min[7])
         days_min[n] = pt_has_limit(c, n) ? c[7 + 4 * n + 2] : PT_DAY_NOLIMIT;
 }
 
+// One 8-byte rule at byte `d` (a day, or the header's): see pure.h.
+static bool pt_rule_plausible(const u16 c[PT_U16_COUNT], int d)
+{
+    const u16 minutes = (u16)(pt_byte(c, d + 6) | (pt_byte(c, d + 7) << 8));
+    return pt_byte(c, d + PT_BED_ON) <= 1 && pt_byte(c, d + PT_BED_H) < 24 && pt_byte(c, d + PT_BED_M) < 60 &&
+           pt_byte(c, d + PT_END_H) < 24 && pt_byte(c, d + PT_END_M) < 60 && pt_byte(c, d + PT_LIMIT_ON) <= 1 &&
+           (minutes <= 1440 || minutes == PT_DAY_NOLIMIT);
+}
+
+bool pt_plausible(const u16 c[PT_U16_COUNT])
+{
+    for (int i = 0; i < 4; i++)
+        if (pt_byte(c, i) > 3) return false;
+    if (!pt_rule_plausible(c, 4)) return false;
+    for (int n = 0; n < 7; n++)
+        if (!pt_rule_plausible(c, pt_day(n))) return false;
+    return true;
+}
+
 void pt_encode(u16 c[PT_U16_COUNT], const u16 days_min[7])
 {
     bool any = false;

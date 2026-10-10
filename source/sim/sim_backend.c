@@ -97,7 +97,7 @@ static void sim_init(void)
 {
     if (S.init) return;
     S.init = true;
-    S.hos = MAKEHOSVERSION(23, 0, 1);
+    S.hos = PCTL_FW_TESTED_MAX;   // the newest verified one: no firmware gate
     const char *fw = getenv("PLAYGUARD_SIM_FW");
     unsigned a, b, c;
     if (fw && sscanf(fw, "%u.%u.%u", &a, &b, &c) == 3) S.hos = MAKEHOSVERSION(a, b, c);
@@ -264,6 +264,9 @@ void pctl_play_timer_query(PtState *o)
     o->session_valid = true;
     if (fails("timer")) {
         o->config_rc = SIM_FAIL_RC;
+    } else if (!pt_plausible(S.block)) {   // as pctl_ops.c (only pt_encode writes it here)
+        o->config_rc = NXM_RC_PT_NOT_UNDERSTOOD;
+        memcpy(o->block, S.block, sizeof(o->block));
     } else {
         o->valid = true;
         pt_decode(S.block, o->day_min);

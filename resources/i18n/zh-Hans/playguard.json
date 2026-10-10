@@ -96,7 +96,8 @@
         "relock_failed": "主机已解锁，但无法重新锁定：请立即锁定（安全与应用 › 立即启用）",
         "not_applied": "主机未接受更改，已恢复之前的设置",
         "not_saved": "PlayGuard 无法在 SD 卡上保存之后需要恢复的内容，未写入任何内容",
-        "next_step": "如果再次发生，请发送报告：工具 › 在线发送报告。"
+        "next_step": "如果再次发生，请发送报告：工具 › 在线发送报告。",
+        "pt_not_understood": "主机的游戏时间设置格式PlayGuard无法识别，未进行任何更改。请发送报告：工具 › 在线发送报告。"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -107,7 +108,7 @@
     "fw_gate": {
         "title": "暂不支持此系统版本",
         "headline": "暂不支持系统版本{}",
-        "body": "PlayGuard {}已验证至系统版本{}。为安全起见，在选择继续方式之前不会进行任何更改。所有内容仍可查看。",
+        "body": "PlayGuard {}已在主机上测试至系统版本{}。为安全起见，在选择继续方式之前不会进行任何更改。所有内容仍可查看。",
         "status_checking": "正在查找支持此版本的PlayGuard…",
         "status_supports": "PlayGuard {}支持系统版本{}：更新后即可安全使用所有功能。",
         "status_no_support": "PlayGuard {}已推出，但尚不支持系统版本{}。",
@@ -876,7 +877,8 @@
             "restore": "已恢复备份",
             "rescue": "已使用恢复",
             "console_lock": "主机锁",
-            "bedtime": "就寝提醒"
+            "bedtime": "就寝提醒",
+            "config_reset": "偏好设置已重置（文件无法读取）"
         },
         "sources": {
             "uniform": "每天相同的限制",
@@ -911,5 +913,12 @@
         "limit_over": "线是当天的限制 · 橙色 !：超过了限制",
         "week_order": "周一到周日，带下划线的是今天",
         "unsaved": "橙色 *：已更改，尚未保存"
+    },
+    "data_notice": {
+        "config_reset": "无法读取PlayGuard的偏好设置，已将其重置。损坏的文件已保留为config.json.bad。",
+        "config_stuck": "无法读取PlayGuard的偏好设置，也无法将其移到一旁：现使用默认值，且暂时不会保存任何内容，以免覆盖该文件。请检查SD卡。",
+        "history_reset": "无法读取更改历史，已开始新的历史。损坏的文件已保留为history.json.bad。",
+        "history_stuck": "无法读取更改历史，也无法将其移到一旁：暂时不会在其中记录任何更改。请检查SD卡。",
+        "rescue_unreadable": "找到了恢复 sysmodule 的报告，但无法读取，因此PlayGuard无法得知它做了什么。请检查PIN和游戏时间。"
     }
 }

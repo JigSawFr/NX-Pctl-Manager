@@ -1,7 +1,8 @@
 // Host tests for source/util/config.cpp and the ".tmp" recovery of
 // source/util/paths.cpp: every field read on its own, out-of-range values put
 // back to their defaults, records dropped as a whole, round trip, recovery
-// of a save that stopped between its remove and its rename.
+// of a save that stopped between its remove and its rename, a damaged file
+// put aside (config.json.bad) before anything saves over it.
 #include "check.h"
 #include <csignal>
 #include <cstdio>
@@ -28,12 +29,77 @@ static void test_defaults()
     CHECK(!c.extra_auto_restore);
     CHECK(c.extra_weekday == -1 && !c.relock_pending && c.fw_gate_choice.empty());
 
+    CHECK(config::loaded() == config::Loaded::Missing);   // a first run: nothing to tell
     for (const char* bad : { "", "not json", "[1, 2]", "42", "{\"language\": " }) {
         write_config(bad);
         config::get().dev_mode = true;
         config::load();
         CHECK(!config::get().dev_mode && config::get().language == "system");
+        CHECK(config::loaded() == config::Loaded::PutAside);
     }
+    std::remove(paths::config_file().c_str());
+    std::remove((paths::config_file() + ".bad").c_str());
+    std::remove((paths::config_file() + ".bad.1").c_str());
+}
+
+static bool exists(const std::string& path)
+{
+    struct stat st;
+    return stat(path.c_str(), &st) == 0;
+}
+
+// A file that is there but cannot be read as settings is put aside before
+// any save, the previous damaged copy kept; a missing one is a silent first run.
+static void test_damaged()
+{
+    const std::string file = paths::config_file(), bad = file + ".bad", older = bad + ".1";
+    const std::string first = R"({"relock_pending": true, "console_lock": tr)";
+    std::string text;
+    write_config(first);
+    config::load();
+    CHECK(config::loaded() == config::Loaded::PutAside && !config::get().relock_pending);
+    CHECK(!exists(file) && paths::read_file(bad, text) && text == first);
+    // The automatic saves at start-up then write a new file; the damaged one stays.
+    CHECK(config::save() && exists(file));
+    CHECK(paths::read_file(bad, text) && text == first);
+    config::load();
+    CHECK(config::loaded() == config::Loaded::Read);
+
+    // Damaged again: the first .bad becomes .bad.1; a third drops the oldest.
+    write_config("second");
+    config::load();
+    CHECK(config::loaded() == config::Loaded::PutAside);
+    CHECK(paths::read_file(bad, text) && text == "second");
+    CHECK(paths::read_file(older, text) && text == first);
+    write_config("third");
+    config::load();
+    CHECK(paths::read_file(bad, text) && text == "third" && paths::read_file(older, text) && text == "second");
+
+    // Only a damaged .tmp left (a save stopped before its rename): that one is put aside.
+    CHECK(paths::atomic_write(file + ".tmp", "{ half"));
+    std::remove(file.c_str());
+    CHECK(exists(file + ".tmp"));
+    config::load();
+    CHECK(config::loaded() == config::Loaded::PutAside && !exists(file + ".tmp"));
+    CHECK(paths::read_file(bad, text) && text == "{ half");
+
+    // There but unreadable (a folder in its place) and it cannot be moved
+    // (the .bad cannot be renamed either): saves refuse, nothing is replaced.
+    CHECK(mkdir(file.c_str(), 0700) == 0);
+    std::remove(older.c_str());
+    CHECK(mkdir(older.c_str(), 0700) == 0);
+    CHECK(paths::atomic_write(older + "/x", "keeps the folder non-empty"));
+    config::load();
+    CHECK(config::loaded() == config::Loaded::Stuck && exists(file));
+    CHECK(!config::save());
+    CHECK(paths::read_file(bad, text) && text == "{ half");
+    std::remove((older + "/x").c_str());
+    CHECK(rmdir(older.c_str()) == 0 && rmdir(file.c_str()) == 0);
+
+    // Missing again: a first run, silent, and saves work.
+    std::remove(bad.c_str());
+    config::load();
+    CHECK(config::loaded() == config::Loaded::Missing && config::save());
 }
 
 static void test_fields()
@@ -316,6 +382,7 @@ int main()
     REQUIRE(chdir(dir) == 0);   // paths::data_dir() is ./playguard_data on the host
 
     test_defaults();
+    test_damaged();
     test_fields();
     test_round_trip();
     test_console_lock();
@@ -324,5 +391,5 @@ int main()
 
     const std::string cleanup = std::string("rm -rf '") + dir + "'";
     CHECK(std::system(cleanup.c_str()) == 0);
-    return CHECK_DONE("config fields, ranges, round trip and .tmp recovery assertions passed");
+    return CHECK_DONE("config fields, ranges, round trip, .tmp recovery and damaged-file assertions passed");
 }

@@ -4,6 +4,7 @@
 #include <borealis.hpp>
 #include <fmt/format.h>
 
+#include "action/data_notice.hpp"
 #include "action/history_logic.hpp"
 #include "action/pt_flow.hpp"
 #include "action/pt_log_flow.hpp"
@@ -52,7 +53,7 @@ std::string kind_label(const std::string& kind)
 {
     static const char* known[] = { "limits", "level", "custom", "org", "vr", "alarm", "pin",
                                    "unlock", "relock", "unlink", "delete", "clock", "restore", "rescue",
-                                   "console_lock", "bedtime" };
+                                   "console_lock", "bedtime", "config_reset" };
     for (const char* k : known)
         if (kind == k) return brls::getStr(std::string("playguard/history/kinds/") + k);
     return kind;
@@ -115,7 +116,9 @@ static void store(history::Entry e)
 {
     e.when = ui::now_stamp();
     std::string err;
-    if (!history::append(e, &err)) brls::Logger::warning("history: not saved ({})", err);
+    bool put_aside = false;
+    if (!history::append(e, &err, &put_aside)) brls::Logger::warning("history: not saved ({})", err);
+    if (put_aside) data_notice::history_put_aside();
     // Developer › Record the play timer: a line marking the change.
     std::string event = e.kind;
     for (const std::string* part : { &e.source, &e.detail })

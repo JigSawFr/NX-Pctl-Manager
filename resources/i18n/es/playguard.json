@@ -96,7 +96,8 @@
         "relock_failed": "la consola se desbloqueó pero no se pudo volver a bloquear: bloquéala ahora (Seguridad y app › Bloquear ahora)",
         "not_applied": "la consola no ha aceptado el cambio, así que se ha restablecido la configuración anterior",
         "not_saved": "PlayGuard no ha podido guardar en la tarjeta SD lo que tendrá que restablecer más tarde, así que no se ha escrito nada",
-        "next_step": "Si vuelve a ocurrir, envíe un informe: Herramientas › Enviar un informe en línea."
+        "next_step": "Si vuelve a ocurrir, envíe un informe: Herramientas › Enviar un informe en línea.",
+        "pt_not_understood": "los ajustes del tiempo de juego de la consola están en un formato que PlayGuard no entiende, así que no se ha cambiado nada. Envíe un informe: Herramientas › Enviar un informe en línea."
     },
     "init_error": {
         "title": "PlayGuard",
@@ -107,7 +108,7 @@
     "fw_gate": {
         "title": "Firmware aún no compatible",
         "headline": "El firmware {} aún no es compatible",
-        "body": "PlayGuard {} se ha comprobado hasta el firmware {}. Por seguridad, no se cambiará nada hasta que elija cómo continuar. Todo se puede seguir consultando.",
+        "body": "PlayGuard {} se ha probado en una consola hasta el firmware {}. Por seguridad, no se cambiará nada hasta que elija cómo continuar. Todo se puede seguir consultando.",
         "status_checking": "Buscando una versión de PlayGuard compatible...",
         "status_supports": "PlayGuard {} es compatible con el firmware {}: actualice para usar todas las funciones con seguridad.",
         "status_no_support": "PlayGuard {} está disponible, pero aún no es compatible con el firmware {}.",
@@ -876,7 +877,8 @@
             "restore": "Copia restaurada",
             "rescue": "Recuperación usada",
             "console_lock": "Bloqueo de la consola",
-            "bedtime": "Alarma de hora de dormir"
+            "bedtime": "Alarma de hora de dormir",
+            "config_reset": "Preferencias restablecidas (archivo ilegible)"
         },
         "sources": {
             "uniform": "Mismo límite todos los días",
@@ -911,5 +913,12 @@
         "limit_over": "La línea es el límite del día · ! en ámbar: se jugó más",
         "week_order": "De lunes a domingo, hoy subrayado",
         "unsaved": "* en ámbar: cambiado, aún sin guardar"
+    },
+    "data_notice": {
+        "config_reset": "No se han podido leer las preferencias de PlayGuard y se han restablecido. El archivo dañado se ha guardado como config.json.bad.",
+        "config_stuck": "No se han podido leer las preferencias de PlayGuard ni apartarlas: se usan los valores predeterminados y por ahora no se guardará nada, para no sobrescribir el archivo. Compruebe la tarjeta SD.",
+        "history_reset": "No se ha podido leer el historial de cambios, así que se ha empezado uno nuevo. El archivo dañado se ha guardado como history.json.bad.",
+        "history_stuck": "No se ha podido leer el historial de cambios ni apartarlo: por ahora no se registrará en él ningún cambio. Compruebe la tarjeta SD.",
+        "rescue_unreadable": "Se ha encontrado un informe del sysmodule de recuperación, pero no se ha podido leer, así que PlayGuard no puede saber qué hizo. Compruebe el PIN y el tiempo de juego."
     }
 }

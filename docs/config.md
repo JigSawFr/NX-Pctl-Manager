@@ -9,8 +9,19 @@ The code is the reference: `source/util/config.hpp` (fields and defaults) and
 
 ## How the file is read
 
-- **A missing file, or one that is not JSON, gives the defaults.** PlayGuard
-  writes the whole file again at the next change.
+- **A missing file gives the defaults**, silently (a first run). PlayGuard
+  writes the whole file at the next change.
+- **A file that is there but cannot be read, or is not a JSON object, is kept
+  as `config.json.bad`** before anything is saved (PlayGuard saves by itself
+  at start-up), and the defaults are used. A `config.json.bad` already there
+  becomes `config.json.bad.1` (an older `.bad.1` is deleted): the two most
+  recent damaged files are kept. PlayGuard says so once, at start-up (*the
+  settings could not be read and were reset*), and the change history
+  records *Settings reset*. What the old file held (the console lock's saved
+  limits, a pending relock or extra time, the firmware choice …) is not
+  carried over: check those settings, or copy values back from the `.bad`
+  file by hand. Should the file not be movable either, nothing is saved
+  until the next start, so it is never overwritten.
 - **Each key is read on its own.** A missing key keeps its default; a key of
   the wrong type keeps its default too, and the others are still read.
   Types are strict: `true`, not `1`; `90`, not `90.5` or `"90"`.

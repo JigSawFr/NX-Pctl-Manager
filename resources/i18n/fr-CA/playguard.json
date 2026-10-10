@@ -96,7 +96,8 @@
         "relock_failed": "la console a été déverrouillée mais n'a pas pu être reverrouillée : verrouillez-la maintenant (Sécurité et appli › Verrouiller maintenant)",
         "not_applied": "la console n'a pas pris en compte la modification : les réglages précédents ont été remis",
         "not_saved": "PlayGuard n'a pas pu enregistrer sur la carte SD ce qu'il devra remettre plus tard, rien n'a été écrit",
-        "next_step": "Si cela se reproduit, envoyez un rapport : Outils › Envoyer un rapport en ligne."
+        "next_step": "Si cela se reproduit, envoyez un rapport : Outils › Envoyer un rapport en ligne.",
+        "pt_not_understood": "les réglages du temps de jeu de la console sont dans un format que PlayGuard ne comprend pas, rien n'a été modifié. Envoyez un rapport : Outils › Envoyer un rapport en ligne."
     },
     "init_error": {
         "title": "PlayGuard",
@@ -107,7 +108,7 @@
     "fw_gate": {
         "title": "Firmware pas encore pris en charge",
         "headline": "Le firmware {} n'est pas encore pris en charge",
-        "body": "PlayGuard {} a été vérifié jusqu'au firmware {}. Par sécurité, rien ne sera modifié tant que vous n'avez pas choisi comment continuer. Tout reste consultable.",
+        "body": "PlayGuard {} a été testé sur console jusqu'au firmware {}. Par sécurité, rien ne sera modifié tant que vous n'avez pas choisi comment continuer. Tout reste consultable.",
         "status_checking": "Recherche d'une version de PlayGuard qui le prend en charge...",
         "status_supports": "PlayGuard {} prend en charge le firmware {} : mettez à jour pour tout utiliser sans risque.",
         "status_no_support": "PlayGuard {} est disponible, mais ne prend pas encore en charge le firmware {}.",
@@ -876,7 +877,8 @@
             "restore": "Sauvegarde restaurée",
             "rescue": "Récupération utilisée",
             "console_lock": "Verrou de console",
-            "bedtime": "Alarme du coucher"
+            "bedtime": "Alarme du coucher",
+            "config_reset": "Réglages réinitialisés (fichier illisible)"
         },
         "sources": {
             "uniform": "Même limite tous les jours",
@@ -911,5 +913,12 @@
         "limit_over": "La ligne est la limite du jour · ! en orange : limite dépassée",
         "week_order": "Du lundi au dimanche, aujourd'hui souligné",
         "unsaved": "* en orange : modifié, pas encore enregistré"
+    },
+    "data_notice": {
+        "config_reset": "Les réglages de PlayGuard n'ont pas pu être lus et ont été réinitialisés. Le fichier endommagé a été gardé en config.json.bad.",
+        "config_stuck": "Les réglages de PlayGuard n'ont pas pu être lus, ni mis de côté : les valeurs par défaut sont utilisées et rien ne sera enregistré pour l'instant, pour ne pas écraser le fichier. Vérifiez la carte SD.",
+        "history_reset": "L'historique des modifications n'a pas pu être lu, un nouveau a donc été commencé. Le fichier endommagé a été gardé en history.json.bad.",
+        "history_stuck": "L'historique des modifications n'a pas pu être lu, ni mis de côté : aucune modification n'y sera enregistrée pour l'instant. Vérifiez la carte SD.",
+        "rescue_unreadable": "Un rapport du sysmodule de récupération a été trouvé mais n'a pas pu être lu : PlayGuard ne peut pas savoir ce qu'il a fait. Vérifiez le NIP et le temps de jeu."
     }
 }

@@ -96,7 +96,8 @@
         "relock_failed": "a consola foi desbloqueada mas não foi possível bloqueá-la de novo: bloqueie-a agora (Segurança e aplicação › Bloquear agora)",
         "not_applied": "a consola não aceitou a alteração, por isso as definições anteriores foram repostas",
         "not_saved": "o PlayGuard não conseguiu guardar no cartão SD o que terá de repor mais tarde, por isso nada foi escrito",
-        "next_step": "Se voltar a acontecer, envie um relatório: Ferramentas › Enviar um relatório online."
+        "next_step": "Se voltar a acontecer, envie um relatório: Ferramentas › Enviar um relatório online.",
+        "pt_not_understood": "as definições do tempo de jogo da consola estão num formato que o PlayGuard não compreende, por isso nada foi alterado. Envie um relatório: Ferramentas › Enviar um relatório online."
     },
     "init_error": {
         "title": "PlayGuard",
@@ -107,7 +108,7 @@
     "fw_gate": {
         "title": "Firmware ainda não suportado",
         "headline": "O firmware {} ainda não é suportado",
-        "body": "O PlayGuard {} só foi verificado com o firmware {} ou anterior. Por segurança, nada será alterado até escolher como continuar. Tudo continua a poder ser consultado.",
+        "body": "O PlayGuard {} só foi testado numa consola com o firmware {} ou anterior. Por segurança, nada será alterado até escolher como continuar. Tudo continua a poder ser consultado.",
         "status_checking": "A procurar uma versão do PlayGuard que o suporte...",
         "status_supports": "O PlayGuard {} suporta o firmware {}: atualize para usar todas as funções em segurança.",
         "status_no_support": "O PlayGuard {} está disponível, mas ainda não suporta o firmware {}.",
@@ -876,7 +877,8 @@
             "restore": "Cópia de segurança restaurada",
             "rescue": "Recuperação usada",
             "console_lock": "Bloqueio da consola",
-            "bedtime": "Alarme de hora de dormir"
+            "bedtime": "Alarme de hora de dormir",
+            "config_reset": "Preferências repostas (ficheiro ilegível)"
         },
         "sources": {
             "uniform": "Mesmo limite todos os dias",
@@ -911,5 +913,12 @@
         "limit_over": "A linha é o limite do dia · ! em âmbar: jogou mais do que isso",
         "week_order": "De segunda a domingo, hoje sublinhado",
         "unsaved": "* em âmbar: alterado, ainda não guardado"
+    },
+    "data_notice": {
+        "config_reset": "Não foi possível ler as preferências do PlayGuard, que foram repostas. O ficheiro danificado foi guardado como config.json.bad.",
+        "config_stuck": "Não foi possível ler nem pôr de lado as preferências do PlayGuard: são usados os valores predefinidos e, por agora, nada será guardado, para não substituir o ficheiro. Verifique o cartão SD.",
+        "history_reset": "Não foi possível ler o histórico de alterações, por isso foi iniciado um novo. O ficheiro danificado foi guardado como history.json.bad.",
+        "history_stuck": "Não foi possível ler nem pôr de lado o histórico de alterações: por agora, nenhuma alteração será registada nele. Verifique o cartão SD.",
+        "rescue_unreadable": "Foi encontrado um relatório do sysmodule de recuperação, mas não foi possível lê-lo, por isso o PlayGuard não sabe o que ele fez. Verifique o PIN e o tempo de jogo."
     }
 }

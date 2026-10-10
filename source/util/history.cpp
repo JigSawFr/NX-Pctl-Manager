@@ -4,7 +4,6 @@
 #include <borealis/extern/nlohmann/json.hpp>
 #include <climits>
 #include <cstdio>
-#include <sys/stat.h>
 
 #include "util/backup.hpp"
 #include "util/paths.hpp"
@@ -64,10 +63,7 @@ bool load_array(nlohmann::json& entries)
 {
     entries = nlohmann::json::array();
     std::string text;
-    if (!paths::read_file(paths::history_file(), text)) {
-        struct stat st;
-        return stat(paths::history_file().c_str(), &st) != 0;   // missing: fine
-    }
+    if (!paths::read_file(paths::history_file(), text)) return !paths::exists(paths::history_file());   // missing: fine
     try {
         nlohmann::json j = nlohmann::json::parse(text);
         if (j.is_object() && j.contains("entries") && j["entries"].is_array()) {
@@ -80,19 +76,27 @@ bool load_array(nlohmann::json& entries)
 }
 }   // namespace
 
-bool append(const Entry& e, std::string* error)
+Damage check()
 {
     nlohmann::json entries;
+    if (load_array(entries)) return Damage::None;
+    // Damaged or unreadable: put it aside as history.json.bad (its undo
+    // values can still be read by hand; the previous .bad is kept as .bad.1)
+    // and start again.
+    return paths::put_aside(paths::history_file()) ? Damage::PutAside : Damage::Stuck;
+}
+
+bool append(const Entry& e, std::string* error, bool* put_aside)
+{
+    if (put_aside) *put_aside = false;
+    nlohmann::json entries;
     if (!load_array(entries)) {
-        // Damaged or unreadable: put it aside as history.json.bad (its undo
-        // values can still be read by hand) and start again. Should that
-        // fail too, write nothing: it would overwrite the old file.
-        const std::string path = paths::history_file(), bad = path + ".bad";
-        std::remove(bad.c_str());
-        if (std::rename(path.c_str(), bad.c_str()) != 0) {
+        // Should putting it aside fail, write nothing: it would overwrite the old file.
+        if (check() != Damage::PutAside) {
             if (error) *error = "the change history could not be read, nor put aside";
             return false;
         }
+        if (put_aside) *put_aside = true;
     }
     nlohmann::json j;
     j["when"]   = e.when;

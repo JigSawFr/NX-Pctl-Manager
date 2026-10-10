@@ -33,7 +33,10 @@ boot) while an unlock still is — and PlayGuard's recovery screen tells you to
 remove the file from a computer. The outcome is written to
 `rescue_report.txt`. The next time PlayGuard opens it
 shows what happened, lets you finish, records it in the change history, and
-removes the report.
+removes the report. A report it cannot read is removed too, and PlayGuard says
+so (check the PIN and the play timer yourself). Should the SD card not be
+mounted at boot (the module retries for about 10 s), nothing is done and no
+report is left.
 
 ## How to use it
 

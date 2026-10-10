@@ -147,6 +147,16 @@ One day (8 bytes):
   were never seen with a bedtime on. A bedtime write is checked against
   1954 / 1956 / 1957 and undone when the console disagrees.
 
+What PlayGuard accepts as this layout (`pt_plausible`, `source/core/pure.c`):
+in each day and in the header's rule `04..0B`, the bedtime and limit
+switches `0` or `1`, hours below 24, minutes below 60, the limit 0 to 1440
+minutes (or `FFFF`); the header's four mode bytes at most `03`. Only what the
+layout cannot hold is refused, so an unseen companion-app setting does not
+block PlayGuard. A block that fails (a firmware that changed the layout, or
+garbage) is not shown, and every play-timer write refuses it without writing
+(*the console's play-timer settings are in a format PlayGuard does not
+understand*); the diagnostic report still has it, byte for byte.
+
 How the minutes field was confirmed (22.0.0, 2026-10-09): the block was saved
 as a reference (Developer tools › play-timer block), Sunday and Saturday were
 changed from 120 to 180 minutes in PlayGuard, then the block was read again.
