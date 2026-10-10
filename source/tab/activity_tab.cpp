@@ -79,6 +79,19 @@ uint64_t value_of(const GameStat& g, int period)
     }
 }
 
+// Most played in `period` first, a tie to the most recently played. The
+// export (`by_total`) breaks a tie by all-time play first (raw total_s), so
+// its unplayed games keep a useful order too.
+void sort_by_play(std::vector<const GameStat*>& games, int period, bool by_total)
+{
+    std::sort(games.begin(), games.end(), [period, by_total](const GameStat* a, const GameStat* b) {
+        const uint64_t va = value_of(*a, period), vb = value_of(*b, period);
+        if (va != vb) return va > vb;
+        if (by_total && a->total_s != b->total_s) return a->total_s > b->total_s;
+        return a->last_played > b->last_played;
+    });
+}
+
 std::string game_name(const GameStat& g)
 {
     if (g.name[0]) return g.name;
@@ -223,10 +236,7 @@ void ActivityTab::rebuild()
     for (uint32_t i = 0; i < s.count; i++)
         if (value_of(s.games[i], this->period) > 0) rows.push_back(&s.games[i]);
     const int p = this->period;
-    std::sort(rows.begin(), rows.end(), [p](const GameStat* a, const GameStat* b) {
-        const uint64_t va = value_of(*a, p), vb = value_of(*b, p);
-        return va != vb ? va > vb : a->last_played > b->last_played;
-    });
+    sort_by_play(rows, p, false);
 
     // The list on screen: the first ROWS_SHOWN rows unless "Show all" was
     // chosen. When the same games are already there in the same order (a read
@@ -442,11 +452,7 @@ void ActivityTab::export_to_sd() const
         });
         std::vector<const GameStat*> games;
         for (uint32_t i = 0; i < s.count; i++) games.push_back(&s.games[i]);
-        std::sort(games.begin(), games.end(), [p](const GameStat* a, const GameStat* b) {
-            const uint64_t va = value_of(*a, p), vb = value_of(*b, p);
-            if (va != vb) return va > vb;
-            return a->total_s != b->total_s ? a->total_s > b->total_s : a->last_played > b->last_played;
-        });
+        sort_by_play(games, p, true);
         auto minutes = [](uint64_t seconds) { return std::to_string((seconds + 30) / 60); };
         for (const GameStat* g : games) {
             t.rows.push_back({

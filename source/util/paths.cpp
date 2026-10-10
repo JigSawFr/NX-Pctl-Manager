@@ -9,6 +9,7 @@
 #include <fstream>
 #include <sstream>
 #include <sys/stat.h>
+#include <unistd.h>
 
 namespace paths
 {
@@ -76,6 +77,9 @@ bool atomic_write(const std::string& path, const std::string& content, std::stri
     bool ok = std::fwrite(content.data(), 1, content.size(), f) == content.size();
     int err = ok ? 0 : errno;
     if (ok && std::fflush(f) != 0) { ok = false; err = errno; }
+    // On the card before the old file is removed: else a power loss after
+    // the rename can leave an empty file in its place.
+    if (ok && fsync(fileno(f)) != 0) { ok = false; err = errno; }
     if (std::fclose(f) != 0 && ok) { ok = false; err = errno; }
     if (!ok) {
         std::remove(tmp.c_str());

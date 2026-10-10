@@ -1,4 +1,4 @@
-// The running version's notes from the bundled CHANGELOG.md, as views: in
+// release_notes — the running version's notes from the bundled CHANGELOG.md, as views: in
 // About and on the "What's new" screen shown once after an update.
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).
 #pragma once
