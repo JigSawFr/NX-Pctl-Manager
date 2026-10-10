@@ -491,7 +491,8 @@
         "unlink_confirm": "Desvincular",
         "unlinked": "App do celular desvinculado.",
         "unlink_err": "Não foi possível desvincular o app do celular",
-        "note": "Enquanto o console estiver vinculado, o app do celular substitui as configurações feitas aqui na próxima sincronização."
+        "note": "Enquanto o console estiver vinculado, o app do celular substitui as configurações feitas aqui na próxima sincronização.",
+        "unlink_dev_note": "Ferramentas de desenvolvedor: Comparar bloco do tempo de jogo precisa de um console ainda vinculado. Salve antes a referência se quiser decifrar uma configuração."
     },
     "security": {
         "section_status": "Status",
@@ -808,7 +809,7 @@
         "busy": "Já em andamento...",
         "list_failed": "Não foi possível listar as compilações: {}",
         "list_stale": "Não foi possível atualizar a lista ({}): mostrando a última.",
-        "downloading": "Baixando ({} MB)...",
+        "downloading": "Baixando a versão...\n{} de {} MB",
         "failed": "Não foi possível instalar a compilação: {}\n\nO PlayGuard instalado não mudou.",
         "done_manual": "{} está instalada. Feche o PlayGuard e abra-o de novo para usá-la.",
         "no_path": "O PlayGuard não sabe onde está seu arquivo .nro (iniciado sem hbloader?), então não pode substituí-lo. Instale a compilação manualmente pelo GitHub.",
@@ -891,5 +892,12 @@
         "undo_confirm": "Restaurar",
         "undone": "Valor anterior restaurado.",
         "undo_err": "Não foi possível restaurar o valor anterior"
+    },
+    "chart": {
+        "last_days": "Os últimos 7 dias, hoje à direita",
+        "limit_line": "A linha sobre uma barra é o limite desse dia",
+        "limit_over": "A linha é o limite do dia · ! em âmbar: jogou mais do que isso",
+        "week_order": "De segunda a domingo, hoje sublinhado",
+        "unsaved": "* em âmbar: alterado, ainda não salvo"
     }
 }

@@ -19,6 +19,8 @@
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).
 #pragma once
 
+#include <functional>
+
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -124,6 +126,9 @@ bool fetch(std::vector<Build>* out, bool* needs_login, std::string* error);
 // Downloads `b` to `path` (playguard.nro itself, out of the zip for an
 // artifact) and verifies it. Blocking. On the desktop build, with
 // PLAYGUARD_SIM_DEV_BUILDS set, a URL "https://<path>" is a local file.
-bool download(const Build& b, const std::string& path, std::string* error);
+// `progress` (when set) gets the bytes received and the total, from the
+// calling thread.
+bool download(const Build& b, const std::string& path, std::string* error,
+              std::function<void(uint64_t done, uint64_t total)> progress = nullptr);
 
 }   // namespace dev_builds

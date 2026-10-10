@@ -139,7 +139,7 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 - A state line: active, time left, today's limit, the matching profile (red while the limit is reached).
 - **The week chart:** ←/→ pick a day, Ⓐ changes its limit.
 - **Same limit every day:** a quick list or any value, typed in minutes (`90`, `90 min`) or hours (`1:30`, `1h30`).
-- **A different limit for each day:** unsaved days in amber, quick values, Monday–Friday / weekend presets, "no limit" per day; **+** saves from anywhere.
+- **A different limit for each day:** unsaved days in amber and marked \*, quick values, Monday–Friday / weekend presets, "no limit" per day; **+** saves from anywhere.
 - **Remove the limit**, **extra time today**, **no more play today** (as on the Overview).
 - **Profiles** saved on the SD card: apply, edit, rename or delete one; save the current limits or make a new one. Any name, in any script (*École*, *周末*, *Выходные* …) — a name without Latin letters gets a file name of its own, and two names that would map to the same file are caught.
 - Every confirmation draws the week as it will be, with the days that change in amber.
@@ -151,7 +151,7 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 <summary><b>Activity</b> — who played what, and how long</summary>
 
 - Time per game **today**, in the **last 7 days** and **in all**, from the console's own activity log — for every account or **one user account** (*Account*, when the console has several).
-- A chart of the last seven days, with each day's limit as a line and the time over it in amber; today's, the week's and all-time totals.
+- A chart of the last seven days (today on the right, a legend under it), with each day's limit as a line and the time over it in amber, marked !; today's, the week's and all-time totals.
 - Sort by period; the first games show their icon (not in applet mode, to spare memory). A large library lists its first 50 games, then *Show every game*; the export always holds them all.
 - Ⓐ on a game: its last seven days as bars, launches, first and last play, time per user account. Deleted games keep their all-time figures.
 - **Export to the SD card** as CSV, JSON, XLSX (Excel) or PDF, one column per day.

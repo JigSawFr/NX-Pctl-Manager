@@ -3,7 +3,8 @@
 // colour alone; a day with no limit shows "—" and an empty slot.
 // Made editable (set_on_pick + set_editable), each day takes the focus: ←/→
 // move between days, A picks that day's limit. The editor rendering draws a
-// day that differs from the console's value in the warning colour.
+// day that differs from the console's value in the warning colour, with a
+// "*" before it. A legend under the bars says the order and the "*".
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).
 #pragma once
 
@@ -40,6 +41,8 @@ class PtWeekView : public brls::Box
         brls::Rectangle* mark  = nullptr;   // under today's name
     };
     Column cols[7];   // Sunday..Saturday (laid out Monday first)
+    brls::Box*   row    = nullptr;   // the seven days
+    brls::Label* legend = nullptr;   // under the bars: the order, the "*"
     std::function<void(int)> on_pick;
     bool editable = false;
 
