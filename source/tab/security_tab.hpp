@@ -15,6 +15,9 @@ class SecurityTab : public TabBase
     void refresh() override;
 
   private:
+    // Set or change the PIN (the system PIN screen), recorded in the history.
+    void change_pin();
+
     BRLS_BIND(brls::DetailCell, pin,            "sc_pin");
     BRLS_BIND(brls::DetailCell, restrictions,   "sc_restrictions");
     BRLS_BIND(brls::DetailCell, temp,           "sc_temp");

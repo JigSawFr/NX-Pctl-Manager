@@ -25,7 +25,7 @@ How the settings are stored on the console is in
 | Bedtime alarm and the time play is allowed again (2.1.0) | *Play time › Bedtime alarm* | Partly: one time for every day (see gap 2) |
 | Restriction level, age rating, rating organisation, posting to social media, communicating with other players, VR mode (1.10.0) | *Restrictions* | |
 | Play history per game | *Activity* | Plus per user account, all-time totals and export (CSV, JSON, XLSX, PDF) |
-| Parental-controls PIN | *Security & app* | Plus showing a forgotten PIN, and a PIN to open PlayGuard itself |
+| Parental-controls PIN | *Security & app* | Plus showing the PIN (asked first), and a PIN to open PlayGuard itself |
 | Linking the app to a console | *Security & app › Unlink the companion app* | PlayGuard can only unlink, which is what a console kept offline needs |
 
 ## Missing

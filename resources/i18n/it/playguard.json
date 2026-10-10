@@ -134,7 +134,7 @@
         "pc_off": "Non configurato",
         "pc_pin_only": "PIN impostato, nessuna limitazione",
         "pin": "PIN",
-        "pin_set": "Impostato ({} cifre)",
+        "pin_set": "Impostato",
         "level": "Livello limitazioni",
         "today_limit": "Limite di oggi ({})",
         "remaining": "Tempo rimanente oggi",
@@ -198,7 +198,8 @@
         "step_alarm": "{}. Riattiva l'avviso \"Tempo scaduto\" (nulla avvisa allo scadere del tempo)",
         "at_start": "Mostra all'avvio finché non è impostato un PIN",
         "note": "Il PIN è quello della console; il limite viene verificato con l'orologio di rete, che deve quindi essere preciso. Apri PlayGuard con l'utente di un genitore: aperto sopra un gioco, il suo tempo conta come gioco.",
-        "close": "Chiudi"
+        "close": "Chiudi",
+        "step_protect": "{}. Proteggi PlayGuard: richiedi il PIN"
     },
     "compat": {
         "ok": "Verificato",
@@ -536,7 +537,9 @@
         "delete_err": "Impossibile eliminare il filtro famiglia",
         "pin_ok": "PIN aggiornato.",
         "pin_err": "Impossibile aggiornare il PIN",
-        "rescue_note": "Il sysmodule di recupero è installato: chiunque possa modificare la scheda SD può così sbloccare la console o eliminare il filtro famiglia al prossimo avvio. Rimuovilo quando non ti serve più (cartella atmosphere/contents/4200000000505247)."
+        "rescue_note": "Il sysmodule di recupero è installato: chiunque possa modificare la scheda SD può così sbloccare la console o eliminare il filtro famiglia al prossimo avvio. Rimuovilo quando non ti serve più (cartella atmosphere/contents/4200000000505247).",
+        "show_pin_change_body": "Cambiare il PIN ora?\n\nQualcun altro potrebbe averlo visto.",
+        "show_pin_change_confirm": "Cambia"
     },
     "pin_lock": {
         "title": "Richiedi il PIN",
@@ -548,7 +551,7 @@
         "notes": {
             "off": "Chiunque abbia in mano la console può modificare le impostazioni qui. Per mostrare il PIN viene comunque chiesto.",
             "changes": "Tutti possono consultare; solo il genitore può modificare (il PIN viene richiesto di nuovo dopo 5 minuti). Per bloccare di nuovo non viene mai richiesto.",
-            "open": "Una schermata di blocco fino all'inserimento del PIN. Per bloccare di nuovo non viene mai richiesto."
+            "open": "Una schermata di blocco fino all'inserimento del PIN, e di nuovo dopo 5 minuti fuori da PlayGuard. Per bloccare di nuovo non viene mai richiesto."
         },
         "no_pin": "Prima imposta un PIN (Sicurezza e app › Imposta o cambia il PIN).",
         "set": "Richiedi il PIN: {}",
@@ -592,7 +595,6 @@
             "unconfirmed": "La console non mostra il recupero descritto da questo rapporto."
         },
         "hint": {
-            "show_pin": "se l'hai dimenticato",
             "reset_pin": "scegline uno nuovo",
             "delete": "rimuovi tutto"
         },
@@ -876,7 +878,8 @@
             "restore": "Backup ripristinato",
             "rescue": "Recupero usato",
             "console_lock": "Blocco della console",
-            "bedtime": "Sogni d'oro"
+            "bedtime": "Sogni d'oro",
+            "pin_shown": "PIN mostrato"
         },
         "sources": {
             "uniform": "Stesso limite ogni giorno",

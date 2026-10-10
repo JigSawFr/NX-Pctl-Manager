@@ -134,7 +134,7 @@
         "pc_off": "未設定",
         "pc_pin_only": "已設定PIN碼，無限制",
         "pin": "PIN碼",
-        "pin_set": "已設定（{}位數）",
+        "pin_set": "已設定",
         "level": "限制等級",
         "today_limit": "今天的上限（{}）",
         "remaining": "今天剩餘時間",
@@ -198,7 +198,8 @@
         "step_alarm": "{}. 重新開啟「時間到」鬧鐘（否則時間到時不會有任何提醒）",
         "at_start": "未設定PIN碼時，於啟動時顯示",
         "note": "PIN碼即主機本身的家長監護PIN碼；上限依網路時鐘判斷，因此時鐘必須準確。請用家長的使用者開啟PlayGuard：在遊戲上開啟時，其時間會計為遊玩時間。",
-        "close": "關閉"
+        "close": "關閉",
+        "step_protect": "{}. 保護PlayGuard：要求輸入PIN碼"
     },
     "compat": {
         "ok": "已確認",
@@ -536,7 +537,9 @@
         "delete_err": "無法刪除家長監護設定",
         "pin_ok": "已更新PIN碼。",
         "pin_err": "無法更新PIN碼",
-        "rescue_note": "已安裝復原用系統模組：任何能修改SD卡的人，都可以在下次啟動時解除主機鎖定，或刪除所有家長監護設定。不再需要時請將其刪除（資料夾atmosphere/contents/4200000000505247）。"
+        "rescue_note": "已安裝復原用系統模組：任何能修改SD卡的人，都可以在下次啟動時解除主機鎖定，或刪除所有家長監護設定。不再需要時請將其刪除（資料夾atmosphere/contents/4200000000505247）。",
+        "show_pin_change_body": "現在變更PIN碼嗎？\n\n其他人可能已經看到了。",
+        "show_pin_change_confirm": "變更"
     },
     "pin_lock": {
         "title": "要求輸入PIN碼",
@@ -548,7 +551,7 @@
         "notes": {
             "off": "任何拿到主機的人都能在此變更設定。顯示 PIN碼 時仍需輸入 PIN碼。",
             "changes": "任何人都能檢視；只有家長能變更（5分鐘後會再次詢問）。重新鎖定時不會詢問。",
-            "open": "在輸入PIN碼前顯示鎖定畫面。重新鎖定時不會詢問。"
+            "open": "在輸入PIN碼前顯示鎖定畫面；離開PlayGuard 5分鐘後會再次顯示。重新鎖定時不會詢問。"
         },
         "no_pin": "請先設定PIN碼（「設定或變更PIN碼」）。",
         "set": "要求輸入PIN碼：{}",
@@ -592,7 +595,6 @@
             "unconfirmed": "主機狀態與此報告所述的復原不符。"
         },
         "hint": {
-            "show_pin": "忘記時",
             "reset_pin": "重新設定",
             "delete": "全部刪除"
         },
@@ -876,7 +878,8 @@
             "restore": "已還原備份",
             "rescue": "已使用復原",
             "console_lock": "主機鎖定",
-            "bedtime": "就寢鬧鐘"
+            "bedtime": "就寢鬧鐘",
+            "pin_shown": "已顯示PIN碼"
         },
         "sources": {
             "uniform": "每天相同上限",
