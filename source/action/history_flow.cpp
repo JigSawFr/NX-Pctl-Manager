@@ -4,6 +4,7 @@
 #include <borealis.hpp>
 #include <fmt/format.h>
 
+#include "action/history_logic.hpp"
 #include "action/pt_flow.hpp"
 #include "action/pt_log_flow.hpp"
 #include "app.hpp"
@@ -182,20 +183,22 @@ void open(const history::Entry& e, std::function<void()> refresh)
         return;
     }
     const std::vector<int> now = current(e.kind);
-    if (!now.empty() && now == e.before) {
+    using history_logic::Undo;
+    switch (history_logic::undo_action(e, now, app::read_only(), config::get().advanced)) {
+    case Undo::AlreadyBack:
         ui::info(body + "\n\n" + "playguard/history/already_back"_i18n);
         return;
-    }
     // Nothing to offer: the details alone, with the reason.
-    if (app::read_only()) {
+    case Undo::ReadOnly:
         ui::info(body + "\n\n" + "playguard/common/read_only_note"_i18n);
         return;
-    }
-    if (e.kind == "alarm" && !config::get().advanced) {
+    case Undo::NeedsAdvanced:
         ui::info(body + "\n\n" + "playguard/history/needs_advanced"_i18n);
         return;
+    case Undo::Offer:
+        break;
     }
-    if (!now.empty() && now != e.after)
+    if (history_logic::changed_since(e, now))
         body += "\n\n" + brls::getStr("playguard/history/changed_since", value_text(e.kind, now));
     body += "\n\n" + brls::getStr("playguard/history/undo_body", value_text(e.kind, e.before));
 
@@ -224,7 +227,7 @@ void open(const history::Entry& e, std::function<void()> refresh)
     const history::Entry entry = e;
     ui::confirm(body, "playguard/history/undo_confirm"_i18n, [entry, now, refresh]() {
         const Result rc = write_value(entry.kind, entry.before);
-        if (R_SUCCEEDED(rc)) record_values(entry.kind.c_str(), now.empty() ? entry.after : now, entry.before, "undo");
+        if (R_SUCCEEDED(rc)) record_values(entry.kind.c_str(), history_logic::undo_replaces(entry, now), entry.before, "undo");
         ui::notify_result(rc, "playguard/history/undone"_i18n, "playguard/history/undo_err"_i18n);
         if (refresh) refresh();
     });

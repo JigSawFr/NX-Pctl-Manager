@@ -41,9 +41,13 @@ class ActivityTab : public TabBase
     // thread, then puts them on the cells on screen.
     void load_icons();
     void apply_icons();
+    // What Ⓐ on a game's cell opens (its own screen, with this read's data).
+    static void on_click(GameCell* cell, const GameStat& game, const std::shared_ptr<const PlayStats>& data);
     void export_to_sd() const;
 
     std::vector<std::pair<u64, GameCell*>> cells;   // the list on screen, top first
+    brls::DetailCell* more_cell = nullptr;          // "Show all", below them, when rows are left out
+    bool show_all = false;
     int listener = 0;                                 // play_data::listen id
     // Data arrived while another screen (a game's own screen, a dialog) was
     // on top: the list is rebuilt once this one is back. Deleting its cells

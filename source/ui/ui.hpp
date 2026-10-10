@@ -3,6 +3,7 @@
 #pragma once
 
 #include <borealis.hpp>
+#include <chrono>
 #include <cstdint>
 #include <functional>
 #include <initializer_list>
@@ -47,6 +48,12 @@ std::string rc_text(Result rc, bool next_step = true);
 // at a time on the console's services. Queued there when no thread can be
 // had. `what` names it in the log.
 void in_background(const char* what, std::function<void()> task);
+// At exit, after the main loop: says the app is quitting (quitting() turns
+// true, for a task that waits or polls) and waits up to `max` for the tasks
+// of in_background still running, so none of them outlives the objects it
+// uses (brls::sync's queue, curl, statics). False when some are still running.
+bool finish_background(std::chrono::milliseconds max);
+bool quitting();
 
 // Deferred to the next frame (toasts fired right after a system applet returns
 // were dropped on fw 22.1.0).

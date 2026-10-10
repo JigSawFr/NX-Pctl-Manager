@@ -18,3 +18,10 @@ void GameCell::set_icon(const std::vector<unsigned char>& image)
     if (!this->icon || image.empty()) return;
     this->icon->setImageFromMem(image.data(), (int)image.size());
 }
+
+void GameCell::set_icon_texture(int texture)
+{
+    if (!this->icon || texture == 0) return;
+    this->icon->setFreeTexture(false);
+    this->icon->innerSetImage(texture);
+}

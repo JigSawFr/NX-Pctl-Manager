@@ -12,6 +12,7 @@
 //   PLAYGUARD_SIM_EMUMMC=1      running on emuMMC (default: sysMMC)
 //   PLAYGUARD_SIM_BLANK=1       PRODINFO blanked (serial XAW00000000000)
 //   PLAYGUARD_SIM_NO_PDM=1      the play-data service (Activity tab) fails
+//   PLAYGUARD_SIM_GAMES=200     that many more games played this week (a large library)
 //   PLAYGUARD_SIM_NOT_SET_UP=1  parental controls never set up (no PIN, no restriction)
 //   PLAYGUARD_SIM_APPLET=1      started from the album (applet mode)
 //   PLAYGUARD_SIM_RESTRICTED=1  today's limit is reached (the game is suspended)
@@ -542,6 +543,19 @@ void playstats_fetch_for(PlayStats *out, const PlayAccount *account)
         g->week_s   = (u32)share(g->week_s, account);
         for (int k = 0; k < 7; k++) g->day_s[k] = (u32)share(g->day_s[k], account);
         if (account && !g->week_s && !g->total_s) out->count--;
+    }
+    // A large library: filler games, each played a little this week.
+    const char *more = getenv("PLAYGUARD_SIM_GAMES");
+    for (int i = 0, n = more ? atoi(more) : 0; i < n && out->count < PLAYSTATS_MAX; i++) {
+        GameStat *g = &out->games[out->count++];
+        g->app_id = 0x0100B00000000000ULL + ((u64)i << 12);
+        snprintf(g->name, sizeof(g->name), "Game %03d", i + 1);
+        g->totals_ok = true;
+        g->week_s = g->day_s[1] = (u32)(60 * (n - i));
+        g->total_s = g->week_s * 10;
+        g->launches = 3;
+        g->last_played = out->now - 86400;
+        g->first_played = out->now - 30ULL * 86400;
     }
 }
 

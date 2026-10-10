@@ -385,7 +385,8 @@
         "first": "First played",
         "last": "Last played",
         "less_than_minute": "< 1 min",
-        "note": "Read from the console's activity log, for every account. Times are approximate if the console clock was changed. PlayGuard opened over a game counts as that game for the account picked at launch: open it with a parent's account."
+        "note": "Read from the console's activity log, for every account. Times are approximate if the console clock was changed. PlayGuard opened over a game counts as that game for the account picked at launch: open it with a parent's account.",
+        "show_all": "Show every game"
     },
     "restrictions": {
         "section_level": "Restriction level",

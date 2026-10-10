@@ -103,12 +103,14 @@ void fetch(const PlayAccount* account)
     brls::async([key, one, who]() {
         auto data = std::make_shared<PlayStats>();
         playstats_fetch_for(data.get(), one ? &who : nullptr);
+        // Kept for the next run from here, off the UI thread: a slow SD card
+        // must not hold a frame (one file per account, one read at a time).
+        save(key, *data);
         brls::sync([key, data]() {
             Entry& done = s_entries[key];
             done.busy    = false;
             done.stats   = data;
             done.read_at = std::chrono::steady_clock::now();
-            save(key, *data);
             // A copy: a listener may unlisten (its tab closed) while called.
             const auto listeners = s_listeners;
             for (const auto& l : listeners) l.second();

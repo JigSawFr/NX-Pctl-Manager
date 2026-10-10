@@ -385,7 +385,8 @@
         "first": "Primeira vez",
         "last": "Última vez",
         "less_than_minute": "< 1 min",
-        "note": "Lido do registo de atividade da consola, para todos os utilizadores. Os tempos são aproximados se o relógio da consola foi alterado. O PlayGuard aberto sobre um jogo conta como esse jogo para o utilizador escolhido ao iniciar: abra-o com o utilizador de um adulto."
+        "note": "Lido do registo de atividade da consola, para todos os utilizadores. Os tempos são aproximados se o relógio da consola foi alterado. O PlayGuard aberto sobre um jogo conta como esse jogo para o utilizador escolhido ao iniciar: abra-o com o utilizador de um adulto.",
+        "show_all": "Mostrar todos os jogos"
     },
     "restrictions": {
         "section_level": "Nível de restrição",

@@ -152,7 +152,7 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 
 - Temps passé sur chaque jeu **aujourd'hui**, sur les **7 derniers jours** et **depuis toujours**, lu dans le journal d'activité de la console — pour tous les comptes ou **un seul compte utilisateur** (*Compte*, quand la console en a plusieurs).
 - Un graphique des sept derniers jours, avec la limite de chaque jour en trait et le temps au-delà en orange ; totaux du jour, de la semaine et depuis toujours.
-- Tri par période ; les premiers jeux affichent leur icône (pas en mode applet, pour économiser la mémoire).
+- Tri par période ; les premiers jeux affichent leur icône (pas en mode applet, pour économiser la mémoire). Une grande bibliothèque affiche ses 50 premiers jeux, puis *Afficher tous les jeux* ; l'export les contient toujours tous.
 - Ⓐ sur un jeu : ses sept derniers jours en barres, ses lancements, ses première et dernière parties, le temps de chaque compte. Les jeux supprimés gardent leurs chiffres depuis toujours.
 - **Export sur la carte SD** en CSV, JSON, XLSX (Excel) ou PDF, une colonne par jour.
 - S'ouvre aussitôt sur les derniers chiffres lus (gardés sur la carte SD d'un lancement à l'autre), actualisés en arrière-plan au-delà d'une minute ; Ⓧ les relit tout de suite, avec un indicateur de chargement.

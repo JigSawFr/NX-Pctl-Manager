@@ -42,6 +42,11 @@ bool redirect(const std::string& url, std::string* target, std::string* error, c
 bool download(const std::string& url, const std::string& path, std::string* error, size_t max_bytes,
               long timeout_s = 600, std::function<void(uint64_t done, uint64_t total)> progress = nullptr);
 
+// At exit: a request still running stops at its next progress tick (about a
+// second), and a new one fails at once, so the threads they run on can end
+// before the app does.
+void abort_all();
+
 // Releases libcurl's global state (and the Switch ssl service). At exit;
 // does nothing while a request is still running.
 void cleanup();
