@@ -12,7 +12,17 @@ make test
 It needs gcc and g++ with AddressSanitizer and UndefinedBehaviorSanitizer
 (`SAN=` turns them off), the zlib headers (`zlib1g-dev`, for `dev_builds`), and
 the borealis submodule (`git submodule update --init`) for nlohmann/json:
-`make test` says so when it is missing.
+`make test` says so when it is missing. `make test CC=clang CXX=clang++` builds
+them with clang (its sanitizer runtime: `libclang-rt-dev`); `make test SAN=
+COV=--coverage` with gcc leaves the `.gcda` files for `gcovr` in
+`build/host-tests/`. CI runs all three.
+
+The suites check with `CHECK(expr)` from [`check.h`](check.h), not `assert()`:
+the expression is always evaluated (also under `-DNDEBUG`), a failure prints
+file:line and the expression and the suite goes on, and `main()` ends with
+`return CHECK_DONE("... passed");`, non-zero when any check failed.
+`if (!CHECK(p)) return;` stops a test whose next line needs `p`; `REQUIRE(expr)`
+stops the program (a mock handed a bad pointer, a setup step everything needs).
 
 | Suite | Covers |
 |---|---|
