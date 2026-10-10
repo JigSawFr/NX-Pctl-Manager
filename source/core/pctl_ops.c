@@ -765,7 +765,11 @@ void pctl_dump(char *buf, size_t bufsz)
     rep_u32 (&p, e, srv, 1032, "GetSafetyLevel");
     rep_bool(&p, e, srv, 1031, "IsRestrictionEnabled");
     rep_bool(&p, e, srv, 1006, "IsRestrictionTemporaryUnlocked");
-    rep_u32 (&p, e, srv, 1206, "GetPinCodeLength");
+    // Whether a PIN is set, not its length: a report may be posted online,
+    // and the length narrows the guessing.
+    { u32 len = 0; Result r = rd_u32(srv, 1206, &len);
+      rep(&p, e, "%6u %-38s rc=0x%08X  %s\n", 1206u, "GetPinCodeLength", (unsigned)r,
+          R_SUCCEEDED(r) ? (len ? "set (length not recorded)" : "none") : "-"); }
     rep_u32 (&p, e, srv, 1037, "GetDefaultRatingOrganization");
     rep_u32 (&p, e, srv, 1039, "GetFreeCommunicationApplicationListCount");
     rep_bool(&p, e, srv, 1403, "IsPairingActive");

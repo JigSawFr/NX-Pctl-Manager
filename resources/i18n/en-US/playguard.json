@@ -18,7 +18,10 @@
     "hints": {
         "refresh": "Refresh",
         "open": "Open",
-        "exit_again": "Press B again to quit"
+        "exit_again": "Press B again to quit",
+        "exit_unlocked": "Parental controls are still temporarily unlocked: games can be played without a limit until they are locked again or the console restarts.\n\nLock them before quitting?",
+        "exit_lock": "Lock and quit",
+        "exit_leave": "Quit, still unlocked"
     },
     "common": {
         "yes": "Yes",
@@ -522,7 +525,7 @@
             "open": "To open PlayGuard"
         },
         "notes": {
-            "off": "Anyone who holds the console can change the settings here.",
+            "off": "Anyone who holds the console can change the settings here. Showing the PIN still asks for it.",
             "changes": "Anyone can look; changing something needs the PIN (asked again after 5 minutes). Locking again never asks.",
             "open": "A lock screen until the PIN is entered. Locking again never asks."
         },
@@ -553,8 +556,8 @@
         "reset_pin": "Set a new PIN",
         "continue": "Open PlayGuard",
         "note": "You reached this screen with the RESCUE file, so no PIN is asked here. Set a new PIN or remove the parental controls, then open PlayGuard.",
-        "note_failed": "Recovery did not finish on its own. You can still try from here, or remove the SD card and edit the settings on a computer.",
-        "note_refused": "Every parental control would have been deleted, but the request file could not be removed from the SD card, so it would have run again at every start. Remove it from a computer, then try again, or use the actions below.",
+        "note_failed": "Recovery did not finish, so nothing can be changed from here without the PIN. Try again with the RESCUE file, or remove the SD card and edit the settings on a computer.",
+        "note_refused": "Every parental control would have been deleted, but the request file could not be removed from the SD card, so it would have run again at every start. Remove it from a computer, then try again.",
         "request_kept": "The {} file could not be removed from the SD card: until it is, the console is unlocked again at every start. Remove it from a computer.",
         "note_deleted": "Every parental control was removed, including the PIN. Open PlayGuard — you can set it up again from there whenever you like.",
         "note_no_pin": "No parental-control PIN was set, so there was nothing to unlock. You can set one here, then open PlayGuard.",
@@ -564,13 +567,15 @@
             "deleted": "Every parental control was deleted.",
             "no_pin": "There was no PIN to recover: no parental-control PIN is set.",
             "failed": "Recovery could not finish.",
-            "refused": "Nothing was deleted: the RESCUE file could not be removed from the SD card."
+            "refused": "Nothing was deleted: the RESCUE file could not be removed from the SD card.",
+            "unconfirmed": "The console does not show the recovery this report describes."
         },
         "hint": {
             "show_pin": "if you forgot it",
             "reset_pin": "choose a new one",
             "delete": "remove everything"
-        }
+        },
+        "note_unconfirmed": "Nothing can be changed from here without the PIN, and PlayGuard opens as usual. Locked out? Put the RESCUE file back on the SD card with the recovery sysmodule installed, then restart the console."
     },
     "tools": {
         "section_diag": "Diagnostics",

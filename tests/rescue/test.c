@@ -141,6 +141,36 @@ static void test_names(void)
     assert(strcmp(rescue_request_name(RescueRequest_Kept), "kept") == 0);
 }
 
+// A report is only as good as the console state behind it: one written by
+// hand on the SD card must not open the recovery actions.
+static void test_confirmed(void)
+{
+    RescueReport r = { RescueMode_Unlock, RescueResult_Ok, 0, 1, RescueRequest_Removed };
+    assert(rescue_report_confirmed(&r, 4, true));     // unlocked with a PIN: what the sysmodule did
+    assert(!rescue_report_confirmed(&r, 4, false));   // still locked: written by hand
+    assert(!rescue_report_confirmed(&r, 0, true));    // no PIN: there was nothing to unlock
+
+    r.mode = RescueMode_Delete;
+    assert(rescue_report_confirmed(&r, 0, false));    // the PIN is gone, as a delete leaves it
+    assert(!rescue_report_confirmed(&r, 4, false));   // a PIN is still set: not deleted
+    assert(!rescue_report_confirmed(&r, 4, true));
+
+    r.mode = RescueMode_Unlock;
+    r.result = RescueResult_NoPin;
+    assert(rescue_report_confirmed(&r, 0, false));
+    assert(!rescue_report_confirmed(&r, 6, false));
+
+    r.result = RescueResult_Failed;                   // nothing was done: never confirmed
+    assert(!rescue_report_confirmed(&r, 4, true));
+    assert(!rescue_report_confirmed(&r, 0, false));
+    r.result = RescueResult_Refused;
+    r.mode = RescueMode_Delete;
+    assert(!rescue_report_confirmed(&r, 4, false));
+    assert(!rescue_report_confirmed(&r, 0, false));
+
+    assert(!rescue_report_confirmed(NULL, 0, true));
+}
+
 int main(void)
 {
     test_request_mode();
@@ -148,6 +178,7 @@ int main(void)
     test_format_too_small();
     test_parse();
     test_names();
+    test_confirmed();
     puts("rescue request and report assertions passed");
     return 0;
 }

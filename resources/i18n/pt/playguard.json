@@ -18,7 +18,10 @@
     "hints": {
         "refresh": "Atualizar",
         "open": "Abrir",
-        "exit_again": "Prima B novamente para sair"
+        "exit_again": "Prima B novamente para sair",
+        "exit_unlocked": "O controlo parental continua desbloqueado temporariamente: pode jogar-se sem limite até voltar a ser bloqueado ou a consola reiniciar.\n\nBloquear antes de sair?",
+        "exit_lock": "Bloquear e sair",
+        "exit_leave": "Sair sem bloquear"
     },
     "common": {
         "yes": "Sim",
@@ -522,7 +525,7 @@
             "open": "Para abrir o PlayGuard"
         },
         "notes": {
-            "off": "Qualquer pessoa com a consola na mão pode alterar as definições aqui.",
+            "off": "Qualquer pessoa com a consola na mão pode alterar as definições aqui. Mostrar o PIN continua a pedi-lo.",
             "changes": "Todos podem consultar; só o responsável altera algo (pedido novamente após 5 minutos). Voltar a bloquear nunca o pede.",
             "open": "Um ecrã de bloqueio até o PIN ser introduzido. Voltar a bloquear nunca o pede."
         },
@@ -553,8 +556,8 @@
         "reset_pin": "Definir um PIN novo",
         "continue": "Abrir o PlayGuard",
         "note": "Chegou a este ecrã com o ficheiro RESCUE, por isso aqui não é pedido o PIN. Defina um PIN novo ou elimine o controlo parental e, depois, abra o PlayGuard.",
-        "note_failed": "A recuperação não terminou por si só. Pode tentar novamente a partir daqui, ou retirar o cartão SD e alterar as definições num computador.",
-        "note_refused": "Todo o controlo parental teria sido eliminado, mas não foi possível remover o ficheiro de pedido do cartão SD, que seria repetido em cada arranque. Remova-o num computador e tente de novo, ou use as ações abaixo.",
+        "note_failed": "A recuperação não terminou, por isso não é possível alterar nada aqui sem o PIN. Tente novamente com o ficheiro RESCUE, ou retire o cartão SD e altere as definições num computador.",
+        "note_refused": "Todo o controlo parental teria sido eliminado, mas não foi possível remover o ficheiro de pedido do cartão SD, que seria repetido em cada arranque. Remova-o num computador e tente de novo.",
         "request_kept": "Não foi possível remover o ficheiro {} do cartão SD: enquanto lá estiver, a consola é desbloqueada de novo em cada arranque. Remova-o num computador.",
         "note_deleted": "Todo o controlo parental foi eliminado, incluindo o PIN. Abra o PlayGuard: pode voltar a configurá-lo a partir daí sempre que quiser.",
         "note_no_pin": "Não estava definido nenhum PIN do controlo parental, por isso não havia nada para desbloquear. Pode definir um aqui e, depois, abrir o PlayGuard.",
@@ -564,13 +567,15 @@
             "deleted": "Todo o controlo parental foi eliminado.",
             "no_pin": "Não havia nenhum PIN para recuperar: não está definido nenhum PIN do controlo parental.",
             "failed": "Não foi possível concluir a recuperação.",
-            "refused": "Nada foi eliminado: não foi possível remover o ficheiro RESCUE do cartão SD."
+            "refused": "Nada foi eliminado: não foi possível remover o ficheiro RESCUE do cartão SD.",
+            "unconfirmed": "A consola não mostra a recuperação que este relatório descreve."
         },
         "hint": {
             "show_pin": "se o esqueceu",
             "reset_pin": "escolher um novo",
             "delete": "eliminar tudo"
-        }
+        },
+        "note_unconfirmed": "Sem o PIN não é possível alterar nada aqui, e o PlayGuard abre como habitualmente. Sem acesso? Volte a colocar o ficheiro RESCUE no cartão SD, com o sysmodule de recuperação instalado, e reinicie a consola."
     },
     "tools": {
         "section_diag": "Diagnóstico",

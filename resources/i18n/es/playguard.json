@@ -18,7 +18,10 @@
     "hints": {
         "refresh": "Actualizar",
         "open": "Abrir",
-        "exit_again": "Pulse B de nuevo para salir"
+        "exit_again": "Pulse B de nuevo para salir",
+        "exit_unlocked": "El control parental sigue desbloqueado temporalmente: se puede jugar sin límite hasta que se vuelva a bloquear o se reinicie la consola.\n\n¿Bloquearlo antes de salir?",
+        "exit_lock": "Bloquear y salir",
+        "exit_leave": "Salir sin bloquear"
     },
     "common": {
         "yes": "Sí",
@@ -522,7 +525,7 @@
             "open": "Para abrir PlayGuard"
         },
         "notes": {
-            "off": "Cualquiera que tenga la consola puede cambiar aquí los ajustes.",
+            "off": "Cualquiera que tenga la consola puede cambiar aquí los ajustes. Mostrar el PIN lo pide igualmente.",
             "changes": "Cualquiera puede consultar; solo el adulto puede hacer cambios (se vuelve a pedir pasados 5 minutos). Nunca se pide para volver a bloquear.",
             "open": "Una pantalla de bloqueo hasta que se introduce el PIN. Nunca se pide para volver a bloquear."
         },
@@ -553,8 +556,8 @@
         "reset_pin": "Definir un PIN nuevo",
         "continue": "Abrir PlayGuard",
         "note": "Ha llegado a esta pantalla con el archivo RESCUE, así que aquí no se pide el PIN. Defina un PIN nuevo o elimine el control parental y, después, abra PlayGuard.",
-        "note_failed": "La recuperación no ha terminado por sí sola. Puede volver a intentarlo desde aquí, o sacar la tarjeta SD y cambiar los ajustes en un ordenador.",
-        "note_refused": "Se habría eliminado todo el control parental, pero no se pudo quitar el archivo de solicitud de la tarjeta SD, así que se habría repetido en cada arranque. Elimínalo desde un ordenador y vuelve a intentarlo, o usa las acciones de abajo.",
+        "note_failed": "La recuperación no ha terminado, así que aquí no se puede cambiar nada sin el PIN. Vuelve a intentarlo con el archivo RESCUE, o saca la tarjeta SD y cambia los ajustes en un ordenador.",
+        "note_refused": "Se habría eliminado todo el control parental, pero no se pudo quitar el archivo de solicitud de la tarjeta SD, así que se habría repetido en cada arranque. Elimínalo desde un ordenador y vuelve a intentarlo.",
         "request_kept": "No se pudo quitar el archivo {} de la tarjeta SD: mientras siga ahí, la consola se desbloquea de nuevo en cada arranque. Elimínalo desde un ordenador.",
         "note_deleted": "Se ha eliminado todo el control parental, PIN incluido. Abra PlayGuard: desde ahí puede volver a configurarlo cuando quiera.",
         "note_no_pin": "No había ningún PIN de control parental, así que no había nada que desbloquear. Puede definir uno aquí y, después, abrir PlayGuard.",
@@ -564,13 +567,15 @@
             "deleted": "Se ha eliminado todo el control parental.",
             "no_pin": "No había ningún PIN que recuperar: no hay un PIN de control parental definido.",
             "failed": "La recuperación no ha podido terminar.",
-            "refused": "No se eliminó nada: no se pudo quitar el archivo RESCUE de la tarjeta SD."
+            "refused": "No se eliminó nada: no se pudo quitar el archivo RESCUE de la tarjeta SD.",
+            "unconfirmed": "La consola no muestra la recuperación que describe este informe."
         },
         "hint": {
             "show_pin": "si lo ha olvidado",
             "reset_pin": "elegir uno nuevo",
             "delete": "borrarlo todo"
-        }
+        },
+        "note_unconfirmed": "Aquí no se puede cambiar nada sin el PIN, y PlayGuard se abre como de costumbre. ¿Sin acceso? Vuelve a poner el archivo RESCUE en la tarjeta SD, con el sysmodule de recuperación instalado, y reinicia la consola."
     },
     "tools": {
         "section_diag": "Diagnóstico",

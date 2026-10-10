@@ -1,6 +1,7 @@
 // dev_builds — install another build of PlayGuard in place, from the
 // developer tools: the latest release, one of the last commits of main, or
-// the newest build of an open pull request (forks included).
+// the newest build of an open pull request (from this repository: a fork's
+// build is never offered, nobody with write access has reviewed its code).
 //
 // The release is the playguard.nro of the latest GitHub release, readable
 // without an account. The others are the playguard_release artifact the
@@ -70,8 +71,8 @@ bool parse_artifacts(const std::string& json, std::vector<Artifact>* out);
 bool parse_pulls(const std::string& json, std::vector<Pull>* out);
 
 // The builds: main's newest `keep_main` commits (pushed to this repository's
-// main), then for each open pull request the newest artifact of its branch
-// in its repository. Newest first within each kind; one per commit.
+// main), then for each open pull request from a branch of this repository
+// the newest artifact of that branch (pull requests from forks are left out). Newest first within each kind; one per commit.
 std::vector<Build> combine(const std::vector<Artifact>& artifacts, const std::vector<Pull>& pulls,
                            size_t keep_main = 20);
 

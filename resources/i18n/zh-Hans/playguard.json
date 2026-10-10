@@ -18,7 +18,10 @@
     "hints": {
         "refresh": "刷新",
         "open": "打开",
-        "exit_again": "再按一次B退出"
+        "exit_again": "再按一次B退出",
+        "exit_unlocked": "家长控制仍处于临时解锁状态：在重新锁定或主机重启前，可以不受限制地游玩。\n\n退出前重新锁定？",
+        "exit_lock": "锁定并退出",
+        "exit_leave": "不锁定直接退出"
     },
     "common": {
         "yes": "是",
@@ -522,7 +525,7 @@
             "open": "打开PlayGuard时"
         },
         "notes": {
-            "off": "拿到主机的任何人都能在此更改设置。",
+            "off": "拿到主机的任何人都能在此更改设置。显示 PIN 时仍需输入 PIN。",
             "changes": "任何人都可以查看，只有家长能进行更改（5分钟后需再次输入）。重新启用时不需要输入。",
             "open": "显示锁定画面，直到输入PIN为止。重新启用时不需要输入。"
         },
@@ -553,8 +556,8 @@
         "reset_pin": "设置新PIN",
         "continue": "打开PlayGuard",
         "note": "您是通过RESCUE文件进入此画面的，因此这里不会要求输入PIN。请设置新PIN或删除家长控制，然后打开PlayGuard。",
-        "note_failed": "恢复未能自动完成。您可以在这里重试，或取出SD卡在电脑上修改设置。",
-        "note_refused": "本应删除所有家长控制，但无法从 SD 卡移除请求文件，它会在每次启动时再次执行。请在电脑上删除它后重试，或使用下方的操作。",
+        "note_failed": "恢复未完成，因此没有 PIN 就无法在此更改任何内容。请用 RESCUE 文件重试，或取出 SD 卡在电脑上修改设置。",
+        "note_refused": "本应删除所有家长控制，但无法从 SD 卡移除请求文件，它会在每次启动时再次执行。请在电脑上删除它后重试。",
         "request_kept": "无法从 SD 卡移除 {} 文件：在删除之前，主机每次启动都会再次解锁。请在电脑上删除它。",
         "note_deleted": "所有家长控制（包括PIN）都已删除。打开PlayGuard，随时可以重新设置。",
         "note_no_pin": "未设置家长控制PIN，因此没有需要解除的内容。您可以在这里设置PIN，然后打开PlayGuard。",
@@ -564,13 +567,15 @@
             "deleted": "已删除所有家长控制。",
             "no_pin": "没有可恢复的PIN：未设置家长控制PIN。",
             "failed": "未能完成恢复。",
-            "refused": "未删除任何内容：无法从 SD 卡移除 RESCUE 文件。"
+            "refused": "未删除任何内容：无法从 SD 卡移除 RESCUE 文件。",
+            "unconfirmed": "主机状态与此报告所述的恢复不符。"
         },
         "hint": {
             "show_pin": "忘记时",
             "reset_pin": "重新设置",
             "delete": "全部删除"
-        }
+        },
+        "note_unconfirmed": "没有 PIN 就无法在此更改任何内容，PlayGuard 会照常打开。被锁在外面？请在已安装恢复 sysmodule 的情况下把 RESCUE 文件放回 SD 卡，然后重启主机。"
     },
     "tools": {
         "section_diag": "诊断",

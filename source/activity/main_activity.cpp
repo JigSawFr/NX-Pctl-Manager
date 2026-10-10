@@ -2,6 +2,7 @@
 #include "activity/main_activity.hpp"
 
 #include "action/clock_check.hpp"
+#include "action/history_flow.hpp"
 #include "action/fw_gate.hpp"
 #include "action/pt_flow.hpp"
 #include "action/support_flow.hpp"
@@ -10,6 +11,7 @@
 #include "app.hpp"
 #include "ui/ui.hpp"
 #include "util/config.hpp"
+#include "util/pctl_ops_c.hpp"
 
 using namespace brls::literals;
 
@@ -31,6 +33,31 @@ static void compact_sidebar(brls::View* tab_frame)
     }
 }
 
+// Quits, but first asks to lock again when parental controls are still
+// temporarily unlocked (Security › Unlock temporarily): leaving them so means
+// no limit at all until a restart, which is easy to forget on the way out.
+static void quit_or_relock()
+{
+    bool unlocked = false;
+    if (app::read_only() || R_FAILED(pctl_lock_state(nullptr, &unlocked)) || !unlocked) {
+        brls::Application::quit();
+        return;
+    }
+    brls::Logger::info("quitting while unlocked: asking to lock again");
+    auto* dialog = ui::dialog("playguard/hints/exit_unlocked"_i18n);
+    dialog->addButton("playguard/hints/exit_leave"_i18n, []() { brls::Application::quit(); });
+    dialog->addButton("playguard/hints/exit_lock"_i18n, []() {
+        const Result rc = pctl_relock();
+        if (R_FAILED(rc)) {   // stay, and say why: quitting would leave it unlocked
+            ui::notify_result(rc, "", "playguard/toast/relock_err"_i18n);
+            return;
+        }
+        history_flow::record_event("relock");
+        brls::Application::quit();
+    });
+    dialog->open();
+}
+
 void MainActivity::onContentAvailable()
 {
     // For the desktop smoke test: the start screens (lock, rescue) lead here.
@@ -44,7 +71,8 @@ void MainActivity::onContentAvailable()
         static brls::Time last_press = 0;
         const brls::Time now = brls::getCPUTimeUsec();
         if (last_press && now - last_press < 2000000) {
-            brls::Application::quit();
+            last_press = 0;
+            quit_or_relock();
             return true;
         }
         last_press = now;
