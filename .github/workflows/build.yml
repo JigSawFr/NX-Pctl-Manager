@@ -39,6 +39,30 @@ jobs:
       - name: compat.json generator
         run: python3 tools/gen_compat.py . build/compat.json
 
+  # The same host tests built by clang (other warnings, other sanitizer
+  # runtime), then once more by gcc with --coverage for a line coverage
+  # summary on the run page. The coverage is a report, not a gate.
+  host-tests-clang-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: true
+      - name: Dependencies (clang's sanitizer runtime, gcovr)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang libclang-rt-dev gcovr
+      - name: Unit tests (clang)
+        run: make test CC=clang CXX=clang++
+      - name: Unit tests (gcc, coverage)
+        # Without the sanitizers: their instrumentation skews the counts.
+        run: make test SAN= COV=--coverage CC=gcc CXX=g++
+      - name: Coverage summary
+        run: |
+          { echo "### Host test coverage (source/)"; echo '```'
+            gcovr --root . --filter 'source/' --txt-summary build/host-tests
+            echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
   # Builds the UI on Linux against the simulated backend and clicks through
   # every screen headlessly: catches borealis XML / view errors without a console.
   desktop-smoke:

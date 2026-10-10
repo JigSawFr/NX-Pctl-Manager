@@ -1,6 +1,6 @@
 // Host tests for source/util/playlog.c: folding the console's play-event log
 // into play time per game for today and the last 7 days.
-#include <assert.h>
+#include "check.h"
 #include <stdio.h>
 
 #include "playlog.h"
@@ -42,9 +42,9 @@ static void test_sessions(void)
         ev(A, PlayLogEv_Focus, DAY_START + 11 * H), ev(A, PlayLogEv_Unfocus, DAY_START + 11 * H + 1800),
     };
     size_t n = fold(log, 6, t);
-    assert(n == 2);
-    assert(find(t, n, A)->today_s == H + 1800 && find(t, n, A)->week_s == H + 1800);
-    assert(find(t, n, B)->today_s == 0 && find(t, n, B)->week_s == H + 1800);
+    CHECK(n == 2);
+    CHECK(find(t, n, A)->today_s == H + 1800 && find(t, n, A)->week_s == H + 1800);
+    CHECK(find(t, n, B)->today_s == 0 && find(t, n, B)->week_s == H + 1800);
 }
 
 static void test_windows(void)
@@ -55,7 +55,7 @@ static void test_windows(void)
         ev(A, PlayLogEv_Focus, DAY_START - H), ev(A, PlayLogEv_Unfocus, DAY_START + H),
     };
     size_t n = fold(midnight, 2, t);
-    assert(n == 1 && t[0].today_s == H && t[0].week_s == 2 * H);
+    CHECK(n == 1 && t[0].today_s == H && t[0].week_s == 2 * H);
 
     // Across the start of the week window, and entirely before it.
     const PlayLogEvent week[] = {
@@ -63,7 +63,7 @@ static void test_windows(void)
         ev(B, PlayLogEv_Focus, WEEK_START - 5 * H), ev(B, PlayLogEv_Unfocus, WEEK_START - 4 * H),
     };
     n = fold(week, 4, t);
-    assert(n == 1 && t[0].app_id == A && t[0].week_s == H && t[0].today_s == 0);
+    CHECK(n == 1 && t[0].app_id == A && t[0].week_s == H && t[0].today_s == 0);
 }
 
 static void test_cut_short(void)
@@ -82,10 +82,10 @@ static void test_cut_short(void)
         ev(C, PlayLogEv_Focus, DAY_START + 15 * H),
     };
     size_t n = fold(log, 7, t);
-    assert(n == 3);
-    assert(find(t, n, A)->today_s == H);
-    assert(find(t, n, B)->today_s == H);
-    assert(find(t, n, C)->today_s == 3 * H);
+    CHECK(n == 3);
+    CHECK(find(t, n, A)->today_s == H);
+    CHECK(find(t, n, B)->today_s == H);
+    CHECK(find(t, n, C)->today_s == 3 * H);
 
     // Another game getting the focus closes the open one.
     const PlayLogEvent swap[] = {
@@ -93,7 +93,7 @@ static void test_cut_short(void)
         ev(B, PlayLogEv_Unfocus, DAY_START + 10 * H),
     };
     n = fold(swap, 3, t);
-    assert(n == 2 && find(t, n, A)->today_s == 900 && find(t, n, B)->today_s == 2700);
+    CHECK(n == 2 && find(t, n, A)->today_s == 900 && find(t, n, B)->today_s == 2700);
 }
 
 static void test_clock_changes(void)
@@ -106,7 +106,7 @@ static void test_clock_changes(void)
         { A, PlayLogEv_Unfocus, DAY_START + 9 * H + 2 * H + 1800, 1000 + 1800, { 0, 0 } },
     };
     size_t n = fold(jump, 2, t);
-    assert(n == 1 && t[0].today_s == 1800);
+    CHECK(n == 1 && t[0].today_s == 1800);
 
     // No steady clock: the user clock is used; backwards on both: dropped.
     PlayLogEvent no_steady[] = {
@@ -116,20 +116,20 @@ static void test_clock_changes(void)
         { B, PlayLogEv_Unfocus, DAY_START + 11 * H, 800, { 0, 0 } },
     };
     n = fold(no_steady, 4, t);
-    assert(n == 1 && t[0].app_id == A && t[0].today_s == H);
+    CHECK(n == 1 && t[0].app_id == A && t[0].today_s == H);
 
     // A "session" of more than 24 h is a broken log, not play time.
     const PlayLogEvent broken[] = {
         ev(A, PlayLogEv_Focus, WEEK_START + H), ev(A, PlayLogEv_Unfocus, WEEK_START + 2 * DAY),
     };
-    assert(fold(broken, 2, t) == 0);
+    CHECK(fold(broken, 2, t) == 0);
 
     // Events after "now" (clock moved back since) are clipped to now.
     const PlayLogEvent future[] = {
         ev(A, PlayLogEv_Focus, NOW - H), ev(A, PlayLogEv_Unfocus, NOW + H),
     };
     n = fold(future, 2, t);
-    assert(n == 1 && t[0].today_s == H);
+    CHECK(n == 1 && t[0].today_s == H);
 }
 
 static void test_limits(void)
@@ -142,9 +142,9 @@ static void test_limits(void)
         ev(A, PlayLogEv_Focus, DAY_START + 7 * H), ev(A, PlayLogEv_Unfocus, DAY_START + 8 * H),
     };
     size_t n = playlog_fold(log, 8, NOW, DAY_START, WEEK_START, t, 2);
-    assert(n == 2 && find(t, n, C) == NULL);   // no room for a third game
-    assert(find(t, n, A)->today_s == 2 * H);    // known games still add up
-    assert(playlog_fold(NULL, 0, NOW, DAY_START, WEEK_START, t, 2) == 0);
+    CHECK(n == 2 && find(t, n, C) == NULL);   // no room for a third game
+    CHECK(find(t, n, A)->today_s == 2 * H);    // known games still add up
+    CHECK(playlog_fold(NULL, 0, NOW, DAY_START, WEEK_START, t, 2) == 0);
 }
 
 static void test_days(void)
@@ -158,10 +158,10 @@ static void test_days(void)
     };
     size_t n = fold(log, 6, t);
     const PlayLogTotal *a = find(t, n, A), *b = find(t, n, B);
-    assert(a->day_s[0] == H && a->day_s[1] == H && a->day_s[4] == 2 * H);
-    assert(a->day_s[2] == 0 && a->day_s[3] == 0 && a->day_s[5] == 0 && a->day_s[6] == 0);
-    assert(a->today_s == a->day_s[0] && a->week_s == 4 * H);
-    assert(b->day_s[6] == H && b->week_s == H && b->today_s == 0);
+    CHECK(a->day_s[0] == H && a->day_s[1] == H && a->day_s[4] == 2 * H);
+    CHECK(a->day_s[2] == 0 && a->day_s[3] == 0 && a->day_s[5] == 0 && a->day_s[6] == 0);
+    CHECK(a->today_s == a->day_s[0] && a->week_s == 4 * H);
+    CHECK(b->day_s[6] == H && b->week_s == H && b->today_s == 0);
 
     // Days as the calendar gives them: yesterday was 23 h long (the clocks
     // went forward), so the day before started 23 h before yesterday's start.
@@ -171,10 +171,10 @@ static void test_days(void)
         ev(C, PlayLogEv_Focus, starts[1] - H), ev(C, PlayLogEv_Unfocus, starts[1] + H),
     };
     n = playlog_fold_days(around, 2, NOW, starts, t, 8);
-    assert(n == 1 && t[0].day_s[2] == H && t[0].day_s[1] == H && t[0].week_s == 2 * H);
+    CHECK(n == 1 && t[0].day_s[2] == H && t[0].day_s[1] == H && t[0].week_s == 2 * H);
     uint32_t sum = 0;
     for (int k = 0; k < 7; k++) sum += t[0].day_s[k];
-    assert(sum == t[0].week_s);
+    CHECK(sum == t[0].week_s);
 }
 
 static PlayLogEvent acc(uint8_t kind, uint64_t user, uint64_t who)
@@ -208,15 +208,15 @@ static void test_accounts(void)
 
     size_t m = playlog_for_account(log, n, alice, mine, 32);
     size_t k = fold(mine, m, t);
-    assert(k == 1 && find(t, k, A)->today_s == 1500 + 1200);   // 9:05-9:30 and 9:40-10:00
+    CHECK(k == 1 && find(t, k, A)->today_s == 1500 + 1200);   // 9:05-9:30 and 9:40-10:00
 
     m = playlog_for_account(log, n, leo, mine, 32);
     k = fold(mine, m, t);
-    assert(k == 2 && find(t, k, A)->today_s == 600 && find(t, k, B)->today_s == 1800);
+    CHECK(k == 2 && find(t, k, A)->today_s == 600 && find(t, k, B)->today_s == 1800);
 
     // Everyone: the whole focus time, account events ignored.
     k = fold(log, n, t);
-    assert(find(t, k, A)->today_s == 1800 + 1200 && find(t, k, B)->today_s == 1800);
+    CHECK(find(t, k, A)->today_s == 1800 + 1200 && find(t, k, B)->today_s == 1800);
 
     // A game that crashed without closing its account: the next launch does.
     const PlayLogEvent crash[] = {
@@ -225,12 +225,12 @@ static void test_accounts(void)
     };
     m = playlog_for_account(crash, 6, alice, mine, 32);
     k = fold(mine, m, t);
-    assert(k == 1 && find(t, k, A)->today_s == 600 && find(t, k, B) == NULL);
+    CHECK(k == 1 && find(t, k, A)->today_s == 600 && find(t, k, B) == NULL);
 
     // Nothing for an account that never played; the output never overflows.
     const uint64_t nobody[2] = { 1, 2 };
-    assert(playlog_for_account(log, n, nobody, mine, 32) == 0);
-    assert(playlog_for_account(log, n, leo, mine, 1) == 1);
+    CHECK(playlog_for_account(log, n, nobody, mine, 32) == 0);
+    CHECK(playlog_for_account(log, n, leo, mine, 1) == 1);
 }
 
 int main(void)
@@ -242,6 +242,5 @@ int main(void)
     test_limits();
     test_days();
     test_accounts();
-    puts("playlog session, window and per-account assertions passed");
-    return 0;
+    return CHECK_DONE("playlog session, window and per-account assertions passed");
 }
