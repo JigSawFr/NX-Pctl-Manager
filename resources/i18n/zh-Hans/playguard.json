@@ -386,7 +386,19 @@
         "last": "最近游玩",
         "less_than_minute": "< 1分钟",
         "note": "数据读取自主机的游玩记录，涵盖所有用户。如果更改过主机时钟，时长可能不准确。在游戏上打开的PlayGuard会记为启动时所选用户玩该游戏的时间：请用家长的用户打开。",
-        "show_all": "显示所有游戏"
+        "show_all": "显示所有游戏",
+        "section_summary": "概览",
+        "section_rediscover": "值得重温",
+        "rediscover_note": "已安装、总时长不足 3 小时且一个月以上未玩的游戏：要不要再试试？",
+        "summary": {
+            "per_day": "日均",
+            "per_day_over": "{}（{} 天）",
+            "top": "玩得最多",
+            "days_played": "游玩天数",
+            "days_played_value": "7 天中 {} 天",
+            "busiest": "玩得最多的一天",
+            "session": "平均每次时长"
+        }
     },
     "restrictions": {
         "section_level": "限制等级",

@@ -386,7 +386,19 @@
         "last": "Dernière partie",
         "less_than_minute": "< 1 min",
         "note": "Lu dans le journal d'activité de la console, pour tous les comptes. Les durées sont approximatives si l'horloge de la console a été modifiée. PlayGuard ouvert par-dessus un jeu compte comme ce jeu pour le compte choisi au lancement : ouvrez-le avec le compte d'un parent.",
-        "show_all": "Afficher tous les jeux"
+        "show_all": "Afficher tous les jeux",
+        "section_summary": "Résumé",
+        "section_rediscover": "À redécouvrir",
+        "rediscover_note": "Installés, moins de 3 h au total et pas lancés depuis un mois ou plus : à essayer à nouveau ?",
+        "summary": {
+            "per_day": "Moyenne par jour",
+            "per_day_over": "{} sur {} jours",
+            "top": "Le plus joué",
+            "days_played": "Jours joués",
+            "days_played_value": "{} sur 7",
+            "busiest": "Jour le plus chargé",
+            "session": "Session moyenne"
+        }
     },
     "restrictions": {
         "section_level": "Niveau de restriction",

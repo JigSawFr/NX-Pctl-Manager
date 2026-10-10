@@ -386,7 +386,19 @@
         "last": "上次遊玩",
         "less_than_minute": "< 1分鐘",
         "note": "資料讀取自主機的遊玩紀錄，涵蓋所有使用者。如果更改過主機時鐘，時長可能不準確。在遊戲上開啟的PlayGuard會記為啟動時所選使用者玩該遊戲的時間：請用家長的使用者開啟。",
-        "show_all": "顯示所有遊戲"
+        "show_all": "顯示所有遊戲",
+        "section_summary": "概覽",
+        "section_rediscover": "值得重溫",
+        "rediscover_note": "已安裝、總時長不到 3 小時且一個月以上未玩的遊戲：要不要再試試？",
+        "summary": {
+            "per_day": "日均",
+            "per_day_over": "{}（{} 天）",
+            "top": "玩得最多",
+            "days_played": "遊玩天數",
+            "days_played_value": "7 天中 {} 天",
+            "busiest": "玩得最多的一天",
+            "session": "平均每次時長"
+        }
     },
     "restrictions": {
         "section_level": "限制等級",

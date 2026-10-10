@@ -386,7 +386,19 @@
         "last": "Laatst gespeeld",
         "less_than_minute": "< 1 min",
         "note": "Gelezen uit het activiteitenlogboek van de console, voor alle gebruikers. De tijden zijn bij benadering als de klok van de console is gewijzigd. PlayGuard geopend over een spel telt als dat spel voor de gebruiker die bij het starten is gekozen: open het met de gebruiker van een ouder.",
-        "show_all": "Alle games tonen"
+        "show_all": "Alle games tonen",
+        "section_summary": "Samenvatting",
+        "section_rediscover": "Herontdekken",
+        "rediscover_note": "Geïnstalleerd, in totaal minder dan 3 u en al een maand of langer niet gespeeld: een nieuwe kans waard?",
+        "summary": {
+            "per_day": "Gemiddeld per dag",
+            "per_day_over": "{} over {} dagen",
+            "top": "Meest gespeeld",
+            "days_played": "Speeldagen",
+            "days_played_value": "{} van 7",
+            "busiest": "Drukste dag",
+            "session": "Gemiddelde sessie"
+        }
     },
     "restrictions": {
         "section_level": "Beperkingsniveau",

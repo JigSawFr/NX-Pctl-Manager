@@ -44,7 +44,7 @@ Piloter le contrôle parental de la console ouvre aussi la porte à bien plus : 
 ## Points forts
 
 - ⏱️ **Limite quotidienne de temps de jeu** — la même tous les jours ou une par jour, modifiée sur un graphique de la semaine ; **profils** enregistrés (*Semaine d'école*, *Vacances d'été*…) ; **temps en plus aujourd'hui** et **plus de jeu aujourd'hui** en un appui.
-- 📊 **Activité** — temps par jeu aujourd'hui, sur 7 jours et depuis toujours, par compte utilisateur, avec graphiques et **export** en CSV, JSON, XLSX ou PDF.
+- 📊 **Activité** — temps par jeu aujourd'hui, sur 7 jours et depuis toujours, par compte utilisateur, avec graphiques, un résumé par période, des jeux à redécouvrir et **export** en CSV, JSON, XLSX ou PDF.
 - 🔒 **Restrictions et code PIN** — niveau de restriction, classification par âge et organisme de classification, définir / afficher le code PIN, déverrouiller temporairement, **verrou de console** en un interrupteur, et un code PIN optionnel pour ouvrir PlayGuard lui-même.
 - 🕒 **Horloge réseau** — mesure sur des serveurs NTP publics et réglage, pour que le minuteur compte juste sur une console qui n'atteint jamais Nintendo.
 - 📱 **Application mobile** — voir si elle est associée et la **dissocier**, même sur une console d'occasion.
@@ -152,6 +152,8 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 
 - Temps passé sur chaque jeu **aujourd'hui**, sur les **7 derniers jours** et **depuis toujours**, lu dans le journal d'activité de la console — pour tous les comptes ou **un seul compte utilisateur** (*Compte*, quand la console en a plusieurs).
 - Un graphique des sept derniers jours (aujourd'hui à droite, une légende dessous), avec la limite de chaque jour en trait et le temps au-delà en orange, marqué ! ; totaux du jour, de la semaine et depuis toujours.
+- Un **résumé** sur la période choisie, pour le compte affiché : moyenne par jour, le jeu le plus joué, les jours joués et le plus chargé (7 derniers jours), la session moyenne (depuis toujours).
+- **À redécouvrir** : les jeux installés, à moins de 3 h au total et pas lancés depuis un mois ou plus, les moins joués d'abord (jusqu'à trois).
 - Tri par période ; les premiers jeux affichent leur icône (pas en mode applet, pour économiser la mémoire). Une grande bibliothèque affiche ses 50 premiers jeux, puis *Afficher tous les jeux* ; l'export les contient toujours tous.
 - Ⓐ sur un jeu : ses sept derniers jours en barres, ses lancements, ses première et dernière parties, le temps de chaque compte. Les jeux supprimés gardent leurs chiffres depuis toujours.
 - **Export sur la carte SD** en CSV, JSON, XLSX (Excel) ou PDF, une colonne par jour.

@@ -386,7 +386,19 @@
         "last": "Última vez",
         "less_than_minute": "< 1 min",
         "note": "Lido do registo de atividade da consola, para todos os utilizadores. Os tempos são aproximados se o relógio da consola foi alterado. O PlayGuard aberto sobre um jogo conta como esse jogo para o utilizador escolhido ao iniciar: abra-o com o utilizador de um adulto.",
-        "show_all": "Mostrar todos os jogos"
+        "show_all": "Mostrar todos os jogos",
+        "section_summary": "Resumo",
+        "section_rediscover": "Para redescobrir",
+        "rediscover_note": "Instalados, menos de 3 h no total e sem serem jogados há um mês ou mais: merecem nova oportunidade?",
+        "summary": {
+            "per_day": "Média por dia",
+            "per_day_over": "{} em {} dias",
+            "top": "O mais jogado",
+            "days_played": "Dias jogados",
+            "days_played_value": "{} de 7",
+            "busiest": "Dia mais intenso",
+            "session": "Sessão média"
+        }
     },
     "restrictions": {
         "section_level": "Nível de restrição",

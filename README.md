@@ -44,7 +44,7 @@ Driving the console's own controls also opens the door to much more: reporting p
 ## Highlights
 
 - ⏱️ **Daily play-time limit** — the same every day or one per day, edited on a week chart; saved **profiles** (*School week*, *Summer holidays* …); **extra time today** and **no more play today** in one press.
-- 📊 **Activity** — time per game today, over 7 days and in all, per user account, with charts and **export** to CSV, JSON, XLSX or PDF.
+- 📊 **Activity** — time per game today, over 7 days and in all, per user account, with charts, a summary per period, games to rediscover and **export** to CSV, JSON, XLSX or PDF.
 - 🔒 **Restrictions and PIN** — restriction level, age rating and rating organisation, set / show the PIN, unlock temporarily, a one-switch **console lock**, and an optional PIN to open PlayGuard itself.
 - 🕒 **Network clock** — measure against public NTP servers and set it, so the play timer counts correctly on a console that never reaches Nintendo.
 - 📱 **Companion app** — see whether the phone app is linked and **unlink** it, even for a second-hand console.
@@ -152,6 +152,8 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 
 - Time per game **today**, in the **last 7 days** and **in all**, from the console's own activity log — for every account or **one user account** (*Account*, when the console has several).
 - A chart of the last seven days (today on the right, a legend under it), with each day's limit as a line and the time over it in amber, marked !; today's, the week's and all-time totals.
+- A **summary** over the chosen period, for the account shown: average per day, the most played game, the days played and the busiest one (last 7 days), the average session (all time).
+- **To rediscover**: installed games under 3 h in all and not played for a month or more, the least played first (up to three).
 - Sort by period; the first games show their icon (not in applet mode, to spare memory). A large library lists its first 50 games, then *Show every game*; the export always holds them all.
 - Ⓐ on a game: its last seven days as bars, launches, first and last play, time per user account. Deleted games keep their all-time figures.
 - **Export to the SD card** as CSV, JSON, XLSX (Excel) or PDF, one column per day.

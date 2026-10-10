@@ -386,7 +386,19 @@
         "last": "Last played",
         "less_than_minute": "< 1 min",
         "note": "Read from the console's activity log, for every account. Times are approximate if the console clock was changed. PlayGuard opened over a game counts as that game for the account picked at launch: open it with a parent's account.",
-        "show_all": "Show every game"
+        "show_all": "Show every game",
+        "section_summary": "Summary",
+        "section_rediscover": "To rediscover",
+        "rediscover_note": "Installed, under 3 h in all and not played for a month or more: worth another try?",
+        "summary": {
+            "per_day": "Average per day",
+            "per_day_over": "{} over {} days",
+            "top": "Most played",
+            "days_played": "Days played",
+            "days_played_value": "{} of 7",
+            "busiest": "Busiest day",
+            "session": "Average session"
+        }
     },
     "restrictions": {
         "section_level": "Restriction level",

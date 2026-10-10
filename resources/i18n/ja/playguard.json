@@ -386,7 +386,19 @@
         "last": "最後に遊んだ日",
         "less_than_minute": "1分未満",
         "note": "本体のプレイ記録から、すべてのユーザー分を読み込んでいます。本体の時計を変更した場合、時間はおおよそになります。ゲームの上で開いたPlayGuardは、起動時に選んだユーザーのそのゲームのプレイとして記録されます。保護者のユーザーで開いてください。",
-        "show_all": "すべてのゲームを表示"
+        "show_all": "すべてのゲームを表示",
+        "section_summary": "概要",
+        "section_rediscover": "もう一度遊んでみる",
+        "rediscover_note": "インストール済みで、合計3時間未満、1か月以上遊んでいないソフト：もう一度試してみませんか？",
+        "summary": {
+            "per_day": "1日の平均",
+            "per_day_over": "{}（{}日間）",
+            "top": "いちばん遊んだソフト",
+            "days_played": "遊んだ日数",
+            "days_played_value": "7日中{}日",
+            "busiest": "いちばん遊んだ日",
+            "session": "1回の平均プレイ時間"
+        }
     },
     "restrictions": {
         "section_level": "制限レベル",

@@ -107,6 +107,7 @@ test:
 	$(CXX) -std=c++17 $(CWARN) -Isource -Iextern/borealis/library/include source/util/paths.cpp source/util/pt_log.cpp source/util/log_upload.cpp tests/log_upload/test.cpp -o $(TESTOUT)/log_upload && $(TESTOUT)/log_upload
 	$(CXX) -std=c++17 $(CWARN) -Isource -Iextern/borealis/library/include source/util/paths.cpp source/util/sha256.cpp source/util/dev_builds.cpp source/util/zip_read.cpp source/util/github_auth.cpp tests/dev_builds/test.cpp -lz -o $(TESTOUT)/dev_builds && $(TESTOUT)/dev_builds
 	$(CXX) -std=c++17 $(CWARN) -Isource source/util/play_cache.cpp tests/play_cache/test.cpp -o $(TESTOUT)/play_cache && $(TESTOUT)/play_cache
+	$(CXX) -std=c++17 $(CWARN) -Isource source/util/activity_summary.cpp tests/activity_summary/test.cpp -o $(TESTOUT)/activity_summary && $(TESTOUT)/activity_summary
 	$(CXX) -std=c++17 $(CWARN) -Isource source/util/paths.cpp source/util/pt_log.cpp tests/pt_log/test.cpp -o $(TESTOUT)/pt_log && $(TESTOUT)/pt_log
 
 check: test
