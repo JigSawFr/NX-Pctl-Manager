@@ -56,7 +56,7 @@ Game patches are read from `./playguard_data/sd/`, the simulated SD card root.
 - `tools/visual_check.py` — compares those screenshots with the references in `tests/visual/`. A difference is reported as a warning, not a failure; see [`tests/visual/README.md`](tests/visual/README.md) to update them.
 - `python3 tools/check_resources.py .` — checks the XML layouts and translation catalogs.
 
-CI runs all of the above plus the Switch build. The visual check covers the `smoke`, `errors` and `gate` screens and only warns. The desktop build turns PlayGuard's compiler warnings into errors (`make desktop CMAKE_ARGS=-DPLAYGUARD_WERROR=ON`); `check_resources.py` warns about sentences a catalog still has in English.
+CI runs all of the above plus the Switch build. The visual check compares the sets in `tests/visual/` and only warns. The desktop build turns PlayGuard's compiler warnings into errors (`make desktop CMAKE_ARGS=-DPLAYGUARD_WERROR=ON`); `check_resources.py` warns about sentences a catalog still has in English.
 
 ## Code layout
 
