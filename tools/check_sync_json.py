@@ -67,7 +67,29 @@ def main():
         for path in re.findall(r"value_json\.([a-z0-9_.]+)", tpl):
             if path not in state_keys:
                 fail(f"discovery: {oid} reads value_json.{path}, which the state does not have")
-    print(f"check_sync_json: {len(disc['cmps'])} components, {len(state_keys)} state keys: OK")
+    # entities.json (the Home Assistant integration's copy of the table): every
+    # entity, and nothing else, of the discovery with every option.
+    path = folder / "entities.json"
+    if not path.exists():
+        fail(f"{path} is missing: run make test first")
+    try:
+        table = json.loads(path.read_text(encoding="utf-8"))["entities"]
+    except (json.JSONDecodeError, KeyError) as e:
+        fail(f"entities.json: {e}")
+    ids = [e["id"] for e in table]
+    if len(set(ids)) != len(ids):
+        fail("entities.json repeats an id")
+    for e in table:
+        if e["write"] not in ("none", "free", "timer") or not isinstance(e["extra"], dict):
+            fail(f"entities.json: {e['id']} is malformed")
+        for p in re.findall(r"value_json\.([a-z0-9_.]+)", e["value_template"] or ""):
+            if p not in state_keys:
+                fail(f"entities.json: {e['id']} reads value_json.{p}, which the state does not have")
+    missing = set(disc["cmps"]) - set(ids)
+    if missing:
+        fail(f"entities.json lacks {sorted(missing)}")
+    print(f"check_sync_json: {len(disc['cmps'])} components, {len(state_keys)} state keys, "
+          f"{len(table)} entities: OK")
 
 
 if __name__ == "__main__":

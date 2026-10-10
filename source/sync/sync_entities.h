@@ -1,7 +1,8 @@
 // sync_entities — the entities the console offers Home Assistant: the one
 // table the native MQTT discovery is built from (sync_discovery.c), that the
 // host tests check against the order parser (sync_apply.c), and that the HA
-// integration carries a copy of (tools/export_entities.py writes it out).
+// integration carries a copy of (tests/sync_core writes it out as
+// build/host-tests/sync/entities.json).
 // Names follow HA's core nintendo_parental_controls integration where the
 // meaning is the same.
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).

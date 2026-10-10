@@ -594,6 +594,9 @@ static void test_state(void)
     s.now_playing = 0x0100000000010000ULL;
     s.now_playing_name = "Super Mario Odyssey";
     s.now_playing_since = 1790990000;
+    static const char profiles[2][SYNC_PROFILE_MAX] = { "School week", "Vacances d'été" };
+    s.profiles = profiles;
+    s.n_profiles = 2;
     static char buf[4096];
     size_t n = sync_state_build(&s, buf, sizeof(buf));
     assert(n > 0);
@@ -613,6 +616,7 @@ static void test_state(void)
     assert(contains(buf, "\"now_playing\":{\"app_id\":\"0100000000010000\",\"name\":\"Super Mario Odyssey\""));
     assert(contains(buf, "\"activity_today\":{\"used_min\":74"));
     assert(contains(buf, "\"link\":{\"policy\":\"ask\""));
+    assert(contains(buf, "\"profiles\":[\"School week\",\"Vacances d'été\"]}"));
 
     // Nothing counted yet today (1454 reads 0): the whole limit is left, the
     // time played is unknown.
@@ -638,6 +642,7 @@ static void test_state(void)
     assert(contains(buf, "\"now_playing\":{\"app_id\":null,\"name\":null,\"since\":null}"));
     assert(contains(buf, "\"enabled\":null"));
     assert(contains(buf, "\"weekday\":null"));
+    assert(contains(buf, "\"profiles\":[]}"));
 }
 
 static void test_activity_names_events(void)
@@ -676,6 +681,40 @@ static void test_activity_names_events(void)
     assert(contains(buf, "\"reason\":null,\"rc\":\"0x00001234\""));
 }
 
+// The entity table as entities.json, for the Home Assistant integration's
+// parity test (it carries a copy: JigSawFr/playguard-ha).
+static void test_export_entities(void)
+{
+    static char buf[32768];
+    size_t count = 0;
+    const SyncEntity *e = sync_entities(&count);
+    static const char *const WRITE[] = { "none", "free", "timer" };
+    SyncJson j;
+    sync_json_init(&j, buf, sizeof(buf));
+    sync_json_obj(&j);
+    sync_json_kint(&j, "schema", SYNC_SCHEMA);
+    sync_json_key(&j, "entities");
+    sync_json_arr(&j);
+    for (size_t i = 0; i < count; i++) {
+        sync_json_obj(&j);
+        sync_json_kstr(&j, "id", e[i].id);
+        sync_json_kstr(&j, "platform", e[i].platform);
+        sync_json_kstr(&j, "write", WRITE[e[i].write]);
+        sync_json_kstr(&j, "name", e[i].name);
+        sync_json_kstr_or_null(&j, "value_template", e[i].value_template);
+        sync_json_key(&j, "extra");
+        sync_json_obj(&j);
+        sync_json_members(&j, e[i].extra);
+        sync_json_obj_end(&j);
+        sync_json_obj_end(&j);
+    }
+    sync_json_arr_end(&j);
+    sync_json_obj_end(&j);
+    const size_t n = sync_json_end(&j);
+    assert(n > 0 && contains(buf, "\"id\":\"limit_mon\",\"platform\":\"number\",\"write\":\"timer\""));
+    save("entities.json", buf);
+}
+
 int main(int argc, char **argv)
 {
     if (argc > 1) out_dir = argv[1];
@@ -692,6 +731,7 @@ int main(int argc, char **argv)
     test_discovery();
     test_state();
     test_activity_names_events();
+    test_export_entities();
     puts("sync_core: all tests passed");
     return 0;
 }

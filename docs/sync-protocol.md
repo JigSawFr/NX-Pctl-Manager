@@ -79,7 +79,8 @@ within 45 s.
   "link": {
     "policy": "ask", "remote_timer_writes": false, "ha_discovery": true,
     "agent": false, "last_result": "limit_mon: applied"
-  }
+  },
+  "profiles": ["School week", "Holidays"]
 }
 ```
 
@@ -111,6 +112,8 @@ Every object is always there; a value the console could not read is `null`
   firmware); every order is then refused.
 - `link.last_result`: the last order handled, `<entity>: applied` or
   `<entity>: <reason>`.
+- `profiles`: the saved profiles' names, the choices of the `profile` order
+  (at most 16; `[]` when there are none).
 
 ## `activity`, `activity/<date>`, `names`, `week`
 

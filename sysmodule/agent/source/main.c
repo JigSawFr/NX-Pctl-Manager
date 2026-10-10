@@ -318,6 +318,8 @@ static void name_of(u64 app_id, char *out, size_t cap)
     }
 }
 
+static size_t host_profiles(void *ctx, char (*names)[SYNC_PROFILE_MAX], size_t max);
+
 static size_t own_state(char *out, size_t cap)
 {
     static PctlStatus st;
@@ -364,6 +366,9 @@ static size_t own_state(char *out, size_t cap)
     s.now_playing_name = playing_name[0] ? playing_name : NULL;
     s.agent = true;
     s.last_result = ls->last_result;
+    static char profiles[16][SYNC_PROFILE_MAX];
+    s.n_profiles = host_profiles(NULL, profiles, 16);
+    s.profiles = profiles;
     return sync_state_build(&s, out, cap);
 }
 

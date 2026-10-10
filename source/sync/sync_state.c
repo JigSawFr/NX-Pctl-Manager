@@ -222,6 +222,10 @@ size_t sync_state_build(const SyncSnapshot *s, char *out, size_t cap)
     timer(&j, s);
     activity_today(&j, s);
     link(&j, s);
+    sync_json_key(&j, "profiles");
+    sync_json_arr(&j);
+    for (size_t i = 0; s->profiles && i < s->n_profiles; i++) sync_json_str(&j, s->profiles[i]);
+    sync_json_arr_end(&j);
     sync_json_obj_end(&j);
     return sync_json_end(&j);
 }

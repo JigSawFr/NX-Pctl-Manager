@@ -46,6 +46,9 @@ typedef struct {
 
     bool               agent;           // the agent sysmodule runs (and publishes)
     const char        *last_result;     // "limit_mon: applied", NULL or "": none
+
+    const char       (*profiles)[SYNC_PROFILE_MAX];   // the saved profiles' names (the profile order's choices)
+    size_t             n_profiles;
 } SyncSnapshot;
 
 size_t sync_state_build(const SyncSnapshot *s, char *out, size_t cap);

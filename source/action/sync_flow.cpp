@@ -583,6 +583,15 @@ void build_state()
     s.activity_s = activity_ok ? (uint32_t)play_data::today_total_s(*stats) : 0;
     s.agent = s_agent;
     s.last_result = last_result.c_str();
+    // The profile order's choices (Home Assistant's select).
+    char profile_names[16][SYNC_PROFILE_MAX];
+    size_t n_profiles = 0;
+    for (const auto& p : profiles::list()) {
+        if (p.name.size() >= SYNC_PROFILE_MAX || n_profiles == 16) continue;
+        std::snprintf(profile_names[n_profiles++], SYNC_PROFILE_MAX, "%s", p.name.c_str());
+    }
+    s.profiles = profile_names;
+    s.n_profiles = n_profiles;
 
     std::string doc(16384, '\0');
     const size_t n = sync_state_build(&s, &doc[0], doc.size());
