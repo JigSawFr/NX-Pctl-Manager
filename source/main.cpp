@@ -9,7 +9,9 @@
 #include <cstdlib>
 #include <ctime>
 #include <exception>
+#include <fcntl.h>
 #include <typeinfo>
+#include <unistd.h>
 
 #include "action/fw_gate.hpp"
 #include "action/pin_lock.hpp"
@@ -66,10 +68,14 @@ namespace
     const std::time_t now = std::time(nullptr);
     if (const std::tm* t = std::localtime(&now)) std::strftime(when, sizeof(when), "%Y-%m-%d %H:%M:%S", t);
     if (paths::ensure_dir(paths::logs_dir())) {
-        if (std::FILE* f = std::fopen((paths::logs_dir() + "/crash.txt").c_str(), "a")) {
+        // Created 0644 (as util/pt_log.cpp), not fopen's 0666.
+        const int fd = ::open((paths::logs_dir() + "/crash.txt").c_str(), O_WRONLY | O_APPEND | O_CREAT, 0644);
+        if (std::FILE* f = fd < 0 ? nullptr : ::fdopen(fd, "a")) {
             std::fprintf(f, "%s  PlayGuard %s (%s): uncaught %s\n", when, app::version().c_str(),
                          app::commit().empty() ? "?" : app::commit().c_str(), what.c_str());
             std::fclose(f);
+        } else if (fd >= 0) {
+            ::close(fd);
         }
     }
     std::fprintf(stderr, "uncaught %s\n", what.c_str());
