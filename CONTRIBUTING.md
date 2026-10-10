@@ -6,12 +6,12 @@ Thanks for helping! This file covers building, testing, the code layout, release
 
 | Command | What it does | Needs |
 |---|---|---|
-| `make test` | Unit tests of the C service layer, with ASan + UBSan (`SAN=` to turn them off) | gcc and g++ with the sanitizers, zlib headers, the borealis submodule — no devkitPro |
+| `make test` | Host unit tests of the C service layer and of the UI-free C++ helpers and flow logic, with ASan + UBSan (`SAN=` to turn them off) | gcc and g++ with the sanitizers, zlib headers, the borealis submodule — no devkitPro |
 | `make desktop` | The real UI on Linux, against a simulated console | GLFW / X11 / D-Bus dev packages |
 | `make` | `./playguard.nro` — drawn with deko3d (`GL=1` for OpenGL) | devkitPro `switch-dev`, `DEVKITPRO` set |
 | `make dist` | `./playguard.zip` (SD-card layout) | as above |
 | `make dist-rescue` | `./playguard-rescue.zip`, the optional recovery sysmodule | as above |
-| `./run.sh [ip]` | Builds in the `devkitpro/devkita64` Docker image, optionally `nxlink`s to a console | Docker |
+| `./run.sh [ip]` | Builds in the `devkitpro/devkita64` Docker image, at the digest CI uses (read from `build.yml`), optionally `nxlink`s to a console | Docker |
 
 Clone with submodules (`git clone --recursive`, or `git submodule update --init`): borealis is pinned at `extern/borealis/`.
 
@@ -47,6 +47,7 @@ Clone with submodules (`git clone --recursive`, or `git submodule update --init`
 | `PLAYGUARD_SIM_HBLOADER=1` | A homebrew loader that can hand an update over to a store |
 | `PLAYGUARD_SIM_NUMPAD=1:30` | What the system number pad returns |
 | `PLAYGUARD_SIM_NOW=<POSIX seconds>` | A frozen console time (with `TZ=` for its time zone) |
+| `PLAYGUARD_SIM_STILL_FOCUS=1` | Not the console: the focus highlight without its moving glow, for screenshots that compare |
 
 Game patches are read from `./playguard_data/sd/`, the simulated SD card root.
 
@@ -54,16 +55,16 @@ Game patches are read from `./playguard_data/sd/`, the simulated SD card root.
 
 - `make test` — host unit tests (`tests/`, see [`tests/README.md`](tests/README.md)), including the recovery sysmodule logic (`tests/rescue/`).
 - `tools/desktop_smoke.py <out-dir> [gate|errors|rescue|forged|lock|devbuild|library]` — clicks through every screen of the desktop build headlessly (needs `DISPLAY`, `xdotool`, ImageMagick) and saves screenshots. The `gate` scenario covers the firmware screen and developer mode on a simulated 24.0.0; `errors` covers a failed unlock and an unsettable clock; `rescue` the recovery screen, then quitting while still unlocked; `forged` a rescue report the console does not confirm (no action, the lock screen first); `lock` the lock screen of *Ask for the PIN › To open PlayGuard*; `library` a large library in Activity (its first 50 games, then *Show every game*); `devbuild` signing in to a simulated GitHub and installing a pull request's build in place out of its artifact.
-- `tools/visual_check.py` — compares those screenshots with the references in `tests/visual/`. A difference is reported as a warning, not a failure; see [`tests/visual/README.md`](tests/visual/README.md) to update them.
+- `tools/visual_check.py` — compares those screenshots with the references in `tests/visual/`. A screen that changed fails CI; see [`tests/visual/README.md`](tests/visual/README.md) to update them.
 - `python3 tools/check_resources.py .` — checks the XML layouts and translation catalogs.
 
-CI runs all of the above plus the Switch build. The visual check compares the sets in `tests/visual/` and only warns. The desktop build turns PlayGuard's compiler warnings into errors (`make desktop CMAKE_ARGS=-DPLAYGUARD_WERROR=ON`); `check_resources.py` warns about sentences a catalog still has in English.
+CI runs all of the above plus the Switch build, the smoke scenarios in parallel shards. The visual check compares the sets in `tests/visual/` and fails on a changed screen (the simulator keeps the console time and the focus highlight still, so the screens come out the same in every run). The desktop and Switch builds turn PlayGuard's compiler warnings into errors (`make desktop CMAKE_ARGS=-DPLAYGUARD_WERROR=ON`, `make dist CMAKE_ARGS=-DPLAYGUARD_WERROR=ON`); the Switch job also fails on a libnx older than 4.12.0 or an `.nro` without libnx's `LNY2` marker (`tools/check_nro.py`), and checks that a second build gives byte-identical zips; `check_resources.py` warns about sentences a catalog still has in English.
 
 ## Code layout
 
 | Path | Content |
 |---|---|
-| `source/core/` | C, libnx: `pctl_ops`, `time_ops`, `sysinfo`, `playstats`, `rescue` |
+| `source/core/` | C, libnx: `pctl_ops`, `time_ops`, `sysinfo`, `playstats`, `platform`, `rescue`, `pure`, `calendar`, `write_guard` (the last four need no console and are shared with the simulator) |
 | `source/tab/` | One class per tab |
 | `source/action/` | Flows: play-timer write, clock, settings restore, firmware screen, updates |
 | `source/activity/` | Screens: per-day editor, profiles, a game, first steps, change history, firmware |
@@ -87,7 +88,7 @@ Releases are automated with [release-please](https://github.com/googleapis/relea
 - **Squash-merge** pull requests, so each one lands as a single commit carrying that title. A plain merge commit makes release-please apply a PR's `BEGIN_COMMIT_OVERRIDE` block to every commit of the PR.
 - release-please keeps a `chore(main): release X.Y.Z` PR open; merging it tags the release and attaches the `.nro` / `.zip`.
 
-**Development builds:** nothing is published for them. The developer tools install the `playguard_release` artifact of a build run (a zip holding `playguard.nro`): main's last commits and each open pull request's newest run, forks included (`source/util/dev_builds.hpp`). GitHub hands artifacts to signed-in users only, hence the GitHub sign-in (device flow, GitHub App client ID in `source/util/github_auth.hpp`; with the Device Flow enabled and token expiry off; the app's only permissions are Actions: read and Gists: write). For a pull request, `PLAYGUARD_COMMIT` makes the app report its head commit, as the artifacts API names the run.
+**Development builds:** nothing is published for them. The developer tools install the `playguard_release` artifact of a build run (a zip holding `playguard.nro`): main's last commits and the newest run of each open pull request from a branch of this repository; pull requests from forks are left out, as their code is not reviewed yet (`source/util/dev_builds.hpp`, [SECURITY.md](SECURITY.md)). GitHub hands artifacts to signed-in users only, hence the GitHub sign-in (device flow, GitHub App client ID in `source/util/github_auth.hpp`; with the Device Flow enabled and token expiry off; the app's only permissions are Actions: read and Gists: write). For a pull request, `PLAYGUARD_COMMIT` makes the app report its head commit, as the artifacts API names the run.
 
 Each release also publishes `compat.json` (`tools/gen_compat.py`: the version and the newest checked firmware), which the app's update check reads, plus `build-info.txt` and `SHA256SUMS.txt`. Details in [`packaging/README.md`](packaging/README.md). The `.nro`, both `.zip` and `compat.json` also carry a [build provenance attestation](https://docs.github.com/actions/security-for-github-actions/using-artifact-attestations): `gh attestation verify playguard.nro -R JigSawFr/PlayGuard` checks that a download was built by this repository's CI.
 
