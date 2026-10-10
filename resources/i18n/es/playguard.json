@@ -91,7 +91,8 @@
         "bad_pin_format": "el sistema ha rechazado el formato del PIN",
         "pctl_refused": "rechazado por el servicio de control parental",
         "relock_failed": "la consola se desbloqueó pero no se pudo volver a bloquear: bloquéala ahora (Seguridad y app › Bloquear ahora)",
-        "not_applied": "la consola no ha aceptado el cambio, así que se ha restablecido la configuración anterior"
+        "not_applied": "la consola no ha aceptado el cambio, así que se ha restablecido la configuración anterior",
+        "not_saved": "PlayGuard no ha podido guardar en la tarjeta SD lo que tendrá que restablecer más tarde, así que no se ha escrito nada"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -470,7 +471,8 @@
         "start_off": "El reloj de red tiene un desfase de {} (comprobado con {}). El temporizador de juego depende de él: consulte la pestaña Reloj de red.",
         "guided_body": "El reloj de red es impreciso, y el temporizador de juego depende de él.\n\n¿Medir la hora con {} ahora? (La consola debe estar conectada a Internet.) Después se le pedirá confirmación antes de ajustar el reloj.",
         "guided_measure": "Medir ahora",
-        "guided_fine": "El reloj de red es preciso: no hay nada que hacer."
+        "guided_fine": "El reloj de red es preciso: no hay nada que hacer.",
+        "confirm_apply_resets": "\n\nCambiar el reloj pone a cero el tiempo de juego de hoy: vuelve a estar disponible todo el límite diario."
     },
     "pairing": {
         "section": "App Control parental de Nintendo Switch",
@@ -712,7 +714,8 @@
         "restored": "Ajustes restaurados.",
         "restore_err": "No restaurado: {}",
         "before_delete_err": "No se ha podido guardar antes ninguna copia ({}).\n\n¿Eliminarlo todo de todos modos?",
-        "delete_anyway": "Eliminar de todos modos"
+        "delete_anyway": "Eliminar de todos modos",
+        "bedtime_not_restored": "Esta copia tenía activada una alarma de hora de dormir: no se restablece; vuelve a configurarla en Tiempo de juego si hace falta."
     },
     "update": {
         "checking": "Buscando actualizaciones...",

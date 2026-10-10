@@ -91,7 +91,8 @@
         "bad_pin_format": "系统拒绝了此PIN格式",
         "pctl_refused": "家长控制服务拒绝了此操作",
         "relock_failed": "主机已解锁，但无法重新锁定：请立即锁定（安全与应用 › 立即启用）",
-        "not_applied": "主机未接受更改，已恢复之前的设置"
+        "not_applied": "主机未接受更改，已恢复之前的设置",
+        "not_saved": "PlayGuard 无法在 SD 卡上保存之后需要恢复的内容，未写入任何内容"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -470,7 +471,8 @@
         "start_off": "网络时钟误差为{}（以{}为准）。游戏时间依赖网络时钟：请查看“网络时钟”标签页。",
         "guided_body": "网络时钟不准确，而游戏时间依赖网络时钟。\n\n要现在通过{}测量时间吗？（主机需连接网络。）设置时钟前会再次询问。",
         "guided_measure": "立即测量",
-        "guided_fine": "网络时钟准确：无需操作。"
+        "guided_fine": "网络时钟准确：无需操作。",
+        "confirm_apply_resets": "\n\n更改时钟会让今天的游戏时间重新计算：每日限额将再次全部可用。"
     },
     "pairing": {
         "section": "“Nintendo Switch家长控制”应用",
@@ -712,7 +714,8 @@
         "restored": "已恢复设置。",
         "restore_err": "未恢复：{}",
         "before_delete_err": "无法事先保存备份（{}）。\n\n仍要删除全部内容吗？",
-        "delete_anyway": "仍要删除"
+        "delete_anyway": "仍要删除",
+        "bedtime_not_restored": "此备份中开启了就寝提醒：不会恢复，如有需要请在“游戏时间”中重新设置。"
     },
     "update": {
         "checking": "正在检查更新…",

@@ -91,7 +91,8 @@
         "bad_pin_format": "o sistema recusou o formato do PIN",
         "pctl_refused": "recusado pelo serviço de controle dos pais",
         "relock_failed": "o console foi desbloqueado mas não pôde ser bloqueado de novo: bloqueie-o agora (Segurança e app › Bloquear agora)",
-        "not_applied": "o console não aceitou a alteração, então as configurações anteriores foram restauradas"
+        "not_applied": "o console não aceitou a alteração, então as configurações anteriores foram restauradas",
+        "not_saved": "o PlayGuard não conseguiu salvar no cartão SD o que precisará restaurar depois, então nada foi gravado"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -470,7 +471,8 @@
         "start_off": "O relógio de rede está com {} de diferença (conferido com {}). O limite de tempo de jogo depende dele: veja a aba Relógio de rede.",
         "guided_body": "O relógio de rede está impreciso, e o limite de tempo de jogo depende dele.\n\nMedir o horário com {} agora? (O console precisa estar online.) Você vai confirmar antes de o relógio ser ajustado.",
         "guided_measure": "Medir agora",
-        "guided_fine": "O relógio de rede está preciso: nada a fazer."
+        "guided_fine": "O relógio de rede está preciso: nada a fazer.",
+        "confirm_apply_resets": "\n\nMudar o relógio zera o tempo de jogo de hoje: todo o limite diário volta a ficar disponível."
     },
     "pairing": {
         "section": "App Controle dos pais do Nintendo Switch",
@@ -712,7 +714,8 @@
         "restored": "Configurações restauradas.",
         "restore_err": "Não restaurado: {}",
         "before_delete_err": "Não foi possível fazer um backup antes ({}).\n\nExcluir tudo mesmo assim?",
-        "delete_anyway": "Excluir mesmo assim"
+        "delete_anyway": "Excluir mesmo assim",
+        "bedtime_not_restored": "Este backup tinha um alarme de hora de dormir ativo: ele não é restaurado; configure-o de novo em Tempo de jogo, se precisar."
     },
     "update": {
         "checking": "Procurando atualizações...",

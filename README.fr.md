@@ -93,7 +93,7 @@ Tous dans `sd:/switch/playguard/` :
 | Chemin | Contenu |
 |---|---|
 | `config.json` | Préférences (langue, thème, serveur NTP, *Demander le code PIN*…) ; chaque clé dans [docs/config.md](docs/config.md) (en anglais) |
-| `history.json` | L'historique des modifications (les 200 dernières) |
+| `history.json` | L'historique des modifications (les 200 dernières) ; s'il est illisible, il est gardé en `history.json.bad` plutôt qu'écrasé |
 | `profiles/` | Profils de limites enregistrés |
 | `backups/` | Sauvegardes des réglages (jamais le code PIN) |
 | `exports/` | Exports de l'activité |
@@ -173,7 +173,7 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 
 - Horloges console et réseau, fuseau horaire, précision.
 - Choix d'un serveur NTP public (≈ 50 intégrés, par région, ou le vôtre).
-- **Mesure** sur 3 serveurs (médiane ; alerte orange en cas de désaccord), puis **réglage de l'horloge réseau** — une mesure reste utilisable 2 minutes, avec un décompte.
+- **Mesure** sur 3 serveurs (médiane ; alerte orange en cas de désaccord), puis **réglage de l'horloge réseau** — une mesure reste utilisable 2 minutes, avec un décompte. La confirmation le dit : changer l'horloge remet à zéro le temps de jeu du jour, toute la limite redevient donc disponible.
 - Une console qui n'atteint jamais les serveurs de Nintendo garde cette horloge imprécise, ce qui fausse le minuteur.
 </details>
 
@@ -203,7 +203,7 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 <summary><b>Outils</b> et <b>À propos</b> — historique, sauvegardes, infos console ; version, mises à jour, nouveautés, crédits</summary>
 
 - **Historique des modifications :** ce que PlayGuard a changé (limites, niveau de restriction, code PIN, déverrouillages, dissociation, horloge, restaurations…), quand et depuis où. Ⓐ sur une modification l'affiche et, pour une valeur, **remet la précédente** — avec le même déverrouillage et le même code PIN que toute modification, en signalant si elle a changé depuis.
-- **Sauvegarder / restaurer les réglages** sur la carte SD : niveau de restriction, réglages personnalisés, mode VR, organisme de classification, limites quotidiennes, alarme « temps écoulé » (avec les actions avancées activées), et pour mémoire le bloc brut du minuteur — jamais le code PIN. La restauration ne liste que ce qui changerait. Nombre de sauvegardes conservées au choix.
+- **Sauvegarder / restaurer les réglages** sur la carte SD : niveau de restriction, réglages personnalisés, mode VR, organisme de classification, limites quotidiennes, alarme « temps écoulé » (avec les actions avancées activées), et pour mémoire le bloc brut du minuteur — jamais le code PIN. La restauration ne liste que ce qui changerait, et signale quand la sauvegarde avait une alarme du coucher (elle n'est pas réécrite). Nombre de sauvegardes conservées au choix.
 - **Premiers pas** rouvre le guide (avec une étape *Dissocier l'application mobile* tant qu'elle est associée, une étape *Réactiver l'alarme « temps écoulé »* tant qu'elle est désactivée, et un interrupteur pour qu'il ne s'ouvre plus au lancement). Sous *Fermer*, *Soutenir PlayGuard* affiche les QR codes de soutien.
 - **Exporter un rapport de diagnostic**, ou **l'envoyer en ligne** (voir [Signaler un bug](#signaler-un-bug)).
 - **Console :** firmware, Atmosphère, compatibilité, stockage (emuMMC ou sysMMC), **masquage du numéro de série** par Atmosphère (en partie caché jusqu'à Ⓐ ; avertissement en emuMMC s'il n'est pas masqué), **patchs de jeux** (sys-patch ou fichiers sigpatches, avec une recommandation de sys-patch quand seuls des fichiers sont utilisés).

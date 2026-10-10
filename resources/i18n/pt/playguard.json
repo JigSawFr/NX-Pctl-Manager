@@ -91,7 +91,8 @@
         "bad_pin_format": "o sistema recusou o formato do PIN",
         "pctl_refused": "recusado pelo serviço de controlo parental",
         "relock_failed": "a consola foi desbloqueada mas não foi possível bloqueá-la de novo: bloqueie-a agora (Segurança e aplicação › Bloquear agora)",
-        "not_applied": "a consola não aceitou a alteração, por isso as definições anteriores foram repostas"
+        "not_applied": "a consola não aceitou a alteração, por isso as definições anteriores foram repostas",
+        "not_saved": "o PlayGuard não conseguiu guardar no cartão SD o que terá de repor mais tarde, por isso nada foi escrito"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -470,7 +471,8 @@
         "start_off": "O relógio de rede tem uma diferença de {} (verificado com {}). O temporizador de jogo depende dele: consulte o separador Relógio de rede.",
         "guided_body": "O relógio de rede está impreciso, e o temporizador de jogo depende dele.\n\nMedir a hora com {} agora? (A consola tem de estar online.) Antes de o relógio ser acertado, será pedida confirmação.",
         "guided_measure": "Medir agora",
-        "guided_fine": "O relógio de rede está preciso: nada a fazer."
+        "guided_fine": "O relógio de rede está preciso: nada a fazer.",
+        "confirm_apply_resets": "\n\nMudar o relógio repõe a zero o tempo de jogo de hoje: todo o limite diário volta a ficar disponível."
     },
     "pairing": {
         "section": "Aplicação Controlo Parental Nintendo Switch",
@@ -712,7 +714,8 @@
         "restored": "Definições restauradas.",
         "restore_err": "Não restaurado: {}",
         "before_delete_err": "Não foi possível criar antes uma cópia de segurança ({}).\n\nEliminar tudo mesmo assim?",
-        "delete_anyway": "Eliminar mesmo assim"
+        "delete_anyway": "Eliminar mesmo assim",
+        "bedtime_not_restored": "Esta cópia tinha um alarme de hora de dormir ativo: não é reposto; volte a defini-lo em Tempo de jogo, se necessário."
     },
     "update": {
         "checking": "A procurar atualizações...",

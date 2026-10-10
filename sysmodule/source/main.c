@@ -164,10 +164,18 @@ static void write_report(const RescueReport* r)
     char buf[128];
     size_t n = rescue_report_format(r, buf, sizeof(buf));
     if (n == 0) return;
-    FILE* f = fopen(PATH_REPORT, "wb");
+    // Through a ".tmp" sibling, as the app's own files: a report cut short
+    // (power off, SD card full) is never read as a whole one. PlayGuard reads
+    // the ".tmp" when the report itself is missing (paths::read_file).
+    FILE* f = fopen(PATH_REPORT ".tmp", "wb");
     if (!f) return;
-    fwrite(buf, 1, n, f);
-    fclose(f);
+    const bool written = fwrite(buf, 1, n, f) == n;
+    if (fclose(f) != 0 || !written) {
+        remove(PATH_REPORT ".tmp");
+        return;
+    }
+    remove(PATH_REPORT);
+    rename(PATH_REPORT ".tmp", PATH_REPORT);
 }
 
 // pctl can take a moment to come up at boot; the SD card too. Try for a while.
