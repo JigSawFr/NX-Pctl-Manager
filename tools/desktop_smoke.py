@@ -27,7 +27,8 @@ and the clock tab must say why the network clock cannot be set.
 
 Usage: tools/desktop_smoke.py <out-dir> [gate|errors|rescue|forged|lock|devbuild|library]   (needs DISPLAY, xdotool, ImageMagick)
 Environment knobs of the simulated backend (PLAYGUARD_SIM_*) are passed through;
-the console time is fixed (PLAYGUARD_SIM_NOW, TZ) unless set.
+the console time is fixed (PLAYGUARD_SIM_NOW, TZ) and the focus glow still
+(PLAYGUARD_SIM_STILL_FOCUS) unless set.
 """
 import json
 import os
@@ -62,6 +63,8 @@ env = dict(os.environ, LIBGL_ALWAYS_SOFTWARE="1")
 # 8 October 2026, 16:00 UTC. Only the footer clock follows the host.
 env.setdefault("PLAYGUARD_SIM_NOW", "1791475200")
 env.setdefault("TZ", "UTC")
+# And the focus highlight without its moving glow (ui/theme.cpp).
+env.setdefault("PLAYGUARD_SIM_STILL_FOCUS", "1")
 if GATE:
     env.setdefault("PLAYGUARD_SIM_FW", "24.0.0")
     env.setdefault("PLAYGUARD_SIM_LATEST", "1.1.0:24.0.0")

@@ -4,6 +4,8 @@
 
 #ifdef __SWITCH__
 #include <switch.h>
+#else
+#include <cstdlib>
 #endif
 
 namespace ui
@@ -39,6 +41,15 @@ void register_theme_colors()
     dark.addColor("brand/bad", nvgRGB(0xFF, 0x7A, 0x7A));
     dark.addColor("brand/gauge_track", nvgRGBA(255, 255, 255, 46));
     dark.addColor("brand/note", nvgRGB(0xB8, 0xB8, 0xB8));
+#ifndef __SWITCH__
+    // Desktop simulation, PLAYGUARD_SIM_STILL_FOCUS=1 (the smoke test): the
+    // glow borealis moves around the focus with the clock takes the stroke's
+    // own colour, so a screenshot does not depend on when it was taken.
+    if (std::getenv("PLAYGUARD_SIM_STILL_FOCUS")) {
+        light.addColor("brls/highlight/color2", light["brls/highlight/color1"]);
+        dark.addColor("brls/highlight/color2", dark["brls/highlight/color1"]);
+    }
+#endif
 }
 
 void use_latin_font()
