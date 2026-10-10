@@ -100,7 +100,7 @@ Tous dans `sd:/switch/playguard/` :
 | `cache/` | La dernière activité de jeu lue (tous les comptes, et chaque compte consulté), affichée dès le lancement suivant pendant que le journal est relu ; en mode développeur, la liste d'*Installer un autre build* (`dev_builds.json`) |
 | `github_token` | Mode développeur uniquement : la connexion GitHub d'*Installer un autre build* (supprimé à la déconnexion) |
 | `rescue_report.txt` | Laissé par le sysmodule de secours après son intervention, jusqu'à ce que PlayGuard l'affiche au démarrage |
-| `logs/` | Rapports de diagnostic (jamais le code PIN ni le numéro de série), les fichiers des outils développeur, et `uploads.txt` (les liens des rapports envoyés en ligne) |
+| `logs/` | Rapports de diagnostic (jamais le code PIN ni le numéro de série), les fichiers des outils développeur, `uploads.txt` (les liens des rapports envoyés en ligne) et `crash.txt` (ce qui a arrêté PlayGuard, s'il a planté) |
 
 Plus de détails dans [packaging/README.md](packaging/README.md) (en anglais).
 </details>

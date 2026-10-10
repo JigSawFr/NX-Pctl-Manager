@@ -100,7 +100,7 @@ All in `sd:/switch/playguard/`:
 | `cache/` | The last play activity read (every account, and each account viewed), shown at once on the next start while the log is read again; in developer mode, the list of *Install another build* (`dev_builds.json`) |
 | `github_token` | Developer mode only: the GitHub sign-in of *Install another build* (deleted by signing out) |
 | `rescue_report.txt` | Left by the recovery sysmodule after it acted, until PlayGuard shows it at start-up |
-| `logs/` | Diagnostic reports (never contain the PIN or the serial number), the developer tools' files, and `uploads.txt` (the links of the reports sent online) |
+| `logs/` | Diagnostic reports (never contain the PIN or the serial number), the developer tools' files, `uploads.txt` (the links of the reports sent online) and `crash.txt` (what made PlayGuard stop, if it ever crashed) |
 
 More in [packaging/README.md](packaging/README.md).
 </details>

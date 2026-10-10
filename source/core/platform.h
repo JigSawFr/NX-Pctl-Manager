@@ -43,6 +43,12 @@ bool platform_region(int *region);
 // `size` random bytes; false when none could be made.
 bool platform_random(void *buf, size_t size);
 
+// Ends PlayGuard as a crash the console reports (Atmosphère writes a crash
+// report with the stack). abort() would not: on the console it returns to
+// hbloader as a normal exit, and the next homebrew (hbmenu) is the one that
+// crashes, on a PlayGuard thread left running.
+void platform_crash(void);
+
 #ifdef __cplusplus
 }
 #endif

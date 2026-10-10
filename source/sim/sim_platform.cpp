@@ -66,3 +66,8 @@ bool platform_random(void* buf, size_t size)
         return false;
     }
 }
+
+void platform_crash(void)
+{
+    std::abort();
+}
