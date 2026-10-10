@@ -27,6 +27,7 @@ PlayGuard is a homebrew app that brings the settings of the [Nintendo Switch Par
 - [Quick start](#quick-start)
 - [Features, tab by tab](#features-tab-by-tab)
 - [Safety by design](#safety-by-design)
+- [What counts as play time](#what-counts-as-play-time)
 - [Locked out?](#locked-out-second-hand-console-forgotten-pin)
 - [PlayGuard or a replacement sysmodule?](#playguard-or-a-replacement-sysmodule)
 - [Reporting a bug](#reporting-a-bug)
@@ -123,11 +124,14 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 <details>
 <summary><b>Overview</b> — today at a glance</summary>
 
-- **Today first:** a gauge of today's play time (while no game is running, the time from the activity log, marked ≈), today's limit, time left, bedtime alarm. The "time's up" alarm shows in amber while it is off — Ⓐ turns it back on.
+- **Today first:** a gauge of today's play time (while no game is running, the time from the activity log, marked ≈), today's limit, time left, bedtime alarm. The "time's up" alarm shows in amber while it is off — Ⓐ turns it back on. Under the gauge, a reminder: a game left open on the HOME menu keeps counting (see [What counts as play time](#what-counts-as-play-time)).
+- **Is the console counting?** PlayGuard's own time counts while it runs as an application, so with a limit today the time left should go down while it is open. When it has not moved for about 90 s on screen (timer on, a limit today, not unlocked, not opened from the album), an amber line says *The console is not counting play time right now*, with the likely causes: the clock was set back (it counts again later), the network clock was never set (*Network clock* tab), or a limit was just written (start a game for a minute, then check). It goes as soon as the time left moves again. The Play timer's state line says it too.
+- **Changed outside PlayGuard:** today's play time starting over on the same day (a clock change does that), the console clock moved by more than 5 minutes, limits that differ from the ones PlayGuard last saw (the phone app, another tool). An amber notice until dismissed or the next day, and an entry in the change history. PlayGuard does not run in the background: it only sees what changed while it was open, or since it last was, when it reads the console again.
+- **At the limit** the console shows "Time's up". On the console PlayGuard was tested on (22.0.0), it also suspended the game, with no "continue". If the phone app was ever set to "alarm only", the console may only warn: PlayGuard cannot read or change that setting yet ([details](docs/parental-controls.md#when-the-time-runs-out)).
 - **Then the state:** parental controls, PIN, restriction level.
 - **Then what needs attention:** network-clock accuracy, companion-app link (amber while linked), firmware / compatibility only when there is a problem, serial blanking and game patches warnings.
 - Lines that open another tab end with a chevron (›). Ⓐ on *Today's limit* changes it in place; Ⓐ on *Network clock › Inaccurate* measures and sets the clock on the spot.
-- **Extra time today** (+15 min, +30 min, +1 h by default) and **No more play today** (limit 0 for today only; the game in progress is suspended at the lock, and the confirmation says so). The next day — at start-up, or at midnight if the app is open — PlayGuard offers to put the usual limit back, or does it by itself (*Preferences › Put the usual limit back the next day by itself*).
+- **Extra time today** (+15 min, +30 min, +1 h by default) and **No more play today** (limit 0 for today only, *now* or *in 5 minutes* when the time played is known: the limit then becomes the time played + 5 min, time to save; at the lock the console's "Time's up" comes up, and unsaved progress may be lost — the confirmation says so). The next day — at start-up, or at midnight if the app is open — PlayGuard offers to put the usual limit back, or does it by itself (*Preferences › Put the usual limit back the next day by itself*).
 - A **Lock now** banner while parental controls are temporarily unlocked.
 - While no PIN is set, a **First steps** line opens the three-step guide, which also comes up at start-up.
 - Refreshes every 5 s, with the time of the last refresh (Ⓧ refreshes now).
@@ -141,6 +145,7 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 - **Same limit every day:** a quick list or any value, typed in minutes (`90`, `90 min`) or hours (`1:30`, `1h30`).
 - **A different limit for each day:** unsaved days in amber and marked \*, quick values, Monday–Friday / weekend presets, "no limit" per day; **+** saves from anywhere.
 - **Remove the limit**, **extra time today**, **no more play today** (as on the Overview).
+- A note under the daily limit says what the console does at the limit (as on the Overview). While parental controls are temporarily unlocked, play time *may* not be counted: that is still open ([docs](docs/parental-controls.md#still-open)).
 - **Profiles** saved on the SD card: apply, edit, rename or delete one; save the current limits or make a new one. Any name, in any script (*École*, *周末*, *Выходные* …) — a name without Latin letters gets a file name of its own, and two names that would map to the same file are caught.
 - Every confirmation draws the week as it will be, with the days that change in amber.
 - **Bedtime alarm**: the alarm time (16:00 to 23:45, or off) and when play is allowed again (05:00 to 09:00), the same every day. Its place in the play-timer settings was worked out from the companion app's settings, not read on a console with a bedtime set: PlayGuard changes it only once the console reports what PlayGuard reads there, checks the console's answer after the change and puts the previous settings back if it differs. Advanced, opt-in: "time's up" alarm on/off, pause / resume the countdown.
@@ -222,6 +227,20 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 **No more 22.5 crashes.** `pctl:a`, the privileged parental-control service, accepts a **single session**. Older builds of the original app kept it open, so the HOME-menu PIN prompt (or the PIN applet) could not get it and Atmosphère could crash. PlayGuard opens the session for each action and releases it immediately; periodic refreshes pause while the app is in the background. *(Diagnosis by [anbingxi's fork](https://github.com/anbingxi/NX-Pctl-Manager/tree/diag/fw22-5-readonly).)*
 
 **Nothing runs in the background.** The limit, the PIN, the warnings and the suspension are the console's own; PlayGuard only changes their settings.
+
+## What counts as play time
+
+The play timer is the console's: PlayGuard reads it, it does not count anything itself. What is known, and how sure it is ([docs/parental-controls.md](docs/parental-controls.md#time-spent-and-time-left) has the measurements):
+
+| Situation | Counts? | How sure |
+|---|---|---|
+| A game running | Yes | measured (22.0.0) |
+| **A game left open on the HOME menu** (suspended in the background) | **Yes**: close it, or put the console in sleep mode | reported by parents ([Arqade](https://gaming.stackexchange.com/questions/398954/)); fits the measurements (the console counts while an application is open) |
+| Sleep mode | No | reported ([Arqade](https://gaming.stackexchange.com/questions/398954/)); not measured by PlayGuard |
+| **PlayGuard opened over a game** (as an application) | **Yes**, as that game | measured (22.0.0): open it with a parent's user, or from the album for a quick look |
+| PlayGuard opened from the album (applet mode) | No | inferred: it is not an application, and time outside applications did not seem to count |
+| While parental controls are temporarily unlocked | Maybe not | not measured: still open |
+| After the clock was changed | The day starts over; after a jump back the count stops until the clock passes the old time | observed (22.0.0); the Overview says when the console is not counting |
 
 ## Locked out? (second-hand console, forgotten PIN)
 

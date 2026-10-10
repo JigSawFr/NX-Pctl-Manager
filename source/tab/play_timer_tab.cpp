@@ -5,6 +5,7 @@
 #include <fmt/format.h>
 #include <vector>
 
+#include "action/outside_watch.hpp"
 #include "action/pt_flow.hpp"
 #include "action/pt_logic.hpp"
 #include "activity/play_timer_perday_activity.hpp"
@@ -33,6 +34,7 @@ PlayTimerTab::PlayTimerTab()
 {
     fw_note->setSingleLine(false);
     bedtime_note->setSingleLine(false);
+    limit_note->setSingleLine(false);
     ui::init_unlock_banner(unlocked_banner, [this]() { this->refresh(); });
     this->enable_auto_refresh(5000);
 
@@ -104,6 +106,7 @@ void PlayTimerTab::refresh()
 {
     pctl_play_timer_query(&this->pt);
     state_header->show(this->pt);
+    outside_watch::observe(this->pt);
 
     const bool fw_ok    = this->pt.fw_supported;
     const bool writable = fw_ok && !app::read_only();
@@ -117,7 +120,7 @@ void PlayTimerTab::refresh()
     // the per-day editor and the profiles can still be looked at.
     for (brls::View* v : { (brls::View*)limit_header.getView(), (brls::View*)quick.getView(),
                            (brls::View*)per_day.getView(), (brls::View*)remove.getView(),
-                           (brls::View*)profiles_cell.getView() })
+                           (brls::View*)profiles_cell.getView(), (brls::View*)limit_note.getView() })
         ui::set_visible(v, fw_ok);
     const int wd = ui::today_weekday();
     ui::set_visible(extra.getView(), pt_logic::can_add_extra_time(this->pt, wd, false));

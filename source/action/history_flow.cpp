@@ -5,6 +5,7 @@
 #include <fmt/format.h>
 
 #include "action/history_logic.hpp"
+#include "action/outside_watch.hpp"
 #include "action/pt_flow.hpp"
 #include "action/pt_log_flow.hpp"
 #include "app.hpp"
@@ -31,7 +32,7 @@ std::string age_text(int age)
 // One recorded value set, worded for its kind ("" when it does not fit).
 std::string value_text(const std::string& kind, const std::vector<int>& v)
 {
-    if (kind == "limits" && v.size() == 7) {
+    if ((kind == "limits" || kind == "outside_limits") && v.size() == 7) {
         uint16_t days[7];
         for (int i = 0; i < 7; i++) days[i] = (uint16_t)v[i];
         return ui::days_summary(days);
@@ -52,7 +53,7 @@ std::string kind_label(const std::string& kind)
 {
     static const char* known[] = { "limits", "level", "custom", "org", "vr", "alarm", "pin",
                                    "unlock", "relock", "unlink", "delete", "clock", "restore", "rescue",
-                                   "console_lock", "bedtime" };
+                                   "console_lock", "bedtime", "outside_reset", "outside_clock", "outside_limits" };
     for (const char* k : known)
         if (kind == k) return brls::getStr(std::string("playguard/history/kinds/") + k);
     return kind;
@@ -113,6 +114,9 @@ std::vector<int> custom_values(const PctlCustomSettings& s)
 
 static void store(history::Entry e)
 {
+    // A change PlayGuard made: what it reads next is not a change made
+    // outside (the outside_* entries are those).
+    if (e.kind.rfind("outside_", 0) != 0) outside_watch::own_change();
     e.when = ui::now_stamp();
     std::string err;
     if (!history::append(e, &err)) brls::Logger::warning("history: not saved ({})", err);

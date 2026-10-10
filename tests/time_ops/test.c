@@ -14,6 +14,8 @@ static struct {
     bool fail_write, automatic, accuracy, use_readback;
     u64 clock_value, written, readback;
     bool fail_now;            /* timeGetCurrentTime fails */
+    bool fail_steady;         /* timeGetStandardSteadyClockTimePoint fails */
+    s64 steady;               /* what it returns */
     u64 now;                  /* what it returns */
     int posix_count;          /* timeToPosixTimeWithMyRule: how many candidates */
     u64 posix0;               /* the first one (the next is an hour later) */
@@ -334,6 +336,33 @@ Result timeGetCurrentTime(TimeType type, u64 *timestamp)
     return 0;
 }
 
+Result timeGetStandardSteadyClockTimePoint(TimeSteadyClockTimePoint *out)
+{
+    if (model.fail_steady) return MOCK_ERROR;
+    out->time_point = model.steady;
+    for (int i = 0; i < 16; i++) out->source_id.uuid[i] = (u8)(0xA0 + i);
+    return 0;
+}
+
+static void test_steady(void)
+{
+    /* Seconds and the source, read through libnx's own session (no handle). */
+    reset();
+    model.steady = 123456;
+    u64 s = 0;
+    u8 id[16];
+    memset(id, 0, sizeof(id));
+    CHECK(time_steady_now(&s, id) == 0);
+    CHECK(s == 123456 && id[0] == 0xA0 && id[15] == 0xAF);
+    CHECK(time_steady_now(NULL, NULL) == 0);
+    model.steady = -5;                 /* never a huge unsigned value */
+    CHECK(time_steady_now(&s, NULL) == 0 && s == 0);
+    model.fail_steady = true;
+    s = 7;
+    CHECK(time_steady_now(&s, id) == MOCK_ERROR && s == 7);
+    assert_released();
+}
+
 static bool refuse(void) { return false; }
 
 static void test_change_check(void)
@@ -428,5 +457,6 @@ int main(void)
     test_formatting();
     test_local_time();
     test_change_check();
+    test_steady();
     return CHECK_DONE("time_ops lifecycle and read-only tests passed");
 }

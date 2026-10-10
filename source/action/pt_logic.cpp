@@ -59,6 +59,14 @@ ExtraPlan plan_stop(uint16_t base, bool again, uint16_t recorded_base)
     return { 0, again ? recorded_base : base };
 }
 
+int stop_soon_limit(const PtState& pt, int weekday, int minutes)
+{
+    const int played = played_today_min(pt, weekday);
+    if (played < 0 || minutes <= 0) return -1;
+    const int value = played + minutes;
+    return value < pt.day_min[weekday] ? value : -1;
+}
+
 Restore restore_action(const ExtraRecord& rec, const std::string& today, const PtState& pt, bool read_only)
 {
     if (rec.weekday < 0 || rec.weekday > 6) return Restore::None;

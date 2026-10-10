@@ -15,7 +15,9 @@
 //   PLAYGUARD_SIM_GAMES=200     that many more games played this week (a large library)
 //   PLAYGUARD_SIM_NOT_SET_UP=1  parental controls never set up (no PIN, no restriction)
 //   PLAYGUARD_SIM_APPLET=1      started from the album (applet mode)
-//   PLAYGUARD_SIM_RESTRICTED=1  today's limit is reached (the game is suspended)
+//   PLAYGUARD_SIM_RESTRICTED=1  today's limit is reached (the console says "Time's up")
+//   PLAYGUARD_SIM_NOT_COUNTING=1 the time left does not go down (a clock set back):
+//                               the Overview says so after 90 s on screen
 //   PLAYGUARD_SIM_AUTOSYNC_OFF=1 "Synchronise clock via Internet" is off
 //   PLAYGUARD_SIM_NOW=1791471600  the console's time, frozen (POSIX seconds):
 //                               the same screens at every run (visual check)
@@ -122,6 +124,18 @@ static void sim_init(void)
         for (int i = 0; i < 7; i++) bed[i] = (PtBedtime){ true, 21, 0, 6, 0 };
         pt_bedtime_encode(S.block, bed);
     }
+}
+
+// The time left goes down as on a console that counts PlayGuard's own time,
+// but only by 1 to 20 s around the minute it starts on, then back up: the
+// screens show the same minutes at every run (visual check) and the timer
+// health check (action/timer_health_logic) sees it count.
+static u64 counting_ns(void)
+{
+    if (getenv("PLAYGUARD_SIM_NOT_COUNTING")) return 0;
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (u64)(ts.tv_sec % 20) * 1000000000ULL;
 }
 
 static int sim_weekday(void)
@@ -280,7 +294,7 @@ void pctl_play_timer_query(PtState *o)
     const bool reached = o->enabled && (S.limit_reached || (limit != PT_DAY_NOLIMIT && limit <= SIM_PLAYED_TODAY_MIN));
     o->remaining_valid = true;
     o->remaining_ns = o->enabled && !reached && limit != PT_DAY_NOLIMIT && !getenv("PLAYGUARD_SIM_IDLE")
-                          ? (u64)(limit - SIM_PLAYED_TODAY_MIN) * 60 * 1000000000ULL : 0;
+                          ? (u64)(limit - SIM_PLAYED_TODAY_MIN) * 60 * 1000000000ULL + 20000000000ULL - counting_ns() : 0;
     o->restricted_valid = true; o->restricted = reached;
     o->alarm_disabled_valid = true; o->alarm_disabled = S.alarm_disabled;
     // 1954..1959 answer today's bedtime from the block, as the console is
@@ -323,7 +337,9 @@ void pctl_play_timer_sample(PtSample *o)
         o->display[0] = 2;
         memcpy(o->display + 0x10, &o->remaining_ns, sizeof(o->remaining_ns));
     }
-    o->spent_ns = (u64)SIM_PLAYED_TODAY_MIN * 60 * 1000000000ULL;
+    // 1454 + 1952 = today's limit, as observed (docs/parental-controls.md).
+    o->spent_ns = pt.remaining_ns ? (u64)pt.day_min[wd] * 60 * 1000000000ULL - pt.remaining_ns
+                                  : (u64)SIM_PLAYED_TODAY_MIN * 60 * 1000000000ULL;
 }
 
 Result pctl_play_timer_set_days(const u16 d[7])
@@ -415,6 +431,15 @@ void time_clock_apply(u64 utc, TimeApply *o)
     time_clock_snapshot(&o->after);
 }
 void time_clock_dump(char *buf, size_t n) { snprintf(buf, n, "=== System clocks (simulated) ===\n"); }
+
+// The steady clock: the console's time before any clock change, so the user
+// clock moves against it only when the simulated network clock is set.
+Result time_steady_now(u64 *seconds, u8 source_id[16])
+{
+    if (seconds) *seconds = base_now();
+    if (source_id) memset(source_id, 0x53, 16);
+    return 0;
+}
 
 // The host's time zone stands in for the console's (TZ= changes it).
 static bool host_to_local(void *ctx, u64 posix, LocalTime *out)

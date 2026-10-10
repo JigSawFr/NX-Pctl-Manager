@@ -230,6 +230,23 @@ Observed on 22.0.0, 2026-10-09 (a Friday, limit 120 minutes):
 When the time spent resets on its own (midnight local time, or the "allowed
 again" time) is not confirmed yet.
 
+What PlayGuard does with this:
+
+- **Timer health** (`source/action/timer_health_logic.cpp`): since its own
+  time counts while it runs as an application, the time left must go down
+  while it is on screen. With the timer on, a limit above 0 today, not
+  reached, not temporarily unlocked and PlayGuard not opened from the album,
+  a time left that has not moved by 5 s over about 90 s on screen makes the
+  Overview and the Play timer say the console is not counting. The likely
+  causes it gives come from above (a clock set back) and from other tools'
+  users ([NX-Pctl-Manager #2](https://github.com/tailiang2008/NX-Pctl-Manager/issues/2),
+  a network clock never set; #3 and #7, a limit just written). Not seen on a
+  console yet: inferred from the table above.
+- **Changes made outside PlayGuard** ([config.md](config.md#watchjson)): the
+  time spent, taken as today's limit minus the time left (they add up to the
+  limit), going down on the same day; the user clock moving against the
+  steady clock; limits that differ from the ones PlayGuard last saw.
+
 ### When the time runs out
 
 **A limit written by PlayGuard is enforced by the console** (verified,
@@ -242,6 +259,12 @@ controls* (the second asks for the PIN).
 - No "continue" choice: this looks like the suspend behaviour
   (`FORCED_TERMINATION`) rather than an alarm only (inferred; which header
   byte selects it is still open).
+- So PlayGuard says what the console does at the limit without promising the
+  suspension: "Time's up" always; the game suspended on the console it was
+  tested on; with a phone app once set to "alarm only", maybe a warning only,
+  a setting PlayGuard cannot read or change yet. Suspending can lose unsaved
+  progress (Nintendo: [time limit settings](https://www.nintendo.com/sg/parents/switch/time/settings.html)),
+  so its confirmations say so, and *No more play today* can wait 5 minutes.
 - The PIN prompt behind *Disable parental controls* is the system's: a child
   who knows the PIN gets past the limit there.
 
@@ -381,7 +404,11 @@ From the same 20:10 report:
   clock goes back (until the clock passes the old time?).
 - What turned the header's byte `07` from `06` to `00`.
 - The `01` byte of each free-communication list entry.
-- Whether time spent counts while temporarily unlocked.
+- Whether time spent counts while temporarily unlocked (the app says it
+  *may* not).
+- Whether a game left open on the HOME menu counts (parents report it does;
+  it fits "while an application is open") and sleep mode does not: not
+  measured by PlayGuard.
 - Whether a PIN entered from the HOME menu is logged anywhere PlayGuard can
   read (the companion app shows it since 2.5.0; see
   [companion-app.md](companion-app.md)).
