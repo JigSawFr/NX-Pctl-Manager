@@ -2,7 +2,7 @@
 // source/util/paths.cpp: every field read on its own, out-of-range values put
 // back to their defaults, records dropped as a whole, round trip, recovery
 // of a save that stopped between its remove and its rename.
-#include <cassert>
+#include "check.h"
 #include <csignal>
 #include <cstdio>
 #include <cstdlib>
@@ -16,7 +16,7 @@
 
 static void write_config(const std::string& text)
 {
-    assert(paths::atomic_write(paths::config_file(), text));
+    CHECK(paths::atomic_write(paths::config_file(), text));
 }
 
 static void test_defaults()
@@ -24,15 +24,15 @@ static void test_defaults()
     std::remove(paths::config_file().c_str());
     config::load();
     const auto& c = config::get();
-    assert(c.language == "system" && c.theme == "system" && c.auto_relock && !c.dev_mode && !c.pt_log);
-    assert(!c.extra_auto_restore);
-    assert(c.extra_weekday == -1 && !c.relock_pending && c.fw_gate_choice.empty());
+    CHECK(c.language == "system" && c.theme == "system" && c.auto_relock && !c.dev_mode && !c.pt_log);
+    CHECK(!c.extra_auto_restore);
+    CHECK(c.extra_weekday == -1 && !c.relock_pending && c.fw_gate_choice.empty());
 
     for (const char* bad : { "", "not json", "[1, 2]", "42", "{\"language\": " }) {
         write_config(bad);
         config::get().dev_mode = true;
         config::load();
-        assert(!config::get().dev_mode && config::get().language == "system");
+        CHECK(!config::get().dev_mode && config::get().language == "system");
     }
 }
 
@@ -46,19 +46,19 @@ static void test_fields()
                     "custom_servers": ["a.example", 7, "b.example"]})");
     config::load();
     auto c = config::get();
-    assert(c.language == "system" && c.theme == "dark" && !c.dev_mode && !c.auto_relock && !c.pt_log);
-    assert(c.fw_gate_fw == "24.0.0" && c.fw_gate_app == "1.0.0" && c.fw_gate_choice == "risk");
-    assert(c.extra_weekday == 3 && c.extra_date == "2026-10-06" && c.extra_base == 60 && c.extra_value == 90);
-    assert(c.relock_pending && c.extra_auto_restore);
-    assert(c.custom_servers.size() == 2 && c.custom_servers[1] == "b.example");
+    CHECK(c.language == "system" && c.theme == "dark" && !c.dev_mode && !c.auto_relock && !c.pt_log);
+    CHECK(c.fw_gate_fw == "24.0.0" && c.fw_gate_app == "1.0.0" && c.fw_gate_choice == "risk");
+    CHECK(c.extra_weekday == 3 && c.extra_date == "2026-10-06" && c.extra_base == 60 && c.extra_value == 90);
+    CHECK(c.relock_pending && c.extra_auto_restore);
+    CHECK(c.custom_servers.size() == 2 && c.custom_servers[1] == "b.example");
 
     // Unknown values go back to their defaults.
     write_config(R"({"language": "xx", "theme": "pink", "update_via": "ftp", "fw_gate_fw": "24.0.0",
                     "fw_gate_app": "1.0.0", "fw_gate_choice": "maybe"})");
     config::load();
     c = config::get();
-    assert(c.language == "system" && c.theme == "system" && c.update_via == "auto");
-    assert(c.fw_gate_choice.empty() && c.fw_gate_fw.empty() && c.fw_gate_app.empty());
+    CHECK(c.language == "system" && c.theme == "system" && c.update_via == "auto");
+    CHECK(c.fw_gate_choice.empty() && c.fw_gate_fw.empty() && c.fw_gate_app.empty());
 
     // The extra-time record is all or nothing: a base of -1 would otherwise
     // put back 0xFFFF ("no limit"), a mistyped one 0 min.
@@ -75,7 +75,7 @@ static void test_fields()
         write_config(r);
         config::load();
         c = config::get();
-        assert(c.extra_weekday == -1 && c.extra_date.empty() && c.extra_base == 0 && c.extra_value == 0);
+        CHECK(c.extra_weekday == -1 && c.extra_date.empty() && c.extra_base == 0 && c.extra_value == 0);
     }
 
     // No more play today on a day without a limit: "no limit" (0xFFFF) is
@@ -83,10 +83,10 @@ static void test_fields()
     write_config(R"({"extra_weekday": 3, "extra_date": "2026-10-06", "extra_base": 65535, "extra_value": 0})");
     config::load();
     c = config::get();
-    assert(c.extra_weekday == 3 && c.extra_base == 65535 && c.extra_value == 0);
+    CHECK(c.extra_weekday == 3 && c.extra_base == 65535 && c.extra_value == 0);
     write_config(R"({"extra_weekday": 3, "extra_date": "2026-10-06", "extra_base": 65534, "extra_value": 0})");
     config::load();
-    assert(config::get().extra_weekday == -1);
+    CHECK(config::get().extra_weekday == -1);
 
     // Custom servers: no empty name, nothing longer than a DNS name, at most 10.
     std::string servers = "[\"\", \"" + std::string(300, 'x') + "\"";
@@ -94,8 +94,8 @@ static void test_fields()
     write_config("{\"custom_servers\": " + servers + "], \"ntp_server\": \"" + std::string(300, 'y') + "\"}");
     config::load();
     c = config::get();
-    assert(c.custom_servers.size() == config::MAX_CUSTOM_SERVERS && c.custom_servers[0] == "s0.example");
-    assert(c.ntp_server.empty());
+    CHECK(c.custom_servers.size() == config::MAX_CUSTOM_SERVERS && c.custom_servers[0] == "s0.example");
+    CHECK(c.ntp_server.empty());
 }
 
 static void test_round_trip()
@@ -114,24 +114,24 @@ static void test_round_trip()
     c.extra_base = 120;
     c.extra_value = 150;
     c.extra_auto_restore = true;
-    assert(config::save());
+    CHECK(config::save());
 
     std::string text;
-    assert(paths::read_file(paths::config_file(), text) && text.find("\"schema\": 1") != std::string::npos);
+    CHECK(paths::read_file(paths::config_file(), text) && text.find("\"schema\": 1") != std::string::npos);
     c = config::Config{};
     config::load();
-    assert(c.language == "fr" && c.theme == "light" && c.ntp_server == "fr.pool.ntp.org");
-    assert(c.custom_servers.size() == 1 && c.dev_mode && c.pt_log && c.relock_pending);
-    assert(c.extra_weekday == 0 && c.extra_base == 120 && c.extra_value == 150 && c.extra_auto_restore);
+    CHECK(c.language == "fr" && c.theme == "light" && c.ntp_server == "fr.pool.ntp.org");
+    CHECK(c.custom_servers.size() == 1 && c.dev_mode && c.pt_log && c.relock_pending);
+    CHECK(c.extra_weekday == 0 && c.extra_base == 120 && c.extra_value == 150 && c.extra_auto_restore);
 
     // Console lock: the flag and the seven saved limits round-trip.
     c = config::Config{};
     c.console_lock = true;
     c.console_lock_prev = { 180, 120, 120, 120, 120, 120, 0xFFFF };
-    assert(config::save());
+    CHECK(config::save());
     c = config::Config{};
     config::load();
-    assert(c.console_lock && c.console_lock_prev == std::vector<int>({ 180, 120, 120, 120, 120, 120, 0xFFFF }));
+    CHECK(c.console_lock && c.console_lock_prev == std::vector<int>({ 180, 120, 120, 120, 120, 120, 0xFFFF }));
 }
 
 static void test_console_lock()
@@ -149,52 +149,52 @@ static void test_console_lock()
         config::load();
         // The flag is kept (it is a plain bool), but the nonsense limits are dropped,
         // so turning the lock off clears the limit rather than restoring garbage.
-        assert(config::get().console_lock_prev.empty());
+        CHECK(config::get().console_lock_prev.empty());
     }
     // 0 every day (a real "locked" record) is kept.
     write_config(R"({"console_lock": true, "console_lock_prev": [0, 0, 0, 0, 0, 0, 0]})");
     config::load();
-    assert(config::get().console_lock && config::get().console_lock_prev.size() == 7);
+    CHECK(config::get().console_lock && config::get().console_lock_prev.size() == 7);
     // Default: off, nothing saved.
     config::Config d;
-    assert(!d.console_lock && d.console_lock_prev.empty());
+    CHECK(!d.console_lock && d.console_lock_prev.empty());
 }
 
 static void test_preferences()
 {
     // Defaults.
     config::Config d;
-    assert(d.start_tab == "dashboard" && d.extra_amounts == std::vector<int>({ 15, 30, 60 }));
-    assert(d.activity_period == 1 && d.export_format == 0 && d.backup_keep == 0);
-    assert(!d.update_daily && d.update_checked.empty() && !d.clock_check_at_start && d.pin_lock == "changes");
-    assert(d.onboarding_at_start);
-    assert(d.support_reminder && d.support_reminded.empty() && d.seen_version.empty());
+    CHECK(d.start_tab == "dashboard" && d.extra_amounts == std::vector<int>({ 15, 30, 60 }));
+    CHECK(d.activity_period == 1 && d.export_format == 0 && d.backup_keep == 0);
+    CHECK(!d.update_daily && d.update_checked.empty() && !d.clock_check_at_start && d.pin_lock == "changes");
+    CHECK(d.onboarding_at_start);
+    CHECK(d.support_reminder && d.support_reminded.empty() && d.seen_version.empty());
     write_config(R"({"support_reminder": false, "support_reminded": "2026-10-09", "seen_version": "1.1.0"})");
     config::load();
-    assert(!config::get().support_reminder && config::get().support_reminded == "2026-10-09");
-    assert(config::get().seen_version == "1.1.0");
+    CHECK(!config::get().support_reminder && config::get().support_reminded == "2026-10-09");
+    CHECK(config::get().seen_version == "1.1.0");
     write_config(R"({"support_reminded": "last month"})");
     config::load();
-    assert(config::get().support_reminder && config::get().support_reminded.empty());
+    CHECK(config::get().support_reminder && config::get().support_reminded.empty());
     write_config(R"({"onboarding_at_start": false})");
     config::load();
-    assert(!config::get().onboarding_at_start);
+    CHECK(!config::get().onboarding_at_start);
     write_config(R"({"pin_lock": "open"})");
     config::load();
-    assert(config::get().pin_lock == "open");
+    CHECK(config::get().pin_lock == "open");
     write_config(R"({"pin_lock": "off"})");
     config::load();
-    assert(config::get().pin_lock == "off");   // chosen on purpose: kept
+    CHECK(config::get().pin_lock == "off");   // chosen on purpose: kept
     // Unknown, of the wrong type, or damaged: the prompt stays on.
     write_config(R"({"pin_lock": "always"})");
     config::load();
-    assert(config::get().pin_lock == "changes");
+    CHECK(config::get().pin_lock == "changes");
     write_config(R"({"pin_lock": 0})");
     config::load();
-    assert(config::get().pin_lock == "changes");
+    CHECK(config::get().pin_lock == "changes");
     write_config(R"({"pin_lock": "off")");
     config::load();
-    assert(config::get().pin_lock == "changes");
+    CHECK(config::get().pin_lock == "changes");
 
     // Values from the lists are kept.
     write_config(R"({"start_tab": "activity", "extra_amounts": [30, 60, 90], "activity_period": 2,
@@ -202,9 +202,9 @@ static void test_preferences()
                     "update_checked": "2026-10-07", "clock_check_at_start": true})");
     config::load();
     auto c = config::get();
-    assert(c.start_tab == "activity" && c.extra_amounts == std::vector<int>({ 30, 60, 90 }));
-    assert(c.activity_period == 2 && c.export_format == 3 && c.backup_keep == 10);
-    assert(c.update_daily && c.update_checked == "2026-10-07" && c.clock_check_at_start);
+    CHECK(c.start_tab == "activity" && c.extra_amounts == std::vector<int>({ 30, 60, 90 }));
+    CHECK(c.activity_period == 2 && c.export_format == 3 && c.backup_keep == 10);
+    CHECK(c.update_daily && c.update_checked == "2026-10-07" && c.clock_check_at_start);
 
     // Anything else goes back to the default: no 7-minute keep, no 999-minute
     // extra time, no tab that does not exist.
@@ -212,11 +212,11 @@ static void test_preferences()
                     "export_format": -1, "backup_keep": 7, "update_checked": "yesterday"})");
     config::load();
     c = config::get();
-    assert(c.start_tab == "dashboard" && c.extra_amounts == std::vector<int>({ 15, 30, 60 }));
-    assert(c.activity_period == 1 && c.export_format == 0 && c.backup_keep == 0 && c.update_checked.empty());
+    CHECK(c.start_tab == "dashboard" && c.extra_amounts == std::vector<int>({ 15, 30, 60 }));
+    CHECK(c.activity_period == 1 && c.export_format == 0 && c.backup_keep == 0 && c.update_checked.empty());
     write_config(R"({"extra_amounts": "15,30,60", "backup_keep": "all"})");
     config::load();
-    assert(config::get().extra_amounts == std::vector<int>({ 15, 30, 60 }) && config::get().backup_keep == 0);
+    CHECK(config::get().extra_amounts == std::vector<int>({ 15, 30, 60 }) && config::get().backup_keep == 0);
 
     // 64-bit values are not narrowed into a valid one: 2^32 + 15 is not 15,
     // 2^32 is not 0 (a "locked" day), 2^64 - 1 is not -1.
@@ -226,8 +226,8 @@ static void test_preferences()
                     "extra_base": 60, "extra_value": 90})");
     config::load();
     c = config::get();
-    assert(c.extra_amounts == std::vector<int>({ 15, 30, 60 }) && c.backup_keep == 0);
-    assert(c.console_lock_prev.empty() && c.extra_weekday == -1 && c.extra_date.empty());
+    CHECK(c.extra_amounts == std::vector<int>({ 15, 30, 60 }) && c.backup_keep == 0);
+    CHECK(c.console_lock_prev.empty() && c.extra_weekday == -1 && c.extra_date.empty());
 
     // Round trip.
     config::get() = config::Config{};
@@ -236,12 +236,12 @@ static void test_preferences()
     config::get().backup_keep = 20;
     config::get().support_reminder = false;
     config::get().seen_version = "1.2.0";
-    assert(config::save());
+    CHECK(config::save());
     config::get() = config::Config{};
     config::load();
-    assert(config::get().start_tab == "tools" && config::get().extra_amounts == std::vector<int>({ 5, 10, 15 }));
-    assert(config::get().backup_keep == 20);
-    assert(!config::get().support_reminder && config::get().seen_version == "1.2.0");
+    CHECK(config::get().start_tab == "tools" && config::get().extra_amounts == std::vector<int>({ 5, 10, 15 }));
+    CHECK(config::get().backup_keep == 20);
+    CHECK(!config::get().support_reminder && config::get().seen_version == "1.2.0");
 }
 
 static void test_tmp_recovery()
@@ -249,53 +249,53 @@ static void test_tmp_recovery()
     // Stopped after removing config.json, before renaming config.json.tmp.
     config::get() = config::Config{};
     config::get().theme = "dark";
-    assert(config::save());
+    CHECK(config::save());
     const std::string file = paths::config_file();
-    assert(std::rename(file.c_str(), (file + ".tmp").c_str()) == 0);
+    CHECK(std::rename(file.c_str(), (file + ".tmp").c_str()) == 0);
     config::get() = config::Config{};
     config::load();
-    assert(config::get().theme == "dark");
+    CHECK(config::get().theme == "dark");
 
     // The next save must not truncate that .tmp, the only good copy: it is
     // promoted first, and a save that fails afterwards still leaves it.
     std::string text;
-    assert(paths::atomic_write(file, R"({"theme": "light"})"));
-    assert(paths::read_file(file, text) && text == R"({"theme": "light"})");
-    assert(std::rename(file.c_str(), (file + ".tmp").c_str()) == 0);
-    assert(paths::atomic_write(file, R"({"theme": "dark"})"));
-    assert(paths::read_file(file, text) && text == R"({"theme": "dark"})");
+    CHECK(paths::atomic_write(file, R"({"theme": "light"})"));
+    CHECK(paths::read_file(file, text) && text == R"({"theme": "light"})");
+    CHECK(std::rename(file.c_str(), (file + ".tmp").c_str()) == 0);
+    CHECK(paths::atomic_write(file, R"({"theme": "dark"})"));
+    CHECK(paths::read_file(file, text) && text == R"({"theme": "dark"})");
     struct stat st;
-    assert(stat((file + ".tmp").c_str(), &st) != 0);
+    CHECK(stat((file + ".tmp").c_str(), &st) != 0);
     // Same, but the write fails (file size limit): the old content survives.
-    assert(std::rename(file.c_str(), (file + ".tmp").c_str()) == 0);
+    CHECK(std::rename(file.c_str(), (file + ".tmp").c_str()) == 0);
     std::signal(SIGXFSZ, SIG_IGN);
     rlimit saved;
-    assert(getrlimit(RLIMIT_FSIZE, &saved) == 0);
+    CHECK(getrlimit(RLIMIT_FSIZE, &saved) == 0);
     rlimit small = saved;
     small.rlim_cur = 64;
-    assert(setrlimit(RLIMIT_FSIZE, &small) == 0);
+    CHECK(setrlimit(RLIMIT_FSIZE, &small) == 0);
     const bool wrote = paths::atomic_write(file, std::string(4096, ' '));
-    assert(setrlimit(RLIMIT_FSIZE, &saved) == 0);
-    assert(!wrote);
-    assert(paths::read_file(file, text) && text == R"({"theme": "dark"})");
+    CHECK(setrlimit(RLIMIT_FSIZE, &saved) == 0);
+    CHECK(!wrote);
+    CHECK(paths::read_file(file, text) && text == R"({"theme": "dark"})");
 
     // A leftover .tmp never wins over the file itself.
     write_config(R"({"theme": "light"})");
-    assert(paths::atomic_write(file + ".tmp", R"({"theme": "dark"})"));
+    CHECK(paths::atomic_write(file + ".tmp", R"({"theme": "dark"})"));
     config::load();
-    assert(config::get().theme == "light");
+    CHECK(config::get().theme == "light");
 
     // Both missing: nothing to read.
     std::remove(file.c_str());
     std::remove((file + ".tmp").c_str());
-    assert(!paths::read_file(file, text));
+    CHECK(!paths::read_file(file, text));
 }
 
 int main()
 {
     char dir[] = "/tmp/playguard_config_XXXXXX";
-    assert(mkdtemp(dir) != nullptr);
-    assert(chdir(dir) == 0);   // paths::data_dir() is ./playguard_data on the host
+    REQUIRE(mkdtemp(dir) != nullptr);
+    REQUIRE(chdir(dir) == 0);   // paths::data_dir() is ./playguard_data on the host
 
     test_defaults();
     test_fields();
@@ -305,7 +305,6 @@ int main()
     test_tmp_recovery();
 
     const std::string cleanup = std::string("rm -rf '") + dir + "'";
-    assert(std::system(cleanup.c_str()) == 0);
-    std::puts("config fields, ranges, round trip and .tmp recovery assertions passed");
-    return 0;
+    CHECK(std::system(cleanup.c_str()) == 0);
+    return CHECK_DONE("config fields, ranges, round trip and .tmp recovery assertions passed");
 }
