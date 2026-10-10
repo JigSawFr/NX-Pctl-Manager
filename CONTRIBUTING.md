@@ -53,7 +53,7 @@ Game patches are read from `./playguard_data/sd/`, the simulated SD card root.
 ## Tests and CI
 
 - `make test` — host unit tests (`tests/`, see [`tests/README.md`](tests/README.md)), including the recovery sysmodule logic (`tests/rescue/`).
-- `tools/desktop_smoke.py <out-dir> [gate|errors|rescue|devbuild]` — clicks through every screen of the desktop build headlessly (needs `DISPLAY`, `xdotool`, ImageMagick) and saves screenshots. The `gate` scenario covers the firmware screen and developer mode on a simulated 24.0.0; `errors` covers a failed unlock and an unsettable clock; `rescue` the recovery screen; `devbuild` signing in to a simulated GitHub and installing a pull request's build in place out of its artifact.
+- `tools/desktop_smoke.py <out-dir> [gate|errors|rescue|devbuild]` — clicks through every screen of the desktop build headlessly (needs `DISPLAY`, `xdotool`, ImageMagick) and saves screenshots. The `gate` scenario covers the firmware screen and developer mode on a simulated 24.0.0; `errors` covers a failed unlock and an unsettable clock; `rescue` the recovery screen; `library` a large library in Activity (its first 50 games, then *Show every game*); `devbuild` signing in to a simulated GitHub and installing a pull request's build in place out of its artifact.
 - `tools/visual_check.py` — compares those screenshots with the references in `tests/visual/`. A difference is reported as a warning, not a failure; see [`tests/visual/README.md`](tests/visual/README.md) to update them.
 - `python3 tools/check_resources.py .` — checks the XML layouts and translation catalogs.
 

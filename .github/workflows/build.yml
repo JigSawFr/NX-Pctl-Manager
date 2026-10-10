@@ -78,6 +78,8 @@ jobs:
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-errors errors
       - name: Smoke test (recovery screen from a rescue report)
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-rescue rescue
+      - name: Smoke test (a large library in Activity)
+        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-library library
       - name: Smoke test (PIN asked to open PlayGuard)
         run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-lock lock
       - name: Smoke test (install a development build in place)
@@ -111,6 +113,7 @@ jobs:
             smoke-gate/*.png
             smoke-errors/*.png
             smoke-rescue/*.png
+            smoke-library/*.png
             smoke-devbuild/*.png
             smoke*/visual_diff/*.png
 

@@ -234,18 +234,48 @@ void ActivityTab::rebuild()
     // rebuilt and the focus stays where it is.
     const size_t shown_n = this->show_all ? rows.size() : std::min(rows.size(), ROWS_SHOWN);
     const bool more = shown_n < rows.size();
-    bool same = shown_n == this->cells.size() && more == (this->more_cell != nullptr);
-    for (size_t i = 0; same && i < shown_n; i++) same = this->cells[i].first == rows[i]->app_id;
+    // The cells there already are the first games, in order: kept (and the
+    // rest added below them, after "Show every game").
+    bool prefix = this->cells.size() <= shown_n;
+    for (size_t i = 0; prefix && i < this->cells.size(); i++) prefix = this->cells[i].first == rows[i]->app_id;
+    const bool grow = prefix && !this->cells.empty() && this->cells.size() < shown_n && this->more_cell;
+    const bool same = prefix && this->cells.size() == shown_n && more == (this->more_cell != nullptr);
     ui::set_visible(progress.getView(), reading && this->spinner);
-    if (same) {
-        for (size_t i = 0; i < shown_n; i++) {
+    if (same || grow) {
+        for (size_t i = 0; i < this->cells.size(); i++) {
             GameCell* cell = this->cells[i].second;
             cell->setText(game_name(*rows[i]));
             cell->setDetailText(ui::fmt_play_time(value_of(*rows[i], p)));
             this->on_click(cell, *rows[i], data);
         }
         if (this->more_cell) this->more_cell->setDetailText(std::to_string(rows.size()));
-    } else {
+    }
+    if (grow) {
+        // "Show every game": the rest below, then the focus on the first of
+        // them (next frame, once they are laid out, so the list scrolls to it).
+        const size_t first_new = this->cells.size();
+        for (size_t i = first_new; i < shown_n; i++) {
+            auto* cell = new GameCell(false);
+            cell->setText(game_name(*rows[i]));
+            cell->setDetailText(ui::fmt_play_time(value_of(*rows[i], p)));
+            this->on_click(cell, *rows[i], data);
+            list->addView(cell, list->getChildren().size() - 1);   // above "Show every game"
+            this->cells.emplace_back(rows[i]->app_id, cell);
+        }
+        brls::Application::giveFocus(this->cells[first_new].second);
+        if (!more) {
+            list->removeView(this->more_cell);   // deletes it
+            this->more_cell = nullptr;
+        }
+        std::weak_ptr<bool> weak = this->alive;
+        const u64 id = this->cells[first_new].first;
+        brls::sync([this, weak, id]() {
+            if (weak.expired()) return;
+            for (const auto& c : this->cells)
+                if (c.first == id) brls::Application::giveFocus(c.second);
+        });
+        brls::Logger::info("activity list: {} of {} games", shown_n, rows.size());
+    } else if (!same) {
         // The cells are about to be deleted: never leave the focus on one, and
         // give it back to the same game afterwards when it is still listed.
         u64 focused = 0;
@@ -279,10 +309,8 @@ void ActivityTab::rebuild()
                 std::weak_ptr<bool> weak = this->alive;
                 brls::sync([this, weak]() {
                     if (weak.expired()) return;
-                    const size_t first_new = this->cells.size();
                     this->show_all = true;
                     this->rebuild();
-                    if (first_new < this->cells.size()) brls::Application::giveFocus(this->cells[first_new].second);
                 });
                 return true;
             });
