@@ -91,7 +91,8 @@
         "bad_pin_format": "het systeem heeft de opmaak van de pincode geweigerd",
         "pctl_refused": "geweigerd door de dienst voor ouderlijk toezicht",
         "relock_failed": "de console is ontgrendeld maar kon niet opnieuw worden vergrendeld: vergrendel hem nu (Beveiliging & app › Nu vergrendelen)",
-        "not_applied": "de console heeft de wijziging niet overgenomen, dus de vorige instellingen zijn teruggezet"
+        "not_applied": "de console heeft de wijziging niet overgenomen, dus de vorige instellingen zijn teruggezet",
+        "next_step": "Gebeurt dit opnieuw, verstuur dan een rapport: Tools › Rapport online versturen."
     },
     "init_error": {
         "title": "PlayGuard",
@@ -239,7 +240,6 @@
         "profile_saved": "Profiel \"{}\" opgeslagen.",
         "profile_renamed": "Profiel hernoemd: {}.",
         "profile_save_err": "Kan het profiel niet opslaan",
-        "profile_bad_name": "De naam moet minstens één Latijnse letter of cijfer bevatten.",
         "profile_replace": "Er bestaat al een profiel met de naam \"{}\". Vervangen?",
         "profile_replace_confirm": "Vervangen",
         "profile_deleted": "Profiel \"{}\" verwijderd.",
@@ -411,7 +411,11 @@
         "free_comm_value": "{} titel(s)",
         "note": "Dit zijn dezelfde instellingen als in Systeeminstellingen › Ouderlijk toezicht.",
         "saved": "Beperking opgeslagen.",
-        "save_err": "Kan de beperking niet opslaan"
+        "save_err": "Kan de beperking niet opslaan",
+        "none_body": "Er wordt niets meer beperkt: software van elke leeftijd kan worden gespeeld, en berichten op sociale media en communicatie met anderen zijn toegestaan. De dagelijkse speeltijdlimieten blijven gelden.",
+        "confirm_age": "De leeftijdsgrens wijzigen in \"{}\"? Dan kan software met een hogere leeftijdsclassificatie dan nu worden gespeeld.",
+        "confirm_sns_off": "Berichten op sociale media niet meer beperken? Dan kunnen schermafbeeldingen en video's vanaf de console worden geplaatst.",
+        "confirm_comm_off": "Communicatie met anderen niet meer beperken? Dan kan software het kind laten chatten en inhoud laten delen met andere spelers."
     },
     "clock": {
         "section_now": "Klokken",
@@ -512,7 +516,8 @@
         "deleted": "Ouderlijk toezicht verwijderd.",
         "delete_err": "Kan het ouderlijk toezicht niet verwijderen",
         "pin_ok": "Pincode bijgewerkt.",
-        "pin_err": "Kan de pincode niet bijwerken"
+        "pin_err": "Kan de pincode niet bijwerken",
+        "rescue_note": "De herstel-sysmodule is geïnstalleerd: iedereen die de SD-kaart kan bewerken, kan daarmee bij de volgende start de console ontgrendelen of het ouderlijk toezicht volledig wissen. Verwijder hem wanneer u hem niet meer nodig hebt (map atmosphere/contents/4200000000505247)."
     },
     "pin_lock": {
         "title": "Om pincode vragen",

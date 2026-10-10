@@ -4,6 +4,7 @@
 
 #include <borealis.hpp>
 #include <cstdio>
+#include <sys/stat.h>
 
 #include "action/history_flow.hpp"
 #include "util/paths.hpp"
@@ -23,6 +24,15 @@ bool pending()
 {
     std::string ignore;
     return paths::read_file(report_path(), ignore);
+}
+
+bool installed()
+{
+    std::string path = paths::sd_root();
+    if (path.empty() || path.back() != '/') path += '/';   // "/" on the console
+    path += "atmosphere/contents/4200000000505247/exefs.nsp";
+    struct stat st;
+    return stat(path.c_str(), &st) == 0;
 }
 
 std::optional<RescueReport> take()

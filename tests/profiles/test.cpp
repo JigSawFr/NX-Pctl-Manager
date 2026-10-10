@@ -1,5 +1,6 @@
-// Host tests for source/util/profiles.cpp: display names with accents, the
-// file name they give, collisions FAT would make, renames and damaged files.
+// Host tests for source/util/profiles.cpp: display names with accents or in
+// other scripts, the file name they give, collisions FAT would make, renames
+// and damaged files.
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
@@ -40,7 +41,16 @@ static void test_names()
     assert(file_stem("Vacances d'été ☀") == "Vacances dete");
     assert(file_stem("Cœur Ça") == "Coeur Ca");
     assert(file_stem("Straße") == "Strasse");
-    assert(file_stem("周末") == "");                                      // nothing usable
+    // No Latin letter or digit: "profile-" and a hash of the name, the same
+    // every time, different for another name.
+    const std::string cjk = file_stem("周末");
+    assert(cjk.size() == 16 && cjk.compare(0, 8, "profile-") == 0);
+    assert(cjk.find_first_not_of("0123456789abcdef", 8) == std::string::npos);
+    assert(file_stem("周末") == cjk && file_stem(" 周末 ") == cjk);
+    assert(file_stem("平日") != cjk && file_stem("Выходные") != cjk);
+    assert(file_stem("☀ - ☀").compare(0, 8, "profile-") == 0);           // no letter or digit
+    assert(file_stem("周末 2") == "2");
+    assert(file_stem("   ").empty());
     assert(file_stem("2 h - semaine_A") == "2 h - semaine_A");
 }
 
@@ -86,9 +96,22 @@ static void test_files()
     all = profiles::list();
     assert(all.size() == 1 && all[0].file == "Semaine decole" && all[0].name == "semaine d'école");
 
-    // Nothing usable for a file name.
+    // A name without Latin letters keeps its own text and gets a hashed file.
+    assert(profiles::save(make("周末", 60), &err));
+    const std::string cjk = profiles::file_stem("周末");
+    assert(exists(cjk));
+    all = profiles::list();
+    assert(all.size() == 2);
+    bool found = false;
+    for (const auto& p : all) found |= p.name == "周末" && p.file == cjk;
+    assert(found);
+    assert(profiles::find_same_file("周末", "", nullptr));
+    assert(!profiles::find_same_file("平日", "", nullptr));
+    assert(profiles::remove(cjk) && !exists(cjk));
+
+    // An empty name is refused.
     err.clear();
-    assert(!profiles::save(make("周末", 60), &err) && !err.empty());
+    assert(!profiles::save(make("   ", 60), &err) && !err.empty());
 
     // Damaged or doubtful files are skipped; a missing name is the file name.
     const std::string dir = paths::profiles_dir();

@@ -2,7 +2,8 @@
 // (sd:/switch/playguard/profiles/<file>.json), e.g. "School week".
 //
 // A profile has a display name (any printable text, accents included) and a
-// file name derived from it (file_stem: letters, digits, space, '-', '_').
+// file name derived from it (file_stem: letters, digits, space, '-', '_', or
+// a hash when the name has no Latin letter or digit).
 // FAT ignores case, and the stem drops accents, so two names that give the
 // same file ("École" and "ecole") are the same profile: find_same_file says
 // so before a save replaces anything. Plain C++ (no libnx, no UI) for the
@@ -34,7 +35,7 @@ std::vector<Profile> list();
 
 // Writes `p` to the file its name gives. When `p.file` names another file
 // (a rename), that one is deleted once the new one is written. Fails with a
-// short English reason when the name has nothing usable for a file name.
+// short English reason when the name is empty.
 bool save(const Profile& p, std::string* error = nullptr);
 
 // Deletes the profile stored in `file` (a stem, as in Profile::file).
@@ -57,7 +58,9 @@ std::string sanitize_name(const std::string& name);
 
 // The file name for a display name: accented Latin letters lose their accent
 // ("é" -> "e", "œ" -> "oe"), other characters but letters, digits, space,
-// '-' and '_' are dropped. Case is kept. Empty when nothing usable is left.
+// '-' and '_' are dropped. Case is kept. A name without a Latin letter or
+// digit ("周末") gives "profile-" and a hash of the name (8 hex digits).
+// Empty only for an empty name.
 std::string file_stem(const std::string& name);
 
 }   // namespace profiles

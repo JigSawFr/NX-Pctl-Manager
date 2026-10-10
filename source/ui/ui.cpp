@@ -125,7 +125,7 @@ static std::string hint_for(Result rc)
     return "";
 }
 
-std::string rc_text(Result rc)
+std::string rc_text(Result rc, bool next_step)
 {
     std::string hint = hint_for(rc);
     if (NXM_IS_APP_RESULT(rc) && !hint.empty()) {
@@ -133,8 +133,12 @@ std::string rc_text(Result rc)
         return hint;
     }
     std::string code = fmt::format("0x{:08X}", (unsigned)rc);
-    return hint.empty() ? brls::getStr("playguard/error/code", code)
-                        : brls::getStr("playguard/error/code_hint", code, hint);
+    std::string text = hint.empty() ? brls::getStr("playguard/error/code", code)
+                                    : brls::getStr("playguard/error/code_hint", code, hint);
+    // A system code alone leaves the parent stuck: say what to do next. App
+    // results already explain themselves.
+    if (next_step && !NXM_IS_APP_RESULT(rc)) text += "\n\n" + "playguard/error/next_step"_i18n;
+    return text;
 }
 
 void in_background(const char* what, std::function<void()> task)

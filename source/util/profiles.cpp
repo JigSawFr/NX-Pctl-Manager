@@ -114,6 +114,17 @@ std::string file_stem(const std::string& name)
     }
     while (!out.empty() && out.back() == ' ') out.pop_back();
     while (!out.empty() && out.front() == ' ') out.erase(out.begin());
+    // No Latin letter or digit ("周末", "Выходные"): a hash of the name, so
+    // the name still gives the same file every time.
+    bool alnum = false;
+    for (char c : out) alnum |= (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
+    if (!alnum && !clean.empty()) {
+        uint32_t h = 2166136261u;   // FNV-1a
+        for (unsigned char c : clean) h = (h ^ c) * 16777619u;
+        char hex[9];
+        std::snprintf(hex, sizeof(hex), "%08x", (unsigned)h);
+        out = std::string("profile-") + hex;
+    }
     return out;
 }
 
@@ -157,7 +168,7 @@ bool save(const Profile& p, std::string* error)
     const std::string name = sanitize_name(p.name);
     std::string stem = file_stem(name);
     if (name.empty() || stem.empty()) {
-        if (error) *error = "Invalid name";
+        if (error) *error = "Empty name";
         return false;
     }
     // The same file under another case ("School week" saved as "school

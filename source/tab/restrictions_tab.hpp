@@ -19,7 +19,9 @@ class RestrictionsTab : public TabBase
   private:
     PctlStatus st = {};
 
-    void write_custom(const PctlCustomSettings& s);
+    // `loosens`: what the change allows; asked first when not empty (B or
+    // Cancel puts the switch back). Tightening applies at once.
+    void write_custom(const PctlCustomSettings& s, const std::string& loosens = "");
     // "Restrict software by age rating: Up to 12 years (PEGI)" and the two others.
     std::string settings_text(const PctlCustomSettings& s) const;
 

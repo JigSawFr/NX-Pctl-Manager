@@ -91,7 +91,8 @@
         "bad_pin_format": "o sistema recusou o formato do PIN",
         "pctl_refused": "recusado pelo serviço de controle dos pais",
         "relock_failed": "o console foi desbloqueado mas não pôde ser bloqueado de novo: bloqueie-o agora (Segurança e app › Bloquear agora)",
-        "not_applied": "o console não aceitou a alteração, então as configurações anteriores foram restauradas"
+        "not_applied": "o console não aceitou a alteração, então as configurações anteriores foram restauradas",
+        "next_step": "Se acontecer de novo, envie um relatório: Ferramentas › Enviar um relatório online."
     },
     "init_error": {
         "title": "PlayGuard",
@@ -239,7 +240,6 @@
         "profile_saved": "Perfil \"{}\" salvo.",
         "profile_renamed": "Perfil renomeado: {}.",
         "profile_save_err": "Não foi possível salvar o perfil",
-        "profile_bad_name": "O nome precisa ter pelo menos uma letra latina ou um número.",
         "profile_replace": "Já existe um perfil chamado \"{}\". Substituir?",
         "profile_replace_confirm": "Substituir",
         "profile_deleted": "Perfil \"{}\" excluído.",
@@ -411,7 +411,11 @@
         "free_comm_value": "{} título(s)",
         "note": "São as mesmas opções de Configurações do console › Controle dos pais.",
         "saved": "Restrição salva.",
-        "save_err": "Não foi possível salvar a restrição"
+        "save_err": "Não foi possível salvar a restrição",
+        "none_body": "Nada será restringido: software de qualquer idade poderá ser usado, e as publicações em redes sociais e a comunicação com outros usuários serão permitidas. Os limites diários de tempo de jogo continuam valendo.",
+        "confirm_age": "Alterar o limite de idade para \"{}\"? Software com uma classificação etária mais alta do que agora poderá então ser usado.",
+        "confirm_sns_off": "Parar de restringir as publicações em redes sociais? Capturas de tela e vídeos poderão então ser publicados pelo console.",
+        "confirm_comm_off": "Parar de restringir a comunicação com outros usuários? O software poderá então deixar a criança conversar e compartilhar conteúdo com outros jogadores."
     },
     "clock": {
         "section_now": "Relógios",
@@ -512,7 +516,8 @@
         "deleted": "Controle dos pais excluído.",
         "delete_err": "Não foi possível excluir o controle dos pais",
         "pin_ok": "PIN atualizado.",
-        "pin_err": "Não foi possível atualizar o PIN"
+        "pin_err": "Não foi possível atualizar o PIN",
+        "rescue_note": "O sysmodule de recuperação está instalado: qualquer pessoa que possa alterar o cartão SD pode então desbloquear o console ou excluir todo o controle dos pais na próxima inicialização. Remova-o quando não precisar mais dele (pasta atmosphere/contents/4200000000505247)."
     },
     "pin_lock": {
         "title": "Pedir o PIN",

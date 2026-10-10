@@ -91,7 +91,8 @@
         "bad_pin_format": "系統不接受此PIN碼格式",
         "pctl_refused": "家長監護服務拒絕了此操作",
         "relock_failed": "主機已解鎖，但無法重新鎖定：請立即鎖定（安全與應用程式 › 立即鎖定）",
-        "not_applied": "主機未接受變更，已還原先前的設定"
+        "not_applied": "主機未接受變更，已還原先前的設定",
+        "next_step": "如果再次發生，請傳送報告：「工具 › 線上傳送報告」。"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -239,7 +240,6 @@
         "profile_saved": "已儲存設定檔「{}」。",
         "profile_renamed": "已重新命名設定檔：{}。",
         "profile_save_err": "無法儲存設定檔",
-        "profile_bad_name": "名稱至少需包含一個拉丁字母或數字。",
         "profile_replace": "已有名為「{}」的設定檔。要取代嗎？",
         "profile_replace_confirm": "取代",
         "profile_deleted": "已刪除設定檔「{}」。",
@@ -411,7 +411,11 @@
         "free_comm_value": "{}款軟體",
         "note": "這些設定與「系統設定 › 家長監護」相同。",
         "saved": "已儲存限制。",
-        "save_err": "無法儲存限制"
+        "save_err": "無法儲存限制",
+        "none_body": "將不再有任何限制：任何年齡分級的軟體都能遊玩，在社群網站上發文及與他人交流也都會被允許。每天的遊玩時間上限仍然有效。",
+        "confirm_age": "要將年齡上限變更為「{}」嗎？屆時可以遊玩年齡分級比現在更高的軟體。",
+        "confirm_sns_off": "要取消限制在社群網站上發文嗎？屆時可以從主機發布螢幕截圖和影片。",
+        "confirm_comm_off": "要取消限制與他人交流嗎？屆時軟體可以讓孩子與其他玩家聊天及分享內容。"
     },
     "clock": {
         "section_now": "時鐘",
@@ -512,7 +516,8 @@
         "deleted": "已刪除家長監護設定。",
         "delete_err": "無法刪除家長監護設定",
         "pin_ok": "已更新PIN碼。",
-        "pin_err": "無法更新PIN碼"
+        "pin_err": "無法更新PIN碼",
+        "rescue_note": "已安裝復原用系統模組：任何能修改SD卡的人，都可以在下次啟動時解除主機鎖定，或刪除所有家長監護設定。不再需要時請將其刪除（資料夾atmosphere/contents/4200000000505247）。"
     },
     "pin_lock": {
         "title": "要求輸入PIN碼",

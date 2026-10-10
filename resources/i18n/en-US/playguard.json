@@ -91,7 +91,8 @@
         "bad_pin_format": "the system rejected the PIN format",
         "pctl_refused": "refused by the parental-control service",
         "relock_failed": "the console was unlocked but could not be locked again: lock it now (Security & app › Lock now)",
-        "not_applied": "the console did not take the change, so the previous settings were put back"
+        "not_applied": "the console did not take the change, so the previous settings were put back",
+        "next_step": "If it happens again, send a report: Tools › Send a report online."
     },
     "init_error": {
         "title": "PlayGuard",
@@ -239,7 +240,6 @@
         "profile_saved": "Profile \"{}\" saved.",
         "profile_renamed": "Profile renamed: {}.",
         "profile_save_err": "Could not save the profile",
-        "profile_bad_name": "The name needs at least one Latin letter or digit.",
         "profile_replace": "A profile named \"{}\" already exists. Replace it?",
         "profile_replace_confirm": "Replace",
         "profile_deleted": "Profile \"{}\" deleted.",
@@ -411,7 +411,11 @@
         "free_comm_value": "{} title(s)",
         "note": "These are the same settings as System Settings › Parental Controls.",
         "saved": "Restriction saved.",
-        "save_err": "Could not save the restriction"
+        "save_err": "Could not save the restriction",
+        "none_body": "Nothing will be restricted: software of any age rating can be played, and posting to social media and communicating with others are allowed. The daily play-time limits still apply.",
+        "confirm_age": "Change the age limit to \"{}\"? Software with a higher age rating than now can then be played.",
+        "confirm_sns_off": "Stop restricting posting to social media? Screenshots and videos can then be posted from the console.",
+        "confirm_comm_off": "Stop restricting communicating with others? Software can then let the child chat and share content with other players."
     },
     "clock": {
         "section_now": "Clocks",
@@ -512,7 +516,8 @@
         "deleted": "Parental controls deleted.",
         "delete_err": "Could not delete parental controls",
         "pin_ok": "PIN updated.",
-        "pin_err": "Could not update the PIN"
+        "pin_err": "Could not update the PIN",
+        "rescue_note": "The recovery sysmodule is installed: anyone who can edit the SD card can then unlock the console or delete every parental control at the next start. Remove it when you no longer need it (folder atmosphere/contents/4200000000505247)."
     },
     "pin_lock": {
         "title": "Ask for the PIN",

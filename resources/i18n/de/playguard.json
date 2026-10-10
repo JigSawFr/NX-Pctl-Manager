@@ -91,7 +91,8 @@
         "bad_pin_format": "das System hat das Format der Geheimzahl abgelehnt",
         "pctl_refused": "vom Dienst der Altersbeschränkungen abgelehnt",
         "relock_failed": "die Konsole wurde entsperrt, konnte aber nicht wieder gesperrt werden: Sperre sie jetzt (Sicherheit & App › Jetzt aktivieren)",
-        "not_applied": "die Konsole hat die Änderung nicht übernommen, daher wurden die vorherigen Einstellungen wiederhergestellt"
+        "not_applied": "die Konsole hat die Änderung nicht übernommen, daher wurden die vorherigen Einstellungen wiederhergestellt",
+        "next_step": "Wenn das erneut passiert, senden Sie einen Bericht: Tools › Bericht online senden."
     },
     "init_error": {
         "title": "PlayGuard",
@@ -239,7 +240,6 @@
         "profile_saved": "Profil „{}“ gespeichert.",
         "profile_renamed": "Profil umbenannt: {}.",
         "profile_save_err": "Profil konnte nicht gespeichert werden",
-        "profile_bad_name": "Der Name braucht mindestens einen lateinischen Buchstaben oder eine Ziffer.",
         "profile_replace": "Ein Profil namens „{}“ existiert bereits. Ersetzen?",
         "profile_replace_confirm": "Ersetzen",
         "profile_deleted": "Profil „{}“ gelöscht.",
@@ -411,7 +411,11 @@
         "free_comm_value": "{} Titel",
         "note": "Dies sind dieselben Einstellungen wie unter Systemeinstellungen › Altersbeschränkungen.",
         "saved": "Einschränkung gespeichert.",
-        "save_err": "Einschränkung konnte nicht gespeichert werden"
+        "save_err": "Einschränkung konnte nicht gespeichert werden",
+        "none_body": "Dann ist nichts mehr eingeschränkt: Software jeder Altersstufe kann gespielt werden, und Posten in sozialen Netzwerken sowie Kommunikation mit anderen Nutzern sind erlaubt. Die täglichen Spielzeitlimits gelten weiterhin.",
+        "confirm_age": "Altersgrenze auf „{}“ ändern? Dann kann Software mit einer höheren Alterseinstufung als bisher gespielt werden.",
+        "confirm_sns_off": "Posten in sozialen Netzwerken nicht mehr sperren? Dann können Screenshots und Videos von der Konsole aus gepostet werden.",
+        "confirm_comm_off": "Kommunikation mit anderen Nutzern nicht mehr sperren? Dann kann Software das Kind mit anderen Spielern chatten und Inhalte austauschen lassen."
     },
     "clock": {
         "section_now": "Uhren",
@@ -512,7 +516,8 @@
         "deleted": "Altersbeschränkungen gelöscht.",
         "delete_err": "Altersbeschränkungen konnten nicht gelöscht werden",
         "pin_ok": "Geheimzahl aktualisiert.",
-        "pin_err": "Geheimzahl konnte nicht aktualisiert werden"
+        "pin_err": "Geheimzahl konnte nicht aktualisiert werden",
+        "rescue_note": "Das Wiederherstellungs-Sysmodul ist installiert: Wer die SD-Karte bearbeiten kann, kann damit beim nächsten Start die Konsole entsperren oder alle Altersbeschränkungen löschen. Entfernen Sie es, wenn Sie es nicht mehr brauchen (Ordner atmosphere/contents/4200000000505247)."
     },
     "pin_lock": {
         "title": "Geheimzahl abfragen",
