@@ -6,8 +6,6 @@ typedef struct {
     size_t        count, max;
     uint64_t      now;
     uint64_t      day_starts[7];
-    const PlayLogSpan *skip;
-    size_t        n_skip;
 } Fold;
 
 static uint64_t overlap(uint64_t a, uint64_t b, uint64_t lo, uint64_t hi)
@@ -42,24 +40,11 @@ static void add_range(Fold *f, uint64_t app_id, uint64_t start, uint64_t end_use
     t->today_s = t->day_s[0];
 }
 
-// [start, end) without the skipped spans: the first piece, recursively the rest.
-static void add_cut(Fold *f, uint64_t app_id, uint64_t start, uint64_t end, size_t from)
-{
-    for (size_t i = from; i < f->n_skip; i++) {
-        const PlayLogSpan *s = &f->skip[i];
-        if (s->end <= start || s->start >= end) continue;   // no overlap
-        if (s->start > start) add_cut(f, app_id, start, s->start, i + 1);
-        if (s->end < end) add_cut(f, app_id, s->end, end, i + 1);
-        return;
-    }
-    if (end > start) add_range(f, app_id, start, end);
-}
-
 // Adds a session that ended at `end_user` and lasted `dur` seconds.
 static void add(Fold *f, uint64_t app_id, uint64_t end_user, uint64_t dur)
 {
     if (dur == 0 || dur > PLAYLOG_MAX_SESSION_S || end_user < dur) return;
-    add_cut(f, app_id, end_user - dur, end_user, 0);
+    add_range(f, app_id, end_user - dur, end_user);
 }
 
 // Duration between two events: the steady clock when both have it and it
@@ -90,16 +75,7 @@ size_t playlog_fold(const PlayLogEvent *events, size_t n, uint64_t now,
 size_t playlog_fold_days(const PlayLogEvent *events, size_t n, uint64_t now,
                          const uint64_t day_starts[7], PlayLogTotal *out, size_t max)
 {
-    return playlog_fold_days_skip(events, n, now, day_starts, NULL, 0, out, max);
-}
-
-size_t playlog_fold_days_skip(const PlayLogEvent *events, size_t n, uint64_t now,
-                              const uint64_t day_starts[7], const PlayLogSpan *skip, size_t n_skip,
-                              PlayLogTotal *out, size_t max)
-{
     Fold f;
-    f.skip = skip;
-    f.n_skip = skip ? n_skip : 0;
     f.out = out;
     f.count = 0;
     f.max = max;

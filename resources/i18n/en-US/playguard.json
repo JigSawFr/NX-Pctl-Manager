@@ -381,7 +381,7 @@
         "first": "First played",
         "last": "Last played",
         "less_than_minute": "< 1 min",
-        "note": "Read from the console's activity log, for every account. Times are approximate if the console clock was changed. PlayGuard's own time over a game is left out of today and the last 7 days, but stays in the all-time totals, which the console keeps."
+        "note": "Read from the console's activity log, for every account. Times are approximate if the console clock was changed. PlayGuard opened over a game counts as that game for the account picked at launch: open it with a parent's account."
     },
     "restrictions": {
         "section_level": "Restriction level",

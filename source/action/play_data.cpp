@@ -7,7 +7,6 @@
 #include <set>
 #include <vector>
 
-#include "util/own_time.hpp"
 #include "util/paths.hpp"
 #include "util/play_cache.hpp"
 
@@ -101,11 +100,9 @@ void fetch(const PlayAccount* account)
     e.busy = true;
     const bool one = account != nullptr;
     const PlayAccount who = one ? *account : PlayAccount{};
-    // PlayGuard's own time over a game is not play: left out (util/own_time.hpp).
-    auto skip = std::make_shared<std::vector<PlayLogSpan>>(own_time::spans());
-    brls::async([key, one, who, skip]() {
+    brls::async([key, one, who]() {
         auto data = std::make_shared<PlayStats>();
-        playstats_fetch_skip(data.get(), one ? &who : nullptr, skip->data(), skip->size());
+        playstats_fetch_for(data.get(), one ? &who : nullptr);
         brls::sync([key, data]() {
             Entry& done = s_entries[key];
             done.busy    = false;

@@ -381,7 +381,7 @@
         "first": "Prima partita",
         "last": "Ultima partita",
         "less_than_minute": "< 1 min",
-        "note": "Letto dal registro attività della console, per tutti gli utenti. I tempi sono approssimativi se l'orologio della console è stato modificato. Il tempo di PlayGuard aperto sopra un gioco è escluso da oggi e dagli ultimi 7 giorni, ma resta nei totali, tenuti dalla console."
+        "note": "Letto dal registro attività della console, per tutti gli utenti. I tempi sono approssimativi se l'orologio della console è stato modificato. PlayGuard aperto sopra un gioco conta come quel gioco per l'utente scelto all'avvio: aprilo con l'utente di un genitore."
     },
     "restrictions": {
         "section_level": "Livello limitazioni",
