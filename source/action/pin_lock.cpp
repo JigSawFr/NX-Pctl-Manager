@@ -22,6 +22,7 @@ constexpr auto GRACE = std::chrono::minutes(5);
 constexpr auto REFUSAL_HOLDS = std::chrono::seconds(3);
 std::chrono::steady_clock::time_point s_confirmed_until, s_refused_until;
 bool s_remote_bypass = false;
+Result s_last_rc = 0;   // what the last ask() got
 const char* MODES[] = { "off", "changes", "open" };
 
 int rank(const std::string& mode)
@@ -68,12 +69,20 @@ bool at_start()
 bool ask()
 {
     const Result rc = pctl_ask_pin();
+    s_last_rc = rc;
     brls::Logger::info("pctl_ask_pin returned 0x{:08X}", (unsigned)rc);
     if (R_SUCCEEDED(rc)) {
         s_confirmed_until = std::chrono::steady_clock::now() + GRACE;
         return true;
     }
     return rc == NXM_RC_NO_PIN;   // nothing to ask for
+}
+
+std::string refusal_text()
+{
+    if (R_SUCCEEDED(s_last_rc) || NXM_IS_APP_RESULT(s_last_rc)) return ui::rc_text(NXM_RC_NOT_CONFIRMED);
+    return brls::getStr("playguard/error/code_hint", fmt::format("0x{:08X}", (unsigned)s_last_rc),
+                        "playguard/error/not_confirmed"_i18n);
 }
 
 std::string mode_text()
@@ -101,8 +110,8 @@ void choose(std::function<void()> done)
             return;
         }
         // Less protection than now: only the parent may choose it.
-        if (index < rank(from) && has_pin && R_FAILED(pctl_ask_pin())) {
-            ui::notify(ui::rc_text(NXM_RC_NOT_CONFIRMED));
+        if (index < rank(from) && has_pin && !ask()) {
+            ui::notify(refusal_text());
             return;
         }
         config::get().pin_lock = to;

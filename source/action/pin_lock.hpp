@@ -28,6 +28,9 @@ bool at_start();
 
 // Asks for the PIN now. True when it was entered, or when no PIN is set.
 bool ask();
+// What to tell the user after ask() said no: "the PIN was not entered", with
+// the result the PIN screen gave (its code tells a cancel from a refusal).
+std::string refusal_text();
 
 // Around an order of the remote link applied with its "auto" policy (UI
 // thread): the check lets the changes through. The broker authenticated the

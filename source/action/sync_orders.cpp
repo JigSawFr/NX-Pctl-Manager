@@ -192,8 +192,10 @@ void tell(const Order& o, const SyncOutcome& out)
         ui::notify(brls::getStr("playguard/sync/done", what));
         return;
     }
-    if (out.reason == SyncReason_NotConfirmed) return;   // declined here: nothing to say
-    std::string why = brls::getStr(std::string("playguard/sync/reasons/") + sync_reason_name(out.reason));
+    if (out.reason == SyncReason_NotConfirmed && !out.rc) return;   // declined here: nothing to say
+    std::string why = out.reason == SyncReason_NotConfirmed
+                          ? pin_lock::refusal_text()   // the PIN screen's answer
+                          : brls::getStr(std::string("playguard/sync/reasons/") + sync_reason_name(out.reason));
     if (out.reason == SyncReason_PctlError && out.rc) why += " — " + ui::rc_text(out.rc);
     ui::notify(brls::getStr("playguard/sync/refused", what, why));
 }

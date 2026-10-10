@@ -258,7 +258,7 @@ bool SyncActivity::commit(SyncConf next)
 {
     // The link can change the console: the same PIN as a console change.
     if (!pin_lock::allow_change()) {
-        ui::notify(ui::rc_text(NXM_RC_NOT_CONFIRMED));
+        ui::notify(pin_lock::refusal_text());
         this->refresh();
         return false;
     }
