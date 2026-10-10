@@ -102,6 +102,18 @@ static std::string one_line(const std::string& s)
     return out;
 }
 
+namespace
+{
+std::string s_firmware;
+bool s_read_only = true;   // until set_console() says otherwise
+}   // namespace
+
+void set_console(const std::string& firmware, bool read_only)
+{
+    s_firmware = firmware;
+    s_read_only = read_only;
+}
+
 std::string nro_state_text(const config::Config& c)
 {
     const SyncRecords r = records_from(c);
@@ -114,6 +126,8 @@ std::string nro_state_text(const config::Config& c)
     out += "fw_gate_app=" + one_line(c.fw_gate_app) + "\n";
     out += "fw_gate_choice=" + one_line(c.fw_gate_choice) + "\n";
     out += "pin_lock=" + one_line(c.pin_lock) + "\n";
+    out += "read_only=" + std::string(s_read_only || s_firmware.empty() ? "1" : "0") + "\n";
+    out += "firmware=" + one_line(s_firmware) + "\n";
     return out;
 }
 

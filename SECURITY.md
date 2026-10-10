@@ -28,6 +28,11 @@ The latest release. Fixes are not backported.
   unless *every feature at your own risk* was chosen on the firmware screen.
 - **The recovery sysmodule** — acting without a `RESCUE` request file, acting twice on one
   request, or doing more than the request asks.
+- **The agent sysmodule** — carrying out an order under a policy other than *auto*, a
+  write while `nro_state.txt` says read-only or on a firmware PlayGuard has not run on, an
+  order PlayGuard declined being applied anyway, or the `pg:agent` service letting a
+  process other than PlayGuard change what the agent publishes or does beyond what an
+  order on the broker could.
 - **Optional modules** — PlayGuard installing, updating, starting or removing a sysmodule
   without the PIN while *Ask for the PIN* is set to *Before a change*, or installing
   anything but the copy it carries (checked against its SHA-256).

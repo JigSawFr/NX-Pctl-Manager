@@ -38,9 +38,13 @@ SyncRecords records_from(const config::Config& c);
 // True when something changed.
 bool records_into(const SyncRecords& r, config::Config& c);
 
-// sync/nro_state.txt: the records, extra_auto_restore, the firmware choice
-// and the PIN lock. Written after every config save while sync.conf exists
-// (config::set_saved_hook).
+// sync/nro_state.txt: the records, extra_auto_restore, the firmware choice,
+// the PIN lock, and what the agent needs to know before it changes anything:
+// whether PlayGuard is read-only and the firmware it last ran on (the agent
+// refuses writes on another one). Written after every config save while
+// sync.conf exists (config::set_saved_hook), and when read-only mode changes.
+// set_console() says the firmware and the mode (main.cpp, ui::on_mode_changed).
+void set_console(const std::string& firmware, bool read_only);
 std::string nro_state_text(const config::Config& c);
 void export_nro_state();
 

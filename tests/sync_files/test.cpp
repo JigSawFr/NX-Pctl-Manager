@@ -106,7 +106,14 @@ static void test_nro_state()
     c.fw_gate_app = "1.0.0";
     c.fw_gate_choice = "read_only\nrelock_pending=1";   // a line break would add a key
     c.pin_lock = "changes";
+    // Read-only until PlayGuard says otherwise, and with the firmware it runs on.
+    assert(sync_files::nro_state_text(c).find("read_only=1\n") != std::string::npos);
+    sync_files::set_console("23.0.1", false);
     const std::string text = sync_files::nro_state_text(c);
+    assert(text.find("read_only=0\n") != std::string::npos && text.find("firmware=23.0.1\n") != std::string::npos);
+    sync_files::set_console("", false);   // no firmware known: never writable
+    assert(sync_files::nro_state_text(c).find("read_only=1\n") != std::string::npos);
+    sync_files::set_console("23.0.1", false);
 
     SyncRecords r;
     sync_records_clear(&r);

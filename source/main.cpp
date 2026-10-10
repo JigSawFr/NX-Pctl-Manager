@@ -101,6 +101,15 @@ int main(int argc, char* argv[])
     if (app::init()) {
         // Untested firmware: read-only (or the remembered choice) before any tab is built.
         fw_gate::prepare();
+        {
+            // What the agent sysmodule may do on PlayGuard's behalf (sync/nro_state.txt).
+            SysInfo si;
+            sysinfo_get(&si);
+            char fw[16];
+            sysinfo_version_string(si.hos_version, fw, sizeof(fw));
+            sync_files::set_console(fw, app::read_only());
+            sync_files::export_nro_state();
+        }
         // Security › Ask for the PIN: checked before every change from now on;
         // "To open PlayGuard" starts on the lock screen.
         pin_lock::install();

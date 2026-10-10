@@ -161,9 +161,9 @@ jobs:
           export CCACHE_DIR="$GITHUB_WORKSPACE/.ccache" CCACHE_BASEDIR="$GITHUB_WORKSPACE"
           make dist
           # make dist builds the optional sysmodules first and bundles them in the
-          # romfs (Tools › Optional modules); the recovery one is also its own
-          # asset (sysmodule/rescue/).
-          make dist-rescue
+          # romfs (Tools › Optional modules); each is also its own asset
+          # (sysmodule/rescue/, sysmodule/agent/).
+          make dist-rescue dist-agent
           ccache --show-stats
           dkp-pacman -Q libnx switch-tools switch-curl switch-glfw switch-mesa > toolchain.txt 2>/dev/null || true
       - name: compat.json
@@ -180,10 +180,11 @@ jobs:
             git submodule status
             cat toolchain.txt
           } > build-info.txt
-          sha256sum playguard.nro playguard.zip playguard-rescue.zip compat.json > SHA256SUMS.txt
+          sha256sum playguard.nro playguard.zip playguard-rescue.zip playguard-agent.zip compat.json > SHA256SUMS.txt
           cat build-info.txt
           unzip -l playguard.zip
           unzip -l playguard-rescue.zip
+          unzip -l playguard-agent.zip
       # Two artifacts so the .nro is not in the same one twice (raw, and again
       # inside playguard.zip): playguard_release is what Developer tools ›
       # Install another build downloads on the console (source/util/dev_builds.hpp),
@@ -203,6 +204,7 @@ jobs:
           path: |
             playguard.zip
             playguard-rescue.zip
+            playguard-agent.zip
       - name: Linker map (what makes the .nro big)
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
@@ -254,6 +256,7 @@ jobs:
             dist/playguard.nro
             dist/playguard.zip
             dist/playguard-rescue.zip
+            dist/playguard-agent.zip
             dist/compat.json
       - name: Attach to the GitHub release
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
@@ -263,6 +266,7 @@ jobs:
             dist/playguard.nro
             dist/playguard.zip
             dist/playguard-rescue.zip
+            dist/playguard-agent.zip
             dist/compat.json
             dist/build-info.txt
             dist/SHA256SUMS.txt

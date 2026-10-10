@@ -1,8 +1,7 @@
 # Remote link protocol
 
-**Status: schema 1. PlayGuard's side (phase A) is implemented; the agent
-sysmodule, its IPC service and the files only it writes are not yet (marked
-*phase B* below).** The contract between the console (PlayGuard and its
+**Status: schema 1, implemented: PlayGuard's side, the agent sysmodule and
+its IPC service.** The contract between the console (PlayGuard and its
 optional agent), the MQTT broker, Home Assistant and the `playguard` HA
 integration. The design and its reasons are in
 [`sync-design.md`](sync-design.md); the user guide is
@@ -107,7 +106,7 @@ Every object is always there; a value the console could not read is `null`
 - `extended_today_min`: extra time granted today by PlayGuard or by an order
   and still on today's limit.
 - `activity_today.now_playing`: `null` while PlayGuard publishes (it is in
-  front, so no game is being played); filled by the agent (phase B).
+  front, so no game is being played); filled by the agent.
 - `console.read_only`: PlayGuard's runtime read-only mode (an untested
   firmware); every order is then refused.
 - `link.last_result`: the last order handled, `<entity>: applied` or
@@ -207,7 +206,7 @@ hold as the console reports it), `bedtime_off`, `pctl_error` (with `rc`),
 ```
 
 `event_type`: `command_applied`, `command_rejected`, `command_waiting` (the
-agent keeps an order for PlayGuard to confirm under *ask*, phase B). `rc` is
+agent keeps an order for PlayGuard to confirm under *ask*). `rc` is
 `"0x…"` when the console answered, else `null`. Not retained: a consumer that
 was away misses them on purpose; the state carries `link.last_result`.
 
@@ -254,17 +253,18 @@ creates its own entities with the same object ids.
 |---|---|---|
 | `switch/playguard/sync.conf` | PlayGuard (Sync screen); hand-editable | The link's settings, `key=value`, one per line (below). |
 | `switch/playguard/sync/ca.pem` | the user | Optional CA certificate for a private broker. |
-| `switch/playguard/sync/nro_state.txt` | PlayGuard, after every `config.json` save once `sync.conf` exists | The extra-time record, the console lock and its saved limits, `relock_pending`, `extra_auto_restore`, the firmware choice (`fw_gate_*`), `pin_lock`: what the agent must know to act on PlayGuard's behalf. A line break in a value is written as a space. |
+| `switch/playguard/sync/nro_state.txt` | PlayGuard, after every `config.json` save once `sync.conf` exists, and when read-only mode changes | The extra-time record, the console lock and its saved limits, `relock_pending`, `extra_auto_restore`, the firmware choice (`fw_gate_*`), `pin_lock`, `read_only` and `firmware` (the one PlayGuard last ran on): what the agent must know to act on PlayGuard's behalf. The agent changes nothing when `read_only=1`, when the key is missing, or when the console's firmware is no longer `firmware` (a system update PlayGuard has not seen). A line break in a value is written as a space. |
 | `switch/playguard/sync/profiles.txt` | PlayGuard, when the link starts and when the profiles change | `60,90,120,120,120,180,180=School week`: minutes Sunday first (65535 no limit), then the name. |
 | `switch/playguard/sync/names.txt` | PlayGuard, after a read of the play log | `0100000000010000=Super Mario Odyssey`: the agent's "now playing". |
-| `switch/playguard/sync/agent_state.txt` | the agent (phase B) | The same records, for what the agent did itself. PlayGuard adopts them at start-up. |
-| `switch/playguard/sync/agent_events.log` | the agent (phase B) | One event per line; PlayGuard imports them into `history.json` (source `remote`) and truncates the file. |
-| `switch/playguard/sync/agent_status.txt` | the agent (phase B) | Connected, last publish, last error, version: the Sync screen when the agent is not reachable over IPC. |
-| `switch/playguard/sync/agent.log` | the agent (phase B) | Rolling log, 64 KiB. |
-| `atmosphere/contents/<tid>/{exefs.nsp, flags/boot2.flag, toolbox.json, version.txt}` | the Modules screen, or the user (phase B0) | The installed module. |
+| `switch/playguard/sync/agent_state.txt` | the agent | The same records, for what the agent changed itself. At start the agent takes the newer of this file and `nro_state.txt`; PlayGuard adopts the agent's records (`GetRecords`) when it opens. |
+| `switch/playguard/sync/agent_events.log` | the agent | One line per order the agent carried out itself, tab-separated: time (POSIX), entity, payload, applied (0/1), reason, change kind (`SyncChange`), number of values, source (`remote`, `remote_extra`…), values before (comma-separated), values after. PlayGuard imports them into `history.json` and empties the file. |
+| `switch/playguard/logs/agent_<time>.txt` | the agent | A report asked for by `export_report` while PlayGuard is closed (clocks and parental controls, as PlayGuard's report has them). |
+| `atmosphere/contents/<tid>/{exefs.nsp, flags/boot2.flag, toolbox.json, version.txt}` | *Tools › Optional modules*, or the user | The installed module (`4200000000505247` recovery, `4200000000504741` agent). |
 
-Each file has exactly one writer; the IPC service is the live channel, the
-files the cold one. `sync.conf` is never included in a diagnostic report or
+Each file has one writer — but for `sync.conf`, which the agent rewrites when
+Home Assistant switches the native discovery (`discovery/set`) while
+PlayGuard is closed. The IPC service is the live channel, the files the cold
+one. `sync.conf` is never included in a diagnostic report or
 an online upload; the report's *Remote link* section has the switches and the
 session's counters, never the broker's address, the user name or the
 password.
@@ -279,34 +279,42 @@ password.
 when PlayGuard writes the file again. Anonymous brokers need
 `allow_anonymous=1`; without a user name the link otherwise stays off.
 
-## IPC service `pg:agent` (PlayGuard ↔ agent, phase B)
+## IPC service `pg:agent` (PlayGuard ↔ agent)
 
-Hosted by the agent; PlayGuard connects at start-up. **An open session means
-PlayGuard is running**: the agent stops reading pctl while PlayGuard is in the
-foreground, and resumes when the session closes (exit or crash). Commands
-(ids are provisional until phase B):
+Hosted by the agent (`sysmodule/agent/source/agent_ipc.c`); PlayGuard
+connects at start-up when the agent runs. Command ids and structures are in
+`source/sync/agent_ipc.h` (protocol 1). The IPC message holds 256 bytes, so
+documents, the log, an order and the status travel in mapped buffers.
+
+**An open session means PlayGuard is running.** While it is in the foreground
+it is the only process that reads pctl: the agent publishes what it pushes.
+In the background, or once the session closes (exit or crash), the agent
+reads the console again by itself. Orders received while a session is open
+are handed to PlayGuard, which carries them out with its own policy, history
+and records; those still out when the session closes are answered `waiting`
+and come back from the broker for the agent.
 
 | Id | Command | In | Out | Effect |
 |---|---|---|---|---|
-| 0 | `Hello` | app version, protocol version | agent version, protocol version, console id, connected | Handshake. A protocol mismatch makes PlayGuard offer an update. |
-| 1 | `SetForeground` | bool | | In the foreground PlayGuard reads pctl and pushes; in the background the agent reads. |
-| 2 | `PushState` | JSON (buffer) | | Publish `state` now. PlayGuard calls it after every write and at the Overview's rhythm. |
-| 3 | `PushActivity` | JSON | | Publish `activity` now. |
-| 4 | `PushNames` | JSON | | Publish `names`. |
-| 5 | `PushWeek` | JSON | | Publish `week`. |
-| 6 | `GetOrderEvent` | | event handle | Signalled when an order waits. |
-| 7 | `PopOrder` | | id, entity, payload, retained flag | The next order PlayGuard must apply (none → empty). |
-| 8 | `OrderResult` | id, rc, applied, reason | | The agent publishes the event, clears the retained order, republishes the state. |
-| 9 | `SyncNow` | | | Republish availability, discovery, state, activity, names. |
-| 10 | `GetStatus` | | connected, broker, last publish, last error, pending, uptime, version | The Sync screen's live status. |
-| 11 | `GetEvents` | | ring of the last events | Imported into the change history at start-up. |
-| 12 | `GetRecords` | | extra-time / console-lock / relock records | Adopted into `config` at start-up. |
-| 13 | `ReloadConfig` | | | Re-read `sync.conf`. |
-| 14 | `GetLog` | | last 200 lines | The Sync screen's log view. |
-| 15 | `PrepareShutdown` | | | Publish `offline`, disconnect: first step of an update or a stop from PlayGuard. |
+| 0 | `Hello` | `AgentHello`: protocol, PlayGuard's version | `AgentHelloReply`: protocol, the agent's version, console id, online | Opens PlayGuard's session. Another protocol gets the reply (PlayGuard offers to update the agent) and no session. |
+| 1 | `SetForeground` | `u8` | | In the foreground PlayGuard reads and pushes; in the background the agent reads. |
+| 2 | `PushState` | buffer: JSON | | Publish `state` now. |
+| 3 | `PushActivity` | buffer: JSON | | Publish `activity` now. |
+| 4 | `PushNames` | buffer: JSON | | Publish `names`. |
+| 5 | `PushWeek` | buffer: JSON | | Publish `week`. |
+| 6 | `PushFinal` | buffer: `YYYY-MM-DD` + newline + JSON | | Publish `activity/<date>` (an empty document clears it). |
+| 7 | `PopOrder` | | buffer: `AgentOrder` (id 0: none) | The next order for PlayGuard, each handed out once. PlayGuard asks every 500 ms. |
+| 8 | `OrderResult` | `AgentResult`: id, rc, applied, changed, reason | | The agent publishes the event, clears the retained order, republishes the state. |
+| 9 | `SyncNow` | | | Republish everything. |
+| 10 | `GetStatus` | | buffer: `AgentStatus` | The link's status, pending orders, read-only, version, uptime. |
+| 12 | `GetRecords` | | `AgentRecords` | What the agent changed (extra time, console lock, relock), for PlayGuard to adopt. |
+| 13 | `ReloadConfig` | | | Read `sync.conf` and `nro_state.txt` again (also done when their date changes). |
+| 14 | `GetLog` | | buffer: text | The agent's last 200 lines, oldest first. |
+| 15 | `PrepareShutdown` | | | Publish `offline`, disconnect, stay idle: first step of an update or a stop from PlayGuard. |
 
-Not available on the desktop build; the engine's state machine behind it is
-host-tested with a fake transport.
+Everything but `Hello`, `GetStatus` and `GetLog` needs the session. The
+command dispatch is host-tested (`tests/agent/`); the HIPC framing runs only
+on a console.
 
 ## Schema and compatibility
 

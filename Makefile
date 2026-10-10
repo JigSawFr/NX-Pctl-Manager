@@ -25,13 +25,13 @@ CWARN   := -Wall -Wextra -Werror $(SAN)
 SYNC_PURE := source/sync/sync_json.c source/sync/mqtt_packet.c source/sync/sync_conf.c source/sync/sync_apply.c \
              source/sync/sync_records.c source/sync/sync_entities.c source/sync/sync_discovery.c source/sync/sync_state.c
 
-.PHONY: all clean dist nxlink desktop test check rescue dist-rescue
+.PHONY: all clean dist nxlink desktop test check rescue dist-rescue agent dist-agent
 
 RENDERER := $(if $(GL),-DUSE_DEKO3D=OFF,-DUSE_DEKO3D=ON)
 
 # The optional sysmodules first: the .nro carries them in its romfs, so
 # Tools › Optional modules can install them (CMakeLists.txt, cmake/bundle_sysmodules.cmake).
-all: rescue
+all: rescue agent
 	@cmake -B $(BUILD) -S . -DPLATFORM_SWITCH=ON $(RENDERER)
 	@cmake --build $(BUILD) --target $(TARGET).nro -j $(JOBS)
 	@cp $(BUILD)/$(TARGET).nro  $(TARGET).nro
@@ -67,6 +67,23 @@ dist-rescue: rescue
 	@cp LICENSE out-rescue/atmosphere/contents/$(RESCUE_TID)/LICENSE.txt
 	@cd out-rescue && zip -r ../playguard-rescue.zip ./*
 
+# The optional remote-link agent (sysmodule/agent/): its own asset too. It
+# starts at boot (boot2.flag) and can be started or stopped without a reboot.
+AGENT_TID := 4200000000504741
+agent:
+	@$(MAKE) --no-print-directory -C sysmodule/agent
+
+dist-agent: agent
+	@echo making agent dist ...
+	@rm -rf out-agent/ playguard-agent.zip
+	@mkdir -p out-agent/atmosphere/contents/$(AGENT_TID)/flags
+	@cp sysmodule/agent/out/playguard-agent.nsp out-agent/atmosphere/contents/$(AGENT_TID)/exefs.nsp
+	@touch out-agent/atmosphere/contents/$(AGENT_TID)/flags/boot2.flag
+	@printf '{\n  "name": "PlayGuard agent",\n  "tid": "%s",\n  "requires_reboot": false\n}\n' $(AGENT_TID) \
+		> out-agent/atmosphere/contents/$(AGENT_TID)/toolbox.json
+	@cp LICENSE out-agent/atmosphere/contents/$(AGENT_TID)/LICENSE.txt
+	@cd out-agent && zip -r ../playguard-agent.zip ./*
+
 desktop:
 	@cmake -B $(DESKTOP) -S . -DPLATFORM_DESKTOP=ON -DCMAKE_BUILD_TYPE=Release
 	@cmake --build $(DESKTOP) -j $(JOBS)
@@ -84,6 +101,7 @@ test:
 	$(CC) -std=gnu11 $(CWARN) -Isource/sync -Isource/core $(SYNC_PURE) tests/sync_core/test.c -o $(TESTOUT)/sync_core && $(TESTOUT)/sync_core $(TESTOUT)/sync
 	$(CC) -std=gnu11 $(CWARN) -DNX_HOST_TEST -Itests/pctl_session -Isource/core -Isource/sync source/core/pctl_ops.c source/core/pure.c source/core/write_guard.c source/sync/sync_exec.c source/sync/sync_records.c source/sync/sync_apply.c source/sync/sync_conf.c tests/sync_exec/test.c -o $(TESTOUT)/sync_exec && $(TESTOUT)/sync_exec
 	$(CC) -std=gnu11 $(CWARN) -Isource/sync -Isource/core $(SYNC_PURE) source/sync/mqtt_client.c source/sync/sync_engine.c tests/sync_engine/test.c -o $(TESTOUT)/sync_engine && $(TESTOUT)/sync_engine
+	$(CC) -std=gnu11 $(CWARN) -Isource/sync -Isource/core -Isysmodule/agent/source sysmodule/agent/source/agent_core.c source/sync/sync_conf.c source/sync/sync_records.c tests/agent/test.c -o $(TESTOUT)/agent && $(TESTOUT)/agent
 	$(CXX) -std=c++17 $(CWARN) -Isource source/util/paths.cpp source/util/patches.cpp tests/patches/test.cpp -o $(TESTOUT)/patches && $(TESTOUT)/patches
 	$(CXX) -std=c++17 $(CWARN) -Isource source/util/duration.cpp tests/duration/test.cpp -o $(TESTOUT)/duration && $(TESTOUT)/duration
 	$(CXX) -std=c++17 $(CWARN) -Isource source/util/changelog.cpp tests/changelog/test.cpp -o $(TESTOUT)/changelog && $(TESTOUT)/changelog
@@ -114,8 +132,9 @@ check: test
 
 clean:
 	@echo clean ...
-	@rm -rf $(BUILD) $(DESKTOP) out out-rescue $(TARGET).zip playguard-rescue.zip $(TARGET).nro $(TARGET).nacp $(TARGET).elf
+	@rm -rf $(BUILD) $(DESKTOP) out out-rescue out-agent $(TARGET).zip playguard-rescue.zip playguard-agent.zip $(TARGET).nro $(TARGET).nacp $(TARGET).elf
 	@$(MAKE) --no-print-directory -C sysmodule/rescue clean 2>/dev/null || true
+	@$(MAKE) --no-print-directory -C sysmodule/agent clean 2>/dev/null || true
 
 nxlink: all
 	nxlink $(BUILD)/$(TARGET).nro
