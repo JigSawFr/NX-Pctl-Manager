@@ -1,0 +1,46 @@
+# Form for the "Console reports" discussion category: the file name must match the
+# category's slug, so create the category under that name before this form shows up.
+title: "[Report] "
+labels: [needs-console-data]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The [roadmap](https://github.com/JigSawFr/PlayGuard/blob/main/ROADMAP.md#waiting-on-data-from-a-console)
+        lists the findings that unblock features. Most of them come from *Developer tools ›
+        Compare the play-timer block*, run before and after one change made from the
+        Nintendo phone app, on a console still linked to it.
+
+  - type: input
+    id: topic
+    attributes:
+      label: Which roadmap item
+      placeholder: Alarm only, or suspend the software
+    validations:
+      required: true
+
+  - type: textarea
+    id: change
+    attributes:
+      label: What you changed in the phone app
+      description: One change per comparison, with the setting before and after.
+    validations:
+      required: true
+
+  - type: textarea
+    id: comparison
+    attributes:
+      label: The comparison
+      description: |
+        The values PlayGuard lists as changed: attach the file it saves in
+        `sd:/switch/playguard/logs/`, or paste its content.
+    validations:
+      required: true
+
+  - type: input
+    id: versions
+    attributes:
+      label: Firmware, Atmosphère and PlayGuard versions
+      placeholder: 22.1.0 / 1.11.1 / 1.0.0
+    validations:
+      required: true

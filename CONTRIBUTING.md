@@ -1,6 +1,6 @@
 # Contributing to PlayGuard
 
-Thanks for helping! This file covers building, testing, the code layout, releases and translations. For what the app does, see the [README](README.md); for what to work on, the [roadmap](ROADMAP.md).
+Thanks for helping! This file covers building, testing, the code layout, releases and translations. For what the app does, see the [README](README.md); for what to work on, the [roadmap](ROADMAP.md). Everyone taking part follows the [code of conduct](CODE_OF_CONDUCT.md); for help rather than a change, see [SUPPORT.md](.github/SUPPORT.md).
 
 ## Build from source
 
@@ -77,7 +77,7 @@ CI runs all of the above plus the Switch build. The visual check compares the se
 | `branding/` | SVG sources of the icon and banners |
 | `docs/` | [`parental-controls.md`](docs/parental-controls.md): what is known of the parental-control service, the play-timer block and the clocks, and how sure each fact is; [`companion-app.md`](docs/companion-app.md): what PlayGuard covers of Nintendo's phone app, and the gaps still to close |
 
-**Branding:** `branding/*.svg` are rendered to `icon.jpg` and `images/store/*.png` by `node tools/render_branding.mjs` (Node + Playwright).
+**Branding:** `branding/*.svg` are rendered to `icon.jpg`, `images/store/*.png` and `images/social-preview.png` (the repository's social preview) by `node tools/render_branding.mjs` (Node + Playwright).
 
 ## Pull requests and releases
 

@@ -1,0 +1,58 @@
+name: Translation
+description: A wrong, clumsy or missing string in one of PlayGuard's languages.
+labels: [i18n]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A pull request is welcome too: the strings are in
+        `resources/i18n/<language>/playguard.json`, and CONTRIBUTING.md says how to check them.
+
+  - type: dropdown
+    id: language
+    attributes:
+      label: Language
+      options:
+        - Deutsch (de)
+        - English (en-US / en-GB)
+        - Español (España) (es)
+        - Español (Latinoamérica) (es-419)
+        - Français (France) (fr)
+        - Français (Canada) (fr-CA)
+        - Italiano (it)
+        - 日本語 (ja)
+        - 한국어 (ko)
+        - Nederlands (nl)
+        - Português (Portugal) (pt)
+        - Português (Brasil) (pt-BR)
+        - Русский (ru)
+        - 简体中文 (zh-Hans)
+        - 繁體中文 (zh-Hant)
+        - A language PlayGuard does not have yet
+    validations:
+      required: true
+
+  - type: input
+    id: where
+    attributes:
+      label: Where it appears
+      description: The tab and screen, or the JSON key if you know it.
+      placeholder: Play timer › Extra time today
+    validations:
+      required: true
+
+  - type: textarea
+    id: now
+    attributes:
+      label: What it says now
+      description: Copy the text, or attach a screenshot (capture button, then the Album).
+    validations:
+      required: true
+
+  - type: textarea
+    id: better
+    attributes:
+      label: What it should say
+      description: And why, if it is not obvious, such as the word the console itself uses.
+    validations:
+      required: true

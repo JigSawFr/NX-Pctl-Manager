@@ -1,0 +1,14 @@
+[
+  { "name": "bug",                "color": "d73a4a", "description": "PlayGuard does something it should not, or not something it should" },
+  { "name": "enhancement",        "color": "a2eeef", "description": "Something the phone app or the console can do that PlayGuard cannot yet" },
+  { "name": "locked-out",         "color": "b60205", "description": "A console someone cannot get back into: second-hand, forgotten PIN" },
+  { "name": "firmware",           "color": "fbca04", "description": "A firmware or Atmosphère version, supported or not yet" },
+  { "name": "needs-console-data", "color": "5319e7", "description": "Waits on a finding from a real console before any code (see ROADMAP.md)" },
+  { "name": "i18n",               "color": "1d76db", "description": "A translation, or a string that needs one" },
+  { "name": "documentation",      "color": "0075ca", "description": "README, docs/ or another Markdown file" },
+  { "name": "dependencies",       "color": "0366d6", "description": "A pinned action or the borealis submodule moves (Dependabot)" },
+  { "name": "good first issue",   "color": "7057ff", "description": "Small and self-contained: a good way into the code" },
+  { "name": "help wanted",        "color": "008672", "description": "Open to anyone who wants to take it: say so in the issue first" },
+  { "name": "duplicate",          "color": "cfd3d7", "description": "Already reported: the other issue is linked" },
+  { "name": "wontfix",            "color": "ffffff", "description": "Out of PlayGuard's scope, or not worth what it costs" }
+]
