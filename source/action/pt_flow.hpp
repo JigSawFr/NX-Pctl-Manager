@@ -115,8 +115,9 @@ Result write_bedtime(const PtBedtime bed[7], const std::string& source);
 // "21:00, allowed again at 06:00", "Off", or "Varies by day".
 std::string bedtime_text(const PtState& pt);
 
-// At start-up: the app stopped between an unlock made for a change and the
-// lock that follows it (config relock_pending) -> lock again now, with a toast.
+// At start-up, before the first screen (and again on the main screen): the
+// app stopped between an unlock made for a change and the lock that follows
+// it (config relock_pending) -> lock again now, with a toast.
 // The record stays until the console reads back as locked. Also called when
 // the app leaves read-only mode, which keeps the record.
 void relock_if_interrupted();

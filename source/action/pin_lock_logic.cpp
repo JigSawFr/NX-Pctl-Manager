@@ -30,4 +30,12 @@ Change change(const std::string& from, int to, bool has_pin)
     return Change::Allowed;
 }
 
+bool lock_again(const std::string& mode, Clock::time_point away_since, Clock::time_point now,
+                Clock::time_point pin_at)
+{
+    if (mode != "open") return false;
+    if (now - away_since < GRACE) return false;
+    return pin_at < away_since;
+}
+
 }   // namespace pin_lock_logic

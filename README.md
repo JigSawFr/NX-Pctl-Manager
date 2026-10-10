@@ -66,12 +66,12 @@ Driving the console's own controls also opens the door to much more: reporting p
 
 | | Supported | Notes |
 |---|---|---|
-| **Firmware** | **21.0.0 → 23.0.1** | The play-time limit layout (0x44 bytes) exists since 21.0.0; below that, every tab works except the play timer. |
+| **Firmware** | **21.0.0 → 22.5.0** | The play-time limit layout (0x44 bytes) exists since 21.0.0; below that, every tab works except the play timer. 23.x goes through the [newer firmware](#newer-firmware) screen until it is tested on a console. |
 | **Atmosphère** | **1.11.x → 1.12.0** | 1.12.0 adds 23.0.0 support. The app shows the detected version. |
 | **Launchers** | hbmenu, **sphaira**, **Homebrew App Store** | Launching over a game (title override) is recommended. The app says whether it runs as an application or as an applet (album). Over a game, the console counts PlayGuard's time as that game's. In the activity, it goes to the user picked at launch: open it with a parent's user, not a child's. The play timer is the console's, the same for every user: it counts that time whoever opened PlayGuard (unless the timer is off). |
-| **Tested on hardware** | 22.1.0 / Atmosphère 1.11.1 | 23.0.1 / 1.12.0 is covered by the command table ([switchbrew](https://switchbrew.org/wiki/Parental_Control_services)) but not yet tested on hardware — reports are welcome. |
+| **Tested on hardware** | 22.0.0, 22.1.0, 22.5.0 | 23.0.1 / 1.12.0: the command table ([switchbrew](https://switchbrew.org/wiki/Parental_Control_services)) has the same commands, but nothing was run on a console yet, so PlayGuard asks first (read-only until you choose) — reports are welcome. |
 
-**Newer firmware?** PlayGuard opens **read-only** and checks whether a newer release supports it. If one does, it offers to update through sphaira or the Homebrew App Store. Otherwise you choose: read-only, read-only with the developer tools (to investigate the firmware), or every feature at your own risk. The choice can be remembered for that firmware and app version; *Tools › Compatibility* brings the screen back.
+<a id="newer-firmware"></a>**Newer firmware?** Above the newest firmware tested on a console, PlayGuard opens **read-only** and checks whether a newer release supports it. If one does, it offers to update through sphaira or the Homebrew App Store. Otherwise you choose: read-only, read-only with the developer tools (to investigate the firmware), or every feature at your own risk. The choice can be remembered for that firmware and app version; *Tools › Compatibility* brings the screen back.
 
 ## Install
 
@@ -92,14 +92,14 @@ All in `sd:/switch/playguard/`:
 
 | Path | Content |
 |---|---|
-| `config.json` | Preferences (language, theme, NTP server, *Ask for the PIN* …); every key in [docs/config.md](docs/config.md) |
-| `history.json` | The change history (newest 200); one that cannot be read is kept as `history.json.bad` rather than overwritten |
+| `config.json` | Preferences (language, theme, NTP server, *Ask for the PIN* …); every key in [docs/config.md](docs/config.md). One that cannot be read is kept as `config.json.bad` (the previous one as `.bad.1`) and the settings start again from their defaults; PlayGuard says so once at start-up |
+| `history.json` | The change history (newest 200); one that cannot be read is kept as `history.json.bad` (the previous one as `.bad.1`) rather than overwritten, and PlayGuard says so once |
 | `profiles/` | Saved play-time limit profiles |
 | `backups/` | Settings backups (never contain the PIN) |
 | `exports/` | Activity exports |
 | `cache/` | The last play activity read (every account, and each account viewed), shown at once on the next start while the log is read again; the game icons (`icons/`, 16 MB at most, emptied when the console language changes), so names and icons are not read from each game again at every start; in developer mode, the list of *Install another build* (`dev_builds.json`) |
 | `github_token` | Developer mode only: the GitHub sign-in of *Install another build* (deleted by signing out) |
-| `rescue_report.txt` | Left by the recovery sysmodule after it acted, until PlayGuard shows it at start-up |
+| `rescue_report.txt` | Left by the recovery sysmodule after it acted, until PlayGuard shows it at start-up (one it cannot read is removed, and PlayGuard says so) |
 | `logs/` | Diagnostic reports (never contain the PIN or the serial number), the developer tools' files, `uploads.txt` (the links of the reports sent online) and `crash.txt` (what made PlayGuard stop, if it ever crashed) |
 
 More in [packaging/README.md](packaging/README.md).
@@ -124,7 +124,7 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 <summary><b>Overview</b> — today at a glance</summary>
 
 - **Today first:** a gauge of today's play time (while no game is running, the time from the activity log, marked ≈), today's limit, time left, bedtime alarm. The "time's up" alarm shows in amber while it is off — Ⓐ turns it back on.
-- **Then the state:** parental controls, PIN, restriction level.
+- **Then the state:** parental controls, PIN (*Set* or *Not set*, never its length), restriction level.
 - **Then what needs attention:** network-clock accuracy, companion-app link (amber while linked), firmware / compatibility only when there is a problem, serial blanking and game patches warnings.
 - Lines that open another tab end with a chevron (›). Ⓐ on *Today's limit* changes it in place; Ⓐ on *Network clock › Inaccurate* measures and sets the clock on the spot.
 - **Extra time today** (+15 min, +30 min, +1 h by default) and **No more play today** (limit 0 for today only; the game in progress is suspended at the lock, and the confirmation says so). The next day — at start-up, or at midnight if the app is open — PlayGuard offers to put the usual limit back, or does it by itself (*Preferences › Put the usual limit back the next day by itself*).
@@ -182,8 +182,8 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 <details>
 <summary><b>Security & app</b> — PIN, locks, companion app</summary>
 
-- **Set / change the PIN** (system PIN screen), **show the PIN** (after a warning and the PIN itself), **unlock temporarily**, **lock now**.
-- **Ask for the PIN** in PlayGuard itself: *Never*, *Before a change* (the default: anyone can look, only the parent changes something; asked again after 5 min) or *To open PlayGuard*. Checked in the service layer, so no change skips it; locking again never asks. *Show the PIN* asks for it even on *Never*, and a missing or damaged `config.json` counts as *Before a change*. Quitting while parental controls are still unlocked asks whether to lock them again.
+- **Set / change the PIN** (system PIN screen), **show the PIN** (after a warning and the PIN itself, asked every time; recorded in the history, then a new PIN is offered), **unlock temporarily**, **lock now**.
+- **Ask for the PIN** in PlayGuard itself: *Never*, *Before a change* (the default: anyone can look, only the parent changes something; asked again after 5 min) or *To open PlayGuard* (a lock screen at start, and again when PlayGuard comes back after 5 min or more out of focus). Checked in the service layer, so no change skips it; locking again never asks. *Show the PIN* asks for it every time, in every mode and even within the 5 minutes, and a missing or damaged `config.json` counts as *Before a change*. Quitting while parental controls are still unlocked asks whether to lock them again.
 - **Console lock:** one switch that sets every day's limit to 0, so a PIN is needed to start a game — a light lock without age ratings or communication limits. It blocks starting games, not the HOME menu, and needs a PIN. The previous limits come back when it is turned off. While it is on, *extra time* and *no more play today* are refused, and limits set another way (a profile, a backup, the history…) replace it.
 - **Companion app:** whether the Nintendo Switch Parental Controls app is linked, its last sync, and **unlink** (otherwise its next sync overwrites the limits set here).
 - **Delete all parental controls:** two confirmations, irreversible; a backup of the settings is saved first.
@@ -206,7 +206,7 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 
 - **Change history:** what PlayGuard changed (limits, restriction level, PIN, unlocks, unlinking, the clock, restores …), when and from where. Ⓐ on a change shows it and, for a value, **puts the previous one back** — through the same unlock and PIN as any change, saying if it changed since.
 - **Back up / restore the settings** on the SD card: restriction level, custom settings, VR mode, rating organisation, daily limits, the "time's up" alarm (with the advanced actions on), and the raw play-timer block for the record — never the PIN. A restore lists only what would change, and says when the backup had a bedtime alarm on (it is not written back). Choose how many backups to keep.
-- **First steps** opens the guide again (with an *Unlink the companion app* step while linked, a *Turn the "Time's up" alarm back on* step while it is off, and a switch to stop it coming up at start-up). Below *Close*, *Support PlayGuard* shows the funding QR codes.
+- **First steps** opens the guide again (with an *Unlink the companion app* step while linked, a *Turn the "Time's up" alarm back on* step while it is off, a *Protect PlayGuard* step once a PIN is set — the *Ask for the PIN* choice —, and a switch to stop it coming up at start-up). Below *Close*, *Support PlayGuard* shows the funding QR codes.
 - **Export a diagnostic report**, or **send one online** (see [Reporting a bug](#reporting-a-bug)).
 - **Console:** firmware, Atmosphère, compatibility, storage (emuMMC or sysMMC), whether Atmosphère **blanks the serial number** (partly hidden until Ⓐ; a warning on emuMMC when it is not), **game patches** (sys-patch or sigpatch files, recommending sys-patch when only files are used).
 - **About** (its own tab): version, launch mode and data folder; **updates** (check now or once a day at start-up; *Update with* sphaira, Homebrew App Store or by hand); **what's new** in the running version (its entry of the bundled changelog, in English); the credits, how to **support PlayGuard** ([GitHub Sponsors](https://github.com/sponsors/JigSawFr), [Ko-fi](https://ko-fi.com/jigsawfr), shown as QR codes to scan with a phone), and a small *Made in France* 🇫🇷. After an update, PlayGuard opens once on **What's new in X.Y.Z** (the same notes, then the QR codes).
@@ -230,7 +230,7 @@ PlayGuard only sees the parental controls of the system it runs on: **emuMMC and
 | Situation | What to do |
 |---|---|
 | **Second-hand console:** you know the PIN, but the previous owner's phone app is still linked (unlinking fails, or a factory reset asks for their account) | *Security & app › Unlink the companion app*, then, if you want no parental controls at all, *Delete all parental controls*. Both work offline, on emuMMC as on sysMMC. |
-| **PIN forgotten** | *Show the PIN* asks for the PIN itself, so it cannot help here. With the recovery sysmodule installed (below), drop a `RESCUE` file and restart: the recovery screen then shows the PIN or sets a new one. Without it, *Delete all parental controls* starts again (a settings backup is saved first; it never contains the PIN): with *Ask for the PIN* on (the default, *Before a change*), put the SD card in a computer and set `"pin_lock"` to `"off"` in `sd:/switch/playguard/config.json` first. |
+| **PIN forgotten** | *Show the PIN* asks for the PIN itself, so it cannot help here. With the recovery sysmodule installed (below), drop a `RESCUE` file and restart: the recovery screen then sets a new one (it never shows the old one). Without it, *Delete all parental controls* starts again (a settings backup is saved first; it never contains the PIN): with *Ask for the PIN* on (the default, *Before a change*), put the SD card in a computer and set `"pin_lock"` to `"off"` in `sd:/switch/playguard/config.json` first. |
 | **The play timer blocks everything (0-minute limit) and the PIN is forgotten** | PlayGuard itself cannot start then. Install the optional recovery sysmodule (`playguard-rescue.zip`) **beforehand**; when locked out, drop an empty `switch/playguard/RESCUE` file on the SD card and boot — it unlocks the console so PlayGuard can open. See [`sysmodule/README.md`](sysmodule/README.md). |
 | **Console not modded** | PlayGuard cannot help: it needs Atmosphère. Nintendo support's master-key procedure is the official way. |
 

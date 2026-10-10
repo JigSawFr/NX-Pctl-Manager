@@ -27,11 +27,6 @@ void RescueActivity::onContentAvailable()
     // the usual check stays.
     if (confirmed) core_set_change_check(nullptr);
 
-    show_pin->registerClickAction([this](brls::View*) {
-        if (!confirmed || ui::refuse_read_only()) return true;
-        brls::sync([]() { ui::show_pin_dialog(); });
-        return true;
-    });
     reset_pin->registerClickAction([this](brls::View*) {
         if (!confirmed || ui::refuse_read_only()) return true;
         Result rc = pctl_set_pin();   // the system PIN screen, which sets a new one
@@ -120,25 +115,20 @@ void RescueActivity::refresh()
     const bool writable = !app::read_only();
 
     // Short hints on the right, so a parent knows what each one does at a glance.
-    show_pin->setDetailText("playguard/rescue/hint/show_pin"_i18n);
     reset_pin->setDetailText("playguard/rescue/hint/reset_pin"_i18n);
     del->setDetailText("playguard/rescue/hint/delete"_i18n);
-    for (brls::DetailCell* c : { (brls::DetailCell*)show_pin.getView(),
-                                 (brls::DetailCell*)reset_pin.getView(), (brls::DetailCell*)del.getView() })
+    for (brls::DetailCell* c : { (brls::DetailCell*)reset_pin.getView(), (brls::DetailCell*)del.getView() })
         c->setDetailTextColor(ui::color_note());
 
     // After the sysmodule deleted everything, only "Open PlayGuard" is left.
-    // Otherwise: show the PIN and delete need one to exist; "Set a new PIN"
-    // is always offered (it sets one when there is none).
+    // Otherwise: delete needs a PIN to exist; "Set a new PIN" is always
+    // offered (it sets one when there is none).
     // Nothing at all unless the console confirmed the recovery.
     const bool actions = confirmed && !deleted;
     ui::set_visible_all({ { actions_header.getView(), actions },
-                          { show_pin.getView(), actions && has_pin },
                           { reset_pin.getView(), actions },
                           { del.getView(), actions && has_pin } });
-    for (brls::DetailCell* c : { (brls::DetailCell*)show_pin.getView(),
-                                 (brls::DetailCell*)reset_pin.getView() })
-        ui::show_writable(c, writable);
+    ui::show_writable(reset_pin, writable);
     ui::show_writable(del, writable, ui::color_bad(), ui::color_neutral());
 }
 

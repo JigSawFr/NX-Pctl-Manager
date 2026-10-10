@@ -3,11 +3,14 @@
 // opens at all.
 //
 //   off      never, except before "Show the PIN" (the PIN opens everything);
-//   changes  before the first change or "Show the PIN", then not again for
-//            5 minutes: anyone can look, only the parent can change (the
-//            default, also when config.json is missing, damaged or holds an
-//            unknown value);
-//   open     to open PlayGuard (a lock screen until it is entered).
+//   changes  before the first change, then not again for 5 minutes: anyone
+//            can look, only the parent can change (the default, also when
+//            config.json is missing, damaged or holds an unknown value);
+//   open     to open PlayGuard (a lock screen until it is entered), and again
+//            after 5 minutes or more out of focus.
+//
+// "Show the PIN" asks every time, whatever the mode (the reveal check,
+// write_guard.h).
 //
 // The check sits in the service layer (write_guard.h), so no change can skip
 // it; locking again never asks. Without a PIN on the console nothing is asked
@@ -22,17 +25,21 @@
 namespace pin_lock
 {
 
-// At start-up, once: installs the check in the service layer.
+// At start-up, once: installs the checks in the service layer.
 void install();
+
+// At start-up, once: runs `lock` (on the UI thread) when PlayGuard comes back
+// into focus and "open" wants the lock screen again (pin_lock_logic::lock_again).
+void watch_focus(std::function<void()> lock);
 
 // The setting is "open": start on the lock screen.
 bool at_start();
 
 // Asks for the PIN now. True when it was entered, or when no PIN is set.
 bool ask();
-// Before showing the PIN: in "changes" and "open" the change check asks (or
-// already did); in "off" this asks. True when it may be shown. On a refusal it
-// says why.
+// Before showing the PIN: asks for it now, in every mode, ignoring the grace
+// and the lock screen. True when it may be shown (the read right after does
+// not ask again). On a refusal it says why.
 bool before_show_pin();
 // What to tell the user after ask() said no: "the PIN was not entered", with
 // the result the PIN screen gave (its code tells a cancel from a refusal).

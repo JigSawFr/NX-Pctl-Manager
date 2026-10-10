@@ -15,8 +15,8 @@ namespace rescue
 {
 
 // The report left on the SD card, read and then removed (it is shown once).
-// None when there is no report or it is damaged. Reading it records a "rescue"
-// entry in the change history.
+// None when there is no report or it is damaged (data_notice then tells the
+// parent at start-up). Reading it records a "rescue" entry in the change history.
 std::optional<RescueReport> take();
 
 // Whether the console confirms `report` (rescue_report_confirmed, from a

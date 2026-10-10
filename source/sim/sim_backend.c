@@ -98,7 +98,7 @@ static void sim_init(void)
 {
     if (S.init) return;
     S.init = true;
-    S.hos = MAKEHOSVERSION(23, 0, 1);
+    S.hos = PCTL_FW_TESTED_MAX;   // the newest verified one: no firmware gate
     const char *fw = getenv("PLAYGUARD_SIM_FW");
     unsigned a, b, c;
     if (fw && sscanf(fw, "%u.%u.%u", &a, &b, &c) == 3) S.hos = MAKEHOSVERSION(a, b, c);
@@ -200,7 +200,8 @@ Result pctl_unlock_restriction_temporarily(void)
 Result pctl_get_pin(char *out, size_t out_size)
 {
     if (out && out_size) memset(out, 0, out_size);
-    RO_GUARD();
+    Result g = core_reveal_allowed();
+    if (R_FAILED(g)) return g;
     FAIL_IF("pin");
     if (!out || out_size < 5) return NXM_RC_INVALID_ARGUMENT;
     if (!S.pin_length) return NXM_RC_STATE_UNKNOWN;
@@ -265,6 +266,9 @@ void pctl_play_timer_query(PtState *o)
     o->session_valid = true;
     if (fails("timer")) {
         o->config_rc = SIM_FAIL_RC;
+    } else if (!pt_plausible(S.block)) {   // as pctl_ops.c (only pt_encode writes it here)
+        o->config_rc = NXM_RC_PT_NOT_UNDERSTOOD;
+        memcpy(o->block, S.block, sizeof(o->block));
     } else {
         o->valid = true;
         pt_decode(S.block, o->day_min);

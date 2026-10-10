@@ -3,7 +3,8 @@
 <!-- First steps: three steps with their state, each one done right here (the
      system PIN screen, the daily-limit picker, the guided clock measure), a
      fourth while the phone app is linked (unlink it), one more while the
-     "time's up" alarm is off (turn it back on), and whether the screen opens
+     "time's up" alarm is off (turn it back on), one once a PIN is set (Ask
+     for the PIN, Security's choice), and whether the screen opens
      by itself at start-up; below Close, Support PlayGuard (the funding QR
      codes).
      Shown at start-up while no PIN is set; Overview › First steps and
@@ -38,6 +39,7 @@
             <brls:DetailCell id="ob_clock" title="@i18n/playguard/onboarding/step_clock"/>
             <brls:DetailCell id="ob_unlink" title="@i18n/playguard/onboarding/step_unlink"/>
             <brls:DetailCell id="ob_alarm"/>
+            <brls:DetailCell id="ob_protect"/>
             <brls:Label id="ob_note" text="@i18n/playguard/onboarding/note" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
             <brls:BooleanCell id="ob_at_start" marginTop="16"/>
             <brls:DetailCell id="ob_close" title="@i18n/playguard/onboarding/close"/>
