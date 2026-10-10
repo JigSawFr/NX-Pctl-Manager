@@ -896,8 +896,8 @@
     "chart": {
         "last_days": "Les 7 derniers jours, aujourd'hui à droite",
         "limit_line": "La ligne sur une barre est la limite de ce jour",
-        "limit_over": "La ligne est la limite du jour · ! en ambre : limite dépassée",
+        "limit_over": "La ligne est la limite du jour · ! en orange : limite dépassée",
         "week_order": "Du lundi au dimanche, aujourd'hui souligné",
-        "unsaved": "* en ambre : modifié, pas encore enregistré"
+        "unsaved": "* en orange : modifié, pas encore enregistré"
     }
 }

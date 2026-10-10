@@ -896,8 +896,8 @@
     "chart": {
         "last_days": "Die letzten 7 Tage, heute rechts",
         "limit_line": "Die Linie über einem Balken ist das Limit dieses Tages",
-        "limit_over": "Die Linie ist das Limit des Tages · ! in Gelb: darüber gespielt",
+        "limit_over": "Die Linie ist das Limit des Tages · ! in Orange: darüber gespielt",
         "week_order": "Montag bis Sonntag, heute unterstrichen",
-        "unsaved": "* in Gelb: geändert, noch nicht gespeichert"
+        "unsaved": "* in Orange: geändert, noch nicht gespeichert"
     }
 }
