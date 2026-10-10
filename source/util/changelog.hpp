@@ -1,4 +1,4 @@
-// CHANGELOG.md (bundled in the romfs) as lines the About tab can show: the
+// changelog — CHANGELOG.md (bundled in the romfs) as lines the About tab can show: the
 // release headings, their sections and items, as plain text. Plain C++ so the
 // host tests can run it.
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).

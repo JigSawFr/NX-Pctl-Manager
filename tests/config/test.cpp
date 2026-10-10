@@ -217,6 +217,24 @@ static void test_preferences()
     write_config(R"({"extra_amounts": "15,30,60", "backup_keep": "all"})");
     config::load();
     CHECK(config::get().extra_amounts == std::vector<int>({ 15, 30, 60 }) && config::get().backup_keep == 0);
+    // One entry of the wrong type refuses the whole list, rather than being
+    // skipped: [10, 20.5, 20, 30] is not [10, 20, 30], and seven limits plus
+    // a "60" are not seven limits.
+    write_config(R"({"extra_amounts": [10, 20.5, 20, 30],
+                    "console_lock_prev": [60, 60, "60", 60, 60, 60, 60, 60]})");
+    config::load();
+    CHECK(config::get().extra_amounts == std::vector<int>({ 15, 30, 60 }));
+    CHECK(config::get().console_lock_prev.empty());
+    write_config(R"({"extra_amounts": [10, null, 20, 30]})");
+    config::load();
+    CHECK(config::get().extra_amounts == std::vector<int>({ 15, 30, 60 }));
+    // update_checked: a real "YYYY-MM-DD", not any 10 characters.
+    write_config(R"({"update_checked": "yesterday!"})");
+    config::load();
+    CHECK(config::get().update_checked.empty());
+    write_config(R"({"update_checked": "2026/10/07"})");
+    config::load();
+    CHECK(config::get().update_checked.empty());
 
     // 64-bit values are not narrowed into a valid one: 2^32 + 15 is not 15,
     // 2^32 is not 0 (a "locked" day), 2^64 - 1 is not -1.
