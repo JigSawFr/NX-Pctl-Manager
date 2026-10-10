@@ -235,6 +235,21 @@ for _ in range(60):
     time.sleep(0.5)
 else:
     fail("no window after 30 s")
+# The window exists before its first frame: wait until the screen is drawn
+# (not all black), else the first screenshot can catch an empty window on a
+# slow runner. Then a moment more for the first screen to settle.
+probe = os.path.join(OUT, "_first_frame.png")
+for _ in range(40):
+    subprocess.run(["import", "-window", "root", probe], env=env)
+    mean = subprocess.run(["convert", probe, "-format", "%[fx:mean]", "info:"], capture_output=True, text=True).stdout
+    if mean and float(mean) > 0.05:
+        break
+    if not alive():
+        fail("app exited during start-up")
+    time.sleep(0.5)
+else:
+    fail("the window stayed black for 20 s")
+os.remove(probe)
 time.sleep(2)
 
 tabs = ["dashboard", "play_timer", "activity", "restrictions", "clock", "security", "preferences", "tools", "about"]
