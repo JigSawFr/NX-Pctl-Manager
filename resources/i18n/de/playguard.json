@@ -96,7 +96,9 @@
         "relock_failed": "die Konsole wurde entsperrt, konnte aber nicht wieder gesperrt werden: Sperre sie jetzt (Sicherheit & App › Jetzt aktivieren)",
         "not_applied": "die Konsole hat die Änderung nicht übernommen, daher wurden die vorherigen Einstellungen wiederhergestellt",
         "not_saved": "PlayGuard konnte nicht auf der SD-Karte speichern, was später wiederhergestellt werden muss, daher wurde nichts geschrieben",
-        "next_step": "Wenn das erneut passiert, senden Sie einen Bericht: Tools › Bericht online senden."
+        "next_step": "Wenn das erneut passiert, senden Sie einen Bericht: Tools › Bericht online senden.",
+        "pctl_0132": "Code 2142-0132, auch von anderen beim Schreiben des Spielzeit-Timers gemeldet; seine Bedeutung ist noch unbekannt. Starten Sie die Konsole neu und versuchen Sie es dann erneut",
+        "clock_not_set": "die Konsole meldet, dass ihre Netzwerkuhr keine gültige Zeit hat (sie wurde vielleicht nie gestellt); siehe den Tab Netzwerkuhr"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -181,7 +183,7 @@
         "stop_done": "Heute wird nicht mehr gespielt.",
         "stop_restore_body": "Am {} wurde das Limit für {} nur für diesen Tag auf {} gesetzt. Wieder auf {} setzen?",
         "applet": "PlayGuard läuft als Applet (aus dem Album geöffnet) mit wenig Speicher: Ein Export oder eine lange Aktivitätsliste kann fehlschlagen. Für die vollständige App halten Sie beim Starten eines Spiels R gedrückt.",
-        "counted": "Über einem Spiel geöffnet, zählt PlayGuard als dieses Spiel: Die Konsole rechnet die Zeit dem Spielzeit-Timer und der Aktivität des beim Start gewählten Nutzers an (der Aktivität-Tab von PlayGuard lässt sie weg). Öffne PlayGuard mit dem Nutzer eines Elternteils oder für einen kurzen Blick über das Album."
+        "counted": "Über einem Spiel geöffnet, zählt PlayGuard als dieses Spiel: Die Konsole rechnet die Zeit dem Spielzeit-Timer und der Aktivität des beim Start gewählten Nutzers an. Öffne PlayGuard mit dem Nutzer eines Elternteils oder für einen kurzen Blick über das Album."
     },
     "onboarding": {
         "title": "Erste Schritte",
@@ -504,7 +506,8 @@
         "unlinked": "Smart-Geräte-App getrennt.",
         "unlink_err": "Smart-Geräte-App konnte nicht getrennt werden",
         "note": "Solange die Konsole verknüpft bleibt, überschreibt die Smart-Geräte-App die hier vorgenommenen Einstellungen bei ihrer nächsten Synchronisierung.",
-        "unlink_dev_note": "Entwicklertools: Spielzeit-Block vergleichen braucht eine noch verknüpfte Konsole. Speichern Sie zuerst die Referenz, wenn Sie eine Einstellung entschlüsseln möchten."
+        "decode": "Vor dem Trennen: zwei Einstellungen entschlüsseln",
+        "decode_note": "Vor dem Trennen kann diese Konsole helfen, „nur Alarm“ und den Gute-Nacht-Alarm pro Tag zu entschlüsseln (Sicherheit & App, 2 Min.): Nach dem Trennen geht das nicht mehr."
     },
     "security": {
         "section_status": "Status",
@@ -692,7 +695,9 @@
         "flag_read_only": "schreibgeschützt",
         "flag_dev": "Entwickler",
         "upload": "Bericht online senden",
-        "upload_note": "Sendet einen Bericht an bpa.st oder, wenn du bei GitHub angemeldet bist, in einen geheimen Gist und zeigt seinen Link mit einem QR-Code: Gib ihn der Person, die dir hilft, oder eröffne damit einen Fehlerbericht."
+        "upload_note": "Sendet einen Bericht an bpa.st oder, wenn du bei GitHub angemeldet bist, in einen geheimen Gist und zeigt seinen Link mit einem QR-Code: Gib ihn der Person, die dir hilft, oder eröffne damit einen Fehlerbericht.",
+        "storage_note_emummc": "Dies ist die emuMMC: Die sysMMC hat eigene Altersbeschränkungen, die PlayGuard von hier aus nicht sieht. Legen Sie sie dort ebenfalls fest oder blenden Sie das Startmenü von hekate aus.",
+        "storage_note_sysmmc": "Dies ist die sysMMC, und auf dieser SD-Karte ist eine emuMMC eingerichtet: Sie hat eigene Altersbeschränkungen, die PlayGuard von hier aus nicht sieht. Legen Sie sie dort ebenfalls fest oder blenden Sie das Startmenü von hekate aus."
     },
     "about": {
         "section_changelog": "Neu in {}",
@@ -907,8 +912,8 @@
     },
     "chart": {
         "last_days": "Die letzten 7 Tage, heute rechts",
-        "limit_line": "Die Linie über einem Balken ist das Limit dieses Tages",
-        "limit_over": "Die Linie ist das Limit des Tages · ! in Orange: darüber gespielt",
+        "limit_line": "Die Linie über einem Balken ist das Limit dieser Woche für diesen Tag",
+        "limit_over": "Die Linie ist das Limit dieser Woche für den Tag · ! in Orange: darüber gespielt",
         "week_order": "Montag bis Sonntag, heute unterstrichen",
         "unsaved": "* in Orange: geändert, noch nicht gespeichert"
     }

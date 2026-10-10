@@ -5,10 +5,10 @@
 #include "action/console_lock.hpp"
 #include "action/history_flow.hpp"
 #include "action/pin_lock.hpp"
+#include "action/pt_block_flow.hpp"
 #include "action/rescue.hpp"
 #include "app.hpp"
 #include "ui/ui.hpp"
-#include "util/config.hpp"
 
 using namespace brls::literals;
 
@@ -45,11 +45,17 @@ SecurityTab::SecurityTab()
         pin_lock::choose([this]() { this->refresh(); });
         return true;
     });
+    // While linked, anyone can save the block before and after a change made
+    // in the phone app: the data ROADMAP.md waits for (Developer tools has it too).
+    pr_decode->setDetailText(ui::fmt_played(2));   // how long it takes
+    pr_decode->registerClickAction([](brls::View*) {
+        pt_block_flow::open();
+        return true;
+    });
     pr_unlink->registerClickAction([this](brls::View*) {
         if (ui::refuse_read_only()) return true;
-        // Developer tools: the block comparison needs the link, so say it goes.
-        std::string body = "playguard/pairing/unlink_body"_i18n;
-        if (config::get().dev_mode) body += "\n\n" + "playguard/pairing/unlink_dev_note"_i18n;
+        // The block comparison needs the link: last chance to help decode the settings.
+        const std::string body = "playguard/pairing/unlink_body"_i18n + "\n\n" + "playguard/pairing/decode_note"_i18n;
         ui::confirm_danger(body, "playguard/pairing/unlink_confirm"_i18n, [this]() {
             Result rc = pctl_delete_pairing();
             if (R_SUCCEEDED(rc)) history_flow::record_event("unlink");
@@ -156,7 +162,8 @@ void SecurityTab::refresh()
                           { unlock.getView(), has_pin && !unlocked },
                           { relock.getView(), unlocked },
                           // Nothing to unlink when the read says not linked.
-                          { pr_unlink.getView(), !s.pairing_active_ok || paired } });
+                          { pr_unlink.getView(), !s.pairing_active_ok || paired },
+                          { pr_decode.getView(), paired } });
     for (brls::DetailCell* c : { (brls::DetailCell*)set_pin.getView(), (brls::DetailCell*)show_pin.getView(),
                                  (brls::DetailCell*)unlock.getView(), (brls::DetailCell*)relock.getView(),
                                  (brls::DetailCell*)console_lock_cell.getView(), (brls::DetailCell*)pr_unlink.getView() })

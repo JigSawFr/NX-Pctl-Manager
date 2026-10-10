@@ -58,6 +58,19 @@ std::string storage_short(const SysInfo& info)
     }
 }
 
+std::string other_storage_note(const SysInfo& info)
+{
+    switch (sysinfo_storage(&info)) {
+        case SysStorage_EmuMMC: return "playguard/tools/storage_note_emummc"_i18n;
+        case SysStorage_SysMMC: {
+            // Read once: emummc.ini only changes with the SD card out.
+            static const bool emummc = patches::emummc_configured(paths::sd_root());
+            return emummc ? "playguard/tools/storage_note_sysmmc"_i18n : "";
+        }
+        default: return "";
+    }
+}
+
 bool serial_warning(const SysInfo& info)
 {
     return sysinfo_storage(&info) == SysStorage_EmuMMC && info.blank_valid && !info.blank;

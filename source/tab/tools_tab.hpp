@@ -33,6 +33,7 @@ class ToolsTab : public TabBase
     BRLS_BIND(brls::DetailCell,  ams,         "tl_ams");
     BRLS_BIND(brls::DetailCell,  compat,      "tl_compat");
     BRLS_BIND(brls::DetailCell,  storage,     "tl_storage");
+    BRLS_BIND(brls::Label,       storage_note, "tl_storage_note");
     BRLS_BIND(brls::DetailCell,  blank,       "tl_blank");
     BRLS_BIND(brls::DetailCell,  serial,      "tl_serial");
     BRLS_BIND(brls::Label,       serial_note, "tl_serial_note");

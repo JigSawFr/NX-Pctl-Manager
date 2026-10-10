@@ -96,7 +96,9 @@
         "relock_failed": "la console a été déverrouillée mais n'a pas pu être reverrouillée : verrouillez-la maintenant (Sécurité et appli › Verrouiller maintenant)",
         "not_applied": "la console n'a pas pris en compte la modification : les réglages précédents ont été remis",
         "not_saved": "PlayGuard n'a pas pu enregistrer sur la carte SD ce qu'il devra remettre plus tard, rien n'a été écrit",
-        "next_step": "Si cela se reproduit, envoyez un rapport : Outils › Envoyer un rapport en ligne."
+        "next_step": "Si cela se reproduit, envoyez un rapport : Outils › Envoyer un rapport en ligne.",
+        "pctl_0132": "code 2142-0132, également signalé par d'autres lors de l'écriture du minuteur ; sa signification n'est pas encore connue. Redémarrez la console, puis réessayez",
+        "clock_not_set": "la console indique que son horloge réseau n'a pas d'heure valide (elle n'a peut-être jamais été réglée) ; voir l'onglet Horloge réseau"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -181,7 +183,7 @@
         "stop_done": "Jeu arrêté pour aujourd'hui.",
         "stop_restore_body": "Le {}, la limite du {} a été mise à {} pour la journée seulement. La remettre à {} ?",
         "applet": "PlayGuard tourne en mode applet (ouvert depuis l'album), avec peu de mémoire : un export ou une longue liste d'activité peut échouer. Pour l'application complète, ouvrez-la en maintenant R au lancement d'un jeu.",
-        "counted": "Ouvert par-dessus un jeu, PlayGuard compte comme ce jeu : la console ajoute ce temps au minuteur et à l'activité du compte choisi au lancement (l'onglet Activité de PlayGuard le retire). Ouvrez-le avec le compte d'un parent, ou depuis l'Album pour un simple coup d'œil."
+        "counted": "Ouvert par-dessus un jeu, PlayGuard compte comme ce jeu : la console ajoute ce temps au minuteur et à l'activité du compte choisi au lancement. Ouvrez-le avec le compte d'un parent, ou depuis l'Album pour un simple coup d'œil."
     },
     "onboarding": {
         "title": "Premiers pas",
@@ -504,7 +506,8 @@
         "unlinked": "Application mobile dissociée.",
         "unlink_err": "Impossible de dissocier l'application mobile",
         "note": "Tant que la console reste associée, l'application mobile écrase les réglages faits ici à sa prochaine synchronisation.",
-        "unlink_dev_note": "Outils développeur : Comparer le bloc du temps de jeu demande une console encore associée. Enregistrez d'abord la référence pour décoder un réglage."
+        "decode": "Avant de dissocier : aidez à décoder deux réglages",
+        "decode_note": "Avant de dissocier, cette console peut aider à décoder « alarme seule » et le coucher par jour (Sécurité et appli, 2 min) : une fois dissociée, elle ne le peut plus."
     },
     "security": {
         "section_status": "État",
@@ -692,7 +695,9 @@
         "flag_read_only": "lecture seule",
         "flag_dev": "développeur",
         "upload": "Envoyer un rapport en ligne",
-        "upload_note": "Envoie un rapport sur bpa.st, ou dans un gist secret si vous êtes connecté à GitHub, et affiche son lien avec un QR code : donnez-le à la personne qui vous aide, ou ouvrez un signalement de bug avec."
+        "upload_note": "Envoie un rapport sur bpa.st, ou dans un gist secret si vous êtes connecté à GitHub, et affiche son lien avec un QR code : donnez-le à la personne qui vous aide, ou ouvrez un signalement de bug avec.",
+        "storage_note_emummc": "Vous êtes sur l'emuMMC : la sysMMC a son propre contrôle parental, que PlayGuard ne peut pas voir d'ici. Réglez-le là aussi, ou masquez le menu de démarrage d'hekate.",
+        "storage_note_sysmmc": "Vous êtes sur la sysMMC, et une emuMMC est configurée sur cette carte SD : elle a son propre contrôle parental, que PlayGuard ne peut pas voir d'ici. Réglez-le là aussi, ou masquez le menu de démarrage d'hekate."
     },
     "about": {
         "section_changelog": "Nouveautés de la {}",
@@ -907,8 +912,8 @@
     },
     "chart": {
         "last_days": "Les 7 derniers jours, aujourd'hui à droite",
-        "limit_line": "La ligne sur une barre est la limite de ce jour",
-        "limit_over": "La ligne est la limite du jour · ! en orange : limite dépassée",
+        "limit_line": "La ligne sur une barre est la limite de cette semaine pour ce jour",
+        "limit_over": "La ligne est la limite de cette semaine pour ce jour · ! en orange : limite dépassée",
         "week_order": "Du lundi au dimanche, aujourd'hui souligné",
         "unsaved": "* en orange : modifié, pas encore enregistré"
     }

@@ -118,6 +118,17 @@ Report detect(const std::string& root, const std::string& fw, bool emummc)
     return r;
 }
 
+bool emummc_configured(const std::string& root)
+{
+    std::string text;
+    if (!paths::read_file(join(root, "emummc/emummc.ini"), text)) return false;
+    const Ini ini = parse_ini(text);
+    auto section = ini.find("emummc");
+    if (section == ini.end()) return false;
+    auto enabled = section->second.find("enabled");
+    return enabled != section->second.end() && !enabled->second.empty() && enabled->second != "0";
+}
+
 bool patched(Module m)
 {
     return m == Module::SysPatch || m == Module::File;

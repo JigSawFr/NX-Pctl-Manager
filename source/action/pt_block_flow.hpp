@@ -1,5 +1,6 @@
-// pt_block_flow — Tools › Developer › "Compare the play-timer block": the
-// first time, saves the raw play-timer block as a reference (util/pt_block);
+// pt_block_flow — Tools › Developer › "Compare the play-timer block", also
+// Security & app › "Before unlinking: help decode…" while the phone app is
+// linked. The first time, saves the raw play-timer block as a reference (util/pt_block);
 // after that, lists the values that changed since, with buttons to save the
 // comparison with the diagnostics or to take the current block as the new
 // reference. Only reads the console and writes to the SD card.

@@ -96,7 +96,9 @@
         "relock_failed": "la consola se desbloqueó pero no se pudo volver a bloquear: bloquéala ahora (Seguridad y app › Bloquear ahora)",
         "not_applied": "la consola no aceptó el cambio, así que se restableció la configuración anterior",
         "not_saved": "PlayGuard no pudo guardar en la tarjeta SD lo que tendrá que restablecer más tarde, así que no se escribió nada",
-        "next_step": "Si vuelve a ocurrir, envíe un informe: Herramientas › Enviar un informe en línea."
+        "next_step": "Si vuelve a ocurrir, envíe un informe: Herramientas › Enviar un informe en línea.",
+        "pctl_0132": "código 2142-0132, también reportado por otros al escribir el temporizador de juego; aún no se sabe qué significa. Reinicie la consola e inténtelo de nuevo",
+        "clock_not_set": "la consola indica que su reloj de red no tiene una hora válida (es posible que nunca se haya ajustado); consulte la pestaña Reloj de red"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -181,7 +183,7 @@
         "stop_done": "No se juega más hoy.",
         "stop_restore_body": "El {}, el límite del {} se fijó en {} solo para ese día. ¿Volver a dejarlo en {}?",
         "applet": "PlayGuard se está ejecutando como applet (abierto desde el Álbum), con poca memoria: una exportación o una lista larga en Actividad puede fallar. Para usar la aplicación completa, ábrala manteniendo presionado R al iniciar un juego.",
-        "counted": "Abierto sobre un juego, PlayGuard cuenta como ese juego: la consola suma su tiempo al temporizador y a la actividad del usuario elegido al iniciar (la pestaña Actividad de PlayGuard lo descuenta). Ábrelo con el usuario de un adulto, o desde el Álbum para un vistazo rápido."
+        "counted": "Abierto sobre un juego, PlayGuard cuenta como ese juego: la consola suma su tiempo al temporizador y a la actividad del usuario elegido al iniciar. Ábrelo con el usuario de un adulto, o desde el Álbum para un vistazo rápido."
     },
     "onboarding": {
         "title": "Primeros pasos",
@@ -504,7 +506,8 @@
         "unlinked": "App para celular desvinculada.",
         "unlink_err": "No se pudo desvincular la app para celular",
         "note": "Mientras la consola siga vinculada, la app para celular sobrescribirá la configuración hecha aquí en su próxima sincronización.",
-        "unlink_dev_note": "Herramientas de desarrollo: Comparar bloque del temporizador necesita una consola aún vinculada. Guarda antes la referencia si quieres descifrar un ajuste."
+        "decode": "Antes de desvincular: ayude a descifrar dos ajustes",
+        "decode_note": "Antes de desvincularla, esta consola puede ayudar a descifrar “solo alarma” y la hora de dormir por día (Seguridad y app, 2 min): una vez desvinculada, ya no podrá."
     },
     "security": {
         "section_status": "Estado",
@@ -692,7 +695,9 @@
         "flag_read_only": "solo lectura",
         "flag_dev": "desarrollador",
         "upload": "Enviar un informe en línea",
-        "upload_note": "Envía un informe a bpa.st, o a un gist secreto si iniciaste sesión en GitHub, y muestra su enlace con un código QR: dáselo a quien te ayude o abre con él un reporte de error."
+        "upload_note": "Envía un informe a bpa.st, o a un gist secreto si iniciaste sesión en GitHub, y muestra su enlace con un código QR: dáselo a quien te ayude o abre con él un reporte de error.",
+        "storage_note_emummc": "Está en la emuMMC: la sysMMC tiene su propio control parental, que PlayGuard no puede ver desde aquí. Configúrelo también allí u oculte el menú de arranque de hekate.",
+        "storage_note_sysmmc": "Está en la sysMMC y hay una emuMMC configurada en esta tarjeta SD: tiene su propio control parental, que PlayGuard no puede ver desde aquí. Configúrelo también allí u oculte el menú de arranque de hekate."
     },
     "about": {
         "section_changelog": "Novedades de la {}",
@@ -907,8 +912,8 @@
     },
     "chart": {
         "last_days": "Los últimos 7 días, hoy a la derecha",
-        "limit_line": "La línea sobre una barra es el límite de ese día",
-        "limit_over": "La línea es el límite del día · ! en ámbar: se jugó más",
+        "limit_line": "La línea sobre una barra es el límite de esta semana para ese día",
+        "limit_over": "La línea es el límite de esta semana para ese día · ! en ámbar: se jugó más",
         "week_order": "De lunes a domingo, hoy subrayado",
         "unsaved": "* en ámbar: cambiado, aún sin guardar"
     }

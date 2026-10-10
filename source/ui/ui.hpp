@@ -132,6 +132,9 @@ std::string level_name(uint32_t level);                    // localised restrict
 // Console section (Tools) and Overview warnings.
 std::string storage_text(const SysInfo& info);             // "emuMMC (Atmosphère)"
 std::string storage_short(const SysInfo& info);            // "emuMMC" / "sysMMC" / "—"
+// The other system (sysMMC from emuMMC, or an emuMMC set up on the card from
+// sysMMC) has its own parental controls, out of PlayGuard's sight; "" if none.
+std::string other_storage_note(const SysInfo& info);
 // The serial-number warning only applies on emuMMC: on sysMMC the real serial
 // is normal (online play), blanking it would cut Nintendo's services.
 bool        serial_warning(const SysInfo& info);

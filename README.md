@@ -69,9 +69,16 @@ Driving the console's own controls also opens the door to much more: reporting p
 | **Firmware** | **21.0.0 → 23.0.1** | The play-time limit layout (0x44 bytes) exists since 21.0.0; below that, every tab works except the play timer. |
 | **Atmosphère** | **1.11.x → 1.12.0** | 1.12.0 adds 23.0.0 support. The app shows the detected version. |
 | **Launchers** | hbmenu, **sphaira**, **Homebrew App Store** | Launching over a game (title override) is recommended. The app says whether it runs as an application or as an applet (album). Over a game, the console counts PlayGuard's time as that game's. In the activity, it goes to the user picked at launch: open it with a parent's user, not a child's. The play timer is the console's, the same for every user: it counts that time whoever opened PlayGuard (unless the timer is off). |
-| **Tested on hardware** | 22.1.0 / Atmosphère 1.11.1 | 23.0.1 / 1.12.0 is covered by the command table ([switchbrew](https://switchbrew.org/wiki/Parental_Control_services)) but not yet tested on hardware — reports are welcome. |
+| **Tested on hardware** | 22.0.0, 22.1.0 and 22.5.0 / Atmosphère 1.11.x | Each finding in [docs/parental-controls.md](docs/parental-controls.md) says which firmware it was seen on. 23.0.1 / 1.12.0 is covered by the command table ([switchbrew](https://switchbrew.org/wiki/Parental_Control_services)) but not yet tested on hardware — reports are welcome. |
+| **Nintendo Switch 2** | Not supported | There is no Atmosphère for it. |
 
 **Newer firmware?** PlayGuard opens **read-only** and checks whether a newer release supports it. If one does, it offers to update through sphaira or the Homebrew App Store. Otherwise you choose: read-only, read-only with the developer tools (to investigate the firmware), or every feature at your own risk. The choice can be remembered for that firmware and app version; *Tools › Compatibility* brings the screen back.
+
+**emuMMC and sysMMC.** Each has its own parental controls, and PlayGuard only sees those of the system it runs on. On emuMMC, *Tools* and *First steps* say so; on sysMMC too, when an emuMMC is set up on the SD card. Set the controls on both, or hide the hekate boot menu so that a child cannot pick the other system.
+
+**Can it get the console banned?** PlayGuard never contacts Nintendo: online, it only reaches public time servers, GitHub (updates) and bpa.st (reports). What gets consoles banned is custom firmware or an emuMMC going online to Nintendo ([switchbrew FAQ](https://switchbrewdocs.readthedocs.io/en/latest/faq.html)). No ban tied to parental-control or clock changes is documented; that is not a guarantee.
+
+**Phone notifications.** Since 22.0.0, a console still linked to the phone app may notify the parent when the PIN is entered on the console ([switchbrew](https://switchbrew.org/wiki/22.0.0)). Whether PlayGuard's own unlocks trigger it is unknown.
 
 ## Install
 
@@ -151,7 +158,7 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 <summary><b>Activity</b> — who played what, and how long</summary>
 
 - Time per game **today**, in the **last 7 days** and **in all**, from the console's own activity log — for every account or **one user account** (*Account*, when the console has several).
-- A chart of the last seven days (today on the right, a legend under it), with each day's limit as a line and the time over it in amber, marked !; today's, the week's and all-time totals.
+- A chart of the last seven days (today on the right, a legend under it), with this week's limit for each day as a line and the time over it in amber, marked !; today's, the week's and all-time totals.
 - A **summary** over the chosen period, for the account shown: average per day, the most played game, the days played and the busiest one (last 7 days), the average session (all time).
 - **To rediscover**: installed games under 3 h in all and not played for a month or more, the least played first (up to three).
 - Sort by period; the first games show their icon (not in applet mode, to spare memory). A large library lists its first 50 games, then *Show every game*; the export always holds them all.
@@ -185,7 +192,7 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 - **Set / change the PIN** (system PIN screen), **show the PIN** (after a warning and the PIN itself), **unlock temporarily**, **lock now**.
 - **Ask for the PIN** in PlayGuard itself: *Never*, *Before a change* (the default: anyone can look, only the parent changes something; asked again after 5 min) or *To open PlayGuard*. Checked in the service layer, so no change skips it; locking again never asks. *Show the PIN* asks for it even on *Never*, and a missing or damaged `config.json` counts as *Before a change*. Quitting while parental controls are still unlocked asks whether to lock them again.
 - **Console lock:** one switch that sets every day's limit to 0, so a PIN is needed to start a game — a light lock without age ratings or communication limits. It blocks starting games, not the HOME menu, and needs a PIN. The previous limits come back when it is turned off. While it is on, *extra time* and *no more play today* are refused, and limits set another way (a profile, a backup, the history…) replace it.
-- **Companion app:** whether the Nintendo Switch Parental Controls app is linked, its last sync, and **unlink** (otherwise its next sync overwrites the limits set here).
+- **Companion app:** whether the Nintendo Switch Parental Controls app is linked, its last sync, and **unlink** (otherwise its next sync overwrites the limits set here). While it is linked, *Before unlinking: help decode…* opens the block comparison (see [Contributing](#contributing)).
 - **Delete all parental controls:** two confirmations, irreversible; a backup of the settings is saved first.
 </details>
 
@@ -208,7 +215,7 @@ The app is organised in tabs, like System Settings. Click a tab to expand it.
 - **Back up / restore the settings** on the SD card: restriction level, custom settings, VR mode, rating organisation, daily limits, the "time's up" alarm (with the advanced actions on), and the raw play-timer block for the record — never the PIN. A restore lists only what would change, and says when the backup had a bedtime alarm on (it is not written back). Choose how many backups to keep.
 - **First steps** opens the guide again (with an *Unlink the companion app* step while linked, a *Turn the "Time's up" alarm back on* step while it is off, and a switch to stop it coming up at start-up). Below *Close*, *Support PlayGuard* shows the funding QR codes.
 - **Export a diagnostic report**, or **send one online** (see [Reporting a bug](#reporting-a-bug)).
-- **Console:** firmware, Atmosphère, compatibility, storage (emuMMC or sysMMC), whether Atmosphère **blanks the serial number** (partly hidden until Ⓐ; a warning on emuMMC when it is not), **game patches** (sys-patch or sigpatch files, recommending sys-patch when only files are used).
+- **Console:** firmware, Atmosphère, compatibility, storage (emuMMC or sysMMC, and a note when the other system has its own parental controls), whether Atmosphère **blanks the serial number** (partly hidden until Ⓐ; a warning on emuMMC when it is not), **game patches** (sys-patch or sigpatch files, recommending sys-patch when only files are used).
 - **About** (its own tab): version, launch mode and data folder; **updates** (check now or once a day at start-up; *Update with* sphaira, Homebrew App Store or by hand); **what's new** in the running version (its entry of the bundled changelog, in English); the credits, how to **support PlayGuard** ([GitHub Sponsors](https://github.com/sponsors/JigSawFr), [Ko-fi](https://ko-fi.com/jigsawfr), shown as QR codes to scan with a phone), and a small *Made in France* 🇫🇷. After an update, PlayGuard opens once on **What's new in X.Y.Z** (the same notes, then the QR codes).
 </details>
 
@@ -263,13 +270,15 @@ Press *About › Version* seven times; the developer tools appear at the end of 
 - a **read-only** switch — with it on, the app cannot change anything: the safe way to investigate a new firmware (the firmware screen offers it directly);
 - the diagnostic report on screen (Ⓨ saves it, Ⓧ sends it online), and a shortcut to export it from the Play timer tab;
 - **Install another build** in place, to test a fix before it is released: the latest release, one of the last 20 commits of `main`, or the newest build of an open pull request from a branch of this repository (never from a fork: its code has not been reviewed yet). The release needs nothing; the others are the build workflow's artifacts, which GitHub hands to signed-in users only: **GitHub account** signs in with a code and a QR code to scan with a phone (the only permissions asked are to read the build workflow's files (Actions) and to create gists, for *Send a report online*; otherwise the token can only read what is public; it is kept in `github_token`, never sent with a report, and *GitHub account* signs out). PlayGuard downloads the build, checks it (size, the SHA-256 GitHub records, the NRO header), puts it in place of its own `.nro` and restarts on it (the PIN is asked first whenever one is set). The list is kept for 10 minutes and shown at once (its last line, *Refresh the list*, fetches it again). The same list goes back to the release at any time; *About › Version* shows the commit in developer mode. Artifacts expire after 90 days;
-- **Compare the play-timer block**, to decode settings PlayGuard does not show yet: save the raw block as a reference, change one setting in the phone app, come back — PlayGuard lists the values that changed (saved in `logs/` on request). "Alarm only" vs "suspend the software" could be found this way, and the bedtime fields confirmed. Attach that file to an issue, or send it with the report (*Send a report online*).
+- **Compare the play-timer block** (also in *Security & app* while the phone app is linked), to decode settings PlayGuard does not show yet: save the raw block as a reference, change one setting in the phone app, come back — PlayGuard lists the values that changed (saved in `logs/` on request). "Alarm only" vs "suspend the software" could be found this way, and the bedtime fields confirmed. Attach that file to an issue, or send it with the report (*Send a report online*).
 - **Record the play timer**: every 30 s while PlayGuard is open, one line of what the play timer reports (time left, time spent, the raw settings block…) in `logs/play_timer_log.csv`, a spreadsheet-ready file, plus a line right after each change PlayGuard makes, saying which (its last column, `event`), and a note when the clock moved more than the time that went by. Left open over midnight, or until the time is up, it shows what one report cannot: when the time spent resets, what the console says near the end. The switch is remembered; it only records in developer mode. What is known so far is in [docs/parental-controls.md](docs/parental-controls.md).
 </details>
 
 ## Contributing
 
 Build instructions, the desktop simulator, the code layout, the release process and how to translate PlayGuard are in **[CONTRIBUTING.md](CONTRIBUTING.md)**. What comes next, and the ideas waiting for a decision: **[ROADMAP.md](ROADMAP.md)**.
+
+**No code needed, two minutes:** if your console is still linked to the phone app, *Security & app › Before unlinking: help decode…* saves the play-timer block, you change one setting in the phone app ("alarm only", or a bedtime for one day), and PlayGuard lists what changed. Attach that file to an issue: it is the data the [roadmap](ROADMAP.md#waiting-on-data-from-a-console) waits for most.
 
 Quick taste:
 
@@ -292,6 +301,6 @@ GPLv3 — see [`LICENSE`](LICENSE). Maintained by **[JigSawFr](https://github.co
 - Command reference: [switchbrew — Parental Control services](https://switchbrew.org/wiki/Parental_Control_services).
 
 > [!NOTE]
-> **How PlayGuard is built.** AI coding assistants were used alongside development: writing and reviewing code, translations and documentation. PlayGuard's changes are driven, reviewed and validated by a professional developer, covered by the C unit tests and the desktop simulator, and tested on a real console (22.1.0 / Atmosphère 1.11.1) before release.
+> **How PlayGuard is built.** AI coding assistants were used alongside development: writing and reviewing code, translations and documentation. PlayGuard's changes are driven, reviewed and validated by a professional developer, covered by the C unit tests and the desktop simulator, and tested on a real console (22.0.0, 22.1.0 and 22.5.0 / Atmosphère 1.11.x) before release.
 
 PlayGuard is not affiliated with or endorsed by Nintendo. Nintendo Switch is a trademark of Nintendo.

@@ -1,5 +1,6 @@
 // Host tests for source/util/patches.cpp: sys-patch log parsing, stale logs,
-// sigpatch file detection and the overall verdict, on fake SD card trees.
+// sigpatch file detection, the overall verdict and an emuMMC set up on the
+// card, on fake SD card trees.
 #include "check.h"
 #include <cstdio>
 #include <cstdlib>
@@ -152,6 +153,18 @@ int main()
         CHECK(issue(r) == Issue::NotPatched);
         CHECK((unpatched(r) == std::vector<std::string>{ "es" }));
         CHECK(r.es == Module::Failed);
+    }
+
+    // An emuMMC set up on the card: only [emummc] enabled other than 0 counts.
+    {
+        std::string root = fresh_root();
+        CHECK(!emummc_configured(root));
+        put(root, "emummc/emummc.ini", "[emummc]\nenabled=0\nsector=0x0\npath=emuMMC/SD00\n");
+        CHECK(!emummc_configured(root));
+        put(root, "emummc/emummc.ini", "[other]\nenabled=1\n");
+        CHECK(!emummc_configured(root));
+        put(root, "emummc/emummc.ini", "[emummc]\r\nenabled = 1\r\nsector=0x0\r\npath=emuMMC/SD00\r\n");
+        CHECK(emummc_configured(root));
     }
 
     std::string cmd = "rm -rf '" + g_base + "'";

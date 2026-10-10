@@ -20,12 +20,12 @@ How the settings are stored on the console is in
 
 | Companion app | PlayGuard | Notes |
 |---|---|---|
-| Daily play-time limit, the same every day or one per day | *Play time* | Plus saved profiles, and the week chart as the editor |
+| Daily play-time limit, the same every day or one per day | *Play timer* | Plus saved profiles, and the week chart as the editor |
 | "Extend today's play time" (+5 min … +1 h, added in 2.4.0 for +1 h); undo today's changes | *Extra time today*, *No more play today*; the usual limit comes back the next day | Amounts in *Preferences*, including +5/+10/+15 |
-| Bedtime alarm and the time play is allowed again (2.1.0) | *Play time › Bedtime alarm* | Partly: one time for every day (see gap 2) |
+| Bedtime alarm and the time play is allowed again (2.1.0) | *Play timer › Bedtime alarm* | Partly: one time for every day (see gap 2) |
 | Restriction level, age rating, rating organisation, posting to social media, communicating with other players, VR mode (1.10.0) | *Restrictions* | |
 | Play history per game | *Activity* | Plus per user account, all-time totals and export (CSV, JSON, XLSX, PDF) |
-| Parental-controls PIN | *Security & app* | Plus showing a forgotten PIN, and a PIN to open PlayGuard itself |
+| Parental-controls PIN | *Security & app* | Plus a PIN to open PlayGuard itself; for a forgotten PIN, the recovery sysmodule (*Show the PIN* needs the PIN) |
 | Linking the app to a console | *Security & app › Unlink the companion app* | PlayGuard can only unlink, which is what a console kept offline needs |
 
 ## Missing
@@ -43,7 +43,8 @@ itself.
   `00..03`, but which byte and which value is **unknown**
   (see [the header hypothesis](parental-controls.md#hypothesis-the-header-is-the-modes-plus-a-daily-rule)).
 - **Needs:** a console still linked to the companion app. Save the play-timer
-  block as a reference (*Developer tools › Compare the play-timer block*),
+  block as a reference (*Security & app › Before unlinking: help decode…*
+  while linked, or *Developer tools › Compare the play-timer block*),
   switch the mode in the app, let it sync, compare. Attach the result to an
   issue.
 

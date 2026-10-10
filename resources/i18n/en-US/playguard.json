@@ -86,7 +86,7 @@
         "unlock_not_effective": "the system did not confirm the temporary unlock; use the parental-control icon in the HOME menu, then try again",
         "not_custom": "choose the \"Custom\" restriction level first",
         "invalid_argument": "invalid value",
-        "autocorrect_off": "turn on \"Synchronise Clock via Internet\" in System Settings first",
+        "autocorrect_off": "turn on \"Synchronize Clock via Internet\" in System Settings first",
         "state_unknown": "the current play-timer state could not be read, so nothing was written",
         "not_confirmed": "the PIN was not entered, so nothing was changed",
         "no_pin": "no parental-control PIN is set",
@@ -96,7 +96,9 @@
         "relock_failed": "the console was unlocked but could not be locked again: lock it now (Security & app › Lock now)",
         "not_applied": "the console did not take the change, so the previous settings were put back",
         "not_saved": "PlayGuard could not save to the SD card what it must put back later, so nothing was written",
-        "next_step": "If it happens again, send a report: Tools › Send a report online."
+        "next_step": "If it happens again, send a report: Tools › Send a report online.",
+        "pctl_0132": "code 2142-0132, also reported by others when writing the play timer; its meaning is not known yet. Restart the console, then try again",
+        "clock_not_set": "the console reports that its network clock has no valid time (it may never have been set); see the Network clock tab"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -181,7 +183,7 @@
         "stop_done": "No more play today.",
         "stop_restore_body": "On {}, the {} limit was set to {} for that day only. Put it back to {}?",
         "applet": "PlayGuard is running as an applet (opened from the album), with little memory: an export or a long Activity list may fail. For the full app, open it while holding R as you start a game.",
-        "counted": "Opened over a game, PlayGuard counts as that game: the console adds its time to the play timer and to the activity of the user picked at launch (PlayGuard's Activity tab leaves it out). Open it with a parent's user, or from the Album for a quick look."
+        "counted": "Opened over a game, PlayGuard counts as that game: the console adds its time to the play timer and to the activity of the user picked at launch. Open it with a parent's user, or from the Album for a quick look."
     },
     "onboarding": {
         "title": "First steps",
@@ -439,7 +441,7 @@
         "user": "Console clock",
         "network": "Network clock",
         "accuracy": "Network clock accurate",
-        "auto": "Synchronise Clock via Internet",
+        "auto": "Synchronize Clock via Internet",
         "zone": "Time zone",
         "why": "The play timer relies on the network clock. When it is inaccurate (a console that never reaches Nintendo's servers), set it here from a public time server.",
         "section_server": "Time server",
@@ -474,13 +476,13 @@
         "apply_confirm": "Set the clock",
         "applied_ok": "Network clock set. The system reports it as accurate.",
         "applied_pending": "Network clock set and read back. The system does not report it as accurate yet.",
-        "applied_refused": "Not changed: turn on \"Synchronise Clock via Internet\" in System Settings › System › Date and Time first.",
+        "applied_refused": "Not changed: turn on \"Synchronize Clock via Internet\" in System Settings › System › Date and Time first.",
         "applied_err": "Could not set the network clock",
         "report_err_ask": "The report of the clocks before the change could not be saved ({}). Set the network clock anyway?",
         "seconds": "{} s",
         "busy": "Please wait for the current request.",
-        "autosync_off_note": "To set the network clock from it, first turn on \"Synchronise Clock via Internet\" in System Settings.",
-        "auto_how": "PlayGuard can only read this setting: it belongs to System Settings, which only the HOME menu can open.\n\nTo change it: HOME menu › System Settings › System › Date and Time › Synchronise Clock via Internet.\n\nWhen it is on, the console clock follows the network clock. Note: when the clock was moved, the console was seen to start today's play time over.",
+        "autosync_off_note": "To set the network clock from it, first turn on \"Synchronize Clock via Internet\" in System Settings.",
+        "auto_how": "PlayGuard can only read this setting: it belongs to System Settings, which only the HOME menu can open.\n\nTo change it: HOME menu › System Settings › System › Date and Time › Synchronize Clock via Internet.\n\nWhen it is on, the console clock follows the network clock. Note: when the clock was moved, the console was seen to start today's play time over.",
         "ntp_err": {
             "bad_host": "not a server name",
             "lookup": "server not found (no Internet connection?)",
@@ -504,7 +506,8 @@
         "unlinked": "Companion app unlinked.",
         "unlink_err": "Could not unlink the companion app",
         "note": "While the console stays linked, the companion app overwrites the settings made here at its next synchronisation.",
-        "unlink_dev_note": "Developer tools: Compare the play-timer block needs a console that is still linked. Save its reference first if you want to decode a setting."
+        "decode": "Before unlinking: help decode two settings",
+        "decode_note": "Before unlinking, this console can help decode \"alarm only\" and per-day bedtime (Security & app, 2 min): once unlinked, it no longer can."
     },
     "security": {
         "section_status": "Status",
@@ -692,7 +695,9 @@
         "flag_read_only": "read-only",
         "flag_dev": "developer",
         "upload": "Send a report online",
-        "upload_note": "Sends a report to bpa.st, or to a secret gist when signed in to GitHub, and shows its link with a QR code: give it to whoever helps you, or open a bug report with it."
+        "upload_note": "Sends a report to bpa.st, or to a secret gist when signed in to GitHub, and shows its link with a QR code: give it to whoever helps you, or open a bug report with it.",
+        "storage_note_emummc": "This is emuMMC: sysMMC has its own parental controls, which PlayGuard cannot see from here. Set them there too, or hide the hekate boot menu.",
+        "storage_note_sysmmc": "This is sysMMC, and an emuMMC is set up on this SD card: it has its own parental controls, which PlayGuard cannot see from here. Set them there too, or hide the hekate boot menu."
     },
     "about": {
         "section_changelog": "What's new in {}",
@@ -907,8 +912,8 @@
     },
     "chart": {
         "last_days": "The last 7 days, today on the right",
-        "limit_line": "The line across a bar is that day's limit",
-        "limit_over": "The line is that day's limit · ! in amber: played over it",
+        "limit_line": "The line across a bar is this week's limit for that day",
+        "limit_over": "The line is this week's limit for that day · ! in amber: played over it",
         "week_order": "Monday to Sunday, today underlined",
         "unsaved": "* in amber: changed, not saved yet"
     }
