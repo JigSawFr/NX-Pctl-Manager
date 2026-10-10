@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <ctime>
+#include <sys/stat.h>
 #include <utility>
 
 #include "util/paths.hpp"
@@ -608,8 +609,8 @@ std::string save(const Table& t, Format f, const std::string& dir, const std::st
         std::string path = dir + "/" + base + "_" + stamp;
         if (i > 0) path += "_" + std::to_string(i);
         path += std::string(".") + extension(f);
-        std::string existing;
-        if (paths::read_file(path, existing)) continue;
+        struct stat st;
+        if (stat(path.c_str(), &st) == 0) continue;   // taken (not read: an export can be large)
         return paths::atomic_write(path, content, error) ? path : "";
     }
     if (error) *error = "No free file name";

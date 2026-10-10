@@ -381,7 +381,8 @@
         "first": "Première partie",
         "last": "Dernière partie",
         "less_than_minute": "< 1 min",
-        "note": "Lu dans le journal d'activité de la console, pour tous les comptes. Les durées sont approximatives si l'horloge de la console a été modifiée. PlayGuard ouvert par-dessus un jeu compte comme ce jeu pour le compte choisi au lancement : ouvrez-le avec le compte d'un parent."
+        "note": "Lu dans le journal d'activité de la console, pour tous les comptes. Les durées sont approximatives si l'horloge de la console a été modifiée. PlayGuard ouvert par-dessus un jeu compte comme ce jeu pour le compte choisi au lancement : ouvrez-le avec le compte d'un parent.",
+        "show_all": "Afficher tous les jeux"
     },
     "restrictions": {
         "section_level": "Niveau de restriction",

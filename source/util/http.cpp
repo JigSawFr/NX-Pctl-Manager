@@ -2,6 +2,7 @@
 #include "util/http.hpp"
 
 #include <algorithm>
+#include <atomic>
 #include <cstdio>
 #include <curl/curl.h>
 #include <fcntl.h>
@@ -15,6 +16,7 @@ namespace http
 
 static std::mutex s_lock;   // one request at a time; also guards the global init
 static bool       s_ready = false;
+static std::atomic<bool> s_abort{ false };   // abort_all(): the app is quitting
 
 namespace
 {
@@ -30,9 +32,16 @@ struct Sink
     CURL*        curl = nullptr;
 };
 
+// Called by curl about once a second, even while waiting for the server.
+int on_progress(void*, curl_off_t, curl_off_t, curl_off_t, curl_off_t)
+{
+    return s_abort ? 1 : 0;   // non-zero aborts the transfer
+}
+
 size_t on_data(char* data, size_t size, size_t count, void* user)
 {
     auto* sink = static_cast<Sink*>(user);
+    if (s_abort) return 0;
     const size_t n = size * count;
     const size_t have = sink->file ? sink->written : sink->body->size();
     if (have + n > sink->max) {
@@ -78,6 +87,10 @@ bool perform(const std::string& url, const Extra& x, std::string* body, std::str
     std::lock_guard<std::mutex> guard(s_lock);
     body->clear();
     if (status_out) *status_out = 0;
+    if (s_abort) {
+        if (error) *error = "PlayGuard is quitting";
+        return false;
+    }
     if (!s_ready) {
         // On the Switch this starts the ssl and csrng services (switch-curl's libnx backend).
         if (curl_global_init(CURL_GLOBAL_DEFAULT) != CURLE_OK) {
@@ -116,6 +129,8 @@ bool perform(const std::string& url, const Extra& x, std::string* body, std::str
         curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 30L);
     }
     curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
+    curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
+    curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, on_progress);
     curl_easy_setopt(curl, CURLOPT_USERAGENT, agent.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, on_data);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &sink);
@@ -221,6 +236,11 @@ bool download(const std::string& url, const std::string& path, std::string* erro
         ok = false;
     }
     return ok;
+}
+
+void abort_all()
+{
+    s_abort = true;
 }
 
 void cleanup()

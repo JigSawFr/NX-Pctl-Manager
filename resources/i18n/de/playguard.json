@@ -381,7 +381,8 @@
         "first": "Erstmals gespielt",
         "last": "Zuletzt gespielt",
         "less_than_minute": "< 1 min",
-        "note": "Aus dem Aktivitätsprotokoll der Konsole gelesen, für alle Nutzer. Die Zeiten sind ungefähr, wenn die Konsolenuhr geändert wurde. PlayGuard über einem Spiel geöffnet zählt als dieses Spiel für den beim Start gewählten Nutzer: öffne es mit dem Nutzer eines Elternteils."
+        "note": "Aus dem Aktivitätsprotokoll der Konsole gelesen, für alle Nutzer. Die Zeiten sind ungefähr, wenn die Konsolenuhr geändert wurde. PlayGuard über einem Spiel geöffnet zählt als dieses Spiel für den beim Start gewählten Nutzer: öffne es mit dem Nutzer eines Elternteils.",
+        "show_all": "Alle Spiele anzeigen"
     },
     "restrictions": {
         "section_level": "Einschränkungskategorie",

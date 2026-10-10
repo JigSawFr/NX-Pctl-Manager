@@ -36,6 +36,7 @@ Clone with submodules (`git clone --recursive`, or `git submodule update --init`
 | `PLAYGUARD_SIM_BLANK=1` | Atmosphère blanking the serial number |
 | `PLAYGUARD_SIM_APPLET=1` | Applet (album) mode |
 | `PLAYGUARD_SIM_NO_PDM=1` | No activity log |
+| `PLAYGUARD_SIM_GAMES=200` | That many more games played this week (a large library) |
 | `PLAYGUARD_SIM_IDLE=1` | No game running |
 | `PLAYGUARD_SIM_BACKGROUND=1` | PlayGuard out of focus |
 | `PLAYGUARD_SIM_REGION=2` | The console region |

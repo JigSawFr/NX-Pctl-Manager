@@ -165,6 +165,10 @@ int main(int argc, char* argv[])
     while (brls::Application::mainLoop())
         ;
 
+    // Network tasks still running (an update check, a sign-in waiting for its
+    // code): stopped, and waited for a moment, before what they use goes away.
+    http::abort_all();
+    ui::finish_background(std::chrono::seconds(3));
     pt_log_flow::stop();
     app::shutdown();
     http::cleanup();

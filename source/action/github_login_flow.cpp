@@ -62,10 +62,10 @@ void show_code(const github_auth::DeviceCode& code, std::function<void()> done)
         const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(code.expires_in);
         github_auth::Poll result = github_auth::Poll::Expired;
         std::string token, error;
-        while (!*cancelled && std::chrono::steady_clock::now() < deadline) {
-            for (int s = 0; s < interval * 10 && !*cancelled; s++)
+        while (!*cancelled && !ui::quitting() && std::chrono::steady_clock::now() < deadline) {
+            for (int s = 0; s < interval * 10 && !*cancelled && !ui::quitting(); s++)
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            if (*cancelled) break;
+            if (*cancelled || ui::quitting()) break;
             result = github_auth::poll(code, &token, &error);
             if (result == github_auth::Poll::SlowDown) interval += 5;
             else if (result != github_auth::Poll::Pending) break;
