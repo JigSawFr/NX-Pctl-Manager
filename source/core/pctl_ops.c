@@ -282,7 +282,7 @@ Result pctl_get_pin(char *out, size_t out_size)
 {
     if (out && out_size) secure_zero(out, out_size);
     pctl_ops_exit();   // nothing held while the PIN check may show its applet
-    Result gate = core_change_allowed();   // showing the PIN counts as a change
+    Result gate = core_reveal_allowed();   // asked every time (write_guard.h)
     if (R_FAILED(gate)) return gate;
     if (!out || out_size == 0) return NXM_RC_INVALID_ARGUMENT;
     // Same session handling as the unlock above, where 1208 was validated.

@@ -1,6 +1,6 @@
 // pin_lock_logic — the decisions behind pin_lock, without any UI or clock:
-// whether a change goes ahead, is refused or asks for the PIN, and what
-// moving between the modes needs. Times are passed in so the host tests can
+// whether a change goes ahead, is refused or asks for the PIN, what moving
+// between the modes needs, and when "open" locks again after time away. Times are passed in so the host tests can
 // run it (tests/pin_lock_logic).
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).
 #pragma once
@@ -13,7 +13,8 @@ namespace pin_lock_logic
 
 using Clock = std::chrono::steady_clock;
 
-// After the PIN was entered, changes go ahead without asking again.
+// After the PIN was entered, changes go ahead without asking again. In
+// "open", this long out of focus brings the lock screen back.
 constexpr auto GRACE = std::chrono::minutes(5);
 // One action can make several changes (a restore): after a refusal, the
 // next ones are refused too instead of asking once per change.
@@ -44,5 +45,12 @@ enum class Change
 };
 // Moving from mode `from` to MODES[to] (a different one).
 Change change(const std::string& from, int to, bool has_pin);
+
+// Back in focus at `now` after leaving it at `away_since` (the HOME menu, a
+// game over it): whether the lock screen comes back. Only in "open", after
+// GRACE or more away, unless the PIN was entered at `pin_at` since leaving
+// (the system PIN screen takes the focus too).
+bool lock_again(const std::string& mode, Clock::time_point away_since, Clock::time_point now,
+                Clock::time_point pin_at);
 
 }   // namespace pin_lock_logic

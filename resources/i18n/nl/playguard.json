@@ -135,7 +135,7 @@
         "pc_off": "Niet ingesteld",
         "pc_pin_only": "Pincode ingesteld, geen beperking",
         "pin": "Pincode",
-        "pin_set": "Ingesteld ({} cijfers)",
+        "pin_set": "Ingesteld",
         "level": "Beperkingsniveau",
         "today_limit": "Limiet vandaag ({})",
         "remaining": "Resterende tijd vandaag",
@@ -199,7 +199,8 @@
         "step_alarm": "{}. Alarm \"Tijd is om\" weer inschakelen (niets waarschuwt als de tijd om is)",
         "at_start": "Bij het opstarten tonen zolang er geen pincode is",
         "note": "De pincode is die van de console zelf; de limiet wordt gecontroleerd met de netwerkklok, die dus nauwkeurig moet zijn. Open PlayGuard met de gebruiker van een ouder: over een spel geopend telt de tijd als speeltijd.",
-        "close": "Sluiten"
+        "close": "Sluiten",
+        "step_protect": "{}. PlayGuard beveiligen: om pincode vragen"
     },
     "compat": {
         "ok": "Gecontroleerd",
@@ -537,7 +538,9 @@
         "delete_err": "Kan het ouderlijk toezicht niet verwijderen",
         "pin_ok": "Pincode bijgewerkt.",
         "pin_err": "Kan de pincode niet bijwerken",
-        "rescue_note": "De herstel-sysmodule is geïnstalleerd: iedereen die de SD-kaart kan bewerken, kan daarmee bij de volgende start de console ontgrendelen of het ouderlijk toezicht volledig wissen. Verwijder hem wanneer u hem niet meer nodig hebt (map atmosphere/contents/4200000000505247)."
+        "rescue_note": "De herstel-sysmodule is geïnstalleerd: iedereen die de SD-kaart kan bewerken, kan daarmee bij de volgende start de console ontgrendelen of het ouderlijk toezicht volledig wissen. Verwijder hem wanneer u hem niet meer nodig hebt (map atmosphere/contents/4200000000505247).",
+        "show_pin_change_body": "Pincode nu wijzigen?\n\nIemand anders kan hem hebben gezien.",
+        "show_pin_change_confirm": "Wijzigen"
     },
     "pin_lock": {
         "title": "Om pincode vragen",
@@ -549,7 +552,7 @@
         "notes": {
             "off": "Iedereen die de console vasthoudt, kan hier de instellingen wijzigen. Voor het tonen van de pincode wordt er nog steeds om gevraagd.",
             "changes": "Iedereen kan kijken; alleen de ouder kan iets wijzigen (na 5 minuten wordt opnieuw gevraagd). Voor opnieuw vergrendelen is nooit een pincode nodig.",
-            "open": "Een vergrendelscherm totdat de pincode is ingevoerd. Voor opnieuw vergrendelen is nooit een pincode nodig."
+            "open": "Een vergrendelscherm totdat de pincode is ingevoerd, en opnieuw na 5 minuten buiten PlayGuard. Voor opnieuw vergrendelen is nooit een pincode nodig."
         },
         "no_pin": "Stel eerst een pincode in (Pincode instellen of wijzigen).",
         "set": "Om pincode vragen: {}",
@@ -593,7 +596,6 @@
             "unconfirmed": "De console toont het herstel dat dit rapport beschrijft niet."
         },
         "hint": {
-            "show_pin": "als u hem vergeten bent",
             "reset_pin": "een nieuwe kiezen",
             "delete": "alles verwijderen"
         },
@@ -878,6 +880,7 @@
             "rescue": "Herstel gebruikt",
             "console_lock": "Consolevergrendeling",
             "bedtime": "Bedtijdalarm",
+            "pin_shown": "Pincode getoond",
             "config_reset": "Voorkeuren teruggezet (bestand onleesbaar)"
         },
         "sources": {

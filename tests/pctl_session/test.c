@@ -1126,6 +1126,43 @@ static void test_change_check(void)
     CHECK(model.refs == 0);
 }
 
+/* The UI's reveal check: asks before every read of the PIN, whatever the
+   change check would let through (its grace, a recovery that turned it off). */
+static int reveals;
+static bool reveal_answer;
+static bool reveal_check(void)
+{
+    CHECK(model.refs == 0);
+    reveals++;
+    return reveal_answer;
+}
+
+static void test_reveal_check(void)
+{
+    reset();
+    char pin[16];
+    model.check_answer = true;   /* changes go ahead without asking (a grace) */
+    core_set_change_check(change_check);
+    core_set_reveal_check(reveal_check);
+    reveals = 0;
+    reveal_answer = false;
+    CHECK(pctl_get_pin(pin, sizeof(pin)) == NXM_RC_NOT_CONFIRMED && pin[0] == '\0');
+    CHECK(reveals == 1 && model.checks == 0 && model.ipc_calls == 0);
+    /* Changes still go through the change check only. */
+    CHECK(pctl_set_safety_level(PctlSafetyLevel_Teen) == 0 && model.checks == 1 && reveals == 1);
+    /* No change check at all (a confirmed recovery): the PIN is still asked. */
+    core_set_change_check(NULL);
+    CHECK(pctl_get_pin(pin, sizeof(pin)) == NXM_RC_NOT_CONFIRMED && reveals == 2);
+    reveal_answer = true;
+    CHECK(pctl_get_pin(pin, sizeof(pin)) == 0 && reveals == 3);
+    /* Read-only still wins, without asking. */
+    core_set_read_only(true);
+    CHECK(pctl_get_pin(pin, sizeof(pin)) == NXM_RC_READ_ONLY && reveals == 3);
+    core_set_read_only(false);
+    core_set_reveal_check(NULL);
+    CHECK(model.refs == 0);
+}
+
 int main(void)
 {
     test_ownership();
@@ -1145,6 +1182,7 @@ int main(void)
     test_level_settings_and_rating_org();
     test_ask_pin();
     test_change_check();
+    test_reveal_check();
     (void)assert_released;
     return CHECK_DONE("pctl_ops lifecycle, gating, write and read-only assertions passed");
 }

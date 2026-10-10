@@ -19,7 +19,7 @@ At boot the module looks for a file named `RESCUE` (or `RESCUE.txt`) in
 - **present, empty or any text** → it unlocks parental controls temporarily,
   using the PIN the console already stores, exactly as the system PIN screen
   would. Everything can start again, so you can open PlayGuard and fix things
-  properly (see or change the PIN, adjust the limit, or remove the controls).
+  properly (set a new PIN, adjust the limit, or remove the controls).
 - **a line that reads just `delete`** (any case; spaces around it and a
   byte-order mark are ignored) → it deletes every parental control (PIN and all
   restrictions). Irreversible; use it only if you are giving up on the PIN.

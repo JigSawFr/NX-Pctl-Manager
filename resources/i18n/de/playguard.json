@@ -135,7 +135,7 @@
         "pc_off": "Nicht eingerichtet",
         "pc_pin_only": "Geheimzahl festgelegt, keine Einschränkung",
         "pin": "Geheimzahl",
-        "pin_set": "Festgelegt ({} Ziffern)",
+        "pin_set": "Festgelegt",
         "level": "Einschränkungskategorie",
         "today_limit": "Heutiges Limit ({})",
         "remaining": "Restzeit heute",
@@ -199,7 +199,8 @@
         "step_alarm": "{}. Alarm „Zeit ist um“ wieder einschalten (nichts warnt, wenn die Zeit um ist)",
         "at_start": "Beim Start anzeigen, solange keine Geheimzahl festgelegt ist",
         "note": "Die Geheimzahl ist die der Konsole; das Limit richtet sich nach der Netzwerkuhr, daher muss sie genau sein. Öffne PlayGuard mit dem Nutzer eines Elternteils: Über einem Spiel geöffnet, zählt seine Zeit als Spielzeit.",
-        "close": "Schließen"
+        "close": "Schließen",
+        "step_protect": "{}. PlayGuard schützen: Geheimzahl abfragen"
     },
     "compat": {
         "ok": "Geprüft",
@@ -537,7 +538,9 @@
         "delete_err": "Altersbeschränkungen konnten nicht gelöscht werden",
         "pin_ok": "Geheimzahl aktualisiert.",
         "pin_err": "Geheimzahl konnte nicht aktualisiert werden",
-        "rescue_note": "Das Wiederherstellungs-Sysmodul ist installiert: Wer die SD-Karte bearbeiten kann, kann damit beim nächsten Start die Konsole entsperren oder alle Altersbeschränkungen löschen. Entfernen Sie es, wenn Sie es nicht mehr brauchen (Ordner atmosphere/contents/4200000000505247)."
+        "rescue_note": "Das Wiederherstellungs-Sysmodul ist installiert: Wer die SD-Karte bearbeiten kann, kann damit beim nächsten Start die Konsole entsperren oder alle Altersbeschränkungen löschen. Entfernen Sie es, wenn Sie es nicht mehr brauchen (Ordner atmosphere/contents/4200000000505247).",
+        "show_pin_change_body": "Geheimzahl jetzt ändern?\n\nJemand anderes könnte sie gesehen haben.",
+        "show_pin_change_confirm": "Ändern"
     },
     "pin_lock": {
         "title": "Geheimzahl abfragen",
@@ -549,7 +552,7 @@
         "notes": {
             "off": "Jeder, der die Konsole in der Hand hat, kann die Einstellungen hier ändern. Zum Anzeigen der Geheimzahl wird sie trotzdem abgefragt.",
             "changes": "Jeder kann sich alles ansehen; nur Eltern können etwas ändern (erneute Abfrage nach 5 Minuten). Zum erneuten Aktivieren wird nie gefragt.",
-            "open": "Ein Sperrbildschirm, bis die Geheimzahl eingegeben wird. Zum erneuten Aktivieren wird nie gefragt."
+            "open": "Ein Sperrbildschirm, bis die Geheimzahl eingegeben wird, und erneut nach 5 Minuten außerhalb von PlayGuard. Zum erneuten Aktivieren wird nie gefragt."
         },
         "no_pin": "Legen Sie zuerst eine Geheimzahl fest (Geheimzahl festlegen oder ändern).",
         "set": "Geheimzahl abfragen: {}",
@@ -593,7 +596,6 @@
             "unconfirmed": "Die Konsole zeigt die in diesem Bericht beschriebene Wiederherstellung nicht."
         },
         "hint": {
-            "show_pin": "falls vergessen",
             "reset_pin": "eine neue wählen",
             "delete": "alles entfernen"
         },
@@ -878,6 +880,7 @@
             "rescue": "Wiederherstellung verwendet",
             "console_lock": "Konsolensperre",
             "bedtime": "Gute-Nacht-Alarm",
+            "pin_shown": "Geheimzahl angezeigt",
             "config_reset": "Optionen zurückgesetzt (Datei unlesbar)"
         },
         "sources": {

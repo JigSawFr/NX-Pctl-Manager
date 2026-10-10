@@ -53,6 +53,13 @@ static void test_round_trip()
 
     CHECK(history::undoable(all[1]) && history::undoable(all[2]));
     CHECK(!history::undoable(all[0]));                 // an event, not a value
+    history::Entry shown;
+    shown.when = "2026-10-08 18:33";
+    shown.kind = "pin_shown";
+    CHECK(history::append(shown));
+    const auto with_shown = history::load();
+    CHECK(with_shown.size() == 4 && with_shown[0].kind == "pin_shown" && with_shown[0].before.empty() &&
+          !history::undoable(with_shown[0]));
     history::Entry odd = all[2];
     odd.before.pop_back();
     CHECK(!history::undoable(odd));                    // 6 days is not a week

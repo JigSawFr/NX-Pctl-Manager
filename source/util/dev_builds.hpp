@@ -110,7 +110,8 @@ constexpr int64_t CACHE_MAX_AGE_S = 10 * 60;
 
 std::string encode_cache(const Cache& cache);
 // False for anything else (damaged, another layout); a build that does not
-// look like one (no https URL, a malformed commit or digest) is left out.
+// look like one (a URL not on https://github.com/ or https://api.github.com/,
+// a malformed commit or digest) is left out.
 bool decode_cache(const std::string& json, Cache* out);
 // Fresh: fetched less than CACHE_MAX_AGE_S before `now` (not in the future:
 // the clock was set back), in the same sign-in state.

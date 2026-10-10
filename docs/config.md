@@ -58,10 +58,12 @@ The code is the reference: `source/util/config.hpp` (fields and defaults) and
 | Value | In the app | What it does |
 |---|---|---|
 | `"off"` | Never | Nothing is asked, except before *Show the PIN* (the PIN opens everything else). |
-| `"changes"` | Before a change | Anyone can look; the first change (or *Show the PIN*) asks for the PIN, then nothing is asked for 5 minutes. The default. |
-| `"open"` | To open PlayGuard | A lock screen first; the right PIN opens the app, B quits. |
+| `"changes"` | Before a change | Anyone can look; the first change asks for the PIN, then nothing is asked for 5 minutes. The default. |
+| `"open"` | To open PlayGuard | A lock screen first; the right PIN opens the app, B quits. It comes back when PlayGuard returns after 5 minutes or more out of focus. |
 
 - With no PIN on the console, nothing is asked whatever the value.
+- *Show the PIN* asks for it every time, whatever the value, even within the
+  5 minutes.
 - A missing file, a missing key or a value not in the list gives `"changes"`:
   a damaged file never turns the prompt off. Only `"off"` written on purpose
   does.
@@ -69,8 +71,8 @@ The code is the reference: `source/util/config.hpp` (fields and defaults) and
   protected: it keeps a child out of PlayGuard, not someone who edits the SD
   card.
 - **PIN forgotten while this is `"changes"` or `"open"`:** put the SD card in a
-  computer and set `"pin_lock": "off"`. *Show the PIN* still asks for it: the
-  recovery sysmodule's screen is the way to see it again.
+  computer and set `"pin_lock": "off"`. *Show the PIN* still asks for it, and
+  the recovery sysmodule's screen sets a new one rather than showing it.
 
 ## Network clock
 

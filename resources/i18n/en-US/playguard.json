@@ -135,7 +135,7 @@
         "pc_off": "Not set up",
         "pc_pin_only": "PIN set, no restriction",
         "pin": "PIN",
-        "pin_set": "Set ({} digits)",
+        "pin_set": "Set",
         "level": "Restriction level",
         "today_limit": "Today's limit ({})",
         "remaining": "Time left today",
@@ -199,7 +199,8 @@
         "step_alarm": "{}. Turn the \"Time's up\" alarm back on (nothing says when time is up)",
         "at_start": "Show at start-up while no PIN is set",
         "note": "The PIN is the console's own; the limit is checked against the network clock, so it must be accurate. Open PlayGuard with a parent's user: opened over a game, its time counts as play.",
-        "close": "Close"
+        "close": "Close",
+        "step_protect": "{}. Protect PlayGuard: ask for the PIN"
     },
     "compat": {
         "ok": "Checked",
@@ -537,7 +538,9 @@
         "delete_err": "Could not delete parental controls",
         "pin_ok": "PIN updated.",
         "pin_err": "Could not update the PIN",
-        "rescue_note": "The recovery sysmodule is installed: anyone who can edit the SD card can then unlock the console or delete every parental control at the next start. Remove it when you no longer need it (folder atmosphere/contents/4200000000505247)."
+        "rescue_note": "The recovery sysmodule is installed: anyone who can edit the SD card can then unlock the console or delete every parental control at the next start. Remove it when you no longer need it (folder atmosphere/contents/4200000000505247).",
+        "show_pin_change_body": "Change the PIN now?\n\nSomeone else may have seen it.",
+        "show_pin_change_confirm": "Change"
     },
     "pin_lock": {
         "title": "Ask for the PIN",
@@ -549,7 +552,7 @@
         "notes": {
             "off": "Anyone who holds the console can change the settings here. Showing the PIN still asks for it.",
             "changes": "Anyone can look; changing something needs the PIN (asked again after 5 minutes). Locking again never asks.",
-            "open": "A lock screen until the PIN is entered. Locking again never asks."
+            "open": "A lock screen until the PIN is entered, and again after 5 minutes away from PlayGuard. Locking again never asks."
         },
         "no_pin": "Set a PIN first (Set or change the PIN).",
         "set": "Ask for the PIN: {}",
@@ -593,7 +596,6 @@
             "unconfirmed": "The console does not show the recovery this report describes."
         },
         "hint": {
-            "show_pin": "if you forgot it",
             "reset_pin": "choose a new one",
             "delete": "remove everything"
         },
@@ -878,6 +880,7 @@
             "rescue": "Recovery used",
             "console_lock": "Console lock",
             "bedtime": "Bedtime alarm",
+            "pin_shown": "PIN shown",
             "config_reset": "Settings reset (file unreadable)"
         },
         "sources": {
