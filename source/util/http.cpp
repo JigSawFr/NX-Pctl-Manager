@@ -109,6 +109,10 @@ bool perform(const std::string& url, const Extra& x, std::string* body, std::str
     curl_easy_setopt(curl, CURLOPT_PROTOCOLS, (long)CURLPROTO_HTTPS);
     curl_easy_setopt(curl, CURLOPT_REDIR_PROTOCOLS, (long)CURLPROTO_HTTPS);
 #endif
+    // The server's certificate and name are checked (libcurl's defaults,
+    // written out so that no build or backend change can turn them off).
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
     curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, std::min(timeout_s, 30L));
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout_s);
     if (to_file) {   // a long transfer: give up on a stall rather than at the end

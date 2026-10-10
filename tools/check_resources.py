@@ -12,6 +12,9 @@
 - every XML layout is well formed (borealis' "brls:" prefix is not declared,
   so a non-namespace-aware parser is used);
 - brls:Label never carries padding attributes (borealis throws at runtime).
+
+It also warns (without failing: English is a fine placeholder for a new
+string) about sentence-like values a catalog still has in English.
 """
 import glob
 import json
@@ -21,6 +24,10 @@ import xml.parsers.expat
 
 ROOT = sys.argv[1] if len(sys.argv) > 1 else "."
 errors = []
+warnings = []
+# Names that read the same in every language.
+SAME_IN_EVERY_LANGUAGE = {"about/made_in_france", "tools/update_via_values/appstore", "update/appstore",
+                          "tools/storage_emummc", "tools/storage_sysmmc", "init_error/firmware"}
 
 
 def flatten(d, prefix=""):
@@ -58,6 +65,13 @@ for lang, cat in sorted(catalogs.items()):
         errors.append(f"{lang} is missing {k}")
     for k in sorted(set(cat) - set(base)):
         errors.append(f"{lang} has extra key {k}")
+    # Still in English: a value identical to en-US with three or more words is
+    # most likely a placeholder nobody translated (names and brands aside).
+    for k in sorted(set(base) & set(cat)):
+        v = str(cat[k])
+        if v == str(base[k]) and k not in SAME_IN_EVERY_LANGUAGE and not k.startswith("tools/languages/") \
+                and len(re.findall(r"[A-Za-z]{2,}", v)) >= 3:
+            warnings.append(f"{lang}: {k} is still in English")
     # The same number of "{}" placeholders as en-US.
     for k in sorted(set(base) & set(cat)):
         if str(base[k]).count("{}") != str(cat[k]).count("{}"):
@@ -126,6 +140,8 @@ for k in sorted(en_keys):
     if k not in used_exact and not any(k.startswith(p) for p in used_prefixes):
         errors.append(f"unused i18n key playguard/{k} (remove it from every language)")
 
+for w in warnings:
+    print("WARNING:", w)
 for e in errors:
     print("ERROR:", e)
 print(f"resources check: {len(errors)} error(s)")
