@@ -19,8 +19,10 @@
 // pctl_ops.c, proven on hardware.
 //
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).
+#include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include <switch.h>
 
 #include "rescue.h"
@@ -167,8 +169,13 @@ static void write_report(const RescueReport* r)
     // Through a ".tmp" sibling, as the app's own files: a report cut short
     // (power off, SD card full) is never read as a whole one. PlayGuard reads
     // the ".tmp" when the report itself is missing (paths::read_file).
-    FILE* f = fopen(PATH_REPORT ".tmp", "wb");
-    if (!f) return;
+    // Owner-writable only (fopen would ask for 0666).
+    const int fd = open(PATH_REPORT ".tmp", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    FILE* f = fd >= 0 ? fdopen(fd, "wb") : NULL;
+    if (!f) {
+        if (fd >= 0) close(fd);
+        return;
+    }
     const bool written = fwrite(buf, 1, n, f) == n;
     if (fclose(f) != 0 || !written) {
         remove(PATH_REPORT ".tmp");
