@@ -92,7 +92,7 @@ Tous dans `sd:/switch/playguard/` :
 
 | Chemin | Contenu |
 |---|---|
-| `config.json` | Préférences (langue, thème, serveur NTP, *Demander le code PIN*…) |
+| `config.json` | Préférences (langue, thème, serveur NTP, *Demander le code PIN*…) ; chaque clé dans [docs/config.md](docs/config.md) (en anglais) |
 | `history.json` | L'historique des modifications (les 200 dernières) |
 | `profiles/` | Profils de limites enregistrés |
 | `backups/` | Sauvegardes des réglages (jamais le code PIN) |

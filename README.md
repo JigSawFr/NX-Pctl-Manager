@@ -92,7 +92,7 @@ All in `sd:/switch/playguard/`:
 
 | Path | Content |
 |---|---|
-| `config.json` | Preferences (language, theme, NTP server, *Ask for the PIN* …) |
+| `config.json` | Preferences (language, theme, NTP server, *Ask for the PIN* …); every key in [docs/config.md](docs/config.md) |
 | `history.json` | The change history (newest 200) |
 | `profiles/` | Saved play-time limit profiles |
 | `backups/` | Settings backups (never contain the PIN) |
