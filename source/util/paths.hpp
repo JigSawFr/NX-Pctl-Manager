@@ -33,6 +33,16 @@ bool atomic_write(const std::string& path, const std::string& content, std::stri
 // stopped between its remove and its rename), reads that one instead.
 bool read_file(const std::string& path, std::string& out);
 
+// Whether `path` or its ".tmp" (see read_file) is there at all: one that is
+// there but cannot be read is damaged, which is not the same as none.
+bool exists(const std::string& path);
+
+// Moves a damaged `path` (or its ".tmp", when only that one is left) to
+// `path`.bad, so no later write replaces it. A `path`.bad already there
+// becomes `path`.bad.1 (an older .bad.1 is dropped): the two most recent
+// damaged copies are kept. False when it could not be moved.
+bool put_aside(const std::string& path);
+
 // Names (not paths) of regular files in `dir` ending with `suffix`, sorted.
 std::vector<std::string> list_files(const std::string& dir, const std::string& suffix);
 

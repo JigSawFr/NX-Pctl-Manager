@@ -96,7 +96,8 @@
         "relock_failed": "主机已解锁，但无法重新锁定：请立即锁定（安全与应用 › 立即启用）",
         "not_applied": "主机未接受更改，已恢复之前的设置",
         "not_saved": "PlayGuard 无法在 SD 卡上保存之后需要恢复的内容，未写入任何内容",
-        "next_step": "如果再次发生，请发送报告：工具 › 在线发送报告。"
+        "next_step": "如果再次发生，请发送报告：工具 › 在线发送报告。",
+        "pt_not_understood": "主机的游戏时间设置格式PlayGuard无法识别，未进行任何更改。请发送报告：工具 › 在线发送报告。"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -107,7 +108,7 @@
     "fw_gate": {
         "title": "暂不支持此系统版本",
         "headline": "暂不支持系统版本{}",
-        "body": "PlayGuard {}已验证至系统版本{}。为安全起见，在选择继续方式之前不会进行任何更改。所有内容仍可查看。",
+        "body": "PlayGuard {}已在主机上测试至系统版本{}。为安全起见，在选择继续方式之前不会进行任何更改。所有内容仍可查看。",
         "status_checking": "正在查找支持此版本的PlayGuard…",
         "status_supports": "PlayGuard {}支持系统版本{}：更新后即可安全使用所有功能。",
         "status_no_support": "PlayGuard {}已推出，但尚不支持系统版本{}。",
@@ -134,7 +135,7 @@
         "pc_off": "未设置",
         "pc_pin_only": "已设PIN，无限制",
         "pin": "PIN",
-        "pin_set": "已设置（{}位）",
+        "pin_set": "已设置",
         "level": "限制等级",
         "today_limit": "今天的限制（{}）",
         "remaining": "今天剩余时间",
@@ -208,7 +209,8 @@
         "step_alarm": "{}. 重新开启“时间到”提醒（否则时间到时不会有任何提醒）",
         "at_start": "未设置PIN时在启动时显示",
         "note": "PIN即主机本身的PIN；限制以网络时钟为准，因此网络时钟必须准确。请用家长的用户打开PlayGuard：在游戏上打开时，其时间会计为游玩时间。",
-        "close": "关闭"
+        "close": "关闭",
+        "step_protect": "{}. 保护PlayGuard：要求输入PIN"
     },
     "compat": {
         "ok": "已验证",
@@ -549,7 +551,9 @@
         "delete_err": "无法删除家长控制",
         "pin_ok": "PIN已更新。",
         "pin_err": "无法更新PIN",
-        "rescue_note": "已安装恢复用系统模块：任何能修改SD卡的人都可以在下次启动时解锁主机，或删除所有家长控制。不再需要时请将其删除（文件夹atmosphere/contents/4200000000505247）。"
+        "rescue_note": "已安装恢复用系统模块：任何能修改SD卡的人都可以在下次启动时解锁主机，或删除所有家长控制。不再需要时请将其删除（文件夹atmosphere/contents/4200000000505247）。",
+        "show_pin_change_body": "现在更改PIN吗？\n\n其他人可能已经看到了。",
+        "show_pin_change_confirm": "更改"
     },
     "pin_lock": {
         "title": "要求输入PIN",
@@ -561,7 +565,7 @@
         "notes": {
             "off": "拿到主机的任何人都能在此更改设置。显示 PIN 时仍需输入 PIN。",
             "changes": "任何人都可以查看，只有家长能进行更改（5分钟后需再次输入）。重新启用时不需要输入。",
-            "open": "显示锁定画面，直到输入PIN为止。重新启用时不需要输入。"
+            "open": "显示锁定画面，直到输入PIN为止；离开PlayGuard 5分钟后再次显示。重新启用时不需要输入。"
         },
         "no_pin": "请先设置PIN（设置或更改PIN）。",
         "set": "要求输入PIN：{}",
@@ -605,7 +609,6 @@
             "unconfirmed": "主机状态与此报告所述的恢复不符。"
         },
         "hint": {
-            "show_pin": "忘记时",
             "reset_pin": "重新设置",
             "delete": "全部删除"
         },
@@ -890,6 +893,8 @@
             "rescue": "已使用恢复",
             "console_lock": "主机锁",
             "bedtime": "就寝提醒",
+            "pin_shown": "已显示PIN",
+            "config_reset": "偏好设置已重置（文件无法读取）",
             "outside_reset": "游戏时间重新开始计算（PlayGuard发现）",
             "outside_clock": "主机时钟被更改（PlayGuard发现）",
             "outside_limits": "在PlayGuard之外更改的限制"
@@ -927,5 +932,12 @@
         "limit_over": "线是当天的限制 · 橙色 !：超过了限制",
         "week_order": "周一到周日，带下划线的是今天",
         "unsaved": "橙色 *：已更改，尚未保存"
+    },
+    "data_notice": {
+        "config_reset": "无法读取PlayGuard的偏好设置，已将其重置。损坏的文件已保留为config.json.bad。",
+        "config_stuck": "无法读取PlayGuard的偏好设置，也无法将其移到一旁：现使用默认值，且暂时不会保存任何内容，以免覆盖该文件。请检查SD卡。",
+        "history_reset": "无法读取更改历史，已开始新的历史。损坏的文件已保留为history.json.bad。",
+        "history_stuck": "无法读取更改历史，也无法将其移到一旁：暂时不会在其中记录任何更改。请检查SD卡。",
+        "rescue_unreadable": "找到了恢复 sysmodule 的报告，但无法读取，因此PlayGuard无法得知它做了什么。请检查PIN和游戏时间。"
     }
 }

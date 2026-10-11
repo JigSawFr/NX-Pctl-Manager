@@ -1,5 +1,6 @@
-// fw_gate — a firmware newer than the checked range (PCTL_FW_TESTED_MAX in
-// core/sysinfo.h). PlayGuard starts read-only there; FirmwareGateActivity
+// fw_gate — a firmware newer than the range verified on a console
+// (PCTL_FW_TESTED_MAX in core/sysinfo.h; a command table checked further is
+// not enough). PlayGuard starts read-only there; FirmwareGateActivity
 // looks for a release that supports the firmware and lets the user choose how
 // to continue. The choice can be remembered for this firmware with this app
 // version (a newer app version asks again, unless it supports the firmware).
@@ -18,9 +19,9 @@ enum class Choice
     Risk,       // everything enabled, at the user's own risk
 };
 
-bool        needed();       // the firmware is newer than the checked range
+bool        needed();       // the firmware is newer than the verified range
 std::string firmware();     // "24.0.0"
-std::string tested_max();   // "23.0.1"
+std::string tested_max();   // "22.5.0"
 
 // Before the main screen is built: read-only when needed(), then the
 // remembered choice if it matches this firmware and app version.

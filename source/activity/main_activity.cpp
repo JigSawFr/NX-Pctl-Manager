@@ -2,6 +2,7 @@
 #include "activity/main_activity.hpp"
 
 #include "action/clock_check.hpp"
+#include "action/data_notice.hpp"
 #include "action/history_flow.hpp"
 #include "action/fw_gate.hpp"
 #include "action/pt_flow.hpp"
@@ -80,7 +81,7 @@ void MainActivity::onContentAvailable()
         return true;
     });
 
-    // Tools › Start on: that tab rather than the Overview (first, so the
+    // Preferences › Start on: that tab rather than the Overview (first, so the
     // questions below keep the focus they take).
     int start = 0;
     for (const char* t : config::START_TABS) {
@@ -105,11 +106,13 @@ void MainActivity::onContentAvailable()
     update_flow::check_daily();
     clock_check::at_start();
 
-    // Firmware newer than the checked one: the firmware screen (or the remembered choice).
+    // Firmware newer than the verified one: the firmware screen (or the remembered choice).
     fw_gate::on_main_screen();
     // Nothing set up yet (no PIN): the first steps, once per start.
     if (OnboardingActivity::wanted_at_start())
         brls::sync([]() { brls::Application::pushActivity(new OnboardingActivity()); });
+    // Settings, history or a recovery report found damaged: said once, on top.
+    data_notice::at_start();
     // Then, with nothing else in front: "What's new" after an update, else the
     // monthly "Support PlayGuard" reminder.
     support_flow::at_start(this);

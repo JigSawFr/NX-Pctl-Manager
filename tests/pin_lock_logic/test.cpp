@@ -1,6 +1,6 @@
 // Host tests for source/action/pin_lock_logic.cpp: the change check (modes,
-// the 5-minute grace after the PIN, the 3-second hold after a refusal) and
-// what moving between the modes needs.
+// the 5-minute grace after the PIN, the 3-second hold after a refusal), what
+// moving between the modes needs, and "open" locking again after time away.
 #include "check.h"
 #include <cstdio>
 #include <string>
@@ -78,10 +78,31 @@ static void test_change()
     CHECK(pin_lock_logic::change("bogus", 1, true) == Change::Allowed);
 }
 
+static void test_lock_again()
+{
+    const Clock::time_point never{};
+    const Clock::time_point pin_before = T0 - minutes(30);   // entered on the lock screen at start
+    // "open": five minutes or more out of focus brings the lock screen back.
+    CHECK(pin_lock_logic::lock_again("open", T0, T0 + minutes(5), pin_before));
+    CHECK(pin_lock_logic::lock_again("open", T0, T0 + std::chrono::hours(3), pin_before));
+    CHECK(pin_lock_logic::lock_again("open", T0, T0 + minutes(5), never));
+    // A shorter look at the HOME menu does not.
+    CHECK(!pin_lock_logic::lock_again("open", T0, T0 + minutes(4) + seconds(59), pin_before));
+    CHECK(!pin_lock_logic::lock_again("open", T0, T0, pin_before));
+    // The PIN entered while away (its own screen takes the focus): no lock.
+    CHECK(!pin_lock_logic::lock_again("open", T0, T0 + minutes(8), T0 + minutes(7)));
+    CHECK(!pin_lock_logic::lock_again("open", T0, T0 + minutes(8), T0));
+    // The other modes never show the lock screen ("changes" asks after its grace).
+    CHECK(!pin_lock_logic::lock_again("changes", T0, T0 + minutes(30), pin_before));
+    CHECK(!pin_lock_logic::lock_again("off", T0, T0 + minutes(30), pin_before));
+    CHECK(!pin_lock_logic::lock_again("bogus", T0, T0 + minutes(30), pin_before));
+}
+
 int main()
 {
     test_rank();
     test_check();
     test_change();
-    return CHECK_DONE("pin_lock_logic mode, grace, refusal hold and mode-change assertions passed");
+    test_lock_again();
+    return CHECK_DONE("pin_lock_logic mode, grace, refusal hold, mode-change and lock-again assertions passed");
 }

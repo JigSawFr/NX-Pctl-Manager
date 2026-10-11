@@ -96,7 +96,8 @@
         "relock_failed": "die Konsole wurde entsperrt, konnte aber nicht wieder gesperrt werden: Sperre sie jetzt (Sicherheit & App › Jetzt aktivieren)",
         "not_applied": "die Konsole hat die Änderung nicht übernommen, daher wurden die vorherigen Einstellungen wiederhergestellt",
         "not_saved": "PlayGuard konnte nicht auf der SD-Karte speichern, was später wiederhergestellt werden muss, daher wurde nichts geschrieben",
-        "next_step": "Wenn das erneut passiert, senden Sie einen Bericht: Tools › Bericht online senden."
+        "next_step": "Wenn das erneut passiert, senden Sie einen Bericht: Tools › Bericht online senden.",
+        "pt_not_understood": "die Spielzeit-Einstellungen der Konsole liegen in einem Format vor, das PlayGuard nicht versteht, daher wurde nichts geändert. Senden Sie einen Bericht: Tools › Bericht online senden."
     },
     "init_error": {
         "title": "PlayGuard",
@@ -107,7 +108,7 @@
     "fw_gate": {
         "title": "Firmware noch nicht unterstützt",
         "headline": "Firmware {} wird noch nicht unterstützt",
-        "body": "PlayGuard {} wurde bis Firmware {} geprüft. Zur Sicherheit wird nichts geändert, bis Sie entscheiden, wie es weitergeht. Alles kann weiterhin angesehen werden.",
+        "body": "PlayGuard {} wurde bis Firmware {} auf einer Konsole getestet. Zur Sicherheit wird nichts geändert, bis Sie entscheiden, wie es weitergeht. Alles kann weiterhin angesehen werden.",
         "status_checking": "Suche nach einer PlayGuard-Version, die sie unterstützt...",
         "status_supports": "PlayGuard {} unterstützt Firmware {}: Aktualisieren Sie, um alle Funktionen sicher zu nutzen.",
         "status_no_support": "PlayGuard {} ist verfügbar, unterstützt Firmware {} aber noch nicht.",
@@ -134,7 +135,7 @@
         "pc_off": "Nicht eingerichtet",
         "pc_pin_only": "Geheimzahl festgelegt, keine Einschränkung",
         "pin": "Geheimzahl",
-        "pin_set": "Festgelegt ({} Ziffern)",
+        "pin_set": "Festgelegt",
         "level": "Einschränkungskategorie",
         "today_limit": "Heutiges Limit ({})",
         "remaining": "Restzeit heute",
@@ -208,7 +209,8 @@
         "step_alarm": "{}. Alarm „Zeit ist um“ wieder einschalten (nichts warnt, wenn die Zeit um ist)",
         "at_start": "Beim Start anzeigen, solange keine Geheimzahl festgelegt ist",
         "note": "Die Geheimzahl ist die der Konsole; das Limit richtet sich nach der Netzwerkuhr, daher muss sie genau sein. Öffne PlayGuard mit dem Nutzer eines Elternteils: Über einem Spiel geöffnet, zählt seine Zeit als Spielzeit.",
-        "close": "Schließen"
+        "close": "Schließen",
+        "step_protect": "{}. PlayGuard schützen: Geheimzahl abfragen"
     },
     "compat": {
         "ok": "Geprüft",
@@ -549,7 +551,9 @@
         "delete_err": "Altersbeschränkungen konnten nicht gelöscht werden",
         "pin_ok": "Geheimzahl aktualisiert.",
         "pin_err": "Geheimzahl konnte nicht aktualisiert werden",
-        "rescue_note": "Das Wiederherstellungs-Sysmodul ist installiert: Wer die SD-Karte bearbeiten kann, kann damit beim nächsten Start die Konsole entsperren oder alle Altersbeschränkungen löschen. Entfernen Sie es, wenn Sie es nicht mehr brauchen (Ordner atmosphere/contents/4200000000505247)."
+        "rescue_note": "Das Wiederherstellungs-Sysmodul ist installiert: Wer die SD-Karte bearbeiten kann, kann damit beim nächsten Start die Konsole entsperren oder alle Altersbeschränkungen löschen. Entfernen Sie es, wenn Sie es nicht mehr brauchen (Ordner atmosphere/contents/4200000000505247).",
+        "show_pin_change_body": "Geheimzahl jetzt ändern?\n\nJemand anderes könnte sie gesehen haben.",
+        "show_pin_change_confirm": "Ändern"
     },
     "pin_lock": {
         "title": "Geheimzahl abfragen",
@@ -561,7 +565,7 @@
         "notes": {
             "off": "Jeder, der die Konsole in der Hand hat, kann die Einstellungen hier ändern. Zum Anzeigen der Geheimzahl wird sie trotzdem abgefragt.",
             "changes": "Jeder kann sich alles ansehen; nur Eltern können etwas ändern (erneute Abfrage nach 5 Minuten). Zum erneuten Aktivieren wird nie gefragt.",
-            "open": "Ein Sperrbildschirm, bis die Geheimzahl eingegeben wird. Zum erneuten Aktivieren wird nie gefragt."
+            "open": "Ein Sperrbildschirm, bis die Geheimzahl eingegeben wird, und erneut nach 5 Minuten außerhalb von PlayGuard. Zum erneuten Aktivieren wird nie gefragt."
         },
         "no_pin": "Legen Sie zuerst eine Geheimzahl fest (Geheimzahl festlegen oder ändern).",
         "set": "Geheimzahl abfragen: {}",
@@ -605,7 +609,6 @@
             "unconfirmed": "Die Konsole zeigt die in diesem Bericht beschriebene Wiederherstellung nicht."
         },
         "hint": {
-            "show_pin": "falls vergessen",
             "reset_pin": "eine neue wählen",
             "delete": "alles entfernen"
         },
@@ -890,6 +893,8 @@
             "rescue": "Wiederherstellung verwendet",
             "console_lock": "Konsolensperre",
             "bedtime": "Gute-Nacht-Alarm",
+            "pin_shown": "Geheimzahl angezeigt",
+            "config_reset": "Optionen zurückgesetzt (Datei unlesbar)",
             "outside_reset": "Spielzeit neu begonnen (von PlayGuard bemerkt)",
             "outside_clock": "Uhr der Konsole geändert (von PlayGuard bemerkt)",
             "outside_limits": "Limits außerhalb von PlayGuard geändert"
@@ -927,5 +932,12 @@
         "limit_over": "Die Linie ist das Limit des Tages · ! in Orange: darüber gespielt",
         "week_order": "Montag bis Sonntag, heute unterstrichen",
         "unsaved": "* in Orange: geändert, noch nicht gespeichert"
+    },
+    "data_notice": {
+        "config_reset": "Die Optionen von PlayGuard konnten nicht gelesen werden und wurden zurückgesetzt. Die beschädigte Datei wurde als config.json.bad aufbewahrt.",
+        "config_stuck": "Die Optionen von PlayGuard konnten weder gelesen noch beiseitegelegt werden: Es gelten die Standardwerte, und vorerst wird nichts gespeichert, damit die Datei nicht überschrieben wird. Prüfen Sie die SD-Karte.",
+        "history_reset": "Der Änderungsverlauf konnte nicht gelesen werden, daher wurde ein neuer begonnen. Die beschädigte Datei wurde als history.json.bad aufbewahrt.",
+        "history_stuck": "Der Änderungsverlauf konnte weder gelesen noch beiseitegelegt werden: Vorerst werden darin keine Änderungen aufgezeichnet. Prüfen Sie die SD-Karte.",
+        "rescue_unreadable": "Ein Bericht des Wiederherstellungs-Sysmoduls wurde gefunden, konnte aber nicht gelesen werden, daher weiß PlayGuard nicht, was es getan hat. Prüfen Sie die Geheimzahl und die Spielzeit."
     }
 }

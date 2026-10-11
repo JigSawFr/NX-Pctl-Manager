@@ -15,6 +15,7 @@
 
 #include "action/fw_gate.hpp"
 #include "action/pin_lock.hpp"
+#include "action/pt_flow.hpp"
 #include "action/pt_log_flow.hpp"
 #include "action/rescue.hpp"
 #include "activity/init_error_activity.hpp"
@@ -36,6 +37,7 @@
 #include "util/config.hpp"
 #include "util/http.hpp"
 #include "util/paths.hpp"
+#include "util/pctl_ops_c.hpp"
 #include "view/made_in_france.hpp"
 #include "view/scroll_view.hpp"
 #include "view/play_days.hpp"
@@ -146,13 +148,21 @@ int main(int argc, char* argv[])
         // Security › Ask for the PIN: checked before every change from now on;
         // "To open PlayGuard" starts on the lock screen.
         pin_lock::install();
+        // ... and again after a while away, over whatever is open.
+        pin_lock::watch_focus([]() { LockActivity::lock_again(); });
         // The playguard-rescue sysmodule acted on a RESCUE file: show what it
         // did and let the parent finish, before (and instead of) the lock
         // screen — they are here because they forgot the PIN. Only when the
         // console confirms it: anyone can write the report file, and an
         // unconfirmed one leads to the lock screen like any start.
-        if (auto report = rescue::take())
-            brls::Application::pushActivity(new RescueActivity(*report, rescue::confirmed(*report)));
+        auto report = rescue::take();
+        const bool confirmed = report && rescue::confirmed(*report);
+        // Stopped in the middle of a change last time: lock again before any
+        // screen, so a lock screen left with B does not leave the console
+        // unlocked. Not after a confirmed recovery unlock: that one is wanted.
+        if (!(confirmed && report->mode == RescueMode_Unlock)) pt_flow::relock_if_interrupted();
+        if (report)
+            brls::Application::pushActivity(new RescueActivity(*report, confirmed));
         else if (pin_lock::at_start())
             brls::Application::pushActivity(new LockActivity());
         else
@@ -163,6 +173,12 @@ int main(int argc, char* argv[])
     }
 
     pt_log_flow::apply();   // Developer › Record the play timer, when on
+
+    // Game icons kept between runs, next to the play data cache.
+    playstats_set_icon_dir((paths::data_dir() + "/cache/icons").c_str());
+    // borealis joins its task thread before mainLoop() returns: a play-data
+    // or icon read running there stops now, not after every game is read.
+    brls::Application::getExitEvent()->subscribe([]() { playstats_cancel(); });
 
     while (brls::Application::mainLoop())
         ;

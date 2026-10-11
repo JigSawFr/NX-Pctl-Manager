@@ -246,7 +246,7 @@ void DashboardTab::refresh()
 
     if (!s.pin_length_ok) linked(pin, na);
     else if (s.pin_length == 0) linked(pin, "playguard/common/not_set"_i18n);
-    else linked(pin, brls::getStr("playguard/dashboard/pin_set", (int)s.pin_length));
+    else linked(pin, "playguard/dashboard/pin_set"_i18n);   // not its length: it narrows a guess
 
     linked(level, s.safety_level_ok ? ui::level_name(s.safety_level) : na);
 

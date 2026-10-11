@@ -115,16 +115,18 @@ void measure(const std::string& server, std::function<void(const Measurement&)> 
         // Query the servers in parallel so an unreachable one costs a single
         // timeout (one after the other when no thread can be had).
         std::vector<ntp::Reply> replies(hosts.size());
+        // Each stops waiting when the app quits: it waits for this thread.
         std::vector<std::thread> workers;
         for (size_t i = 0; i < hosts.size(); i++) {
             try {
-                workers.emplace_back([&replies, &hosts, i]() { replies[i] = ntp::fetch(hosts[i]); });
+                workers.emplace_back([&replies, &hosts, i]() { replies[i] = ntp::fetch(hosts[i], 2500, 2, ui::quitting); });
             } catch (const std::system_error& e) {
                 brls::Logger::warning("NTP: no thread for {} ({}), querying it here", hosts[i], e.what());
-                replies[i] = ntp::fetch(hosts[i]);
+                replies[i] = ntp::fetch(hosts[i], 2500, 2, ui::quitting);
             }
         }
         for (auto& w : workers) w.join();
+        if (ui::quitting()) return;
         brls::sync([hosts, replies, done]() {
             // Bring every sample to the same instant, then take the median.
             const auto ref = std::chrono::steady_clock::now();

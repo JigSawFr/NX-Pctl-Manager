@@ -445,6 +445,10 @@ void ActivityTab::load_icons()
     s_cache.icons_busy = true;
     brls::async([wanted]() {
         playstats_icons(wanted->data(), wanted->size());
+        if (playstats_cancelled()) {   // quitting: nobody to show them
+            for (PlayIcon& icon : *wanted) std::free(icon.jpeg);
+            return;
+        }
         brls::sync([wanted]() {
             s_cache.icons_busy = false;
             for (PlayIcon& icon : *wanted) {

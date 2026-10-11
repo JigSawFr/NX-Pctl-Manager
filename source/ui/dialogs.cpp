@@ -182,14 +182,14 @@ void wipe(char* p, size_t n)
 }
 }   // namespace
 
-void show_pin_dialog()
+bool show_pin_dialog(std::function<void()> on_close)
 {
     char pin[16];
     Result rc = pctl_get_pin(pin, sizeof(pin));
     brls::Logger::info("pctl_get_pin returned 0x{:08X}", (unsigned)rc);
     if (R_FAILED(rc)) {
         notify_result(rc, "", "playguard/security/show_pin_err"_i18n);
-        return;
+        return false;
     }
     std::string spaced;   // "1 2 3 4": easier to read out and to type
     spaced.reserve(2 * sizeof(pin));   // no reallocation, so no stray copy
@@ -219,9 +219,10 @@ void show_pin_dialog()
     box->addView(digits);
 
     auto* d = new brls::Dialog(box);
-    d->addButton("hints/ok"_i18n, []() {});
-    d->setCancelable(true);
+    d->addButton("hints/ok"_i18n, [on_close]() { if (on_close) on_close(); });
+    on_cancel(d, on_close);
     d->open();
+    return true;
 }
 
 }   // namespace ui

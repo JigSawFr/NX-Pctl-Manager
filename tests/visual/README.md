@@ -4,8 +4,9 @@ What `tools/desktop_smoke.py` shows on screens that come out the same in every
 run (console time fixed, footer clock redrawn at the console's time, 16:00:00), one folder per scenario:
 `smoke/`, `errors/`, `gate/`, `rescue/`, `forged/`, `lock/`, `outside/`. CI compares each new run with them
 (`tools/visual_check.py`) and uploads the side-by-side images of any screen
-that changed. A changed screen does not fail the build: it is a warning on
-the pull request and in the job summary, to look at before merging.
+that changed. A changed screen fails the build, with the details in the job
+summary; the smoke test draws the focus without its moving glow
+(`PLAYGUARD_SIM_STILL_FOCUS`), so a screen nobody changed comes out the same.
 
 A UI change that is meant:
 

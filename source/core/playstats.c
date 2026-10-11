@@ -2,21 +2,56 @@
 // Copyright (C) 2026 JigSawFr.  GPLv3-or-later (see LICENSE).
 #include "playstats.h"
 
+#include <stdatomic.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "../util/playlog.h"
 #include "calendar.h"
+#include "playstats_logic.h"
 #include "time_ops.h"
 
 #define RECORD_CHUNK 64
-#define EVENT_CHUNK  256
 #define DAY_S        86400u
+#define ICONS_MAX_BYTES (16u << 20)          // the icons kept on the SD card, in all
+#define ICONS_MAX_FILES (2 * PLAYSTATS_MAX)
 
-// Names read earlier in this run of the app: reading a game's control data is
-// the slow part, and names do not change while the app is open.
-static struct { u64 id; char name[PLAYSTATS_NAME_LEN]; } s_names[PLAYSTATS_MAX];
-static u32 s_name_count;
+// Names read earlier (this run, or the last one's through playstats_remember):
+// reading a game's control data is the slow part, about 0.5 s a game on
+// 20.0.0+, and names do not change while the app is open.
+static PlayNames s_names;
+// Games with no readable name this run (deleted), not asked again.
+static u64 s_unnamed[PLAYSTATS_MAX];
+static u32 s_unnamed_count;
+// The games of the earlier read, for the all-time totals.
+static u64 s_known[PLAYSTATS_MAX];
+static u32 s_known_count;
+
+static char s_icon_dir[sizeof(((IconStore *)0)->dir)];
+static IconStore s_icons;
+static bool s_icons_tried;
+
+static atomic_bool s_cancel;
+
+void playstats_cancel(void)
+{
+    atomic_store(&s_cancel, true);
+}
+
+bool playstats_cancelled(void)
+{
+    return atomic_load(&s_cancel);
+}
+
+// Never shown: only a quitting app cancels.
+#define RC_CANCELLED MAKERESULT(Module_Libnx, LibnxError_ShouldNotHappen)
+
+static Result query_events(s32 index, PdmPlayEvent *events, s32 count, s32 *got)
+{
+    if (playstats_cancelled()) return RC_CANCELLED;
+    return pdmqryQueryPlayEvent(index, events, count, got);
+}
 
 static GameStat *find_or_add(PlayStats *out, u64 id)
 {
@@ -29,154 +64,107 @@ static GameStat *find_or_add(PlayStats *out, u64 id)
     return g;
 }
 
-// One raw log entry as a playlog event; false for entries that do not matter.
-static bool convert(const PdmPlayEvent *p, PlayLogEvent *e)
-{
-    e->app_id    = 0;
-    e->ts_user   = p->timestamp_user;
-    e->ts_steady = p->timestamp_steady;
-    e->uid[0] = e->uid[1] = 0;
-
-    if (p->play_event_type == PdmPlayEventType_Account) {
-        // 0: the account is opened (picked in the game), 1: closed. The u32
-        // halves are stored swapped in each u64, as for the ProgramId below.
-        const u8 type = p->event_data.account.type;
-        if (type > 1) return false;
-        const u32 *w = p->event_data.account.uid;
-        e->uid[0] = ((u64)w[0] << 32) | w[1];
-        e->uid[1] = ((u64)w[2] << 32) | w[3];
-        e->kind   = type == 0 ? PlayLogEv_AccountOpen : PlayLogEv_AccountClose;
-        return true;
-    }
-    if (p->play_event_type == PdmPlayEventType_PowerStateChange) {   // sleep, wake, shutdown
-        e->kind = PlayLogEv_Away;
-        return true;
-    }
-    if (p->play_event_type != PdmPlayEventType_Applet) return false;
-
-    const u8 type = p->event_data.applet.event_type;
-    if (p->event_data.applet.applet_id != AppletId_application) {
-        // The HOME menu taking the focus: no game has it any more (this is
-        // what ends a session whose game crashed without "out of focus").
-        if (p->event_data.applet.applet_id == AppletId_SystemAppletMenu && type == PdmAppletEventType_InFocus) {
-            e->kind = PlayLogEv_Away;
-            return true;
-        }
-        return false;
-    }
-    // Same filter as the system's own play statistics.
-    if (p->event_data.applet.log_policy != PdmPlayLogPolicy_All) return false;
-    // The two halves of the ProgramId are stored swapped.
-    e->app_id = ((u64)p->event_data.applet.program_id[0] << 32) | p->event_data.applet.program_id[1];
-    switch (type) {
-        case PdmAppletEventType_InFocus:
-            e->kind = PlayLogEv_Focus;
-            return true;
-        case PdmAppletEventType_OutOfFocus:
-        case PdmAppletEventType_OutOfFocus4:
-        case PdmAppletEventType_Exit:
-        case PdmAppletEventType_Exit5:
-        case PdmAppletEventType_Exit6:
-            e->kind = PlayLogEv_Unfocus;
-            return true;
-        case PdmAppletEventType_Launch:   // a new start: whatever was in focus is over,
-            e->app_id = 0;                // and the accounts the previous game had open
-            e->kind   = PlayLogEv_Launch;
-            return true;
-        default:
-            return false;
-    }
-}
-
-// The index to read the log from for entries since `since` (user clock):
-// back from the newest entry a chunk at a time, until a whole chunk is older
-// (a whole chunk, not the first old entry: a clock set back makes the user
-// times go back and forth). Only the last week matters; the log holds years.
-static s32 first_recent_index(s32 start, s32 total, u64 since, PdmPlayEvent *chunk)
-{
-    s32 hi = start + total;   // one past the newest entry
-    while (hi > start) {
-        const s32 lo = hi - EVENT_CHUNK > start ? hi - EVENT_CHUNK : start;
-        s32 got = 0;
-        if (R_FAILED(pdmqryQueryPlayEvent(lo, chunk, hi - lo, &got)) || got <= 0) return start;   // all of it, then
-        bool recent = false;
-        for (s32 i = 0; i < got && !recent; i++) recent = chunk[i].timestamp_user >= since;
-        if (!recent) return hi;
-        hi = lo;
-    }
-    return start;
-}
-
 // The log entries since `since` (user clock), oldest first. *events is
 // malloc'ed (NULL when empty); the caller frees it.
-static Result read_events(u64 since, PlayLogEvent **events, size_t *count)
+static Result read_events(u64 since, PlayLogEvent **events, size_t *count, bool *capped)
 {
     *events = NULL;
     *count  = 0;
+    *capped = false;
     s32 total = 0, start = 0, end = 0;
     Result rc = pdmqryGetAvailablePlayEventRange(&total, &start, &end);
     if (R_FAILED(rc) || total <= 0) return rc;
+    return playstats_collect_events(query_events, start, total, since, PLAYSTATS_EVENTS_MAX, events, count, capped);
+}
 
-    PdmPlayEvent *chunk = (PdmPlayEvent *)malloc(sizeof(PdmPlayEvent) * EVENT_CHUNK);
-    if (!chunk) return MAKERESULT(Module_Libnx, LibnxError_OutOfMemory);
-    size_t cap = 0;
-    s32 index = first_recent_index(start, total, since, chunk);
-    s32 remaining = start + total - index;
-    while (remaining > 0 && R_SUCCEEDED(rc)) {
-        s32 got = 0;
-        rc = pdmqryQueryPlayEvent(index, chunk, remaining < EVENT_CHUNK ? remaining : EVENT_CHUNK, &got);
-        if (R_FAILED(rc) || got <= 0) break;
-        index += got;
-        remaining -= got;
-        for (s32 i = 0; i < got; i++) {
-            PlayLogEvent e;
-            if (!convert(&chunk[i], &e) || e.ts_user < since) continue;
-            if (*count == cap) {
-                size_t grown = cap ? cap * 2 : 1024;
-                PlayLogEvent *bigger = (PlayLogEvent *)realloc(*events, grown * sizeof(PlayLogEvent));
-                if (!bigger) {
-                    rc = MAKERESULT(Module_Libnx, LibnxError_OutOfMemory);
-                    break;
-                }
-                *events = bigger;
-                cap = grown;
-            }
-            (*events)[(*count)++] = e;
-        }
+// The title entry of each console language (SetLanguage), as libnx's
+// nacpGetLanguageEntry() maps them.
+static const u8 NACP_LANGUAGE[SetLanguage_Total] = {
+    [SetLanguage_JA] = 2,      [SetLanguage_ENUS] = 0,   [SetLanguage_FR] = 3,     [SetLanguage_DE] = 4,
+    [SetLanguage_IT] = 7,      [SetLanguage_ES] = 6,     [SetLanguage_ZHCN] = 14,  [SetLanguage_KO] = 12,
+    [SetLanguage_NL] = 8,      [SetLanguage_PT] = 10,    [SetLanguage_RU] = 11,    [SetLanguage_ZHTW] = 13,
+    [SetLanguage_ENGB] = 1,    [SetLanguage_FRCA] = 9,   [SetLanguage_ES419] = 5,  [SetLanguage_ZHHANS] = 14,
+    [SetLanguage_ZHHANT] = 13, [SetLanguage_PTBR] = 15,
+};
+
+// The console language as PlayStats.names_lang (0 when it cannot be read),
+// and its title entry in a control.nacp (American English when unknown).
+static u8 console_language(u32 *nacp_index)
+{
+    *nacp_index = 0;
+    u64 code = 0;
+    SetLanguage lang = SetLanguage_ENUS;
+    if (R_FAILED(setInitialize())) return 0;
+    const bool ok = R_SUCCEEDED(setGetSystemLanguage(&code)) && R_SUCCEEDED(setMakeLanguage(code, &lang)) &&
+                    (u32)lang < SetLanguage_Total;
+    setExit();
+    if (!ok) return 0;
+    *nacp_index = NACP_LANGUAGE[lang];
+    return (u8)(lang + 1);
+}
+
+static void open_icon_store(u8 lang)
+{
+    if (s_icons_tried || !s_icon_dir[0] || !lang) return;
+    s_icons_tried = true;
+    icon_store_open(&s_icons, s_icon_dir, lang, ICONS_MAX_BYTES, ICONS_MAX_FILES);
+}
+
+void playstats_set_icon_dir(const char *dir)
+{
+    const int n = snprintf(s_icon_dir, sizeof(s_icon_dir), "%s", dir ? dir : "");
+    if (n < 0 || (size_t)n >= sizeof(s_icon_dir)) s_icon_dir[0] = '\0';   // too long: none
+}
+
+void playstats_remember(const PlayStats *known)
+{
+    playnames_seed(&s_names, known);
+    s_known_count = 0;
+    for (u32 i = 0; known && i < known->count && i < PLAYSTATS_MAX; i++) s_known[s_known_count++] = known->games[i].app_id;
+}
+
+// A game's control data: ns' cache first (quick, and it still has a game card
+// not inserted or an archived game), then the storage. With `icon`, only data
+// that holds one.
+static bool read_control(u64 id, NsApplicationControlData *cd, bool icon, u64 *size)
+{
+    static const NsApplicationControlSource sources[] = { NsApplicationControlSource_CacheOnly,
+                                                          NsApplicationControlSource_Storage };
+    for (size_t k = 0; k < sizeof(sources) / sizeof(sources[0]); k++) {
+        *size = 0;
+        if (R_SUCCEEDED(nsGetApplicationControlData(sources[k], id, cd, sizeof(*cd), size)) &&
+            *size >= sizeof(cd->nacp) + (icon ? 1 : 0) && *size <= sizeof(*cd))
+            return true;
     }
-    free(chunk);
-    return rc;
+    return false;
 }
 
-// Copies at most n-1 bytes of a UTF-8 string without cutting a character.
-static void copy_utf8(char *dst, size_t n, const char *src)
+// Keeps the icon of control data read for something else (one read a game).
+static void keep_icon(u64 id, const NsApplicationControlData *cd, u64 size)
 {
-    size_t len = strnlen(src, n - 1);
-    if (len == n - 1)
-        while (len > 0 && ((unsigned char)src[len] & 0xC0) == 0x80) len--;   // inside a character
-    memcpy(dst, src, len);
-    dst[len] = '\0';
+    if (size > sizeof(cd->nacp)) icon_store_put(&s_icons, id, cd->icon, (size_t)(size - sizeof(cd->nacp)));
 }
 
-static void read_name(GameStat *g, NsApplicationControlData *cd)
+static void read_name(GameStat *g, NsApplicationControlData **cd, u32 nacp_index)
 {
-    for (u32 i = 0; i < s_name_count; i++) {
-        if (s_names[i].id == g->app_id) {
-            memcpy(g->name, s_names[i].name, sizeof(g->name));
+    const char *known = playnames_find(&s_names, g->app_id);
+    if (known) {
+        playstats_copy_utf8(g->name, sizeof(g->name), known);
+        return;
+    }
+    for (u32 i = 0; i < s_unnamed_count; i++)
+        if (s_unnamed[i] == g->app_id) return;
+    if (!*cd) *cd = (NsApplicationControlData *)malloc(sizeof(NsApplicationControlData));
+    u64 size = 0;
+    if (*cd && read_control(g->app_id, *cd, false, &size)) {
+        keep_icon(g->app_id, *cd, size);
+        if (playstats_nacp_name(&(*cd)->nacp, sizeof((*cd)->nacp), nacp_index, g->name, sizeof(g->name))) {
+            playnames_add(&s_names, g->app_id, g->name);
             return;
         }
     }
-    u64 size = 0;
-    NacpLanguageEntry *lang = NULL;
-    if (R_FAILED(nsGetApplicationControlData(NsApplicationControlSource_Storage, g->app_id, cd, sizeof(*cd), &size)) ||
-        size < sizeof(cd->nacp) || R_FAILED(nacpGetLanguageEntry(&cd->nacp, &lang)) || !lang)
-        return;   // not installed any more: the UI shows the title ID
-    copy_utf8(g->name, sizeof(g->name), lang->name);
-    if (s_name_count < PLAYSTATS_MAX) {
-        s_names[s_name_count].id = g->app_id;
-        memcpy(s_names[s_name_count].name, g->name, sizeof(g->name));
-        s_name_count++;
-    }
+    // Not installed any more, or no name worth showing: the UI shows the title ID.
+    if (*cd && s_unnamed_count < PLAYSTATS_MAX) s_unnamed[s_unnamed_count++] = g->app_id;
 }
 
 // All-time statistics of one game, for every account or one.
@@ -216,7 +204,7 @@ void playstats_fetch_for(PlayStats *out, const PlayAccount *account)
     u64 *ids = NULL;
     size_t id_count = 0, id_cap = 0;
     NsApplicationRecord records[RECORD_CHUNK];
-    for (s32 offset = 0;;) {
+    for (s32 offset = 0; !playstats_cancelled();) {
         s32 got = 0;
         Result rc = nsListApplicationRecord(records, RECORD_CHUNK, offset, &got);
         if (R_FAILED(rc)) {
@@ -242,6 +230,22 @@ void playstats_fetch_for(PlayStats *out, const PlayAccount *account)
         nsExit();
         return;
     }
+    // Then the games of the earlier read that are not installed any more
+    // (pdm keeps their statistics), for "all time".
+    const size_t installed = id_count;
+    for (u32 k = 0; k < s_known_count; k++) {
+        bool listed = false;
+        for (size_t i = 0; i < installed && !listed; i++) listed = ids[i] == s_known[k];
+        if (listed) continue;
+        if (id_count == id_cap) {
+            size_t grown = id_cap ? id_cap * 2 : 128;
+            u64 *bigger = (u64 *)realloc(ids, grown * sizeof(u64));
+            if (!bigger) break;
+            ids = bigger;
+            id_cap = grown;
+        }
+        ids[id_count++] = s_known[k];
+    }
 
     out->stats_rc  = pdmqryInitialize();
     out->events_rc = out->stats_rc;
@@ -258,23 +262,18 @@ void playstats_fetch_for(PlayStats *out, const PlayAccount *account)
         for (int k = 0; k < 7; k++) out->day_wday[k] = (u8)((wday - k + 7) % 7);
         PlayLogEvent *events = NULL;
         size_t event_count = 0;
-        out->events_rc = read_events(day_starts[6] >= DAY_S ? day_starts[6] - DAY_S : 0, &events, &event_count);
-        if (R_SUCCEEDED(out->events_rc) && account && event_count) {
-            // One account: only the time it was open in the game.
-            PlayLogEvent *mine = (PlayLogEvent *)malloc(event_count * sizeof(PlayLogEvent));
-            if (mine) {
-                event_count = playlog_for_account(events, event_count, account->uid, mine, event_count);
-                free(events);
-                events = mine;
-            } else {
-                out->events_rc = MAKERESULT(Module_Libnx, LibnxError_OutOfMemory);
-            }
-        }
+        bool capped = false;
+        out->events_rc = read_events(day_starts[6] >= DAY_S ? day_starts[6] - DAY_S : 0, &events, &event_count, &capped);
+        out->approximate = capped;
+        // One account: only the time it was open in the game (in place: the
+        // log of a clock set back months can be large).
+        if (R_SUCCEEDED(out->events_rc) && account && event_count)
+            event_count = playlog_for_account(events, event_count, account->uid, events, event_count);
         if (R_SUCCEEDED(out->events_rc)) {
             static PlayLogTotal totals[PLAYSTATS_MAX];
             const size_t n = playlog_fold_days(events, event_count, out->now, day_starts,
                                                totals, PLAYSTATS_MAX);
-            for (size_t i = 0; i < n; i++) {
+            for (size_t i = 0; i < n && !playstats_cancelled(); i++) {
                 GameStat *g = find_or_add(out, totals[i].app_id);   // also games deleted since
                 if (!g) break;
                 g->today_s = totals[i].today_s;
@@ -290,7 +289,7 @@ void playstats_fetch_for(PlayStats *out, const PlayAccount *account)
         // Then the all-time totals of every other installed game ever played,
         // while there is room: the games of this week come first, so a large
         // library never pushes today's play out of the list (PLAYSTATS_MAX).
-        for (size_t i = 0; i < id_count; i++) {
+        for (size_t i = 0; i < id_count && !playstats_cancelled(); i++) {
             bool seen = false;
             for (u32 k = 0; k < out->count && !seen; k++) seen = out->games[k].app_id == ids[i];
             if (seen) continue;
@@ -307,11 +306,15 @@ void playstats_fetch_for(PlayStats *out, const PlayAccount *account)
     }
     free(ids);
 
-    NsApplicationControlData *cd = (NsApplicationControlData *)malloc(sizeof(NsApplicationControlData));
-    if (cd) {
-        for (u32 i = 0; i < out->count; i++) read_name(&out->games[i], cd);
-        free(cd);
-    }
+    // Names: those already known, then ns for the others (and their icons,
+    // from the same read).
+    u32 nacp_index = 0;
+    out->names_lang = console_language(&nacp_index);
+    playnames_use_language(&s_names, out->names_lang);
+    open_icon_store(out->names_lang);
+    NsApplicationControlData *cd = NULL;
+    for (u32 i = 0; i < out->count && !playstats_cancelled(); i++) read_name(&out->games[i], &cd, nacp_index);
+    free(cd);
     nsExit();
 }
 
@@ -321,20 +324,36 @@ void playstats_icons(PlayIcon *icons, size_t count)
         icons[i].jpeg = NULL;
         icons[i].size = 0;
     }
-    if (!count || R_FAILED(nsInitialize())) return;
+    if (!count) return;
+    u32 nacp_index = 0;
+    const u8 lang = console_language(&nacp_index);
+    open_icon_store(lang);
+    // Kept on the SD card by an earlier read: no ns at all.
+    size_t missing = 0;
+    for (size_t i = 0; i < count && !playstats_cancelled(); i++) {
+        icons[i].jpeg = icon_store_get(&s_icons, icons[i].app_id, &icons[i].size);
+        if (!icons[i].jpeg) missing++;
+    }
+    if (!missing || playstats_cancelled() || R_FAILED(nsInitialize())) return;
+    playnames_use_language(&s_names, lang);
     NsApplicationControlData *cd = (NsApplicationControlData *)malloc(sizeof(NsApplicationControlData));
     if (cd) {
-        for (size_t i = 0; i < count; i++) {
+        for (size_t i = 0; i < count && !playstats_cancelled(); i++) {
+            if (icons[i].jpeg) continue;
             u64 got = 0;
-            if (R_FAILED(nsGetApplicationControlData(NsApplicationControlSource_Storage, icons[i].app_id, cd, sizeof(*cd), &got)) ||
-                got <= sizeof(cd->nacp))
-                continue;
+            if (!read_control(icons[i].app_id, cd, true, &got)) continue;
             const size_t size = got - sizeof(cd->nacp);
             if (size > sizeof(cd->icon)) continue;
             icons[i].jpeg = (unsigned char *)malloc(size);
             if (!icons[i].jpeg) break;   // out of memory: the rest stay without an icon
             memcpy(icons[i].jpeg, cd->icon, size);
             icons[i].size = size;
+            icon_store_put(&s_icons, icons[i].app_id, icons[i].jpeg, size);
+            // Its name from the same read, for the next fetch.
+            char name[PLAYSTATS_NAME_LEN];
+            if (!playnames_find(&s_names, icons[i].app_id) &&
+                playstats_nacp_name(&cd->nacp, sizeof(cd->nacp), nacp_index, name, sizeof(name)))
+                playnames_add(&s_names, icons[i].app_id, name);
         }
         free(cd);
     }
@@ -358,7 +377,7 @@ size_t playstats_accounts(PlayAccount *out, size_t max, Result *rc_out)
             AccountProfileBase base;
             if (R_SUCCEEDED(accountGetProfile(&profile, uids[i]))) {
                 if (R_SUCCEEDED(accountProfileGet(&profile, NULL, &base)))
-                    copy_utf8(a->nickname, sizeof(a->nickname), base.nickname);
+                    playstats_copy_utf8(a->nickname, sizeof(a->nickname), base.nickname);
                 accountProfileClose(&profile);
             }
         }
@@ -392,7 +411,7 @@ size_t playstats_by_account(u64 app_id, AccountPlay *out, size_t max, Result *rc
                 AccountProfileBase base;
                 if (R_SUCCEEDED(accountGetProfile(&profile, uids[i]))) {
                     if (R_SUCCEEDED(accountProfileGet(&profile, NULL, &base)))
-                        copy_utf8(a->nickname, sizeof(a->nickname), base.nickname);
+                        playstats_copy_utf8(a->nickname, sizeof(a->nickname), base.nickname);
                     accountProfileClose(&profile);
                 }
                 n++;

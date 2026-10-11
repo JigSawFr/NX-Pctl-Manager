@@ -96,7 +96,8 @@
         "relock_failed": "主機已解鎖，但無法重新鎖定：請立即鎖定（安全與應用程式 › 立即鎖定）",
         "not_applied": "主機未接受變更，已還原先前的設定",
         "not_saved": "PlayGuard 無法在 SD 卡上儲存之後需要復原的內容，因此未寫入任何資料",
-        "next_step": "如果再次發生，請傳送報告：「工具 › 線上傳送報告」。"
+        "next_step": "如果再次發生，請傳送報告：「工具 › 線上傳送報告」。",
+        "pt_not_understood": "主機的遊玩時間設定格式PlayGuard無法識別，因此未變更任何設定。請傳送報告：「工具 › 線上傳送報告」。"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -107,7 +108,7 @@
     "fw_gate": {
         "title": "尚未支援此韌體",
         "headline": "尚未支援韌體{}",
-        "body": "PlayGuard {}已確認可用至韌體{}。為了安全起見，在您選擇繼續方式之前，不會變更任何設定。所有內容仍可檢視。",
+        "body": "PlayGuard {}已在主機上測試可用至韌體{}。為了安全起見，在您選擇繼續方式之前，不會變更任何設定。所有內容仍可檢視。",
         "status_checking": "正在尋找支援此韌體的PlayGuard版本…",
         "status_supports": "PlayGuard {}支援韌體{}：請更新，以便安全使用所有功能。",
         "status_no_support": "PlayGuard {}已推出，但尚未支援韌體{}。",
@@ -134,7 +135,7 @@
         "pc_off": "未設定",
         "pc_pin_only": "已設定PIN碼，無限制",
         "pin": "PIN碼",
-        "pin_set": "已設定（{}位數）",
+        "pin_set": "已設定",
         "level": "限制等級",
         "today_limit": "今天的上限（{}）",
         "remaining": "今天剩餘時間",
@@ -208,7 +209,8 @@
         "step_alarm": "{}. 重新開啟「時間到」鬧鐘（否則時間到時不會有任何提醒）",
         "at_start": "未設定PIN碼時，於啟動時顯示",
         "note": "PIN碼即主機本身的家長監護PIN碼；上限依網路時鐘判斷，因此時鐘必須準確。請用家長的使用者開啟PlayGuard：在遊戲上開啟時，其時間會計為遊玩時間。",
-        "close": "關閉"
+        "close": "關閉",
+        "step_protect": "{}. 保護PlayGuard：要求輸入PIN碼"
     },
     "compat": {
         "ok": "已確認",
@@ -549,7 +551,9 @@
         "delete_err": "無法刪除家長監護設定",
         "pin_ok": "已更新PIN碼。",
         "pin_err": "無法更新PIN碼",
-        "rescue_note": "已安裝復原用系統模組：任何能修改SD卡的人，都可以在下次啟動時解除主機鎖定，或刪除所有家長監護設定。不再需要時請將其刪除（資料夾atmosphere/contents/4200000000505247）。"
+        "rescue_note": "已安裝復原用系統模組：任何能修改SD卡的人，都可以在下次啟動時解除主機鎖定，或刪除所有家長監護設定。不再需要時請將其刪除（資料夾atmosphere/contents/4200000000505247）。",
+        "show_pin_change_body": "現在變更PIN碼嗎？\n\n其他人可能已經看到了。",
+        "show_pin_change_confirm": "變更"
     },
     "pin_lock": {
         "title": "要求輸入PIN碼",
@@ -561,7 +565,7 @@
         "notes": {
             "off": "任何拿到主機的人都能在此變更設定。顯示 PIN碼 時仍需輸入 PIN碼。",
             "changes": "任何人都能檢視；只有家長能變更（5分鐘後會再次詢問）。重新鎖定時不會詢問。",
-            "open": "在輸入PIN碼前顯示鎖定畫面。重新鎖定時不會詢問。"
+            "open": "在輸入PIN碼前顯示鎖定畫面；離開PlayGuard 5分鐘後會再次顯示。重新鎖定時不會詢問。"
         },
         "no_pin": "請先設定PIN碼（「設定或變更PIN碼」）。",
         "set": "要求輸入PIN碼：{}",
@@ -605,7 +609,6 @@
             "unconfirmed": "主機狀態與此報告所述的復原不符。"
         },
         "hint": {
-            "show_pin": "忘記時",
             "reset_pin": "重新設定",
             "delete": "全部刪除"
         },
@@ -890,6 +893,8 @@
             "rescue": "已使用復原",
             "console_lock": "主機鎖定",
             "bedtime": "就寢鬧鐘",
+            "pin_shown": "已顯示PIN碼",
+            "config_reset": "偏好設定已重設（檔案無法讀取）",
             "outside_reset": "遊玩時間重新開始計算（PlayGuard發現）",
             "outside_clock": "主機時鐘被更改（PlayGuard發現）",
             "outside_limits": "在PlayGuard之外更改的上限"
@@ -927,5 +932,12 @@
         "limit_over": "線是當天的上限 · 橘色 !：超過了上限",
         "week_order": "週一到週日，有底線的是今天",
         "unsaved": "橘色 *：已變更，尚未儲存"
+    },
+    "data_notice": {
+        "config_reset": "無法讀取PlayGuard的偏好設定，已將其重設。損壞的檔案已保留為config.json.bad。",
+        "config_stuck": "無法讀取PlayGuard的偏好設定，也無法將其移到一旁：目前使用預設值，且暫時不會儲存任何內容，以免覆寫該檔案。請檢查SD卡。",
+        "history_reset": "無法讀取變更紀錄，已開始新的紀錄。損壞的檔案已保留為history.json.bad。",
+        "history_stuck": "無法讀取變更紀錄，也無法將其移到一旁：暫時不會在其中記錄任何變更。請檢查SD卡。",
+        "rescue_unreadable": "找到了復原用 sysmodule 的報告，但無法讀取，因此PlayGuard無法得知它做了什麼。請檢查PIN碼和遊玩時間限制。"
     }
 }

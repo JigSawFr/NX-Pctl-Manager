@@ -42,6 +42,25 @@ void pt_decode(const u16 c[PT_U16_COUNT], u16 days_min[7])
         days_min[n] = pt_has_limit(c, n) ? c[7 + 4 * n + 2] : PT_DAY_NOLIMIT;
 }
 
+// One 8-byte rule at byte `d` (a day, or the header's): see pure.h.
+static bool pt_rule_plausible(const u16 c[PT_U16_COUNT], int d)
+{
+    const u16 minutes = (u16)(pt_byte(c, d + 6) | (pt_byte(c, d + 7) << 8));
+    return pt_byte(c, d + PT_BED_ON) <= 1 && pt_byte(c, d + PT_BED_H) < 24 && pt_byte(c, d + PT_BED_M) < 60 &&
+           pt_byte(c, d + PT_END_H) < 24 && pt_byte(c, d + PT_END_M) < 60 && pt_byte(c, d + PT_LIMIT_ON) <= 1 &&
+           (minutes <= 1440 || minutes == PT_DAY_NOLIMIT);
+}
+
+bool pt_plausible(const u16 c[PT_U16_COUNT])
+{
+    // The four mode bytes (00..03) are not decoded: an unseen companion-app
+    // setting may live there, so any value passes.
+    if (!pt_rule_plausible(c, 4)) return false;
+    for (int n = 0; n < 7; n++)
+        if (!pt_rule_plausible(c, pt_day(n))) return false;
+    return true;
+}
+
 void pt_encode(u16 c[PT_U16_COUNT], const u16 days_min[7])
 {
     bool any = false;
@@ -125,18 +144,6 @@ void pt_bedtime_encode(u16 c[PT_U16_COUNT], const PtBedtime in[7])
     } else if (c[0] == 0) {
         c[0] = 0x0101;
         c[1] = 0x0001;
-    }
-}
-
-const char *pctl_safety_level_name(u32 level)
-{
-    switch (level) {
-        case PctlSafetyLevel_None:       return "None";
-        case PctlSafetyLevel_Custom:     return "Custom";
-        case PctlSafetyLevel_YoungChild: return "Young Child";
-        case PctlSafetyLevel_Child:      return "Child";
-        case PctlSafetyLevel_Teen:       return "Teen";
-        default:                         return "Unknown";
     }
 }
 

@@ -29,12 +29,13 @@ int played_today_min(const PtState& pt)
     return pt_logic::played_today_min(pt, ui::today_weekday());
 }
 
-static void set_relock_pending(bool on)
+// False when the record could not be saved to the SD card.
+static bool set_relock_pending(bool on)
 {
     auto& cfg = config::get();
-    if (cfg.relock_pending == on) return;
+    if (cfg.relock_pending == on) return true;
     cfg.relock_pending = on;
-    ui::save_config();
+    return ui::save_config();
 }
 
 void relock_if_interrupted()
@@ -112,8 +113,13 @@ void confirm_write(const std::string& body_in, const std::string& confirm_label,
             (config::get().auto_relock ? "playguard/play_timer/gate/relock_auto"_i18n
                                        : "playguard/play_timer/gate/relock_manual"_i18n);
     auto unlock_and_write = [write]() {
-        // Should the app stop before finish_write, the next start locks again.
-        set_relock_pending(true);
+        // Should the app stop before finish_write, the next start locks again:
+        // without that record saved, no unlock (as for the extra time).
+        if (!set_relock_pending(true)) {
+            config::get().relock_pending = false;   // not on the card: not in memory either
+            ui::error("playguard/play_timer/gate/failed"_i18n + " — " + ui::rc_text(NXM_RC_NOT_SAVED));
+            return;
+        }
         Result rc = pctl_unlock_restriction_temporarily();
         if (R_FAILED(rc)) {
             settle_failed_unlock();   // not unlocked, or locked again by the service layer

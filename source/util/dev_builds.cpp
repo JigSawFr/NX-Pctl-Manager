@@ -49,6 +49,13 @@ std::string short_commit(const std::string& sha)
 
 bool https(const std::string& url) { return url.compare(0, 8, "https://") == 0; }
 
+// Where fetch() finds builds: a release asset on github.com, an artifact on
+// the API. A list kept on the SD card can be edited: nothing else is taken.
+bool github_url(const std::string& url)
+{
+    return url.compare(0, 19, "https://github.com/") == 0 || url.compare(0, 23, "https://api.github.com/") == 0;
+}
+
 template <typename F>
 bool parse(const std::string& text, F f)
 {
@@ -220,7 +227,7 @@ bool decode_cache(const std::string& text, Cache* out)
             const int64_t size = integer(x, "size");
             const bool commit_ok = b.kind == Kind::Release ? b.commit.empty() : short_commit(b.commit) == b.commit;
             const bool sha_ok = b.sha256.empty() || (b.sha256.size() == 64 && is_hex(b.sha256) && lower(b.sha256) == b.sha256);
-            if (!https(b.url) || size <= 0 || !commit_ok || !sha_ok) continue;
+            if (!github_url(b.url) || size <= 0 || !commit_ok || !sha_ok) continue;
             if (b.kind == Kind::Release ? b.version.empty() : !b.artifact) continue;
             if (b.kind == Kind::PullRequest && b.pr <= 0) continue;
             b.size = (uint64_t)size;

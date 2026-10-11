@@ -23,7 +23,8 @@ void at_start()
     if (!cfg.clock_check_at_start) return;
     const std::string server = cfg.ntp_server.empty() ? ntp::default_server_for_console() : cfg.ntp_server;
     ui::in_background("clock check", [server]() {
-        const ntp::Reply reply = ntp::fetch(server);
+        const ntp::Reply reply = ntp::fetch(server, 2500, 2, ui::quitting);
+        if (ui::quitting()) return;
         TimeSnapshot clocks;
         time_clock_snapshot(&clocks);
         // The server's time at the moment the clocks were read.

@@ -96,7 +96,8 @@
         "relock_failed": "la consola se desbloqueó pero no se pudo volver a bloquear: bloquéala ahora (Seguridad y app › Bloquear ahora)",
         "not_applied": "la consola no aceptó el cambio, así que se restableció la configuración anterior",
         "not_saved": "PlayGuard no pudo guardar en la tarjeta SD lo que tendrá que restablecer más tarde, así que no se escribió nada",
-        "next_step": "Si vuelve a ocurrir, envíe un informe: Herramientas › Enviar un informe en línea."
+        "next_step": "Si vuelve a ocurrir, envíe un informe: Herramientas › Enviar un informe en línea.",
+        "pt_not_understood": "los ajustes del tiempo de juego de la consola están en un formato que PlayGuard no entiende, así que no se cambió nada. Envíe un informe: Herramientas › Enviar un informe en línea."
     },
     "init_error": {
         "title": "PlayGuard",
@@ -107,7 +108,7 @@
     "fw_gate": {
         "title": "Firmware aún no compatible",
         "headline": "El firmware {} aún no es compatible",
-        "body": "PlayGuard {} se verificó hasta el firmware {}. Por seguridad, no se cambiará nada hasta que elija cómo continuar. Todo se puede seguir consultando.",
+        "body": "PlayGuard {} se probó en una consola hasta el firmware {}. Por seguridad, no se cambiará nada hasta que elija cómo continuar. Todo se puede seguir consultando.",
         "status_checking": "Buscando una versión de PlayGuard compatible...",
         "status_supports": "PlayGuard {} es compatible con el firmware {}: actualice para usar todas las funciones con seguridad.",
         "status_no_support": "PlayGuard {} está disponible, pero aún no es compatible con el firmware {}.",
@@ -134,7 +135,7 @@
         "pc_off": "Sin configurar",
         "pc_pin_only": "PIN definido, sin restricciones",
         "pin": "PIN",
-        "pin_set": "Definido ({} dígitos)",
+        "pin_set": "Definido",
         "level": "Nivel de restricción",
         "today_limit": "Límite de hoy ({})",
         "remaining": "Tiempo restante hoy",
@@ -208,7 +209,8 @@
         "step_alarm": "{}. Reactivar la alarma de “Se acabó el tiempo” (nada avisa al terminar)",
         "at_start": "Mostrar al iniciar mientras no haya PIN",
         "note": "El PIN es el de la propia consola; el límite se calcula con el reloj de red, así que debe ser preciso. Abre PlayGuard con el usuario de un adulto: abierto sobre un juego, su tiempo cuenta como tiempo de juego.",
-        "close": "Cerrar"
+        "close": "Cerrar",
+        "step_protect": "{}. Proteger PlayGuard: pedir el PIN"
     },
     "compat": {
         "ok": "Verificado",
@@ -549,7 +551,9 @@
         "delete_err": "No se pudo eliminar el control parental",
         "pin_ok": "PIN actualizado.",
         "pin_err": "No se pudo actualizar el PIN",
-        "rescue_note": "El sysmodule de recuperación está instalado: cualquiera que pueda modificar la tarjeta SD puede desbloquear la consola o eliminar todo el control parental en el próximo arranque. Quítelo cuando ya no lo necesite (carpeta atmosphere/contents/4200000000505247)."
+        "rescue_note": "El sysmodule de recuperación está instalado: cualquiera que pueda modificar la tarjeta SD puede desbloquear la consola o eliminar todo el control parental en el próximo arranque. Quítelo cuando ya no lo necesite (carpeta atmosphere/contents/4200000000505247).",
+        "show_pin_change_body": "¿Cambiar el PIN ahora?\n\nEs posible que otra persona lo haya visto.",
+        "show_pin_change_confirm": "Cambiar"
     },
     "pin_lock": {
         "title": "Pedir el PIN",
@@ -561,7 +565,7 @@
         "notes": {
             "off": "Cualquiera que tenga la consola puede cambiar aquí los ajustes. Mostrar el PIN lo pide igualmente.",
             "changes": "Cualquiera puede consultar; solo el padre o la madre puede cambiar algo (se vuelve a pedir tras 5 minutos). Volver a bloquear nunca lo pide.",
-            "open": "Una pantalla de bloqueo hasta que se ingresa el PIN. Volver a bloquear nunca lo pide."
+            "open": "Una pantalla de bloqueo hasta que se ingresa el PIN, y de nuevo después de 5 minutos fuera de PlayGuard. Volver a bloquear nunca lo pide."
         },
         "no_pin": "Defina primero un PIN (Definir o cambiar el PIN).",
         "set": "Pedir el PIN: {}",
@@ -605,7 +609,6 @@
             "unconfirmed": "La consola no muestra la recuperación que describe este informe."
         },
         "hint": {
-            "show_pin": "si lo olvidó",
             "reset_pin": "elegir uno nuevo",
             "delete": "borrar todo"
         },
@@ -890,6 +893,8 @@
             "rescue": "Recuperación usada",
             "console_lock": "Bloqueo de la consola",
             "bedtime": "Alarma de hora de dormir",
+            "pin_shown": "PIN mostrado",
+            "config_reset": "Preferencias restablecidas (archivo ilegible)",
             "outside_reset": "Tiempo de juego reiniciado (detectado por PlayGuard)",
             "outside_clock": "Reloj de la consola cambiado (detectado por PlayGuard)",
             "outside_limits": "Límites cambiados fuera de PlayGuard"
@@ -927,5 +932,12 @@
         "limit_over": "La línea es el límite del día · ! en ámbar: se jugó más",
         "week_order": "De lunes a domingo, hoy subrayado",
         "unsaved": "* en ámbar: cambiado, aún sin guardar"
+    },
+    "data_notice": {
+        "config_reset": "No se pudieron leer las preferencias de PlayGuard y se restablecieron. El archivo dañado se guardó como config.json.bad.",
+        "config_stuck": "No se pudieron leer las preferencias de PlayGuard ni apartarlas: se usan los valores predeterminados y por ahora no se guardará nada, para no sobrescribir el archivo. Revise la tarjeta SD.",
+        "history_reset": "No se pudo leer el historial de cambios, así que se empezó uno nuevo. El archivo dañado se guardó como history.json.bad.",
+        "history_stuck": "No se pudo leer el historial de cambios ni apartarlo: por ahora no se registrará en él ningún cambio. Revise la tarjeta SD.",
+        "rescue_unreadable": "Se encontró un informe del sysmodule de recuperación, pero no se pudo leer, así que PlayGuard no puede saber qué hizo. Revise el PIN y el tiempo de juego."
     }
 }

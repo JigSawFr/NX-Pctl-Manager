@@ -38,6 +38,8 @@ jobs:
         run: python3 tools/check_resources.py .
       - name: compat.json generator
         run: python3 tools/gen_compat.py . build/compat.json
+      - name: Python tools compile
+        run: python3 -m py_compile tools/*.py
 
   # The same host tests built by clang (other warnings, other sanitizer
   # runtime), then once more by gcc with --coverage for a line coverage
@@ -65,8 +67,23 @@ jobs:
 
   # Builds the UI on Linux against the simulated backend and clicks through
   # every screen headlessly: catches borealis XML / view errors without a console.
-  desktop-smoke:
+  # The scenarios run in parallel shards (under software GL the default one
+  # alone takes over 3 minutes); each shard builds with the shared ccache
+  # (about 12 s warm), and only the first saves it back. The desktop-smoke job
+  # below gathers them under one name for the release job and branch rules.
+  desktop-smoke-shard:
+    name: desktop-smoke (${{ matrix.shard }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - shard: default
+            scenarios: smoke
+          - shard: states
+            scenarios: gate errors rescue forged lock
+          - shard: developer
+            scenarios: devbuild library outside
     env:
       CMAKE_C_COMPILER_LAUNCHER: ccache
       CMAKE_CXX_COMPILER_LAUNCHER: ccache
@@ -87,70 +104,90 @@ jobs:
           sudo apt-get install -y cmake ccache libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev \
             libxcursor-dev libxi-dev libxkbcommon-dev libwayland-dev wayland-protocols libdbus-1-dev \
             libcurl4-openssl-dev xvfb xdotool imagemagick dbus
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .ccache
           key: ccache-desktop-${{ github.sha }}
           restore-keys: ccache-desktop-
       - name: Build (desktop simulation)
         run: make desktop CMAKE_ARGS=-DPLAYGUARD_WERROR=ON && ccache --show-stats
-      - name: Smoke test
-        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke
-      - name: Smoke test (firmware not supported yet, developer mode)
-        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-gate gate
-      - name: Smoke test (limit reached, unlock refused, clock sync off)
-        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-errors errors
-      - name: Smoke test (recovery screen from a rescue report)
-        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-rescue rescue
-      - name: Smoke test (a hand-written rescue report opens nothing)
-        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-forged forged
-      - name: Smoke test (a large library in Activity)
-        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-library library
-      - name: Smoke test (PIN asked to open PlayGuard)
-        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-lock lock
-      - name: Smoke test (install a development build in place)
-        run: xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py smoke-devbuild devbuild
-      # The screens against tests/visual (reference | now | changes in
-      # smoke*/visual_diff/ when one changed; tests/visual/README.md says how
-      # to update the references after a change that is meant). Not blocking:
-      # a screen that changed is a warning on the PR and in the job summary,
-      # with the side-by-side images in the screenshots artifact; the smoke
-      # test above is what fails the job.
-      - name: Visual check (warning only)
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        if: matrix.shard == 'default'
+        with:
+          path: .ccache
+          key: ccache-desktop-${{ github.sha }}
+      # Each scenario writes its screenshots to smoke/ (the default one) or
+      # smoke-<scenario>/. Every scenario of the shard runs; the step fails at
+      # the end if one did.
+      - name: Smoke test (${{ matrix.scenarios }})
+        env:
+          SCENARIOS: ${{ matrix.scenarios }}
         run: |
-          for set in "smoke smoke" "smoke-errors errors" "smoke-gate gate" "smoke-rescue rescue" "smoke-forged forged" "smoke-lock lock"; do
-            set -- $set
-            if python3 tools/visual_check.py "$1" "tests/visual/$2" > "$1-visual.txt" 2>&1; then
-              tail -n 1 "$1-visual.txt"
+          failed=""
+          for sc in $SCENARIOS; do
+            if [ "$sc" = smoke ]; then out=smoke; arg=""; else out="smoke-$sc"; arg="$sc"; fi
+            echo "::group::$sc"
+            xvfb-run -s "-screen 0 1280x720x24" python3 tools/desktop_smoke.py "$out" $arg || failed="$failed $sc"
+            echo "::endgroup::"
+          done
+          if [ -n "$failed" ]; then echo "::error title=Smoke test::failed:$failed"; exit 1; fi
+      # The screens against tests/visual/<scenario> (reference | now | changes
+      # in smoke*/visual_diff/ when one changed; tests/visual/README.md says
+      # how to update the references after a change that is meant). The
+      # simulator draws the focus without its moving glow
+      # (PLAYGUARD_SIM_STILL_FOCUS), so a screen comes out the same in every
+      # run: one that changed fails the job, with the side-by-side images in
+      # the shard's screenshots artifact and the details in the job summary.
+      - name: Visual check
+        env:
+          SCENARIOS: ${{ matrix.scenarios }}
+          ARTIFACT: desktop_smoke_screenshots_${{ matrix.shard }}
+        run: |
+          failed=""
+          for sc in $SCENARIOS; do
+            if [ "$sc" = smoke ]; then out=smoke; else out="smoke-$sc"; fi
+            [ -d "tests/visual/$sc" ] || continue   # no references for this scenario
+            if python3 tools/visual_check.py "$out" "tests/visual/$sc" > "$out-visual.txt" 2>&1; then
+              tail -n 1 "$out-visual.txt"
             else
-              cat "$1-visual.txt"
-              summary=$(grep '^visual check:' "$1-visual.txt" || echo "visual check failed")
-              echo "::warning title=Visual check ($2)::$summary — see the desktop_smoke_screenshots artifact (visual_diff/)"
-              { echo "### Visual check ($2)"; echo '```'; cat "$1-visual.txt"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+              cat "$out-visual.txt"
+              summary=$(grep '^visual check:' "$out-visual.txt" || echo "visual check failed")
+              echo "::error title=Visual check ($sc)::$summary — see the $ARTIFACT artifact (visual_diff/)"
+              { echo "### Visual check ($sc)"; echo '```'; cat "$out-visual.txt"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+              failed="$failed $sc"
             fi
           done
+          [ -z "$failed" ]
       - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: desktop_smoke_screenshots
+          name: desktop_smoke_screenshots_${{ matrix.shard }}
           path: |
-            smoke/*.png
-            smoke-gate/*.png
-            smoke-errors/*.png
-            smoke-rescue/*.png
-            smoke-forged/*.png
-            smoke-lock/*.png
-            smoke-library/*.png
-            smoke-devbuild/*.png
+            smoke*/*.png
             smoke*/visual_diff/*.png
+          retention-days: 14
 
-  # The real .nro, built in the official devkitPro image (same as ./run.sh),
-  # and compat.json (what the app's update check reads from the latest release).
+  # One result for the shards above, under the name the release job and the
+  # branch rules wait for.
+  desktop-smoke:
+    if: ${{ !cancelled() }}
+    needs: [ desktop-smoke-shard ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Every shard passed
+        env:
+          RESULT: ${{ needs.desktop-smoke-shard.result }}
+        run: test "$RESULT" = success
+
+  # The real .nro, built in the official devkitPro image, and compat.json
+  # (what the app's update check reads from the latest release).
   # The image is pinned by digest so a release can be rebuilt with the same
-  # toolchain; to move to a newer devkitPro, replace the digest (from
-  # `docker buildx imagetools inspect devkitpro/devkita64:latest`) here and in
-  # "Build identity" below.
+  # toolchain. The `image:` line below is the only place the digest is
+  # written: "Build identity" and ./run.sh read it from this file. To move to
+  # a newer devkitPro, replace it (from
+  # `docker buildx imagetools inspect devkitpro/devkita64:latest`); the job
+  # then checks that its libnx is still recent enough.
   # The image is pulled before any step runs, and Docker Hub's anonymous limit
   # (per runner IP, shared with every other job on it) can refuse it. With the
   # DOCKERHUB_USERNAME and DOCKERHUB_TOKEN secrets (a read-only access token)
@@ -192,11 +229,32 @@ jobs:
           # refuses it without this, and CMake reads the commit the app shows.
           git config --global --add safe.directory '*'
           export CCACHE_DIR="$GITHUB_WORKSPACE/.ccache" CCACHE_BASEDIR="$GITHUB_WORKSPACE"
-          make dist
+          # PlayGuard's warnings as errors, as on the desktop: the libnx code
+          # (source/core/*.c, the __SWITCH__ paths) is only built here.
+          make dist CMAKE_ARGS=-DPLAYGUARD_WERROR=ON
           # The optional recovery sysmodule, as its own asset (sysmodule/).
           make dist-rescue
           ccache --show-stats
-          dkp-pacman -Q libnx switch-tools switch-curl switch-glfw switch-mesa > toolchain.txt 2>/dev/null || true
+          # The same commit gives the same zips (CONTRIBUTING.md, "Reproducible
+          # zips"): build them once more and compare.
+          sha256sum playguard.zip playguard-rescue.zip > first-build.txt
+          make dist CMAKE_ARGS=-DPLAYGUARD_WERROR=ON
+          make dist-rescue
+          sha256sum -c first-build.txt
+      - name: Toolchain
+        run: |
+          dkp-pacman -Q devkitA64 libnx deko3d switch-tools switch-curl > toolchain.txt
+          cat toolchain.txt
+          # libnx 4.11.0 and 4.11.1 break recursive mutexes (newlib's stdio
+          # and malloc locks), fixed in 4.12.0; before 4.10.0 the thread-local
+          # storage clashes with 21.0.0 and later.
+          libnx=$(sed -n 's/^libnx //p' toolchain.txt)
+          if [ "$(printf '%s\n' 4.12.0 "${libnx%-*}" | sort -V | head -n 1)" != 4.12.0 ]; then
+            echo "::error title=Toolchain::libnx $libnx is older than 4.12.0"
+            exit 1
+          fi
+          # libnx's 21.0.0 marker (LNY2 after MOD0), which hbmenu checks.
+          python3 tools/check_nro.py playguard.nro sysmodule/out/playguard-rescue.elf
       - name: compat.json
         run: python3 tools/gen_compat.py . compat.json
       - name: Build identity
@@ -207,7 +265,7 @@ jobs:
           git config --global --add safe.directory '*'
           {
             echo "commit: $(git rev-parse HEAD)"
-            echo "image: devkitpro/devkita64@sha256:1fc388c3a0d34bd2045a6dadcb1020e069d5f876a187fd705de14b4440c00282"
+            echo "image: $(sed -n 's/^ *image: \(devkitpro\/devkita64@sha256:[0-9a-f]*\)$/\1/p' .github/workflows/build.yml)"
             git submodule status
             cat toolchain.txt
           } > build-info.txt
@@ -250,7 +308,7 @@ jobs:
   release:
     if: inputs.tag
     runs-on: ubuntu-latest
-    needs: [ host-tests, switch, desktop-smoke ]
+    needs: [ host-tests, host-tests-clang-coverage, switch, desktop-smoke ]
     permissions:
       contents: write
       # Build provenance (below): a signed statement, kept by GitHub, that these files

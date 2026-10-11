@@ -5,6 +5,7 @@
 
 static bool s_read_only = false;
 static bool (*s_check)(void) = NULL;
+static bool (*s_reveal)(void) = NULL;
 
 void core_set_read_only(bool on) { s_read_only = on; }
 bool core_read_only(void)        { return s_read_only; }
@@ -15,5 +16,15 @@ Result core_change_allowed(void)
 {
     if (s_read_only) return NXM_RC_READ_ONLY;
     if (s_check && !s_check()) return NXM_RC_NOT_CONFIRMED;
+    return 0;
+}
+
+void core_set_reveal_check(bool (*check)(void)) { s_reveal = check; }
+
+Result core_reveal_allowed(void)
+{
+    if (s_read_only) return NXM_RC_READ_ONLY;
+    bool (*check)(void) = s_reveal ? s_reveal : s_check;
+    if (check && !check()) return NXM_RC_NOT_CONFIRMED;
     return 0;
 }

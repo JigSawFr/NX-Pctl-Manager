@@ -93,9 +93,17 @@ constexpr int BACKUP_KEEP[]   = { 0, 5, 10, 20 };
 constexpr size_t MAX_HOST           = 253;  // longest DNS name
 constexpr size_t MAX_CUSTOM_SERVERS = 10;
 
+// What the last load() found. A config.json that is there but cannot be read
+// or parsed (not one wrong field: those keep their default alone) is put
+// aside as config.json.bad (paths::put_aside: the previous .bad is kept as
+// .bad.1), and the defaults are used. When it cannot be moved, save() refuses
+// to write for the rest of the session rather than replace it.
+enum class Loaded { Missing, Read, PutAside, Stuck };
+
 Config& get();
 void    load();          // never throws; missing / broken file => defaults, per field
-bool    save();          // atomic write; false on failure
+Loaded  loaded();
+bool    save();          // atomic write; false on failure (or Loaded::Stuck)
 // Puts every out-of-range value back to its default (load() calls it).
 void    sanitize(Config& c);
 

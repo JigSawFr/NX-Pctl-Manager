@@ -13,8 +13,10 @@
  * Command IDs for IParentalControlService.
  * Reference: https://switchbrew.org/wiki/Parental_Control_services
  * What was found on hardware is gathered in docs/parental-controls.md.
- * Checked against the command table up to 23.0.1 (no ID used here changed
- * between 21.0.0 and 23.0.1; 23.0.0 only *added* 1023/1412/1460/2025-2027/9407).
+ * Checked against the command table up to 23.0.1 (PCTL_FW_TABLE_CHECKED: no ID
+ * used here changed between 21.0.0 and 23.0.1; 23.0.0 only *added*
+ * 1023/1412/1460/2025-2027/9407). Verified on a console up to 22.5.0
+ * (PCTL_FW_TESTED_MAX): newer goes through the firmware gate.
  *
  *   1006 IsRestrictionTemporaryUnlocked   -> bool
  *   1007 RevertRestrictionTemporaryUnlocked (no args)
@@ -280,7 +282,7 @@ Result pctl_get_pin(char *out, size_t out_size)
 {
     if (out && out_size) secure_zero(out, out_size);
     pctl_ops_exit();   // nothing held while the PIN check may show its applet
-    Result gate = core_change_allowed();   // showing the PIN counts as a change
+    Result gate = core_reveal_allowed();   // asked every time (write_guard.h)
     if (R_FAILED(gate)) return gate;
     if (!out || out_size == 0) return NXM_RC_INVALID_ARGUMENT;
     // Same session handling as the unlock above, where 1208 was validated.
@@ -455,10 +457,15 @@ static void pt_read_core(Service *srv, PtState *out)
     memset(c, 0, sizeof(c));
     out->config_rc = serviceDispatchOut(srv, 145601, c);
     if (R_SUCCEEDED(out->config_rc)) {
+        memcpy(out->block, c, sizeof(out->block));
+        // Not the known layout: nothing decoded from it is shown or reused
+        // (the block itself is kept, as read).
+        if (!pt_plausible(c)) out->config_rc = NXM_RC_PT_NOT_UNDERSTOOD;
+    }
+    if (R_SUCCEEDED(out->config_rc)) {
         out->valid = true;
         pt_decode(c, out->day_min);
         pt_bedtime_decode(c, out->bed);
-        memcpy(out->block, c, sizeof(out->block));
     }
 
     bool be = false;
@@ -554,6 +561,12 @@ Result pctl_play_timer_set_days(const u16 days_min[7])
     u16 c[PT_U16_COUNT];
     memset(c, 0, sizeof(c));
     const bool have_current = R_SUCCEEDED(serviceDispatchOut(srv, 145601, c));
+    // Read, but not a layout this app knows: writing from it could break what
+    // it holds, and a zeroed block would wipe it.
+    if (have_current && !pt_plausible(c)) {
+        pctl_ops_exit();
+        return NXM_RC_PT_NOT_UNDERSTOOD;
+    }
     if (!have_current) {
         memset(c, 0, sizeof(c));
         bool any = false;
@@ -634,6 +647,10 @@ Result pctl_play_timer_set_bedtime(const PtBedtime bed[7], int today)
     if (R_FAILED(serviceDispatchOut(srv, 145601, before))) {
         pctl_ops_exit();
         return NXM_RC_STATE_UNKNOWN;
+    }
+    if (!pt_plausible(before)) {
+        pctl_ops_exit();
+        return NXM_RC_PT_NOT_UNDERSTOOD;
     }
     memcpy(c, before, sizeof(c));
     pt_bedtime_encode(c, bed);
