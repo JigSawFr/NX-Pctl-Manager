@@ -25,9 +25,17 @@ failing and "Synchronise clock via Internet" off (PLAYGUARD_SIM_FAIL & co.):
 a limit change must end in the "could not unlock" dialog, with the app alive,
 and the clock tab must say why the network clock cannot be set.
 
-Usage: tools/desktop_smoke.py <out-dir> [gate|errors|rescue|forged|lock|devbuild|library]   (needs DISPLAY, xdotool, ImageMagick)
+The "outside" scenario starts with a watch.json from an earlier run that the
+console no longer matches (more time played, another clock offset, other
+limits) and a time left that does not go down (PLAYGUARD_SIM_NOT_COUNTING):
+the Overview must say what changed outside PlayGuard, record it in the
+change history, then, after 90 s on screen, that the console is not
+counting; the notice must go when dismissed.
+
+Usage: tools/desktop_smoke.py <out-dir> [gate|errors|rescue|forged|lock|devbuild|library|outside]   (needs DISPLAY, xdotool, ImageMagick)
 Environment knobs of the simulated backend (PLAYGUARD_SIM_*) are passed through;
-the console time is fixed (PLAYGUARD_SIM_NOW, TZ) unless set.
+the console time is fixed (PLAYGUARD_SIM_NOW, TZ) and the focus glow still
+(PLAYGUARD_SIM_STILL_FOCUS) unless set.
 """
 import json
 import os
@@ -46,6 +54,7 @@ FORGED = SCENARIO == "forged"
 LOCK = SCENARIO == "lock"
 DEVBUILD = SCENARIO == "devbuild"
 LIBRARY = SCENARIO == "library"
+OUTSIDE = SCENARIO == "outside"
 os.makedirs(OUT, exist_ok=True)
 run_dir = os.path.join(OUT, "run")
 os.makedirs(run_dir, exist_ok=True)
@@ -62,6 +71,8 @@ env = dict(os.environ, LIBGL_ALWAYS_SOFTWARE="1")
 # 8 October 2026, 16:00 UTC. Only the footer clock follows the host.
 env.setdefault("PLAYGUARD_SIM_NOW", "1791475200")
 env.setdefault("TZ", "UTC")
+# And the focus highlight without its moving glow (ui/theme.cpp).
+env.setdefault("PLAYGUARD_SIM_STILL_FOCUS", "1")
 if GATE:
     env.setdefault("PLAYGUARD_SIM_FW", "24.0.0")
     env.setdefault("PLAYGUARD_SIM_LATEST", "1.1.0:24.0.0")
@@ -163,6 +174,19 @@ if LIBRARY:
     # A large library: the Activity list builds its first rows, then the
     # rest on "Show every game".
     env.setdefault("PLAYGUARD_SIM_GAMES", "120")
+if OUTSIDE:
+    # What PlayGuard saw last time (outside_change_logic): 100 min played
+    # today (the console says 80), a clock 15 min off the steady one (the
+    # simulated steady clock's source is 16 bytes of 0x53), 1 h 30 on
+    # Saturday (the console has 3 h).
+    env.setdefault("PLAYGUARD_SIM_NOT_COUNTING", "1")
+    watch_file = os.path.join(run_dir, "playguard_data", "watch.json")
+    os.makedirs(os.path.dirname(watch_file), exist_ok=True)
+    json.dump({"schema": 1, "date": "2026-10-08", "spent_s": 6000, "offset_s": 900, "steady_id": "53" * 16,
+               "limits": [180, 120, 120, 120, 120, 120, 90]}, open(watch_file, "w"))
+    history_file = os.path.join(run_dir, "playguard_data", "history.json")
+    if os.path.exists(history_file):
+        os.remove(history_file)   # the outside_* entries must be this run's
 if LOCK:
     # Security › Ask for the PIN › To open PlayGuard: the lock screen comes
     # first, and the right PIN (the simulated PIN screen accepts) opens the
@@ -232,6 +256,21 @@ for _ in range(60):
     time.sleep(0.5)
 else:
     fail("no window after 30 s")
+# The window exists before its first frame: wait until the screen is drawn
+# (not all black), else the first screenshot can catch an empty window on a
+# slow runner. Then a moment more for the first screen to settle.
+probe = os.path.join(OUT, "_first_frame.png")
+for _ in range(40):
+    subprocess.run(["import", "-window", "root", probe], env=env)
+    mean = subprocess.run(["convert", probe, "-format", "%[fx:mean]", "info:"], capture_output=True, text=True).stdout
+    if mean and float(mean) > 0.05:
+        break
+    if not alive():
+        fail("app exited during start-up")
+    time.sleep(0.5)
+else:
+    fail("the window stayed black for 20 s")
+os.remove(probe)
 time.sleep(2)
 
 tabs = ["dashboard", "play_timer", "activity", "restrictions", "clock", "security", "preferences", "tools", "about"]
@@ -412,6 +451,45 @@ if LIBRARY:
     if listed()[-1] != f"{total} of {total} games":
         fail("\"Show every game\" did not list them all: " + repr(listed()))
     finish()
+if OUTSIDE:
+    def log_text():
+        log.flush()
+        return open(os.path.join(OUT, "app.log"), errors="replace").read()
+    shot("01_outside")         # the amber notice: play time started over, clock, limits
+    try:
+        kinds = [e.get("kind") for e in json.load(open(history_file)).get("entries", [])]
+    except (OSError, ValueError) as e:
+        fail(f"no history written: {e}")
+    for kind in ("outside_reset", "outside_clock", "outside_limits"):
+        if kinds.count(kind) != 1:
+            fail(f"{kind} recorded {kinds.count(kind)} times in the history: {kinds!r}")
+    # The time left stays the same: after 90 s on screen, the Overview says
+    # the console is not counting.
+    for _ in range(150):
+        if "timer health: not counting" in log_text():
+            break
+        if not alive():
+            fail("app exited while waiting for the timer health check")
+        time.sleep(1)
+    else:
+        fail("the Overview never said the console is not counting")
+    time.sleep(6)              # the next refresh shows it
+    shot("02_not_counting")
+    key("Down")                # Play timer: its state line says it too
+    key("Right")
+    shot("03_play_timer_not_counting")
+    key("Down")                # off the week chart (←/→ pick a day there)
+    key("Left")
+    key("Up")                  # back to the Overview, on the notice's Dismiss line
+    key("Right")
+    key("Return")
+    shot("04_dismissed")
+    try:
+        if json.load(open(watch_file)).get("notice"):
+            fail("the notice was not dismissed in " + watch_file)
+    except (OSError, ValueError) as e:
+        fail(f"watch.json unreadable: {e}")
+    finish()
 if LOCK:
     shot("01_unlocked")        # the PIN screen answered at once: the Overview
     if not main_opened():
@@ -435,7 +513,7 @@ if FORGED:
     finish()
 if RESCUE:
     shot("01_recovery")        # the recovery screen, in place of the usual first screen
-    key("Down", 3)             # past Show the PIN / Set a new PIN / Delete: Open PlayGuard
+    key("Down", 2)             # past Set a new PIN / Delete: Open PlayGuard
     key("Return")              # proceed to the app
     shot("02_opened")          # the Overview: the app opened after the rescue
     if not alive():

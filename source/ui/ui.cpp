@@ -37,6 +37,7 @@ static std::string hint_for(Result rc)
             case 11: return "playguard/error/relock_failed"_i18n;
             case 12: return "playguard/error/not_applied"_i18n;
             case 13: return "playguard/error/not_saved"_i18n;
+            case 14: return "playguard/error/pt_not_understood"_i18n;
             default: return "";
         }
     }

@@ -2,6 +2,7 @@
 // into play time per game for today and the last 7 days.
 #include "check.h"
 #include <stdio.h>
+#include <string.h>
 
 #include "playlog.h"
 
@@ -231,6 +232,27 @@ static void test_accounts(void)
     const uint64_t nobody[2] = { 1, 2 };
     CHECK(playlog_for_account(log, n, nobody, mine, 32) == 0);
     CHECK(playlog_for_account(log, n, leo, mine, 1) == 1);
+
+    // In place, as playstats.c filters the log it read: the same time, also
+    // when the focus goes straight from one game to another.
+    const PlayLogEvent swap[] = {
+        ev(A, PlayLogEv_Launch, T), acc(PlayLogEv_AccountOpen, T, ALICE), ev(A, PlayLogEv_Focus, T),
+        ev(B, PlayLogEv_Focus, T + 600), ev(A, PlayLogEv_Focus, T + 900), ev(A, PlayLogEv_Unfocus, T + 1200),
+    };
+    const size_t ns = sizeof(swap) / sizeof(swap[0]);
+    m = playlog_for_account(swap, ns, alice, mine, 32);
+    CHECK(m <= ns);
+    k = fold(mine, m, t);
+    CHECK(k == 2 && find(t, k, A)->today_s == 600 + 300 && find(t, k, B)->today_s == 300);
+    PlayLogEvent same[sizeof(log) / sizeof(log[0])];
+    memcpy(same, log, sizeof(log));
+    m = playlog_for_account(same, n, alice, same, n);
+    k = fold(same, m, t);
+    CHECK(k == 1 && find(t, k, A)->today_s == 1500 + 1200);
+    memcpy(same, swap, sizeof(swap));
+    m = playlog_for_account(same, ns, alice, same, ns);
+    k = fold(same, m, t);
+    CHECK(k == 2 && find(t, k, A)->today_s == 600 + 300 && find(t, k, B)->today_s == 300);
 }
 
 int main(void)

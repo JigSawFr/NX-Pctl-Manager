@@ -9,13 +9,16 @@
 #   ./run.sh clean            run `make clean` in the container
 #   ./run.sh dist             build the SD-card zip (playguard.zip)
 #
-# Needs Docker. The devkitpro/devkita64 image is pulled automatically on first use.
+# Needs Docker. The devkitpro/devkita64 image is pulled automatically on first use,
+# at the digest CI builds the releases with: read from the `image:` line of
+# .github/workflows/build.yml, the one place it is written.
 # (Build artifacts stay owned by the current user; nothing is written to /opt.)
 
 set -e
 
-IMG=devkitpro/devkita64
 DIR=$(cd "$(dirname "$0")" && pwd)
+IMG=$(sed -n 's/^ *image: \(devkitpro\/devkita64@sha256:[0-9a-f]*\)$/\1/p' "$DIR/.github/workflows/build.yml")
+[ -n "$IMG" ] || { echo "run.sh: no devkitpro/devkita64 digest in .github/workflows/build.yml" >&2; exit 1; }
 
 dkp() {
     docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -v "$DIR":/project -w /project "$@"

@@ -34,6 +34,12 @@ void time_clock_dump(char *buf, size_t size);
 // The console's time-zone rule (Settings > Time Zone), daylight saving included.
 const TimeRule *time_console_rule(void);
 
+// The standard steady clock: seconds since the console's RTC was set up,
+// kept through sleep mode and restarts; changing the console clock does not
+// move it. `source_id` (16 bytes, may be NULL) names its source: values from
+// two sources do not compare. Read only.
+Result time_steady_now(u64 *seconds, u8 source_id[16]);
+
 // The user clock now (what the HOME menu shows), read live, and the same in
 // local time. False when the local time is unknown (`posix` is still set).
 // Use this rather than time()/localtime(): see calendar.h.

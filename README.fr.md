@@ -27,6 +27,7 @@ PlayGuard est un homebrew qui ramène sur la console, hors ligne, les réglages 
 - [Premiers pas](#premiers-pas)
 - [Les fonctions, onglet par onglet](#les-fonctions-onglet-par-onglet)
 - [Sûr par conception](#sûr-par-conception)
+- [Ce qui compte comme temps de jeu](#ce-qui-compte-comme-temps-de-jeu)
 - [Console bloquée ?](#console-bloquée--console-doccasion-code-pin-oublié)
 - [PlayGuard ou un sysmodule de remplacement ?](#playguard-ou-un-sysmodule-de-remplacement-)
 - [Signaler un bug](#signaler-un-bug)
@@ -66,13 +67,13 @@ Piloter le contrôle parental de la console ouvre aussi la porte à bien plus : 
 
 | | Pris en charge | Remarques |
 |---|---|---|
-| **Firmware** | **21.0.0 → 23.0.1** | La structure de la limite de temps de jeu (0x44 octets) existe depuis 21.0.0 ; en dessous, tous les onglets fonctionnent sauf le temps de jeu. |
+| **Firmware** | **21.0.0 → 22.5.0** | La structure de la limite de temps de jeu (0x44 octets) existe depuis 21.0.0 ; en dessous, tous les onglets fonctionnent sauf le temps de jeu. 23.x passe par l'écran [firmware plus récent](#firmware-plus-recent) tant qu'il n'a pas été testé sur console. |
 | **Atmosphère** | **1.11.x → 1.12.0** | 1.12.0 ajoute 23.0.0. L'application affiche la version détectée. |
 | **Lanceurs** | hbmenu, **sphaira**, **Homebrew App Store** | Le lancement par-dessus un jeu (title override) est recommandé. L'application indique si elle tourne en application ou en applet (album). Par-dessus un jeu, la console compte le temps passé dans PlayGuard comme celui de ce jeu. Dans l'activité, il va au compte choisi au lancement : ouvrez-le avec le compte d'un parent, pas celui d'un enfant. Le minuteur est celui de la console, le même pour tous les comptes : il compte ce temps quel que soit le compte (sauf minuteur désactivé). |
-| **Testé sur console** | 22.0.0, 22.1.0 et 22.5.0 / Atmosphère 1.11.x | Chaque constat de [docs/parental-controls.md](docs/parental-controls.md) (en anglais) dit sur quel firmware il a été fait. 23.0.1 / 1.12.0 est couvert par la table des commandes ([switchbrew](https://switchbrew.org/wiki/Parental_Control_services)) mais pas encore testé sur console — vos retours sont bienvenus. |
+| **Testé sur console** | 22.0.0, 22.1.0, 22.5.0 | 23.0.1 / 1.12.0 : la table des commandes ([switchbrew](https://switchbrew.org/wiki/Parental_Control_services)) a les mêmes commandes, mais rien n'a encore tourné sur console, donc PlayGuard demande d'abord (lecture seule tant que vous n'avez pas choisi) — vos retours sont bienvenus. |
 | **Nintendo Switch 2** | Non prise en charge | Atmosphère n'existe pas pour elle. |
 
-**Firmware plus récent ?** PlayGuard s'ouvre **en lecture seule** et vérifie si une version plus récente le prend en charge. Si c'est le cas, il propose de mettre à jour avec sphaira ou le Homebrew App Store. Sinon, vous choisissez : lecture seule, lecture seule avec les outils développeur (pour diagnostiquer le firmware), ou toutes les fonctions à vos risques. Le choix peut être mémorisé pour ce firmware et cette version de l'application ; *Outils › Compatibilité* rouvre l'écran.
+<a id="firmware-plus-recent"></a>**Firmware plus récent ?** Au-delà du plus récent firmware testé sur console, PlayGuard s'ouvre **en lecture seule** et vérifie si une version plus récente le prend en charge. Si c'est le cas, il propose de mettre à jour avec sphaira ou le Homebrew App Store. Sinon, vous choisissez : lecture seule, lecture seule avec les outils développeur (pour diagnostiquer le firmware), ou toutes les fonctions à vos risques. Le choix peut être mémorisé pour ce firmware et cette version de l'application ; *Outils › Compatibilité* rouvre l'écran.
 
 **emuMMC et sysMMC.** Chacune a son propre contrôle parental, et PlayGuard ne voit que celui du système sur lequel il tourne. En emuMMC, *Outils* et *Premiers pas* le signalent ; en sysMMC aussi, quand une emuMMC est configurée sur la carte SD. Réglez le contrôle parental sur les deux, ou masquez le menu de démarrage d'hekate pour qu'un enfant ne puisse pas choisir l'autre système.
 
@@ -99,14 +100,14 @@ Tous dans `sd:/switch/playguard/` :
 
 | Chemin | Contenu |
 |---|---|
-| `config.json` | Préférences (langue, thème, serveur NTP, *Demander le code PIN*…) ; chaque clé dans [docs/config.md](docs/config.md) (en anglais) |
-| `history.json` | L'historique des modifications (les 200 dernières) ; s'il est illisible, il est gardé en `history.json.bad` plutôt qu'écrasé |
+| `config.json` | Préférences (langue, thème, serveur NTP, *Demander le code PIN*…) ; chaque clé dans [docs/config.md](docs/config.md) (en anglais). S'il est illisible, il est gardé en `config.json.bad` (le précédent en `.bad.1`) et les réglages repartent de leurs valeurs par défaut ; PlayGuard le signale une fois au démarrage |
+| `history.json` | L'historique des modifications (les 200 dernières) ; s'il est illisible, il est gardé en `history.json.bad` (le précédent en `.bad.1`) plutôt qu'écrasé, et PlayGuard le signale une fois |
 | `profiles/` | Profils de limites enregistrés |
 | `backups/` | Sauvegardes des réglages (jamais le code PIN) |
 | `exports/` | Exports de l'activité |
-| `cache/` | La dernière activité de jeu lue (tous les comptes, et chaque compte consulté), affichée dès le lancement suivant pendant que le journal est relu ; en mode développeur, la liste d'*Installer un autre build* (`dev_builds.json`) |
+| `cache/` | La dernière activité de jeu lue (tous les comptes, et chaque compte consulté), affichée dès le lancement suivant pendant que le journal est relu ; les icônes des jeux (`icons/`, 16 Mo au plus, vidé quand la langue de la console change), pour ne pas relire le nom et l'icône de chaque jeu à chaque lancement ; en mode développeur, la liste d'*Installer un autre build* (`dev_builds.json`) |
 | `github_token` | Mode développeur uniquement : la connexion GitHub d'*Installer un autre build* (supprimé à la déconnexion) |
-| `rescue_report.txt` | Laissé par le sysmodule de secours après son intervention, jusqu'à ce que PlayGuard l'affiche au démarrage |
+| `rescue_report.txt` | Laissé par le sysmodule de secours après son intervention, jusqu'à ce que PlayGuard l'affiche au démarrage (illisible, il est supprimé et PlayGuard le signale) |
 | `logs/` | Rapports de diagnostic (jamais le code PIN ni le numéro de série), les fichiers des outils développeur, `uploads.txt` (les liens des rapports envoyés en ligne) et `crash.txt` (ce qui a arrêté PlayGuard, s'il a planté) |
 
 Plus de détails dans [packaging/README.md](packaging/README.md) (en anglais).
@@ -130,11 +131,14 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 <details>
 <summary><b>Vue d'ensemble</b> — la journée en un coup d'œil</summary>
 
-- **D'abord la journée :** jauge du temps de jeu (quand aucun jeu ne tourne, le temps lu dans le journal d'activité, marqué ≈), limite du jour, temps restant, alarme du coucher. L'alarme « temps écoulé » apparaît en orange tant qu'elle est désactivée — Ⓐ la réactive.
-- **Puis l'état :** contrôle parental, code PIN, niveau de restriction.
+- **D'abord la journée :** jauge du temps de jeu (quand aucun jeu ne tourne, le temps lu dans le journal d'activité, marqué ≈), limite du jour, temps restant, alarme du coucher. L'alarme « temps écoulé » apparaît en orange tant qu'elle est désactivée — Ⓐ la réactive. Sous la jauge, un rappel : un jeu laissé ouvert sur le menu HOME continue d'être décompté (voir [Ce qui compte comme temps de jeu](#ce-qui-compte-comme-temps-de-jeu)).
+- **La console décompte-t-elle ?** Le temps de PlayGuard lui-même compte quand il tourne comme une application : avec une limite aujourd'hui, le temps restant doit donc baisser tant qu'il est ouvert. S'il n'a pas bougé pendant environ 90 s à l'écran (minuteur actif, limite aujourd'hui, pas de déverrouillage, pas d'ouverture depuis l'album), une ligne orange indique *La console ne décompte pas le temps de jeu en ce moment*, avec les causes probables : l'horloge a été reculée (le décompte reprendra plus tard), l'horloge réseau n'a jamais été réglée (onglet *Horloge réseau*), ou une limite vient d'être écrite (lancez un jeu une minute, puis vérifiez). Elle disparaît dès que le temps restant bouge de nouveau. La ligne d'état de Temps de jeu l'indique aussi.
+- **Modifié en dehors de PlayGuard :** le temps de jeu du jour reparti de zéro le même jour (un changement d'horloge fait cela), l'horloge de la console déplacée de plus de 5 minutes, des limites différentes de celles que PlayGuard a vues en dernier (l'application mobile, un autre outil). Un avis orange jusqu'à ce qu'il soit masqué ou jusqu'au lendemain, et une entrée dans l'historique des modifications. PlayGuard ne tourne pas en arrière-plan : il ne voit que ce qui a changé pendant qu'il était ouvert, ou depuis sa dernière ouverture, quand il relit la console.
+- **À la limite**, la console affiche « temps écoulé ». Sur la console où PlayGuard a été testé (22.0.0), elle a aussi suspendu le jeu, sans « continuer ». Si l'application mobile a déjà été réglée sur « alarme seulement », la console peut se contenter de prévenir : PlayGuard ne peut pas encore lire ni modifier ce réglage ([détails, en anglais](docs/parental-controls.md#when-the-time-runs-out)).
+- **Puis l'état :** contrôle parental, code PIN (*Défini* ou *Non défini*, jamais sa longueur), niveau de restriction.
 - **Puis ce qui demande attention :** précision de l'horloge réseau, association de l'application mobile (en orange tant qu'elle est associée), firmware / compatibilité seulement en cas de problème, avertissements sur le masquage du numéro de série et les patchs de jeux.
 - Les lignes qui ouvrent un autre onglet se terminent par un chevron (›). Ⓐ sur *Limite d'aujourd'hui* la modifie sur place ; Ⓐ sur *Horloge réseau › Imprécise* mesure et règle l'horloge directement.
-- **Temps en plus aujourd'hui** (+15 min, +30 min, +1 h par défaut) et **Plus de jeu aujourd'hui** (limite à 0 pour aujourd'hui seulement ; le jeu en cours est suspendu au reverrouillage, ce que la confirmation signale). Le lendemain — au lancement, ou à minuit si l'application est ouverte — PlayGuard propose de remettre la limite habituelle, ou le fait de lui-même (*Préférences › Remettre d'office la limite habituelle le lendemain*).
+- **Temps en plus aujourd'hui** (+15 min, +30 min, +1 h par défaut) et **Plus de jeu aujourd'hui** (limite à 0 pour aujourd'hui seulement, *maintenant* ou *dans 5 minutes* quand le temps joué est connu : la limite devient alors le temps joué + 5 min, le temps de sauvegarder ; au reverrouillage, le « temps écoulé » de la console apparaît, et la progression non sauvegardée peut être perdue — la confirmation le signale). Le lendemain — au lancement, ou à minuit si l'application est ouverte — PlayGuard propose de remettre la limite habituelle, ou le fait de lui-même (*Préférences › Remettre d'office la limite habituelle le lendemain*).
 - Un bandeau **Verrouiller maintenant** tant que le contrôle parental est déverrouillé temporairement.
 - Tant qu'aucun code PIN n'est défini, une ligne **Premiers pas** ouvre le guide en trois étapes, qui s'affiche aussi au lancement.
 - Actualisation toutes les 5 s, avec l'heure de la dernière actualisation (Ⓧ pour actualiser tout de suite).
@@ -148,6 +152,7 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 - **Même limite tous les jours :** liste rapide ou valeur libre, en minutes (`90`, `90 min`) ou en heures (`1:30`, `1h30`).
 - **Limite différente selon le jour :** jours non enregistrés en orange et marqués \*, valeurs rapides, préréglages lundi–vendredi / week-end, « pas de limite » par jour ; **+** enregistre depuis n'importe où.
 - **Suppression de la limite**, **temps en plus aujourd'hui**, **plus de jeu aujourd'hui** (comme dans la Vue d'ensemble).
+- Une note sous la limite quotidienne dit ce que fait la console à la limite (comme dans la Vue d'ensemble). Pendant un déverrouillage temporaire du contrôle parental, le temps de jeu n'est *peut-être* pas décompté : la question reste ouverte ([docs, en anglais](docs/parental-controls.md#still-open)).
 - **Profils** enregistrés sur la carte SD : appliquer, modifier, renommer ou supprimer un profil ; enregistrer les limites actuelles ou en créer un nouveau. N'importe quel nom, dans n'importe quelle écriture (*École*, *周末*, *Выходные* …) — un nom sans lettres latines reçoit son propre nom de fichier, et deux noms qui donneraient le même fichier sont repérés.
 - Chaque confirmation dessine la semaine telle qu'elle sera, les jours qui changent en orange.
 - **Alarme du coucher** : l'heure de l'alarme (16:00 à 23:45, ou désactivée) et l'heure où le jeu est de nouveau permis (05:00 à 09:00), la même tous les jours. Sa place dans les réglages du minuteur a été déduite des réglages de l'application mobile, pas lue sur une console où une heure du coucher était réglée : PlayGuard ne la modifie que si la console indique ce qu'il y lit, vérifie la réponse de la console après la modification et remet les réglages précédents si elle diffère. Avancé, sur activation : alarme « temps écoulé », pause / reprise du décompte.
@@ -162,7 +167,7 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 - Un **résumé** sur la période choisie, pour le compte affiché : moyenne par jour, le jeu le plus joué, les jours joués et le plus chargé (7 derniers jours), la session moyenne (depuis toujours).
 - **À redécouvrir** : les jeux installés, à moins de 3 h au total et pas lancés depuis un mois ou plus, les moins joués d'abord (jusqu'à trois).
 - Tri par période ; les premiers jeux affichent leur icône (pas en mode applet, pour économiser la mémoire). Une grande bibliothèque affiche ses 50 premiers jeux, puis *Afficher tous les jeux* ; l'export les contient toujours tous.
-- Ⓐ sur un jeu : ses sept derniers jours en barres, ses lancements, ses première et dernière parties, le temps de chaque compte. Les jeux supprimés gardent leurs chiffres depuis toujours.
+- Ⓐ sur un jeu : ses sept derniers jours en barres, ses lancements, ses première et dernière parties, le temps de chaque compte. Les jeux supprimés gardent leurs chiffres depuis toujours, et leur nom dès que PlayGuard l'a vu.
 - **Export sur la carte SD** en CSV, JSON, XLSX (Excel) ou PDF, une colonne par jour.
 - S'ouvre aussitôt sur les derniers chiffres lus (gardés sur la carte SD d'un lancement à l'autre), actualisés en arrière-plan au-delà d'une minute ; Ⓧ les relit tout de suite, avec un indicateur de chargement.
 - Durées approximatives si l'horloge de la console a été modifiée.
@@ -189,8 +194,8 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 <details>
 <summary><b>Sécurité et appli</b> — code PIN, verrous, application mobile</summary>
 
-- **Définir ou changer le code PIN** (écran système), **afficher le code PIN** (après un avertissement et le code PIN lui-même), **déverrouiller temporairement**, **verrouiller maintenant**.
-- **Demander le code PIN** dans PlayGuard lui-même : *Jamais*, *Avant une modification* (par défaut : tout le monde peut regarder, seul le parent modifie ; redemandé après 5 min) ou *Pour ouvrir PlayGuard*. Vérifié dans la couche service, donc aucune modification n'y échappe ; reverrouiller ne le demande jamais. *Afficher le code PIN* le demande même sur *Jamais*, et un `config.json` absent ou abîmé compte comme *Avant une modification*. Quitter alors que le contrôle parental est encore déverrouillé propose de le reverrouiller.
+- **Définir ou changer le code PIN** (écran système), **afficher le code PIN** (après un avertissement et le code PIN lui-même, demandé à chaque fois ; noté dans l'historique, puis un nouveau code PIN est proposé), **déverrouiller temporairement**, **verrouiller maintenant**.
+- **Demander le code PIN** dans PlayGuard lui-même : *Jamais*, *Avant une modification* (par défaut : tout le monde peut regarder, seul le parent modifie ; redemandé après 5 min) ou *Pour ouvrir PlayGuard* (un écran verrouillé au lancement, et de nouveau quand PlayGuard revient après 5 min ou plus hors de l'écran). Vérifié dans la couche service, donc aucune modification n'y échappe ; reverrouiller ne le demande jamais. *Afficher le code PIN* le demande à chaque fois, dans tous les modes et même pendant les 5 minutes, et un `config.json` absent ou abîmé compte comme *Avant une modification*. Quitter alors que le contrôle parental est encore déverrouillé propose de le reverrouiller.
 - **Verrou de console :** un interrupteur qui met la limite de chaque jour à 0, donc un code PIN est nécessaire pour lancer un jeu — un verrou léger, sans classification par âge ni limite de communication. Il bloque le lancement des jeux, pas le menu HOME, et nécessite un code PIN. Les limites précédentes reviennent quand on le désactive. Tant qu'il est activé, *temps en plus* et *plus de jeu aujourd'hui* sont refusés, et des limites réglées autrement (un profil, une sauvegarde, l'historique…) le remplacent.
 - **Application mobile :** association de l'application Contrôle parental Nintendo Switch, dernière synchronisation, et **dissociation** (sinon sa prochaine synchronisation écrase les limites réglées ici). Tant qu'elle est associée, *Avant de dissocier : aidez à décoder…* ouvre la comparaison du bloc (voir [Contribuer](#contribuer)).
 - **Supprimer tout le contrôle parental :** deux confirmations, irréversible ; une sauvegarde des réglages est d'abord enregistrée.
@@ -213,7 +218,7 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 
 - **Historique des modifications :** ce que PlayGuard a changé (limites, niveau de restriction, code PIN, déverrouillages, dissociation, horloge, restaurations…), quand et depuis où. Ⓐ sur une modification l'affiche et, pour une valeur, **remet la précédente** — avec le même déverrouillage et le même code PIN que toute modification, en signalant si elle a changé depuis.
 - **Sauvegarder / restaurer les réglages** sur la carte SD : niveau de restriction, réglages personnalisés, mode VR, organisme de classification, limites quotidiennes, alarme « temps écoulé » (avec les actions avancées activées), et pour mémoire le bloc brut du minuteur — jamais le code PIN. La restauration ne liste que ce qui changerait, et signale quand la sauvegarde avait une alarme du coucher (elle n'est pas réécrite). Nombre de sauvegardes conservées au choix.
-- **Premiers pas** rouvre le guide (avec une étape *Dissocier l'application mobile* tant qu'elle est associée, une étape *Réactiver l'alarme « temps écoulé »* tant qu'elle est désactivée, et un interrupteur pour qu'il ne s'ouvre plus au lancement). Sous *Fermer*, *Soutenir PlayGuard* affiche les QR codes de soutien.
+- **Premiers pas** rouvre le guide (avec une étape *Dissocier l'application mobile* tant qu'elle est associée, une étape *Réactiver l'alarme « temps écoulé »* tant qu'elle est désactivée, une étape *Protéger PlayGuard* une fois le code PIN défini — le choix *Demander le code PIN* —, et un interrupteur pour qu'il ne s'ouvre plus au lancement). Sous *Fermer*, *Soutenir PlayGuard* affiche les QR codes de soutien.
 - **Exporter un rapport de diagnostic**, ou **l'envoyer en ligne** (voir [Signaler un bug](#signaler-un-bug)).
 - **Console :** firmware, Atmosphère, compatibilité, stockage (emuMMC ou sysMMC, avec une note quand l'autre système a son propre contrôle parental), **masquage du numéro de série** par Atmosphère (en partie caché jusqu'à Ⓐ ; avertissement en emuMMC s'il n'est pas masqué), **patchs de jeux** (sys-patch ou fichiers sigpatches, avec une recommandation de sys-patch quand seuls des fichiers sont utilisés).
 - **À propos** (son propre onglet) : version, mode de lancement et dossier des données ; **mises à jour** (recherche maintenant ou une fois par jour au lancement ; *Mettre à jour avec* sphaira, le Homebrew App Store ou à la main) ; les **nouveautés** de la version installée (son entrée du changelog intégré, en anglais) ; les crédits, comment **soutenir PlayGuard** ([GitHub Sponsors](https://github.com/sponsors/JigSawFr), [Ko-fi](https://ko-fi.com/jigsawfr), affichés en QR codes à scanner avec un téléphone), et un petit *Made in France* 🇫🇷. Après une mise à jour, PlayGuard s'ouvre une fois sur **Nouveautés de la X.Y.Z** (les mêmes notes, puis les QR codes).
@@ -230,6 +235,20 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 
 **Rien ne tourne en arrière-plan.** La limite, le code PIN, les avertissements et la suspension sont ceux de la console ; PlayGuard ne change que leurs réglages.
 
+## Ce qui compte comme temps de jeu
+
+Le minuteur est celui de la console : PlayGuard le lit, il ne décompte rien lui-même. Ce que l'on sait, et avec quelle certitude ([docs/parental-controls.md](docs/parental-controls.md#time-spent-and-time-left), en anglais, donne les mesures) :
+
+| Situation | Décompté ? | Certitude |
+|---|---|---|
+| Un jeu en cours | Oui | mesuré (22.0.0) |
+| **Un jeu laissé ouvert sur le menu HOME** (suspendu en arrière-plan) | **Oui** : fermez-le, ou mettez la console en veille | rapporté par des parents ([Arqade](https://gaming.stackexchange.com/questions/398954/)) ; cohérent avec les mesures (la console décompte tant qu'une application est ouverte) |
+| Mode veille | Non | rapporté ([Arqade](https://gaming.stackexchange.com/questions/398954/)) ; pas mesuré par PlayGuard |
+| **PlayGuard ouvert par-dessus un jeu** (en application) | **Oui**, comme ce jeu | mesuré (22.0.0) : ouvrez-le avec un utilisateur parent, ou depuis l'album pour un coup d'œil |
+| PlayGuard ouvert depuis l'album (mode applet) | Non | déduit : ce n'est pas une application, et le temps hors des applications ne semblait pas décompté |
+| Pendant un déverrouillage temporaire du contrôle parental | Peut-être pas | pas mesuré : question ouverte |
+| Après un changement d'horloge | La journée repart de zéro ; après un retour en arrière, le décompte s'arrête jusqu'à ce que l'horloge dépasse l'ancienne heure | observé (22.0.0) ; la Vue d'ensemble indique quand la console ne décompte pas |
+
 ## Console bloquée ? (console d'occasion, code PIN oublié)
 
 PlayGuard ne voit que le contrôle parental du système sur lequel il tourne : **l'emuMMC et la sysMMC ont chacune le leur** (un code PIN supprimé sur l'une est toujours là sur l'autre). Lancez-le sur chacune de celles à corriger.
@@ -237,7 +256,7 @@ PlayGuard ne voit que le contrôle parental du système sur lequel il tourne : *
 | Situation | Que faire |
 |---|---|
 | **Console d'occasion :** vous connaissez le code PIN, mais l'application mobile de l'ancien propriétaire est toujours associée (la dissociation échoue, ou la réinitialisation demande son compte) | *Sécurité et appli › Dissocier l'application mobile*, puis, si vous ne voulez plus du tout de contrôle parental, *Supprimer tout le contrôle parental*. Les deux fonctionnent hors ligne, en emuMMC comme en sysMMC. |
-| **Code PIN oublié** | *Afficher le code PIN* demande lui-même le code PIN : il ne peut pas aider ici. Avec le module système de récupération installé (ci-dessous), déposez un fichier `RESCUE` et redémarrez : l'écran de récupération affiche alors le code PIN ou en définit un nouveau. Sans lui, *Supprimer tout le contrôle parental* permet de repartir de zéro (une sauvegarde des réglages est d'abord enregistrée ; elle ne contient jamais le code PIN) : avec *Demander le code PIN* actif (par défaut, *Avant une modification*), mettez d'abord la carte SD dans un ordinateur et passez `"pin_lock"` à `"off"` dans `sd:/switch/playguard/config.json`. |
+| **Code PIN oublié** | *Afficher le code PIN* demande lui-même le code PIN : il ne peut pas aider ici. Avec le module système de récupération installé (ci-dessous), déposez un fichier `RESCUE` et redémarrez : l'écran de récupération en définit alors un nouveau (il n'affiche jamais l'ancien). Sans lui, *Supprimer tout le contrôle parental* permet de repartir de zéro (une sauvegarde des réglages est d'abord enregistrée ; elle ne contient jamais le code PIN) : avec *Demander le code PIN* actif (par défaut, *Avant une modification*), mettez d'abord la carte SD dans un ordinateur et passez `"pin_lock"` à `"off"` dans `sd:/switch/playguard/config.json`. |
 | **Le minuteur bloque tout (limite à 0 min) et le code PIN est oublié** | PlayGuard lui-même ne peut pas démarrer. Installez **à l'avance** le module système de récupération optionnel (`playguard-rescue.zip`) ; une fois bloqué, déposez un fichier vide `switch/playguard/RESCUE` sur la carte SD et démarrez — il déverrouille la console pour que PlayGuard puisse s'ouvrir. Voir [`sysmodule/README.md`](sysmodule/README.md) (en anglais). |
 | **Console non modifiée** | PlayGuard ne peut rien faire : il nécessite Atmosphère. La procédure officielle passe par la clé maîtresse du service client de Nintendo. |
 

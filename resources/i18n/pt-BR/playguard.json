@@ -97,6 +97,7 @@
         "not_applied": "o console não aceitou a alteração, então as configurações anteriores foram restauradas",
         "not_saved": "o PlayGuard não conseguiu salvar no cartão SD o que precisará restaurar depois, então nada foi gravado",
         "next_step": "Se acontecer de novo, envie um relatório: Ferramentas › Enviar um relatório online.",
+        "pt_not_understood": "as configurações de tempo de jogo do console estão em um formato que o PlayGuard não entende, então nada foi alterado. Envie um relatório: Ferramentas › Enviar um relatório online.",
         "pctl_0132": "código 2142-0132, também relatado por outros ao gravar o temporizador de jogo; o significado ainda não é conhecido. Reinicie o console e tente novamente",
         "clock_not_set": "o console indica que o relógio de rede não tem uma hora válida (talvez nunca tenha sido acertado); veja a aba Relógio de rede"
     },
@@ -109,7 +110,7 @@
     "fw_gate": {
         "title": "Firmware ainda não compatível",
         "headline": "O firmware {} ainda não é compatível",
-        "body": "O PlayGuard {} foi verificado até o firmware {}. Por segurança, nada será alterado até você escolher como continuar. Tudo ainda pode ser consultado.",
+        "body": "O PlayGuard {} foi testado em um console até o firmware {}. Por segurança, nada será alterado até você escolher como continuar. Tudo ainda pode ser consultado.",
         "status_checking": "Procurando uma versão do PlayGuard compatível...",
         "status_supports": "O PlayGuard {} é compatível com o firmware {}: atualize para usar todos os recursos com segurança.",
         "status_no_support": "O PlayGuard {} está disponível, mas ainda não é compatível com o firmware {}.",
@@ -136,12 +137,12 @@
         "pc_off": "Não configurado",
         "pc_pin_only": "PIN definido, sem restrições",
         "pin": "PIN",
-        "pin_set": "Definido ({} dígitos)",
+        "pin_set": "Definido",
         "level": "Nível de restrição",
         "today_limit": "Limite de hoje ({})",
         "remaining": "Tempo restante hoje",
         "remaining_idle": "Exibido durante um jogo",
-        "remaining_unlocked": "Não contabilizado",
+        "remaining_unlocked": "Pode não ser contabilizado",
         "gauge_known": "Jogado: {} de {}",
         "gauge_none": "Sem limite de tempo de jogo hoje",
         "gauge_none_played": "Sem limite de tempo de jogo hoje · jogado: {}",
@@ -150,7 +151,7 @@
         "gauge_unknown": "Tempo de jogo indisponível",
         "gauge_reached": "O limite de hoje foi atingido",
         "gauge_idle": "O tempo restante é exibido enquanto um jogo está em execução.",
-        "gauge_unlocked": "O tempo de jogo não é contabilizado enquanto o controle dos pais está desbloqueado.",
+        "gauge_unlocked": "O tempo de jogo pode não ser contabilizado enquanto o controle dos pais está desbloqueado.",
         "bedtime": "Alarme de hora de dormir",
         "alarm_off": "Desativado",
         "clock": "Relógio de rede",
@@ -183,7 +184,17 @@
         "stop_done": "Jogo encerrado por hoje.",
         "stop_restore_body": "Em {}, o limite de {} foi definido como {} só para aquele dia. Voltar para {}?",
         "applet": "O PlayGuard está rodando como applet (aberto pelo álbum), com pouca memória: uma exportação ou uma lista longa de Atividade pode falhar. Para o app completo, abra-o segurando R ao iniciar um jogo.",
-        "counted": "Aberto sobre um jogo, o PlayGuard conta como esse jogo: o console soma o tempo ao temporizador e à atividade do usuário escolhido ao iniciar. Abra-o com o usuário de um adulto, ou pelo Álbum para uma olhada rápida."
+        "counted": "Aberto sobre um jogo, o PlayGuard conta como esse jogo: o console soma o tempo ao temporizador e à atividade do usuário escolhido ao iniciar. Abra-o com o usuário de um adulto, ou pelo Álbum para uma olhada rápida.",
+        "home_counts": "Um jogo deixado aberto no menu HOME continua sendo contado.",
+        "stop_now": "Agora",
+        "stop_soon": "Daqui a 5 minutos",
+        "stop_soon_body": "Parar daqui a 5 minutos?\n\nO limite de {} passa a ser {} hoje: cerca de 5 minutos a mais, tempo para salvar. A partir do dia seguinte, o PlayGuard vai sugerir voltar o limite para {}.",
+        "stop_soon_body_auto": "Parar daqui a 5 minutos?\n\nO limite de {} passa a ser {} hoje: cerca de 5 minutos a mais, tempo para salvar. A partir do dia seguinte, o PlayGuard volta o limite para {} automaticamente.",
+        "stop_soon_done": "O jogo para daqui a uns 5 minutos.",
+        "outside_reset": "O tempo de jogo de hoje recomeçou do zero por volta das {} (relógio alterado?).",
+        "outside_clock": "O relógio do console foi alterado.",
+        "outside_limits": "Os limites foram alterados fora do PlayGuard, por exemplo pelo aplicativo do celular.",
+        "outside_dismiss": "Ocultar este aviso"
     },
     "onboarding": {
         "title": "Primeiros passos",
@@ -200,7 +211,8 @@
         "step_alarm": "{}. Reativar o alarme \"Tempo esgotado\" (nada avisa quando o tempo acaba)",
         "at_start": "Mostrar ao iniciar enquanto não houver PIN",
         "note": "O PIN é o do próprio console; o limite é conferido pelo relógio de rede, que precisa estar preciso. Abra o PlayGuard com o usuário de um adulto: aberto sobre um jogo, o tempo dele conta como jogo.",
-        "close": "Fechar"
+        "close": "Fechar",
+        "step_protect": "{}. Proteger o PlayGuard: pedir o PIN"
     },
     "compat": {
         "ok": "Verificado",
@@ -215,8 +227,8 @@
             "active": "Limite ativo",
             "inactive": "Limite desativado",
             "remaining_short": "Tempo restante hoje: {}",
-            "unlocked_short": "desbloqueado temporariamente, sem contagem",
-            "reached_alert": "O limite de hoje foi atingido: o jogo está suspenso.",
+            "unlocked_short": "desbloqueado temporariamente, talvez sem contagem",
+            "reached_alert": "O limite de hoje foi atingido: o console mostra \"Tempo esgotado\". Se ele também suspende o jogo depende de uma configuração que o PlayGuard ainda não consegue ler.",
             "not_set": "Sem limite",
             "every_day": "{} todos os dias",
             "today_per_day": "{} hoje (varia por dia)",
@@ -261,7 +273,7 @@
         "bedtime_value_on": "{} (ativado)",
         "bedtime_value_off": "{} (desativado)",
         "bedtime_reset": "Pode voltar a jogar às",
-        "bedtime_note": "Vale para todos os dias. Na hora de dormir, o console mostra o alarme, ou suspende o software se o aplicativo estiver configurado assim, até que se possa voltar a jogar. O PlayGuard verifica se o console informa o novo horário e, se não, restaura as configurações anteriores.",
+        "bedtime_note": "Vale para todos os dias. Na hora de dormir, o console mostra o alarme, e pode também suspender o software (uma configuração do aplicativo do celular que o PlayGuard ainda não consegue ler), até que se possa voltar a jogar. O PlayGuard verifica se o console informa o novo horário e, se não, restaura as configurações anteriores.",
         "bedtime_title": "Alarme de hora de dormir, todos os dias",
         "bedtime_end_title": "Pode voltar a jogar às (todos os dias)",
         "bedtime_summary": "{}, pode voltar a jogar às {}",
@@ -278,7 +290,7 @@
         "alarm_on_body": "Reativar o alarme \"Tempo esgotado\"?\n\nQuando o limite de tempo de jogo for atingido, o console voltará a mostrar o alarme, como faz por padrão.",
         "alarm_on_confirm": "Ativar",
         "alarm_on_done": "Alarme \"Tempo esgotado\" ativado.",
-        "alarm_off_body": "Desativar o alarme \"tempo esgotado\"?\n\nQuando o limite de tempo de jogo for atingido, o console não vai mais avisar: o jogo só será suspenso no próximo bloqueio.",
+        "alarm_off_body": "Desativar o alarme \"tempo esgotado\"?\n\nQuando o limite de tempo de jogo for atingido, o console não vai mais avisar. Se estiver configurado para suspender o jogo, ele fará isso sem aviso.",
         "alarm_off_confirm": "Desativar",
         "pause": "Pausar a contagem",
         "resume": "Retomar a contagem",
@@ -333,7 +345,10 @@
         "written_days": "Limites por dia aplicados.",
         "write_err": "Não foi possível aplicar o limite de tempo de jogo",
         "removed": "Limite de tempo de jogo removido.",
-        "remove_err": "Não foi possível remover o limite de tempo de jogo"
+        "remove_err": "Não foi possível remover o limite de tempo de jogo",
+        "not_counting": "O console não está contando o tempo de jogo agora. Causas prováveis: o relógio foi atrasado (volta a contar mais tarde), o relógio de rede nunca foi ajustado (aba Relógio de rede) ou um limite acabou de ser gravado (abra um jogo por um minuto e verifique de novo).",
+        "limit_note": "No limite, o console mostra \"Tempo esgotado\". No console em que o PlayGuard foi testado, ele também suspendeu o jogo. Se o aplicativo do celular já foi configurado para \"só alarme\", o console pode apenas avisar: o PlayGuard ainda não consegue ler nem alterar essa configuração.",
+        "unsaved": "O progresso não salvo pode ser perdido: deixe a criança salvar antes."
     },
     "activity": {
         "section_totals": "Tempo de jogo",
@@ -539,7 +554,9 @@
         "delete_err": "Não foi possível excluir o controle dos pais",
         "pin_ok": "PIN atualizado.",
         "pin_err": "Não foi possível atualizar o PIN",
-        "rescue_note": "O sysmodule de recuperação está instalado: qualquer pessoa que possa alterar o cartão SD pode então desbloquear o console ou excluir todo o controle dos pais na próxima inicialização. Remova-o quando não precisar mais dele (pasta atmosphere/contents/4200000000505247)."
+        "rescue_note": "O sysmodule de recuperação está instalado: qualquer pessoa que possa alterar o cartão SD pode então desbloquear o console ou excluir todo o controle dos pais na próxima inicialização. Remova-o quando não precisar mais dele (pasta atmosphere/contents/4200000000505247).",
+        "show_pin_change_body": "Alterar o PIN agora?\n\nOutra pessoa pode ter visto.",
+        "show_pin_change_confirm": "Alterar"
     },
     "pin_lock": {
         "title": "Pedir o PIN",
@@ -551,7 +568,7 @@
         "notes": {
             "off": "Qualquer pessoa com o console na mão pode alterar as configurações aqui. Mostrar o PIN continua pedindo o PIN.",
             "changes": "Todos podem consultar; só o responsável altera algo (o PIN é pedido de novo após 5 minutos). Bloquear de novo nunca pede o PIN.",
-            "open": "Uma tela de bloqueio até o PIN ser digitado. Bloquear de novo nunca pede o PIN."
+            "open": "Uma tela de bloqueio até o PIN ser digitado, e de novo depois de 5 minutos fora do PlayGuard. Bloquear de novo nunca pede o PIN."
         },
         "no_pin": "Defina um PIN primeiro (Definir ou alterar o PIN).",
         "set": "Pedir o PIN: {}",
@@ -595,7 +612,6 @@
             "unconfirmed": "O console não mostra a recuperação que este relatório descreve."
         },
         "hint": {
-            "show_pin": "se você esqueceu",
             "reset_pin": "escolher um novo",
             "delete": "excluir tudo"
         },
@@ -881,7 +897,12 @@
             "restore": "Backup restaurado",
             "rescue": "Recuperação usada",
             "console_lock": "Bloqueio do console",
-            "bedtime": "Alarme de hora de dormir"
+            "bedtime": "Alarme de hora de dormir",
+            "pin_shown": "PIN mostrado",
+            "config_reset": "Preferências redefinidas (arquivo ilegível)",
+            "outside_reset": "Tempo de jogo recomeçado (visto pelo PlayGuard)",
+            "outside_clock": "Relógio do console alterado (visto pelo PlayGuard)",
+            "outside_limits": "Limites alterados fora do PlayGuard"
         },
         "sources": {
             "uniform": "Mesmo limite todos os dias",
@@ -916,5 +937,12 @@
         "limit_over": "A linha é o limite desta semana para esse dia · ! em âmbar: jogou mais do que isso",
         "week_order": "De segunda a domingo, hoje sublinhado",
         "unsaved": "* em âmbar: alterado, ainda não salvo"
+    },
+    "data_notice": {
+        "config_reset": "Não foi possível ler as preferências do PlayGuard, e elas foram redefinidas. O arquivo danificado foi mantido como config.json.bad.",
+        "config_stuck": "Não foi possível ler nem separar as preferências do PlayGuard: os valores padrão são usados e, por enquanto, nada será salvo, para não sobrescrever o arquivo. Verifique o cartão SD.",
+        "history_reset": "Não foi possível ler o histórico de alterações, então um novo foi iniciado. O arquivo danificado foi mantido como history.json.bad.",
+        "history_stuck": "Não foi possível ler nem separar o histórico de alterações: por enquanto, nenhuma alteração será registrada nele. Verifique o cartão SD.",
+        "rescue_unreadable": "Um relatório do sysmodule de recuperação foi encontrado, mas não pôde ser lido, então o PlayGuard não sabe o que ele fez. Verifique o PIN e o tempo de jogo."
     }
 }

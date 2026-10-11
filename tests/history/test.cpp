@@ -1,9 +1,11 @@
 // Host tests for source/util/history.cpp: the change history on the SD card,
-// newest first, trimmed to the newest 200, and what can be undone.
+// newest first, trimmed to the newest 200, a damaged file put aside (the
+// previous one kept), and what can be undone.
 #include "check.h"
 #include <cstdio>
 #include <cstdlib>
 #include <string>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <vector>
 
@@ -51,11 +53,25 @@ static void test_round_trip()
 
     CHECK(history::undoable(all[1]) && history::undoable(all[2]));
     CHECK(!history::undoable(all[0]));                 // an event, not a value
+    history::Entry shown;
+    shown.when = "2026-10-08 18:33";
+    shown.kind = "pin_shown";
+    CHECK(history::append(shown));
+    const auto with_shown = history::load();
+    CHECK(with_shown.size() == 4 && with_shown[0].kind == "pin_shown" && with_shown[0].before.empty() &&
+          !history::undoable(with_shown[0]));
     history::Entry odd = all[2];
     odd.before.pop_back();
     CHECK(!history::undoable(odd));                    // 6 days is not a week
     odd = all[1];
     odd.kind = "something";
+    CHECK(!history::undoable(odd));
+    // Limits changed outside PlayGuard (outside_watch): recorded with the
+    // week before and after, never put back from the history.
+    odd = all[2];
+    odd.kind = "outside_limits";
+    odd.before = odd.after;
+    odd.before[0] = 60;
     CHECK(!history::undoable(odd));
 }
 
@@ -109,8 +125,36 @@ static void test_trim_and_damage()
     std::string kept;
     CHECK(paths::read_file(paths::history_file() + ".bad", kept) && kept == "not json");
     // A good file is appended to, and leaves the kept one alone.
-    CHECK(history::append(limits(90, 120)) && history::load().size() == 2);
+    bool put_aside = true;
+    CHECK(history::append(limits(90, 120), nullptr, &put_aside) && history::load().size() == 2 && !put_aside);
     CHECK(paths::read_file(paths::history_file() + ".bad", kept) && kept == "not json");
+    CHECK(history::check() == history::Damage::None);
+
+    // Damaged again: the first .bad is kept as .bad.1, and the caller is told.
+    CHECK(paths::atomic_write(paths::history_file(), "{\"entries\": 3}"));
+    CHECK(history::append(limits(5, 10), nullptr, &put_aside) && put_aside && history::load().size() == 1);
+    CHECK(paths::read_file(paths::history_file() + ".bad", kept) && kept == "{\"entries\": 3}");
+    CHECK(paths::read_file(paths::history_file() + ".bad.1", kept) && kept == "not json");
+
+    // check() at start-up: puts it aside now (a third drops the oldest), and
+    // the history starts again; missing is not damaged.
+    CHECK(paths::atomic_write(paths::history_file(), "third"));
+    CHECK(history::check() == history::Damage::PutAside && history::load().empty());
+    CHECK(paths::read_file(paths::history_file() + ".bad", kept) && kept == "third");
+    CHECK(paths::read_file(paths::history_file() + ".bad.1", kept) && kept == "{\"entries\": 3}");
+    CHECK(history::check() == history::Damage::None);
+
+    // Cannot be put aside (the .bad cannot be renamed): nothing is written over it.
+    const std::string older = paths::history_file() + ".bad.1";
+    CHECK(std::remove(older.c_str()) == 0 && mkdir(older.c_str(), 0700) == 0);
+    CHECK(paths::atomic_write(older + "/x", "keeps the folder non-empty"));
+    CHECK(paths::atomic_write(paths::history_file(), "fourth"));
+    CHECK(history::check() == history::Damage::Stuck);
+    std::string error;
+    CHECK(!history::append(limits(1, 2), &error) && !error.empty());
+    CHECK(paths::read_file(paths::history_file(), kept) && kept == "fourth");
+    CHECK(paths::read_file(paths::history_file() + ".bad", kept) && kept == "third");
+    CHECK(std::remove((older + "/x").c_str()) == 0 && rmdir(older.c_str()) == 0);
 }
 
 int main()

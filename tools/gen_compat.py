@@ -6,7 +6,9 @@ the "firmware not supported yet" screen) to know whether updating would make
 the console's firmware supported. Values come from the sources, so they can
 never disagree with the build:
   version            CMakeLists.txt  VERSION_MAJOR / MINOR / ALTER
-  fw_tested_max      source/core/sysinfo.h  PCTL_FW_TESTED_MAX
+  fw_tested_max      source/core/sysinfo.h  PCTL_FW_TESTED_MAX (verified on a console:
+                     above it the app asks first, so a newer release "supports"
+                     a firmware only once it was verified there)
   fw_min_play_timer  source/core/sysinfo.h  PCTL_FW_MIN_PLAYTIMER
 
 Usage: tools/gen_compat.py [repo-root] [output]   (default: . and ./compat.json)

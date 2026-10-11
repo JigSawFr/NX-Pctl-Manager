@@ -97,6 +97,7 @@
         "not_applied": "die Konsole hat die Änderung nicht übernommen, daher wurden die vorherigen Einstellungen wiederhergestellt",
         "not_saved": "PlayGuard konnte nicht auf der SD-Karte speichern, was später wiederhergestellt werden muss, daher wurde nichts geschrieben",
         "next_step": "Wenn das erneut passiert, senden Sie einen Bericht: Tools › Bericht online senden.",
+        "pt_not_understood": "die Spielzeit-Einstellungen der Konsole liegen in einem Format vor, das PlayGuard nicht versteht, daher wurde nichts geändert. Senden Sie einen Bericht: Tools › Bericht online senden.",
         "pctl_0132": "Code 2142-0132, auch von anderen beim Schreiben des Spielzeit-Timers gemeldet; seine Bedeutung ist noch unbekannt. Starten Sie die Konsole neu und versuchen Sie es dann erneut",
         "clock_not_set": "die Konsole meldet, dass ihre Netzwerkuhr keine gültige Zeit hat (sie wurde vielleicht nie gestellt); siehe den Tab Netzwerkuhr"
     },
@@ -109,7 +110,7 @@
     "fw_gate": {
         "title": "Firmware noch nicht unterstützt",
         "headline": "Firmware {} wird noch nicht unterstützt",
-        "body": "PlayGuard {} wurde bis Firmware {} geprüft. Zur Sicherheit wird nichts geändert, bis Sie entscheiden, wie es weitergeht. Alles kann weiterhin angesehen werden.",
+        "body": "PlayGuard {} wurde bis Firmware {} auf einer Konsole getestet. Zur Sicherheit wird nichts geändert, bis Sie entscheiden, wie es weitergeht. Alles kann weiterhin angesehen werden.",
         "status_checking": "Suche nach einer PlayGuard-Version, die sie unterstützt...",
         "status_supports": "PlayGuard {} unterstützt Firmware {}: Aktualisieren Sie, um alle Funktionen sicher zu nutzen.",
         "status_no_support": "PlayGuard {} ist verfügbar, unterstützt Firmware {} aber noch nicht.",
@@ -136,12 +137,12 @@
         "pc_off": "Nicht eingerichtet",
         "pc_pin_only": "Geheimzahl festgelegt, keine Einschränkung",
         "pin": "Geheimzahl",
-        "pin_set": "Festgelegt ({} Ziffern)",
+        "pin_set": "Festgelegt",
         "level": "Einschränkungskategorie",
         "today_limit": "Heutiges Limit ({})",
         "remaining": "Restzeit heute",
         "remaining_idle": "Wird beim Spielen angezeigt",
-        "remaining_unlocked": "Wird nicht gezählt",
+        "remaining_unlocked": "Wird evtl. nicht gezählt",
         "gauge_known": "{} von {} gespielt",
         "gauge_none": "Heute kein Spielzeitlimit",
         "gauge_none_played": "Heute kein Spielzeitlimit · {} gespielt",
@@ -150,7 +151,7 @@
         "gauge_unknown": "Spielzeit nicht verfügbar",
         "gauge_reached": "Das heutige Limit ist erreicht",
         "gauge_idle": "Die verbleibende Zeit wird angezeigt, während ein Spiel läuft.",
-        "gauge_unlocked": "Die Spielzeit wird nicht gezählt, solange die Altersbeschränkungen aufgehoben sind.",
+        "gauge_unlocked": "Die Spielzeit wird möglicherweise nicht gezählt, solange die Altersbeschränkungen aufgehoben sind.",
         "bedtime": "Gute-Nacht-Alarm",
         "alarm_off": "Aus",
         "clock": "Netzwerkuhr",
@@ -183,7 +184,17 @@
         "stop_done": "Heute wird nicht mehr gespielt.",
         "stop_restore_body": "Am {} wurde das Limit für {} nur für diesen Tag auf {} gesetzt. Wieder auf {} setzen?",
         "applet": "PlayGuard läuft als Applet (aus dem Album geöffnet) mit wenig Speicher: Ein Export oder eine lange Aktivitätsliste kann fehlschlagen. Für die vollständige App halten Sie beim Starten eines Spiels R gedrückt.",
-        "counted": "Über einem Spiel geöffnet, zählt PlayGuard als dieses Spiel: Die Konsole rechnet die Zeit dem Spielzeit-Timer und der Aktivität des beim Start gewählten Nutzers an. Öffne PlayGuard mit dem Nutzer eines Elternteils oder für einen kurzen Blick über das Album."
+        "counted": "Über einem Spiel geöffnet, zählt PlayGuard als dieses Spiel: Die Konsole rechnet die Zeit dem Spielzeit-Timer und der Aktivität des beim Start gewählten Nutzers an. Öffne PlayGuard mit dem Nutzer eines Elternteils oder für einen kurzen Blick über das Album.",
+        "home_counts": "Ein im HOME-Menü offen gelassenes Spiel wird weiter gezählt.",
+        "stop_now": "Jetzt",
+        "stop_soon": "In 5 Minuten",
+        "stop_soon_body": "In 5 Minuten aufhören?\n\nDas Limit für {} wird für heute auf {} gesetzt: noch etwa 5 Minuten, Zeit zum Speichern. Ab dem nächsten Tag bietet PlayGuard an, es wieder auf {} zu setzen.",
+        "stop_soon_body_auto": "In 5 Minuten aufhören?\n\nDas Limit für {} wird für heute auf {} gesetzt: noch etwa 5 Minuten, Zeit zum Speichern. Ab dem nächsten Tag setzt PlayGuard es automatisch wieder auf {}.",
+        "stop_soon_done": "Das Spielen endet in etwa 5 Minuten.",
+        "outside_reset": "Die heutige Spielzeit hat gegen {} wieder bei null angefangen (Uhr geändert?).",
+        "outside_clock": "Die Uhr der Konsole wurde geändert.",
+        "outside_limits": "Die Limits wurden außerhalb von PlayGuard geändert, z. B. über die Smartphone-App.",
+        "outside_dismiss": "Hinweis ausblenden"
     },
     "onboarding": {
         "title": "Erste Schritte",
@@ -200,7 +211,8 @@
         "step_alarm": "{}. Alarm „Zeit ist um“ wieder einschalten (nichts warnt, wenn die Zeit um ist)",
         "at_start": "Beim Start anzeigen, solange keine Geheimzahl festgelegt ist",
         "note": "Die Geheimzahl ist die der Konsole; das Limit richtet sich nach der Netzwerkuhr, daher muss sie genau sein. Öffne PlayGuard mit dem Nutzer eines Elternteils: Über einem Spiel geöffnet, zählt seine Zeit als Spielzeit.",
-        "close": "Schließen"
+        "close": "Schließen",
+        "step_protect": "{}. PlayGuard schützen: Geheimzahl abfragen"
     },
     "compat": {
         "ok": "Geprüft",
@@ -215,8 +227,8 @@
             "active": "Timer aktiv",
             "inactive": "Timer aus",
             "remaining_short": "Heute noch {}",
-            "unlocked_short": "vorübergehend aufgehoben, wird nicht gezählt",
-            "reached_alert": "Das heutige Limit ist erreicht: Die Software wird pausiert.",
+            "unlocked_short": "vorübergehend aufgehoben, wird evtl. nicht gezählt",
+            "reached_alert": "Das heutige Limit ist erreicht: Die Konsole zeigt „Zeit ist um“ an. Ob sie das Spiel auch unterbricht, hängt von einer Einstellung ab, die PlayGuard noch nicht lesen kann.",
             "not_set": "Kein Limit",
             "every_day": "{} täglich",
             "today_per_day": "Heute {} (je nach Tag)",
@@ -261,7 +273,7 @@
         "bedtime_value_on": "{} (an)",
         "bedtime_value_off": "{} (aus)",
         "bedtime_reset": "Spielen wieder erlaubt ab",
-        "bedtime_note": "Gilt für jeden Tag. Zur Schlafenszeit zeigt die Konsole den Alarm an oder unterbricht die Software, falls die App so eingestellt ist, bis das Spielen wieder erlaubt ist. PlayGuard prüft, ob die Konsole die neue Uhrzeit meldet, und stellt sonst die vorherigen Einstellungen wieder her.",
+        "bedtime_note": "Gilt für jeden Tag. Zur Schlafenszeit zeigt die Konsole den Alarm an und unterbricht womöglich auch die Software (eine Einstellung der Smartphone-App, die PlayGuard noch nicht lesen kann), bis das Spielen wieder erlaubt ist. PlayGuard prüft, ob die Konsole die neue Uhrzeit meldet, und stellt sonst die vorherigen Einstellungen wieder her.",
         "bedtime_title": "Gute-Nacht-Alarm, jeden Tag",
         "bedtime_end_title": "Spielen wieder erlaubt ab (jeden Tag)",
         "bedtime_summary": "{}, Spielen wieder erlaubt ab {}",
@@ -278,7 +290,7 @@
         "alarm_on_body": "Alarm „Zeit ist um“ wieder einschalten?\n\nWenn die Spielzeitbegrenzung erreicht ist, zeigt die Konsole den Alarm wieder an, wie standardmäßig vorgesehen.",
         "alarm_on_confirm": "Einschalten",
         "alarm_on_done": "Alarm „Zeit ist um“ eingeschaltet.",
-        "alarm_off_body": "Den „Zeit ist um“-Alarm ausschalten?\n\nWenn das Spielzeitlimit erreicht ist, meldet die Konsole das nicht mehr: Das Spiel wird erst bei der nächsten Sperre unterbrochen.",
+        "alarm_off_body": "Den „Zeit ist um“-Alarm ausschalten?\n\nWenn das Spielzeitlimit erreicht ist, meldet die Konsole das nicht mehr. Ist sie so eingestellt, dass sie das Spiel unterbricht, tut sie das dann ohne Vorwarnung.",
         "alarm_off_confirm": "Ausschalten",
         "pause": "Countdown pausieren",
         "resume": "Countdown fortsetzen",
@@ -333,7 +345,10 @@
         "written_days": "Limits pro Tag angewendet.",
         "write_err": "Spielzeitlimit konnte nicht angewendet werden",
         "removed": "Spielzeitlimit entfernt.",
-        "remove_err": "Spielzeitlimit konnte nicht entfernt werden"
+        "remove_err": "Spielzeitlimit konnte nicht entfernt werden",
+        "not_counting": "Die Konsole zählt die Spielzeit gerade nicht. Mögliche Ursachen: Die Uhr wurde zurückgestellt (sie zählt später wieder), die Netzwerkuhr wurde nie gestellt (Tab „Netzwerkuhr“), oder ein Limit wurde gerade geschrieben (starten Sie ein Spiel für eine Minute und prüfen Sie dann erneut).",
+        "limit_note": "Beim Limit zeigt die Konsole „Zeit ist um“ an. Auf der Konsole, auf der PlayGuard getestet wurde, hat sie das Spiel außerdem unterbrochen. Wurde die Smartphone-App einmal auf „nur Alarm“ gestellt, warnt die Konsole möglicherweise nur: Diese Einstellung kann PlayGuard noch nicht lesen oder ändern.",
+        "unsaved": "Nicht gespeicherter Fortschritt kann verloren gehen: Lassen Sie das Kind zuerst speichern."
     },
     "activity": {
         "section_totals": "Spielzeit",
@@ -539,7 +554,9 @@
         "delete_err": "Altersbeschränkungen konnten nicht gelöscht werden",
         "pin_ok": "Geheimzahl aktualisiert.",
         "pin_err": "Geheimzahl konnte nicht aktualisiert werden",
-        "rescue_note": "Das Wiederherstellungs-Sysmodul ist installiert: Wer die SD-Karte bearbeiten kann, kann damit beim nächsten Start die Konsole entsperren oder alle Altersbeschränkungen löschen. Entfernen Sie es, wenn Sie es nicht mehr brauchen (Ordner atmosphere/contents/4200000000505247)."
+        "rescue_note": "Das Wiederherstellungs-Sysmodul ist installiert: Wer die SD-Karte bearbeiten kann, kann damit beim nächsten Start die Konsole entsperren oder alle Altersbeschränkungen löschen. Entfernen Sie es, wenn Sie es nicht mehr brauchen (Ordner atmosphere/contents/4200000000505247).",
+        "show_pin_change_body": "Geheimzahl jetzt ändern?\n\nJemand anderes könnte sie gesehen haben.",
+        "show_pin_change_confirm": "Ändern"
     },
     "pin_lock": {
         "title": "Geheimzahl abfragen",
@@ -551,7 +568,7 @@
         "notes": {
             "off": "Jeder, der die Konsole in der Hand hat, kann die Einstellungen hier ändern. Zum Anzeigen der Geheimzahl wird sie trotzdem abgefragt.",
             "changes": "Jeder kann sich alles ansehen; nur Eltern können etwas ändern (erneute Abfrage nach 5 Minuten). Zum erneuten Aktivieren wird nie gefragt.",
-            "open": "Ein Sperrbildschirm, bis die Geheimzahl eingegeben wird. Zum erneuten Aktivieren wird nie gefragt."
+            "open": "Ein Sperrbildschirm, bis die Geheimzahl eingegeben wird, und erneut nach 5 Minuten außerhalb von PlayGuard. Zum erneuten Aktivieren wird nie gefragt."
         },
         "no_pin": "Legen Sie zuerst eine Geheimzahl fest (Geheimzahl festlegen oder ändern).",
         "set": "Geheimzahl abfragen: {}",
@@ -595,7 +612,6 @@
             "unconfirmed": "Die Konsole zeigt die in diesem Bericht beschriebene Wiederherstellung nicht."
         },
         "hint": {
-            "show_pin": "falls vergessen",
             "reset_pin": "eine neue wählen",
             "delete": "alles entfernen"
         },
@@ -881,7 +897,12 @@
             "restore": "Sicherung wiederhergestellt",
             "rescue": "Wiederherstellung verwendet",
             "console_lock": "Konsolensperre",
-            "bedtime": "Gute-Nacht-Alarm"
+            "bedtime": "Gute-Nacht-Alarm",
+            "pin_shown": "Geheimzahl angezeigt",
+            "config_reset": "Optionen zurückgesetzt (Datei unlesbar)",
+            "outside_reset": "Spielzeit neu begonnen (von PlayGuard bemerkt)",
+            "outside_clock": "Uhr der Konsole geändert (von PlayGuard bemerkt)",
+            "outside_limits": "Limits außerhalb von PlayGuard geändert"
         },
         "sources": {
             "uniform": "Jeden Tag gleiches Limit",
@@ -916,5 +937,12 @@
         "limit_over": "Die Linie ist das Limit dieser Woche für den Tag · ! in Orange: darüber gespielt",
         "week_order": "Montag bis Sonntag, heute unterstrichen",
         "unsaved": "* in Orange: geändert, noch nicht gespeichert"
+    },
+    "data_notice": {
+        "config_reset": "Die Optionen von PlayGuard konnten nicht gelesen werden und wurden zurückgesetzt. Die beschädigte Datei wurde als config.json.bad aufbewahrt.",
+        "config_stuck": "Die Optionen von PlayGuard konnten weder gelesen noch beiseitegelegt werden: Es gelten die Standardwerte, und vorerst wird nichts gespeichert, damit die Datei nicht überschrieben wird. Prüfen Sie die SD-Karte.",
+        "history_reset": "Der Änderungsverlauf konnte nicht gelesen werden, daher wurde ein neuer begonnen. Die beschädigte Datei wurde als history.json.bad aufbewahrt.",
+        "history_stuck": "Der Änderungsverlauf konnte weder gelesen noch beiseitegelegt werden: Vorerst werden darin keine Änderungen aufgezeichnet. Prüfen Sie die SD-Karte.",
+        "rescue_unreadable": "Ein Bericht des Wiederherstellungs-Sysmoduls wurde gefunden, konnte aber nicht gelesen werden, daher weiß PlayGuard nicht, was es getan hat. Prüfen Sie die Geheimzahl und die Spielzeit."
     }
 }

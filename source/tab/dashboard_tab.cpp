@@ -5,9 +5,11 @@
 #include <fmt/format.h>
 
 #include "action/clock_flow.hpp"
+#include "action/outside_watch.hpp"
 #include "action/play_data.hpp"
 #include "action/pt_flow.hpp"
 #include "action/pt_logic.hpp"
+#include "action/timer_health.hpp"
 #include "activity/onboarding_activity.hpp"
 #include "activity/play_timer_perday_activity.hpp"
 #include "app.hpp"
@@ -40,6 +42,15 @@ DashboardTab::DashboardTab()
 {
     applet->setSingleLine(false);
     counted->setSingleLine(false);
+    not_counting->setSingleLine(false);
+    home_hint->setSingleLine(false);
+    outside_text->setSingleLine(false);
+    outside->setDetailTextColor(ui::color_warn());
+    outside->registerClickAction([this](brls::View*) {
+        outside_watch::dismiss();
+        this->refresh();
+        return true;
+    });
     first_steps->setDetailText("playguard/onboarding/pin_missing"_i18n);
     first_steps->setDetailTextColor(ui::color_warn());
     first_steps->registerClickAction([](brls::View*) {
@@ -139,6 +150,14 @@ void DashboardTab::refresh()
     if (!play_data::fresh("", std::chrono::minutes(5)) && !play_data::busy("")) play_data::fetch(nullptr);
     const uint16_t log_played_min = (uint16_t)std::min<uint64_t>(1440, (log_played_s + 30) / 60);
 
+    // Changes seen outside PlayGuard, and whether the console counts at all.
+    outside_watch::observe(pt);
+    const std::vector<std::string> outside_lines = outside_watch::notice_lines();
+    std::string outside_joined;
+    for (const auto& l : outside_lines) outside_joined += (outside_joined.empty() ? "" : "\n") + l;
+    outside_text->setText(outside_joined);
+    const bool stalled = timer_health::observe(pt);
+
     // Today's play time.
     const int today = ui::today_weekday();
     today_limit->setText(brls::getStr("playguard/dashboard/today_limit", ui::day_name_in_text(today)));
@@ -155,7 +174,7 @@ void DashboardTab::refresh()
         const uint16_t limit = pt.day_min[today];
         today_limit->setDetailText(ui::fmt_minutes(limit));
         if (limit != PT_DAY_NOLIMIT && unlocked) {
-            show_gauge = false;   // the countdown is suspended while unlocked
+            show_gauge = false;   // the countdown may be off while unlocked (docs: open)
             gauge_text->setText("playguard/dashboard/gauge_unlocked"_i18n);
         } else if (limit == PT_DAY_NOLIMIT || !pt.enabled) {
             show_gauge = false;   // nothing to measure against: the text says it
@@ -227,7 +246,7 @@ void DashboardTab::refresh()
 
     if (!s.pin_length_ok) linked(pin, na);
     else if (s.pin_length == 0) linked(pin, "playguard/common/not_set"_i18n);
-    else linked(pin, brls::getStr("playguard/dashboard/pin_set", (int)s.pin_length));
+    else linked(pin, "playguard/dashboard/pin_set"_i18n);   // not its length: it narrows a guess
 
     linked(level, s.safety_level_ok ? ui::level_name(s.safety_level) : na);
 
@@ -286,7 +305,10 @@ void DashboardTab::refresh()
                           { counted.getView(), !si.applet_mode },
                           { fw.getView(), compat_issue }, { compat.getView(), compat_issue },
                           { serial.getView(), serial_issue }, { game_patches.getView(), patches_issue },
-                          { unlocked_banner.getView(), unlocked } });
+                          { unlocked_banner.getView(), unlocked },
+                          { not_counting.getView(), stalled },
+                          { outside_text.getView(), !outside_lines.empty() },
+                          { outside.getView(), !outside_lines.empty() } });
 }
 
 brls::View* DashboardTab::create()

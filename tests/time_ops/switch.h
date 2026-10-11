@@ -25,6 +25,9 @@ Result timeToCalendarTimeWithMyRule(u64 timestamp, TimeCalendarTime *caltime, Ti
 Result timeToPosixTimeWithMyRule(const TimeCalendarTime *caltime, u64 *timestamp_list, s32 timestamp_list_count, s32 *timestamp_count);
 typedef enum { TimeType_UserSystemClock, TimeType_NetworkSystemClock, TimeType_LocalSystemClock } TimeType;
 Result timeGetCurrentTime(TimeType type, u64 *timestamp);
+typedef struct { u8 uuid[0x10]; } Uuid;
+typedef struct { s64 time_point; Uuid source_id; } TimeSteadyClockTimePoint;
+Result timeGetStandardSteadyClockTimePoint(TimeSteadyClockTimePoint *out);
 
 Result smGetService(Service *service, const char *name);
 void serviceClose(Service *service);

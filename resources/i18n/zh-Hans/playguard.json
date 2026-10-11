@@ -97,6 +97,7 @@
         "not_applied": "主机未接受更改，已恢复之前的设置",
         "not_saved": "PlayGuard 无法在 SD 卡上保存之后需要恢复的内容，未写入任何内容",
         "next_step": "如果再次发生，请发送报告：工具 › 在线发送报告。",
+        "pt_not_understood": "主机的游戏时间设置格式PlayGuard无法识别，未进行任何更改。请发送报告：工具 › 在线发送报告。",
         "pctl_0132": "代码2142-0132，其他人在写入游玩计时器时也遇到过，其含义尚不清楚。请重启主机后再试",
         "clock_not_set": "主机报告其网络时钟没有有效时间（可能从未设置过）；请查看“网络时钟”页"
     },
@@ -109,7 +110,7 @@
     "fw_gate": {
         "title": "暂不支持此系统版本",
         "headline": "暂不支持系统版本{}",
-        "body": "PlayGuard {}已验证至系统版本{}。为安全起见，在选择继续方式之前不会进行任何更改。所有内容仍可查看。",
+        "body": "PlayGuard {}已在主机上测试至系统版本{}。为安全起见，在选择继续方式之前不会进行任何更改。所有内容仍可查看。",
         "status_checking": "正在查找支持此版本的PlayGuard…",
         "status_supports": "PlayGuard {}支持系统版本{}：更新后即可安全使用所有功能。",
         "status_no_support": "PlayGuard {}已推出，但尚不支持系统版本{}。",
@@ -136,12 +137,12 @@
         "pc_off": "未设置",
         "pc_pin_only": "已设PIN，无限制",
         "pin": "PIN",
-        "pin_set": "已设置（{}位）",
+        "pin_set": "已设置",
         "level": "限制等级",
         "today_limit": "今天的限制（{}）",
         "remaining": "今天剩余时间",
         "remaining_idle": "游戏运行时显示",
-        "remaining_unlocked": "不计时",
+        "remaining_unlocked": "可能不计时",
         "gauge_known": "已玩{}/{}",
         "gauge_none": "今天无游戏时间限制",
         "gauge_none_played": "今天无游戏时间限制 · 已玩{}",
@@ -150,7 +151,7 @@
         "gauge_unknown": "无法获取游戏时间",
         "gauge_reached": "已达到今天的限制",
         "gauge_idle": "游戏运行时才会显示剩余时间。",
-        "gauge_unlocked": "家长控制暂时解除期间不计算游戏时间。",
+        "gauge_unlocked": "家长控制暂时解除期间，可能不计算游戏时间。",
         "bedtime": "就寝提醒",
         "alarm_off": "已关闭",
         "clock": "网络时钟",
@@ -183,7 +184,17 @@
         "stop_done": "今天已停止游玩。",
         "stop_restore_body": "{}，{}的限制曾被设为{}（仅限当天）。要恢复为{}吗？",
         "applet": "PlayGuard正以小程序模式运行（从相册打开），可用内存较少：导出或较长的游玩记录可能会失败。如需使用完整应用，请在启动游戏时按住R键打开。",
-        "counted": "在游戏上打开的PlayGuard会被当作该游戏：主机会把这段时间计入游玩计时器和启动时所选用户的游玩记录。请用家长的用户打开，或只想看一眼时从相册打开。"
+        "counted": "在游戏上打开的PlayGuard会被当作该游戏：主机会把这段时间计入游玩计时器和启动时所选用户的游玩记录。请用家长的用户打开，或只想看一眼时从相册打开。",
+        "home_counts": "在HOME菜单中仍保持打开的游戏会继续计时。",
+        "stop_now": "现在",
+        "stop_soon": "5分钟后",
+        "stop_soon_body": "要在5分钟后停止游玩吗？\n\n今天{}的限制将变为{}：大约还有5分钟，足够存档。从第二天起，PlayGuard会询问是否恢复为{}。",
+        "stop_soon_body_auto": "要在5分钟后停止游玩吗？\n\n今天{}的限制将变为{}：大约还有5分钟，足够存档。从第二天起，PlayGuard会自动恢复为{}。",
+        "stop_soon_done": "大约5分钟后停止游玩。",
+        "outside_reset": "今天的游戏时间在{}左右重新开始计算（时钟被更改了？）。",
+        "outside_clock": "主机时钟已被更改。",
+        "outside_limits": "限制在PlayGuard之外被更改了，例如通过手机应用。",
+        "outside_dismiss": "关闭此提示"
     },
     "onboarding": {
         "title": "入门",
@@ -200,7 +211,8 @@
         "step_alarm": "{}. 重新开启“时间到”提醒（否则时间到时不会有任何提醒）",
         "at_start": "未设置PIN时在启动时显示",
         "note": "PIN即主机本身的PIN；限制以网络时钟为准，因此网络时钟必须准确。请用家长的用户打开PlayGuard：在游戏上打开时，其时间会计为游玩时间。",
-        "close": "关闭"
+        "close": "关闭",
+        "step_protect": "{}. 保护PlayGuard：要求输入PIN"
     },
     "compat": {
         "ok": "已验证",
@@ -215,8 +227,8 @@
             "active": "计时中",
             "inactive": "未计时",
             "remaining_short": "今天剩余{}",
-            "unlocked_short": "已暂时解除，不计时",
-            "reached_alert": "已达到今天的限制：游戏已中断。",
+            "unlocked_short": "已暂时解除，可能不计时",
+            "reached_alert": "已达到今天的限制：主机会显示“时间到”。是否同时中断游戏，取决于一项PlayGuard目前还无法读取的设置。",
             "not_set": "无限制",
             "every_day": "每天{}",
             "today_per_day": "今天{}（每天不同）",
@@ -261,7 +273,7 @@
         "bedtime_value_on": "{}（开启）",
         "bedtime_value_off": "{}（关闭）",
         "bedtime_reset": "可再次游玩的时间",
-        "bedtime_note": "适用于每一天。到就寝时间时，主机会显示提醒（如手机应用中如此设置，则会中断软件），直到可以再次游玩。PlayGuard 会检查主机是否报告新的时间，否则会恢复之前的设置。",
+        "bedtime_note": "适用于每一天。到就寝时间时，主机会显示提醒，也可能中断软件（这是PlayGuard目前还无法读取的手机应用设置），直到可以再次游玩。PlayGuard 会检查主机是否报告新的时间，否则会恢复之前的设置。",
         "bedtime_title": "就寝提醒（每天）",
         "bedtime_end_title": "可再次游玩的时间（每天）",
         "bedtime_summary": "{}，{} 起可再次游玩",
@@ -278,7 +290,7 @@
         "alarm_on_body": "重新开启“时间到”提醒？\n\n达到游戏时间限制时，主机将像默认设置一样再次显示提醒。",
         "alarm_on_confirm": "开启",
         "alarm_on_done": "已开启“时间到”提醒。",
-        "alarm_off_body": "关闭“时间到”提醒？\n\n达到游戏时间限制时，主机将不再提示：游戏只会在下次锁定时暂停。",
+        "alarm_off_body": "关闭“时间到”提醒？\n\n达到游戏时间限制时，主机将不再提示。如果设置为中断游戏，则会在没有提示的情况下中断。",
         "alarm_off_confirm": "关闭",
         "pause": "暂停计时",
         "resume": "继续计时",
@@ -333,7 +345,10 @@
         "written_days": "已应用各天的限制。",
         "write_err": "无法应用游戏时间限制",
         "removed": "已取消游戏时间限制。",
-        "remove_err": "无法取消游戏时间限制"
+        "remove_err": "无法取消游戏时间限制",
+        "not_counting": "主机目前没有计算游戏时间。可能的原因：时钟被调回（之后会重新计时）、网络时钟从未设置（“网络时钟”标签页），或刚刚写入了限制（启动一个游戏玩一分钟后再查看）。",
+        "limit_note": "达到限制时，主机会显示“时间到”。在测试PlayGuard的主机上，它还中断了游戏。如果手机应用曾设置为“仅提醒”，主机可能只会提醒：PlayGuard目前还无法读取或更改这项设置。",
+        "unsaved": "未保存的进度可能会丢失：请先让孩子存档。"
     },
     "activity": {
         "section_totals": "游戏时间",
@@ -539,7 +554,9 @@
         "delete_err": "无法删除家长控制",
         "pin_ok": "PIN已更新。",
         "pin_err": "无法更新PIN",
-        "rescue_note": "已安装恢复用系统模块：任何能修改SD卡的人都可以在下次启动时解锁主机，或删除所有家长控制。不再需要时请将其删除（文件夹atmosphere/contents/4200000000505247）。"
+        "rescue_note": "已安装恢复用系统模块：任何能修改SD卡的人都可以在下次启动时解锁主机，或删除所有家长控制。不再需要时请将其删除（文件夹atmosphere/contents/4200000000505247）。",
+        "show_pin_change_body": "现在更改PIN吗？\n\n其他人可能已经看到了。",
+        "show_pin_change_confirm": "更改"
     },
     "pin_lock": {
         "title": "要求输入PIN",
@@ -551,7 +568,7 @@
         "notes": {
             "off": "拿到主机的任何人都能在此更改设置。显示 PIN 时仍需输入 PIN。",
             "changes": "任何人都可以查看，只有家长能进行更改（5分钟后需再次输入）。重新启用时不需要输入。",
-            "open": "显示锁定画面，直到输入PIN为止。重新启用时不需要输入。"
+            "open": "显示锁定画面，直到输入PIN为止；离开PlayGuard 5分钟后再次显示。重新启用时不需要输入。"
         },
         "no_pin": "请先设置PIN（设置或更改PIN）。",
         "set": "要求输入PIN：{}",
@@ -595,7 +612,6 @@
             "unconfirmed": "主机状态与此报告所述的恢复不符。"
         },
         "hint": {
-            "show_pin": "忘记时",
             "reset_pin": "重新设置",
             "delete": "全部删除"
         },
@@ -881,7 +897,12 @@
             "restore": "已恢复备份",
             "rescue": "已使用恢复",
             "console_lock": "主机锁",
-            "bedtime": "就寝提醒"
+            "bedtime": "就寝提醒",
+            "pin_shown": "已显示PIN",
+            "config_reset": "偏好设置已重置（文件无法读取）",
+            "outside_reset": "游戏时间重新开始计算（PlayGuard发现）",
+            "outside_clock": "主机时钟被更改（PlayGuard发现）",
+            "outside_limits": "在PlayGuard之外更改的限制"
         },
         "sources": {
             "uniform": "每天相同的限制",
@@ -916,5 +937,12 @@
         "limit_over": "线是本周该日的限制 · 橙色 !：超过了限制",
         "week_order": "周一到周日，带下划线的是今天",
         "unsaved": "橙色 *：已更改，尚未保存"
+    },
+    "data_notice": {
+        "config_reset": "无法读取PlayGuard的偏好设置，已将其重置。损坏的文件已保留为config.json.bad。",
+        "config_stuck": "无法读取PlayGuard的偏好设置，也无法将其移到一旁：现使用默认值，且暂时不会保存任何内容，以免覆盖该文件。请检查SD卡。",
+        "history_reset": "无法读取更改历史，已开始新的历史。损坏的文件已保留为history.json.bad。",
+        "history_stuck": "无法读取更改历史，也无法将其移到一旁：暂时不会在其中记录任何更改。请检查SD卡。",
+        "rescue_unreadable": "找到了恢复 sysmodule 的报告，但无法读取，因此PlayGuard无法得知它做了什么。请检查PIN和游戏时间。"
     }
 }

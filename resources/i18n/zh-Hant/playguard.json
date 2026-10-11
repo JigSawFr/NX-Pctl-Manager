@@ -97,6 +97,7 @@
         "not_applied": "主機未接受變更，已還原先前的設定",
         "not_saved": "PlayGuard 無法在 SD 卡上儲存之後需要復原的內容，因此未寫入任何資料",
         "next_step": "如果再次發生，請傳送報告：「工具 › 線上傳送報告」。",
+        "pt_not_understood": "主機的遊玩時間設定格式PlayGuard無法識別，因此未變更任何設定。請傳送報告：「工具 › 線上傳送報告」。",
         "pctl_0132": "代碼2142-0132，其他人在寫入遊玩計時器時也遇過，其含義尚不清楚。請重新啟動主機後再試",
         "clock_not_set": "主機回報其網路時鐘沒有有效時間（可能從未設定過）；請查看「網路時鐘」頁"
     },
@@ -109,7 +110,7 @@
     "fw_gate": {
         "title": "尚未支援此韌體",
         "headline": "尚未支援韌體{}",
-        "body": "PlayGuard {}已確認可用至韌體{}。為了安全起見，在您選擇繼續方式之前，不會變更任何設定。所有內容仍可檢視。",
+        "body": "PlayGuard {}已在主機上測試可用至韌體{}。為了安全起見，在您選擇繼續方式之前，不會變更任何設定。所有內容仍可檢視。",
         "status_checking": "正在尋找支援此韌體的PlayGuard版本…",
         "status_supports": "PlayGuard {}支援韌體{}：請更新，以便安全使用所有功能。",
         "status_no_support": "PlayGuard {}已推出，但尚未支援韌體{}。",
@@ -136,12 +137,12 @@
         "pc_off": "未設定",
         "pc_pin_only": "已設定PIN碼，無限制",
         "pin": "PIN碼",
-        "pin_set": "已設定（{}位數）",
+        "pin_set": "已設定",
         "level": "限制等級",
         "today_limit": "今天的上限（{}）",
         "remaining": "今天剩餘時間",
         "remaining_idle": "遊戲執行時顯示",
-        "remaining_unlocked": "不計時",
+        "remaining_unlocked": "可能不計時",
         "gauge_known": "已遊玩{}／上限{}",
         "gauge_none": "今天無遊玩時間限制",
         "gauge_none_played": "今天無遊玩時間限制 · 已遊玩{}",
@@ -150,7 +151,7 @@
         "gauge_unknown": "無法取得遊玩時間",
         "gauge_reached": "已達今天的上限",
         "gauge_idle": "遊戲執行時才會顯示剩餘時間。",
-        "gauge_unlocked": "家長監護解除期間不計算遊玩時間。",
+        "gauge_unlocked": "家長監護解除期間，可能不計算遊玩時間。",
         "bedtime": "就寢鬧鐘",
         "alarm_off": "已關閉",
         "clock": "網路時鐘",
@@ -183,7 +184,17 @@
         "stop_done": "今天已停止遊玩。",
         "stop_restore_body": "{}，{}的上限曾設為{}，僅限該日。要改回{}嗎？",
         "applet": "PlayGuard正以Applet模式執行（從相簿開啟），可用記憶體較少：匯出或較長的活動清單可能會失敗。若要使用完整模式，請在啟動遊戲時按住R來開啟。",
-        "counted": "在遊戲上開啟的PlayGuard會被當作該遊戲：主機會把這段時間計入遊玩計時器與啟動時所選使用者的遊玩紀錄。請用家長的使用者開啟，或只想看一眼時從相簿開啟。"
+        "counted": "在遊戲上開啟的PlayGuard會被當作該遊戲：主機會把這段時間計入遊玩計時器與啟動時所選使用者的遊玩紀錄。請用家長的使用者開啟，或只想看一眼時從相簿開啟。",
+        "home_counts": "在HOME選單中仍保持開啟的遊戲會繼續計時。",
+        "stop_now": "現在",
+        "stop_soon": "5分鐘後",
+        "stop_soon_body": "要在5分鐘後停止遊玩嗎？\n\n今天{}的上限將設為{}：大約還有5分鐘，足夠存檔。隔天起，PlayGuard會詢問是否改回{}。",
+        "stop_soon_body_auto": "要在5分鐘後停止遊玩嗎？\n\n今天{}的上限將設為{}：大約還有5分鐘，足夠存檔。隔天起，PlayGuard會自動改回{}。",
+        "stop_soon_done": "大約5分鐘後停止遊玩。",
+        "outside_reset": "今天的遊玩時間在{}左右重新開始計算（時鐘被更改了？）。",
+        "outside_clock": "主機時鐘已被更改。",
+        "outside_limits": "上限在PlayGuard之外被更改了，例如透過手機應用程式。",
+        "outside_dismiss": "關閉此提示"
     },
     "onboarding": {
         "title": "初始設定",
@@ -200,7 +211,8 @@
         "step_alarm": "{}. 重新開啟「時間到」鬧鐘（否則時間到時不會有任何提醒）",
         "at_start": "未設定PIN碼時，於啟動時顯示",
         "note": "PIN碼即主機本身的家長監護PIN碼；上限依網路時鐘判斷，因此時鐘必須準確。請用家長的使用者開啟PlayGuard：在遊戲上開啟時，其時間會計為遊玩時間。",
-        "close": "關閉"
+        "close": "關閉",
+        "step_protect": "{}. 保護PlayGuard：要求輸入PIN碼"
     },
     "compat": {
         "ok": "已確認",
@@ -215,8 +227,8 @@
             "active": "計時器啟用中",
             "inactive": "計時器已關閉",
             "remaining_short": "今天剩餘{}",
-            "unlocked_short": "已暫時解除，不計時",
-            "reached_alert": "已達今天的上限：遊戲已中斷。",
+            "unlocked_short": "已暫時解除，可能不計時",
+            "reached_alert": "已達今天的上限：主機會顯示「時間到」。是否同時中斷遊戲，取決於一項PlayGuard目前還無法讀取的設定。",
             "not_set": "無限制",
             "every_day": "每天{}",
             "today_per_day": "今天{}（依星期而異）",
@@ -261,7 +273,7 @@
         "bedtime_value_on": "{}（開啟）",
         "bedtime_value_off": "{}（關閉）",
         "bedtime_reset": "可再次遊玩的時間",
-        "bedtime_note": "適用於每一天。到就寢時間時，主機會顯示鬧鐘（若手機應用程式如此設定，則會中斷軟體），直到可以再次遊玩。PlayGuard 會檢查主機是否回報新的時間，否則會還原先前的設定。",
+        "bedtime_note": "適用於每一天。到就寢時間時，主機會顯示鬧鐘，也可能中斷軟體（這是PlayGuard目前還無法讀取的手機應用程式設定），直到可以再次遊玩。PlayGuard 會檢查主機是否回報新的時間，否則會還原先前的設定。",
         "bedtime_title": "就寢鬧鐘（每天）",
         "bedtime_end_title": "可再次遊玩的時間（每天）",
         "bedtime_summary": "{}，{} 起可再次遊玩",
@@ -278,7 +290,7 @@
         "alarm_on_body": "要重新開啟「時間到」鬧鐘嗎？\n\n達到遊玩時間限制時，主機會像預設一樣再次顯示鬧鐘。",
         "alarm_on_confirm": "開啟",
         "alarm_on_done": "已開啟「時間到」鬧鐘。",
-        "alarm_off_body": "關閉「時間到」提醒？\n\n達到遊戲時間限制時，主機將不再提示：遊戲只會在下次鎖定時暫停。",
+        "alarm_off_body": "關閉「時間到」提醒？\n\n達到遊戲時間限制時，主機將不再提示。若設定為中斷遊戲，則會在沒有提示的情況下中斷。",
         "alarm_off_confirm": "關閉",
         "pause": "暫停倒數",
         "resume": "繼續倒數",
@@ -333,7 +345,10 @@
         "written_days": "已套用依星期設定的上限。",
         "write_err": "無法套用遊玩時間上限",
         "removed": "已移除遊玩時間限制。",
-        "remove_err": "無法移除遊玩時間限制"
+        "remove_err": "無法移除遊玩時間限制",
+        "not_counting": "主機目前沒有計算遊玩時間。可能的原因：時鐘被調回（之後會重新計時）、網路時鐘從未設定（「網路時鐘」分頁），或剛寫入上限（啟動遊戲玩一分鐘後再查看）。",
+        "limit_note": "達到上限時，主機會顯示「時間到」。在測試PlayGuard的主機上，它也中斷了遊戲。若手機應用程式曾設為「僅提醒」，主機可能只會提醒：PlayGuard目前還無法讀取或變更這項設定。",
+        "unsaved": "未儲存的進度可能會遺失：請先讓孩子存檔。"
     },
     "activity": {
         "section_totals": "遊玩時間",
@@ -539,7 +554,9 @@
         "delete_err": "無法刪除家長監護設定",
         "pin_ok": "已更新PIN碼。",
         "pin_err": "無法更新PIN碼",
-        "rescue_note": "已安裝復原用系統模組：任何能修改SD卡的人，都可以在下次啟動時解除主機鎖定，或刪除所有家長監護設定。不再需要時請將其刪除（資料夾atmosphere/contents/4200000000505247）。"
+        "rescue_note": "已安裝復原用系統模組：任何能修改SD卡的人，都可以在下次啟動時解除主機鎖定，或刪除所有家長監護設定。不再需要時請將其刪除（資料夾atmosphere/contents/4200000000505247）。",
+        "show_pin_change_body": "現在變更PIN碼嗎？\n\n其他人可能已經看到了。",
+        "show_pin_change_confirm": "變更"
     },
     "pin_lock": {
         "title": "要求輸入PIN碼",
@@ -551,7 +568,7 @@
         "notes": {
             "off": "任何拿到主機的人都能在此變更設定。顯示 PIN碼 時仍需輸入 PIN碼。",
             "changes": "任何人都能檢視；只有家長能變更（5分鐘後會再次詢問）。重新鎖定時不會詢問。",
-            "open": "在輸入PIN碼前顯示鎖定畫面。重新鎖定時不會詢問。"
+            "open": "在輸入PIN碼前顯示鎖定畫面；離開PlayGuard 5分鐘後會再次顯示。重新鎖定時不會詢問。"
         },
         "no_pin": "請先設定PIN碼（「設定或變更PIN碼」）。",
         "set": "要求輸入PIN碼：{}",
@@ -595,7 +612,6 @@
             "unconfirmed": "主機狀態與此報告所述的復原不符。"
         },
         "hint": {
-            "show_pin": "忘記時",
             "reset_pin": "重新設定",
             "delete": "全部刪除"
         },
@@ -881,7 +897,12 @@
             "restore": "已還原備份",
             "rescue": "已使用復原",
             "console_lock": "主機鎖定",
-            "bedtime": "就寢鬧鐘"
+            "bedtime": "就寢鬧鐘",
+            "pin_shown": "已顯示PIN碼",
+            "config_reset": "偏好設定已重設（檔案無法讀取）",
+            "outside_reset": "遊玩時間重新開始計算（PlayGuard發現）",
+            "outside_clock": "主機時鐘被更改（PlayGuard發現）",
+            "outside_limits": "在PlayGuard之外更改的上限"
         },
         "sources": {
             "uniform": "每天相同上限",
@@ -916,5 +937,12 @@
         "limit_over": "線是本週該日的上限 · 橘色 !：超過了上限",
         "week_order": "週一到週日，有底線的是今天",
         "unsaved": "橘色 *：已變更，尚未儲存"
+    },
+    "data_notice": {
+        "config_reset": "無法讀取PlayGuard的偏好設定，已將其重設。損壞的檔案已保留為config.json.bad。",
+        "config_stuck": "無法讀取PlayGuard的偏好設定，也無法將其移到一旁：目前使用預設值，且暫時不會儲存任何內容，以免覆寫該檔案。請檢查SD卡。",
+        "history_reset": "無法讀取變更紀錄，已開始新的紀錄。損壞的檔案已保留為history.json.bad。",
+        "history_stuck": "無法讀取變更紀錄，也無法將其移到一旁：暫時不會在其中記錄任何變更。請檢查SD卡。",
+        "rescue_unreadable": "找到了復原用 sysmodule 的報告，但無法讀取，因此PlayGuard無法得知它做了什麼。請檢查PIN碼和遊玩時間限制。"
     }
 }

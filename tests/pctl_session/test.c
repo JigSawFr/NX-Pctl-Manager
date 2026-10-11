@@ -644,16 +644,18 @@ static void test_block_preserved(void)
     /* Fields the limits do not use: an odd header, [2..6], [+0] and [+3] of
      * every group, and a day (Monday) without a limit whose [+0] is set. The
      * [+3] (the next day's bedtime switch, low byte) stay off: pt_encode
-     * keeps a day's times while its bedtime is on (test_bedtime). */
+     * keeps a day's times while its bedtime is on (test_bedtime). Every
+     * value stays one the layout can hold (pt_plausible). */
     reset();
     for (int i = 0; i < 34; i++) model.pt_block[i] = 0;
     model.pt_block[0] = 0x0103; model.pt_block[1] = 0x0002;
-    for (int i = 2; i < 7; i++) model.pt_block[i] = (u16)(0xA000 + i);
+    model.pt_block[2] = 0x1100; model.pt_block[3] = 0x0607; model.pt_block[4] = 0x0005;
+    model.pt_block[5] = 80;     model.pt_block[6] = 0x1400;
     for (int n = 0; n < 7; n++) {
         u16 *g = &model.pt_block[7 + 4 * n];
         g[0] = (u16)(0x0700 + n);
         if (n != 1) { g[1] = 0x0100; g[2] = (u16)(60 + n); }
-        if (n < 6) g[3] = (u16)(0xB000 + (n << 8));
+        if (n < 6) g[3] = (u16)(0x1000 + (n << 8));
     }
     memcpy(expect, model.pt_block, sizeof(expect));
 
@@ -685,10 +687,66 @@ static void test_block_preserved(void)
 
     /* No limit on any day: all zeros, whatever was read. */
     reset();
-    model.pt_block[2] = 0xFFFF;
+    model.pt_block[5] = 0xFFFF;   /* the header rule's minutes: "no limit" */
     CHECK(pctl_play_timer_clear() == 0);
     for (unsigned i = 0; i < 0x44; ++i) CHECK(model.last_write[i] == 0);
     CHECK(model.refs == 0);
+}
+
+/* A block the known layout cannot hold (pt_plausible): the read is not
+ * valid, with its own result, and every play-timer write refuses it without
+ * writing. */
+static void test_block_not_understood(void)
+{
+    /* The observed blocks pass: the 22.0.0 one of the docs, timer off, all zero. */
+    reset();
+    CHECK(pt_plausible(model.pt_block));
+    u16 off[34];
+    memset(off, 0, sizeof(off));
+    CHECK(pt_plausible(off));
+    off[3] = 0x0600;   /* "only the 06 is left" */
+    CHECK(pt_plausible(off));
+    off[3] = 0;
+    off[9] = PT_DAY_NOLIMIT;   /* minutes "no limit" */
+    CHECK(pt_plausible(off));
+    off[9] = 0;
+    off[0] = 0x0704;   /* mode bytes are not decoded: any value passes */
+    off[1] = 0xFF02;
+    CHECK(pt_plausible(off));
+
+    struct { int at; u16 v; } bad[] = {
+        { 9, 1441 },     /* Sunday: more than a day */
+        { 33, 3000 },    /* Saturday */
+        { 5, 2000 },     /* the header rule's minutes */
+        { 8, 0x0200 },   /* Sunday's limit flag 2 */
+        { 6, 0x0002 },   /* Sunday's bedtime switch 2 */
+        { 6, 0x1801 },   /* Sunday's alarm at 24 h */
+        { 7, 0x063C },   /* Sunday's alarm at :60 */
+        { 7, 0x1800 },   /* allowed again at 24 h */
+        { 8, 0x013C },   /* allowed again at :60 */
+        { 2, 0x0002 },   /* the header rule's bedtime switch */
+    };
+    for (unsigned i = 0; i < sizeof(bad) / sizeof(bad[0]); i++) {
+        reset();
+        model.pt_block[bad[i].at] = bad[i].v;
+        CHECK(!pt_plausible(model.pt_block));
+        PtState st;
+        pctl_play_timer_query(&st);
+        CHECK(!st.valid && st.config_rc == NXM_RC_PT_NOT_UNDERSTOOD && model.refs == 0);
+        CHECK(st.block[bad[i].at] == bad[i].v);   /* kept as read, for the reports */
+        PctlStatus status;
+        pctl_overview_fetch(&status, &st);
+        CHECK(!st.valid && st.config_rc == NXM_RC_PT_NOT_UNDERSTOOD);
+
+        const unsigned writes = model.writes;
+        u16 days[7] = {60, 60, 60, 60, 60, 60, 60};
+        CHECK(pctl_play_timer_set_days(days) == NXM_RC_PT_NOT_UNDERSTOOD);
+        CHECK(pctl_play_timer_clear() == NXM_RC_PT_NOT_UNDERSTOOD);
+        PtBedtime bt[7];
+        for (int n = 0; n < 7; n++) { bt[n].on = true; bt[n].hour = 21; bt[n].minute = 0; bt[n].end_hour = 7; bt[n].end_minute = 0; }
+        CHECK(pctl_play_timer_set_bedtime(bt, 0) == NXM_RC_PT_NOT_UNDERSTOOD);
+        CHECK(model.writes == writes && model.refs == 0);
+    }
 }
 
 static PtBedtime bed(bool on, u8 h, u8 m, u8 eh, u8 em)
@@ -1068,6 +1126,43 @@ static void test_change_check(void)
     CHECK(model.refs == 0);
 }
 
+/* The UI's reveal check: asks before every read of the PIN, whatever the
+   change check would let through (its grace, a recovery that turned it off). */
+static int reveals;
+static bool reveal_answer;
+static bool reveal_check(void)
+{
+    CHECK(model.refs == 0);
+    reveals++;
+    return reveal_answer;
+}
+
+static void test_reveal_check(void)
+{
+    reset();
+    char pin[16];
+    model.check_answer = true;   /* changes go ahead without asking (a grace) */
+    core_set_change_check(change_check);
+    core_set_reveal_check(reveal_check);
+    reveals = 0;
+    reveal_answer = false;
+    CHECK(pctl_get_pin(pin, sizeof(pin)) == NXM_RC_NOT_CONFIRMED && pin[0] == '\0');
+    CHECK(reveals == 1 && model.checks == 0 && model.ipc_calls == 0);
+    /* Changes still go through the change check only. */
+    CHECK(pctl_set_safety_level(PctlSafetyLevel_Teen) == 0 && model.checks == 1 && reveals == 1);
+    /* No change check at all (a confirmed recovery): the PIN is still asked. */
+    core_set_change_check(NULL);
+    CHECK(pctl_get_pin(pin, sizeof(pin)) == NXM_RC_NOT_CONFIRMED && reveals == 2);
+    reveal_answer = true;
+    CHECK(pctl_get_pin(pin, sizeof(pin)) == 0 && reveals == 3);
+    /* Read-only still wins, without asking. */
+    core_set_read_only(true);
+    CHECK(pctl_get_pin(pin, sizeof(pin)) == NXM_RC_READ_ONLY && reveals == 3);
+    core_set_read_only(false);
+    core_set_reveal_check(NULL);
+    CHECK(model.refs == 0);
+}
+
 int main(void)
 {
     test_ownership();
@@ -1077,6 +1172,7 @@ int main(void)
     test_write_gate();
     test_command_gate();
     test_block_preserved();
+    test_block_not_understood();
     test_bedtime();
     test_unlock_and_relock();
     test_lock_state();
@@ -1086,6 +1182,7 @@ int main(void)
     test_level_settings_and_rating_org();
     test_ask_pin();
     test_change_check();
+    test_reveal_check();
     (void)assert_released;
     return CHECK_DONE("pctl_ops lifecycle, gating, write and read-only assertions passed");
 }

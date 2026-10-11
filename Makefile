@@ -14,8 +14,8 @@
 # release zips, so the same commit gives the same zip.
 # CMAKE_C_COMPILER_LAUNCHER / CMAKE_CXX_COMPILER_LAUNCHER=ccache in the
 # environment are picked up by CMake (CI uses them). CMAKE_ARGS=... is passed
-# to the configure step of `make` and `make desktop` (CI:
-# CMAKE_ARGS=-DPLAYGUARD_WERROR=ON, warnings as errors).
+# to the configure step of `make` (so `make dist`) and `make desktop` (CI
+# builds both with CMAKE_ARGS=-DPLAYGUARD_WERROR=ON, warnings as errors).
 
 TARGET  := playguard
 BUILD   := build
@@ -88,6 +88,7 @@ test:
 	$(CC) -std=c11 $(CWARN) -Isource/core source/core/rescue.c tests/rescue/test.c -o $(TESTOUT)/rescue && $(TESTOUT)/rescue
 	$(CC) -std=c11 $(CWARN) -Isource/util source/util/ntp_packet.c tests/ntp_packet/test.c -o $(TESTOUT)/ntp && $(TESTOUT)/ntp
 	$(CC) -std=c11 $(CWARN) -Isource/util source/util/playlog.c tests/playlog/test.c -o $(TESTOUT)/playlog && $(TESTOUT)/playlog
+	$(CC) -std=gnu11 $(CWARN) -DNX_HOST_TEST -Itests/playstats -Isource/core source/core/playstats_logic.c tests/playstats/test.c -lz -o $(TESTOUT)/playstats && $(TESTOUT)/playstats
 	$(CXX) -std=c++17 $(CWARN) -Isource source/util/paths.cpp source/util/patches.cpp tests/patches/test.cpp -o $(TESTOUT)/patches && $(TESTOUT)/patches
 	$(CXX) -std=c++17 $(CWARN) -Isource source/util/duration.cpp tests/duration/test.cpp -o $(TESTOUT)/duration && $(TESTOUT)/duration
 	$(CXX) -std=c++17 $(CWARN) -Isource source/util/changelog.cpp tests/changelog/test.cpp -o $(TESTOUT)/changelog && $(TESTOUT)/changelog
@@ -96,6 +97,8 @@ test:
 	$(CXX) -std=c++17 $(CWARN) -Isource source/action/pin_lock_logic.cpp tests/pin_lock_logic/test.cpp -o $(TESTOUT)/pin_lock_logic && $(TESTOUT)/pin_lock_logic
 	$(CXX) -std=c++17 $(CWARN) -Isource source/action/console_lock_logic.cpp tests/console_lock_logic/test.cpp -o $(TESTOUT)/console_lock_logic && $(TESTOUT)/console_lock_logic
 	$(CXX) -std=c++17 $(CWARN) -Isource source/action/history_logic.cpp tests/history_logic/test.cpp -o $(TESTOUT)/history_logic && $(TESTOUT)/history_logic
+	$(CXX) -std=c++17 $(CWARN) -Isource source/action/timer_health_logic.cpp tests/timer_health_logic/test.cpp -o $(TESTOUT)/timer_health_logic && $(TESTOUT)/timer_health_logic
+	$(CXX) -std=c++17 $(CWARN) -Isource -Iextern/borealis/library/include source/action/outside_change_logic.cpp tests/outside_change_logic/test.cpp -o $(TESTOUT)/outside_change_logic && $(TESTOUT)/outside_change_logic
 	$(CXX) -std=c++17 $(CWARN) -Isource -Iextern/borealis/library/include source/util/paths.cpp source/util/backup.cpp tests/backup/test.cpp -o $(TESTOUT)/backup && $(TESTOUT)/backup
 	$(CXX) -std=c++17 $(CWARN) -Isource -Iextern/borealis/library/include source/util/paths.cpp source/util/table_export.cpp tests/table_export/test.cpp -o $(TESTOUT)/table_export && $(TESTOUT)/table_export
 	$(CXX) -std=c++17 $(CWARN) -Isource -Iextern/borealis/library/include source/util/update.cpp tests/update/test.cpp -o $(TESTOUT)/update && $(TESTOUT)/update

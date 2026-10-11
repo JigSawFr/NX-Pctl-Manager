@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cstdlib>
 #include <vector>
 
 #include "app.hpp"
@@ -83,7 +84,12 @@ void ClockTab::refresh()
         this->snap_ok = true;
     }
     const TimeSnapshot& s = this->snap;
-    const uint64_t ticked = (uint64_t)std::chrono::duration_cast<std::chrono::seconds>(now - this->snap_at).count();
+    uint64_t ticked = (uint64_t)std::chrono::duration_cast<std::chrono::seconds>(now - this->snap_at).count();
+#ifndef __SWITCH__
+    // Desktop simulation: a console time frozen by PLAYGUARD_SIM_NOW stays
+    // frozen here too, or a screenshot would depend on when it was taken.
+    if (std::getenv("PLAYGUARD_SIM_NOW")) ticked = 0;
+#endif
     const std::string na = "playguard/common/unavailable"_i18n;
     user->setDetailText(R_SUCCEEDED(s.user_rc) ? ui::time_text(s.user_time + ticked) : na);
     network->setDetailText(R_SUCCEEDED(s.network_rc) ? ui::time_text(s.network_time + ticked) : na);

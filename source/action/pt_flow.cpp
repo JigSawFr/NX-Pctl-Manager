@@ -29,12 +29,13 @@ int played_today_min(const PtState& pt)
     return pt_logic::played_today_min(pt, ui::today_weekday());
 }
 
-static void set_relock_pending(bool on)
+// False when the record could not be saved to the SD card.
+static bool set_relock_pending(bool on)
 {
     auto& cfg = config::get();
-    if (cfg.relock_pending == on) return;
+    if (cfg.relock_pending == on) return true;
     cfg.relock_pending = on;
-    ui::save_config();
+    return ui::save_config();
 }
 
 void relock_if_interrupted()
@@ -87,7 +88,8 @@ void confirm_write(const std::string& body_in, const std::string& confirm_label,
     std::string body = body_in;
     const int played = pt_logic::suspend_warning_min(pt, ui::today_weekday(), new_days);
     if (played > 0) {
-        const std::string warning = brls::getStr("playguard/play_timer/suspend_warning", ui::fmt_minutes((uint16_t)played));
+        const std::string warning = brls::getStr("playguard/play_timer/suspend_warning", ui::fmt_minutes((uint16_t)played)) +
+                                    " " + "playguard/play_timer/unsaved"_i18n;
         body = body.empty() ? warning : body + "\n\n" + warning;
     }
 
@@ -111,8 +113,13 @@ void confirm_write(const std::string& body_in, const std::string& confirm_label,
             (config::get().auto_relock ? "playguard/play_timer/gate/relock_auto"_i18n
                                        : "playguard/play_timer/gate/relock_manual"_i18n);
     auto unlock_and_write = [write]() {
-        // Should the app stop before finish_write, the next start locks again.
-        set_relock_pending(true);
+        // Should the app stop before finish_write, the next start locks again:
+        // without that record saved, no unlock (as for the extra time).
+        if (!set_relock_pending(true)) {
+            config::get().relock_pending = false;   // not on the card: not in memory either
+            ui::error("playguard/play_timer/gate/failed"_i18n + " — " + ui::rc_text(NXM_RC_NOT_SAVED));
+            return;
+        }
         Result rc = pctl_unlock_restriction_temporarily();
         if (R_FAILED(rc)) {
             settle_failed_unlock();   // not unlocked, or locked again by the service layer
@@ -160,7 +167,7 @@ Result clear_days(const std::string& source)
 
 static void offer_relock(std::function<void()> after)
 {
-    auto* dialog = ui::dialog("playguard/play_timer/relock/body"_i18n);
+    auto* dialog = ui::dialog("playguard/play_timer/relock/body"_i18n + " " + "playguard/play_timer/unsaved"_i18n);
     // "Later" is a choice to stay unlocked: the record goes. Closed before
     // an answer, it stays, and the next start locks again.
     auto later = [after]() {
@@ -429,6 +436,9 @@ void change_day_limit(int day, uint16_t current, std::function<void()> refresh)
     });
 }
 
+// "No more play today" can wait this long, for a save.
+static constexpr int STOP_SOON_MIN = 5;
+
 // Extra time and "no more play" are for one day of the usual limits: with
 // every day at 0 they would open a hole in the console lock.
 static bool refuse_console_lock()
@@ -568,11 +578,11 @@ void add_extra_time(const PtState& pt, std::function<void()> refresh)
     brls::Application::pushActivity(new brls::Activity(list));
 }
 
-void stop_today(const PtState& pt, std::function<void()> refresh)
+// Today's limit to `value`: 0 (no more play now) or a few minutes more than
+// played (pt_logic::stop_soon_limit). Put back the next day like extra time.
+static void stop_at(const PtState& pt, uint16_t value, std::function<void()> refresh)
 {
-    if (refuse_console_lock()) return;
     const int wd = ui::today_weekday();
-    if (!pt.valid) return;
     const uint16_t base = pt.day_min[wd];
     const pt_logic::ExtraRecord rec = extra_record();
     const bool again = rec.weekday == wd && rec.date == ui::today_date();
@@ -580,11 +590,17 @@ void stop_today(const PtState& pt, std::function<void()> refresh)
     const uint16_t original = plan.original;
     uint16_t new_days[7];
     for (int i = 0; i < 7; i++) new_days[i] = pt.day_min[i];
-    new_days[wd] = 0;
-    const std::string body = brls::getStr(config::get().extra_auto_restore ? "playguard/dashboard/stop_body_auto"
-                                                                           : "playguard/dashboard/stop_body",
-                                          ui::day_name_in_text(wd), ui::fmt_minutes(original));
-    confirm_write(body, "playguard/dashboard/stop_confirm"_i18n, [refresh, wd, base, original](bool did_unlock) {
+    new_days[wd] = value;
+    const bool auto_restore = config::get().extra_auto_restore;
+    std::string body = value == 0
+        ? brls::getStr(auto_restore ? "playguard/dashboard/stop_body_auto" : "playguard/dashboard/stop_body",
+                       ui::day_name_in_text(wd), ui::fmt_minutes(original))
+        : brls::getStr(auto_restore ? "playguard/dashboard/stop_soon_body_auto" : "playguard/dashboard/stop_soon_body",
+                       ui::day_name_in_text(wd), ui::fmt_minutes(value), ui::fmt_minutes(original));
+    // Said once: confirm_write adds it to its own warning when the time
+    // played is known.
+    if (value == 0 && pt_logic::suspend_warning_min(pt, wd, new_days) < 0) body += " " + "playguard/play_timer/unsaved"_i18n;
+    confirm_write(body, "playguard/dashboard/stop_confirm"_i18n, [refresh, wd, base, original, value](bool did_unlock) {
         PtState now;
         pctl_play_timer_query(&now);
         if (!now.valid || now.day_min[wd] != base) {   // changed meanwhile: write nothing
@@ -593,16 +609,35 @@ void stop_today(const PtState& pt, std::function<void()> refresh)
         }
         uint16_t days[7];
         for (int i = 0; i < 7; i++) days[i] = now.day_min[i];
-        days[wd] = 0;
+        days[wd] = value;
         const pt_logic::ExtraRecord prev = extra_record();
-        if (!save_extra_record(wd, original, 0)) {
+        if (!save_extra_record(wd, original, value)) {
             finish_write(NXM_RC_NOT_SAVED, did_unlock, "", "playguard/play_timer/write_err"_i18n, refresh);
             return;
         }
         Result rc = write_days(days, "stop");
         if (R_FAILED(rc)) put_back_extra_record(prev);
-        finish_write(rc, did_unlock, "playguard/dashboard/stop_done"_i18n, "playguard/play_timer/write_err"_i18n, refresh);
+        finish_write(rc, did_unlock, value == 0 ? "playguard/dashboard/stop_done"_i18n : "playguard/dashboard/stop_soon_done"_i18n,
+                     "playguard/play_timer/write_err"_i18n, refresh);
     }, new_days, true);
+}
+
+void stop_today(const PtState& pt, std::function<void()> refresh)
+{
+    if (refuse_console_lock()) return;
+    if (!pt.valid) return;
+    // Suspending can lose unsaved progress: when the time played is known,
+    // "in 5 minutes" leaves time to save.
+    const int soon = pt_logic::stop_soon_limit(pt, ui::today_weekday(), STOP_SOON_MIN);
+    if (soon < 0) {
+        stop_at(pt, 0, refresh);
+        return;
+    }
+    const PtState copy = pt;
+    auto* list = new ActionList("playguard/dashboard/stop"_i18n,
+                                { "playguard/dashboard/stop_now"_i18n, "playguard/dashboard/stop_soon"_i18n },
+                                [copy, soon, refresh](int index) { stop_at(copy, index == 0 ? 0 : (uint16_t)soon, refresh); });
+    brls::Application::pushActivity(new brls::Activity(list));
 }
 
 // Puts `base` back on weekday `wd`, if it still holds the extra time (`value`).

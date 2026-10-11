@@ -33,7 +33,8 @@ now.
   entries are decoded.
   ([details](docs/companion-app.md#3-exceptions-for-specific-software))
 - **Firmware 23.0.1 / Atmosphère 1.12.0 tested on a console.** Covered by the
-  command table, not yet run on hardware.
+  command table, not yet run on hardware: until a trace from it is recorded,
+  23.x goes through the firmware screen (`PCTL_FW_TESTED_MAX` is 22.5.0).
 
 ## Ready to build
 

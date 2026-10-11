@@ -9,8 +9,19 @@ The code is the reference: `source/util/config.hpp` (fields and defaults) and
 
 ## How the file is read
 
-- **A missing file, or one that is not JSON, gives the defaults.** PlayGuard
-  writes the whole file again at the next change.
+- **A missing file gives the defaults**, silently (a first run). PlayGuard
+  writes the whole file at the next change.
+- **A file that is there but cannot be read, or is not a JSON object, is kept
+  as `config.json.bad`** before anything is saved (PlayGuard saves by itself
+  at start-up), and the defaults are used. A `config.json.bad` already there
+  becomes `config.json.bad.1` (an older `.bad.1` is deleted): the two most
+  recent damaged files are kept. PlayGuard says so once, at start-up (*the
+  settings could not be read and were reset*), and the change history
+  records *Settings reset*. What the old file held (the console lock's saved
+  limits, a pending relock or extra time, the firmware choice …) is not
+  carried over: check those settings, or copy values back from the `.bad`
+  file by hand. Should the file not be movable either, nothing is saved
+  until the next start, so it is never overwritten.
 - **Each key is read on its own.** A missing key keeps its default; a key of
   the wrong type keeps its default too, and the others are still read.
   Types are strict: `true`, not `1`; `90`, not `90.5` or `"90"`.
@@ -47,10 +58,12 @@ The code is the reference: `source/util/config.hpp` (fields and defaults) and
 | Value | In the app | What it does |
 |---|---|---|
 | `"off"` | Never | Nothing is asked, except before *Show the PIN* (the PIN opens everything else). |
-| `"changes"` | Before a change | Anyone can look; the first change (or *Show the PIN*) asks for the PIN, then nothing is asked for 5 minutes. The default. |
-| `"open"` | To open PlayGuard | A lock screen first; the right PIN opens the app, B quits. |
+| `"changes"` | Before a change | Anyone can look; the first change asks for the PIN, then nothing is asked for 5 minutes. The default. |
+| `"open"` | To open PlayGuard | A lock screen first; the right PIN opens the app, B quits. It comes back when PlayGuard returns after 5 minutes or more out of focus. |
 
 - With no PIN on the console, nothing is asked whatever the value.
+- *Show the PIN* asks for it every time, whatever the value, even within the
+  5 minutes.
 - A missing file, a missing key or a value not in the list gives `"changes"`:
   a damaged file never turns the prompt off. Only `"off"` written on purpose
   does.
@@ -58,8 +71,8 @@ The code is the reference: `source/util/config.hpp` (fields and defaults) and
   protected: it keeps a child out of PlayGuard, not someone who edits the SD
   card.
 - **PIN forgotten while this is `"changes"` or `"open"`:** put the SD card in a
-  computer and set `"pin_lock": "off"`. *Show the PIN* still asks for it: the
-  recovery sysmodule's screen is the way to see it again.
+  computer and set `"pin_lock": "off"`. *Show the PIN* still asks for it, and
+  the recovery sysmodule's screen sets a new one rather than showing it.
 
 ## Network clock
 
@@ -149,39 +162,80 @@ array element on its own line; the order does not matter when it reads them:
   "schema": 1,
   "language": "fr",
   "theme": "system",
-  "ntp_server": "",
-  "custom_servers": [],
+  "start_tab": "dashboard",
   "advanced": false,
   "auto_relock": true,
-  "extra_auto_restore": false,
-  "dev_mode": false,
-  "pt_log": false,
-  "update_via": "auto",
-  "update_daily": false,
-  "update_checked": "",
-  "start_tab": "dashboard",
-  "extra_amounts": [15, 30, 60],
+  "onboarding_at_start": true,
+  "clock_check_at_start": false,
   "activity_period": 1,
   "export_format": 0,
   "backup_keep": 0,
-  "clock_check_at_start": false,
+  "extra_amounts": [15, 30, 60],
   "pin_lock": "open",
-  "onboarding_at_start": true,
+  "ntp_server": "",
+  "custom_servers": [],
+  "update_via": "auto",
+  "update_daily": false,
+  "update_checked": "",
   "support_reminder": true,
   "support_reminded": "",
   "seen_version": "",
+  "dev_mode": false,
+  "pt_log": false,
   "console_lock": false,
   "console_lock_prev": [],
-  "fw_gate_fw": "",
-  "fw_gate_app": "",
-  "fw_gate_choice": "",
   "extra_weekday": -1,
   "extra_date": "",
   "extra_base": 0,
   "extra_value": 0,
+  "extra_auto_restore": false,
+  "fw_gate_fw": "",
+  "fw_gate_app": "",
+  "fw_gate_choice": "",
   "relock_pending": false
 }
 ```
 
 A file with only `{"pin_lock": "off"}` is valid too: every other key keeps its
 default.
+
+## `watch.json`
+
+Next to `config.json`, in `sd:/switch/playguard/watch.json`: what PlayGuard
+last saw of the console, to tell the parent what changed outside it (the
+Overview's amber notice and the `outside_*` entries of the change history).
+The code: `source/action/outside_change_logic.cpp` (the rules),
+`source/action/outside_watch.cpp` (the readings).
+
+**Only what PlayGuard sees.** Nothing runs in the background: the file is
+compared with the console at each refresh of the Overview or the Play timer
+(every 5 s while one is on screen) and at the next start. A change made and
+undone while PlayGuard was closed, or a clock changed and the day over before
+PlayGuard opens again, goes unseen.
+
+| Key | Type | Values |
+|---|---|---|
+| `schema` | integer | `1` |
+| `date` | string | `"YYYY-MM-DD"`, the day `spent_s` belongs to |
+| `spent_s` | integer | today's time spent, last seen (today's limit minus the time left), `0` to `86400` seconds. Written at most every 5 minutes of play, so it can be a little behind |
+| `offset_s` | integer | the user clock minus the steady clock (which neither a clock change nor sleep mode moves), in seconds |
+| `steady_id` | string | the steady clock's source; another one is not compared |
+| `limits` | array of 7 integers | the limits PlayGuard last saw, Sunday to Saturday, in minutes (`0` to `1440`, or `65535` for no limit) |
+| `notice` | integer | what the Overview says: `1` the play time started over, `2` the clock was changed, `4` the limits were changed outside PlayGuard (added up) |
+| `notice_date` | string | `"YYYY-MM-DD"` the notice belongs to: it goes the next day, or when dismissed |
+| `reset_at` | string | `"HH:MM"` the play time was seen starting over |
+
+- **The play time started over:** `spent_s` went down by more than a minute
+  on the same `date`. The console's own reset comes with a new day; when it
+  happens exactly (midnight or the "allowed again" time) is not confirmed
+  yet ([parental-controls.md](parental-controls.md#time-spent-and-time-left)),
+  so a reset at the "allowed again" time could show here.
+- **The clock was changed:** `offset_s` moved by more than 5 minutes. The
+  automatic correction moves it by seconds only.
+- **The limits were changed outside PlayGuard:** they differ from `limits`.
+- Every change PlayGuard makes itself (anything it records in the change
+  history) makes it take what it reads next as is, so its own limit and clock
+  changes are not reported.
+- A missing or damaged file, or a key out of range, is a first reading:
+  nothing is reported, the values are only recorded. Deleting the file is
+  harmless.

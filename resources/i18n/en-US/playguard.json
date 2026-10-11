@@ -97,6 +97,7 @@
         "not_applied": "the console did not take the change, so the previous settings were put back",
         "not_saved": "PlayGuard could not save to the SD card what it must put back later, so nothing was written",
         "next_step": "If it happens again, send a report: Tools › Send a report online.",
+        "pt_not_understood": "the console's play-timer settings are in a format PlayGuard does not understand, so nothing was changed. Send a report: Tools › Send a report online.",
         "pctl_0132": "code 2142-0132, also reported by others when writing the play timer; its meaning is not known yet. Restart the console, then try again",
         "clock_not_set": "the console reports that its network clock has no valid time (it may never have been set); see the Network clock tab"
     },
@@ -109,7 +110,7 @@
     "fw_gate": {
         "title": "Firmware not supported yet",
         "headline": "Firmware {} is not supported yet",
-        "body": "PlayGuard {} was checked up to firmware {}. To be safe, nothing will be changed until you choose how to continue. Everything can still be viewed.",
+        "body": "PlayGuard {} was tested on a console up to firmware {}. To be safe, nothing will be changed until you choose how to continue. Everything can still be viewed.",
         "status_checking": "Looking for a PlayGuard version that supports it...",
         "status_supports": "PlayGuard {} supports firmware {}: update to use every feature safely.",
         "status_no_support": "PlayGuard {} is available, but it does not support firmware {} yet.",
@@ -136,12 +137,12 @@
         "pc_off": "Not set up",
         "pc_pin_only": "PIN set, no restriction",
         "pin": "PIN",
-        "pin_set": "Set ({} digits)",
+        "pin_set": "Set",
         "level": "Restriction level",
         "today_limit": "Today's limit ({})",
         "remaining": "Time left today",
         "remaining_idle": "Shown while a game runs",
-        "remaining_unlocked": "Not counted",
+        "remaining_unlocked": "May not be counted",
         "gauge_known": "{} played of {}",
         "gauge_none": "No play-time limit today",
         "gauge_none_played": "No play-time limit today · {} played",
@@ -150,7 +151,7 @@
         "gauge_unknown": "Play time not available",
         "gauge_reached": "Today's limit has been reached",
         "gauge_idle": "Time left is reported while a game is running.",
-        "gauge_unlocked": "Play time is not counted while parental controls are unlocked.",
+        "gauge_unlocked": "Play time may not be counted while parental controls are unlocked.",
         "bedtime": "Bedtime alarm",
         "alarm_off": "Off",
         "clock": "Network clock",
@@ -183,7 +184,17 @@
         "stop_done": "No more play today.",
         "stop_restore_body": "On {}, the {} limit was set to {} for that day only. Put it back to {}?",
         "applet": "PlayGuard is running as an applet (opened from the album), with little memory: an export or a long Activity list may fail. For the full app, open it while holding R as you start a game.",
-        "counted": "Opened over a game, PlayGuard counts as that game: the console adds its time to the play timer and to the activity of the user picked at launch. Open it with a parent's user, or from the Album for a quick look."
+        "counted": "Opened over a game, PlayGuard counts as that game: the console adds its time to the play timer and to the activity of the user picked at launch. Open it with a parent's user, or from the Album for a quick look.",
+        "home_counts": "A game left open on the HOME menu keeps counting.",
+        "stop_now": "Now",
+        "stop_soon": "In 5 minutes",
+        "stop_soon_body": "Stop in 5 minutes?\n\nThe {} limit becomes {} for today: about 5 more minutes, time to save. From the next day, PlayGuard will offer to put it back to {}.",
+        "stop_soon_body_auto": "Stop in 5 minutes?\n\nThe {} limit becomes {} for today: about 5 more minutes, time to save. From the next day, PlayGuard puts it back to {} by itself.",
+        "stop_soon_done": "Play stops in about 5 minutes.",
+        "outside_reset": "Today's play time started over at about {} (clock changed?).",
+        "outside_clock": "The console clock was changed.",
+        "outside_limits": "Limits were changed outside PlayGuard, e.g. by the phone app.",
+        "outside_dismiss": "Dismiss this notice"
     },
     "onboarding": {
         "title": "First steps",
@@ -200,7 +211,8 @@
         "step_alarm": "{}. Turn the \"Time's up\" alarm back on (nothing says when time is up)",
         "at_start": "Show at start-up while no PIN is set",
         "note": "The PIN is the console's own; the limit is checked against the network clock, so it must be accurate. Open PlayGuard with a parent's user: opened over a game, its time counts as play.",
-        "close": "Close"
+        "close": "Close",
+        "step_protect": "{}. Protect PlayGuard: ask for the PIN"
     },
     "compat": {
         "ok": "Checked",
@@ -215,8 +227,8 @@
             "active": "Timer active",
             "inactive": "Timer off",
             "remaining_short": "{} left today",
-            "unlocked_short": "temporarily unlocked, not counting",
-            "reached_alert": "Today's limit is reached: the game is suspended.",
+            "unlocked_short": "temporarily unlocked, may not be counting",
+            "reached_alert": "Today's limit is reached: the console shows \"Time's up\". Whether it also suspends the game depends on a setting PlayGuard cannot read yet.",
             "not_set": "No limit",
             "every_day": "{} every day",
             "today_per_day": "{} today (varies by day)",
@@ -261,7 +273,7 @@
         "bedtime_value_on": "{} (on)",
         "bedtime_value_off": "{} (off)",
         "bedtime_reset": "Play allowed again at",
-        "bedtime_note": "Applies to every day. At bedtime the console shows the alarm, or suspends the software if the companion app is set to, until play is allowed again. PlayGuard checks that the console reports the new time, and puts the previous settings back if it does not.",
+        "bedtime_note": "Applies to every day. At bedtime the console shows the alarm, and may also suspend the software (a phone-app setting PlayGuard cannot read yet), until play is allowed again. PlayGuard checks that the console reports the new time, and puts the previous settings back if it does not.",
         "bedtime_title": "Bedtime alarm, every day",
         "bedtime_end_title": "Play allowed again at (every day)",
         "bedtime_summary": "{}, play allowed again at {}",
@@ -278,7 +290,7 @@
         "alarm_on_body": "Turn the \"Time's up\" alarm back on?\n\nWhen the play-time limit is reached, the console will show the alarm again, as it does by default.",
         "alarm_on_confirm": "Turn on",
         "alarm_on_done": "\"Time's up\" alarm turned on.",
-        "alarm_off_body": "Turn off the \"Time's up\" alarm?\n\nWhen the play-time limit is reached, the console will no longer say so: the game is only suspended at the next lock.",
+        "alarm_off_body": "Turn off the \"Time's up\" alarm?\n\nWhen the play-time limit is reached, the console will no longer say so. If it is set to suspend the game, it then does so without warning.",
         "alarm_off_confirm": "Turn off",
         "pause": "Pause the countdown",
         "resume": "Resume the countdown",
@@ -333,7 +345,10 @@
         "written_days": "Per-day limits applied.",
         "write_err": "Could not apply the play-time limit",
         "removed": "Play-time limit removed.",
-        "remove_err": "Could not remove the play-time limit"
+        "remove_err": "Could not remove the play-time limit",
+        "not_counting": "The console is not counting play time right now. Likely causes: the clock was set back (it counts again later), the network clock was never set (Network clock tab), or a limit was just written (start a game for a minute, then check).",
+        "limit_note": "At the limit the console shows \"Time's up\". On the console PlayGuard was tested on, it also suspended the game. If the phone app was ever set to \"alarm only\", the console may only warn: PlayGuard cannot read or change that setting yet.",
+        "unsaved": "Unsaved progress may be lost: let the child save first."
     },
     "activity": {
         "section_totals": "Play time",
@@ -539,7 +554,9 @@
         "delete_err": "Could not delete parental controls",
         "pin_ok": "PIN updated.",
         "pin_err": "Could not update the PIN",
-        "rescue_note": "The recovery sysmodule is installed: anyone who can edit the SD card can then unlock the console or delete every parental control at the next start. Remove it when you no longer need it (folder atmosphere/contents/4200000000505247)."
+        "rescue_note": "The recovery sysmodule is installed: anyone who can edit the SD card can then unlock the console or delete every parental control at the next start. Remove it when you no longer need it (folder atmosphere/contents/4200000000505247).",
+        "show_pin_change_body": "Change the PIN now?\n\nSomeone else may have seen it.",
+        "show_pin_change_confirm": "Change"
     },
     "pin_lock": {
         "title": "Ask for the PIN",
@@ -551,7 +568,7 @@
         "notes": {
             "off": "Anyone who holds the console can change the settings here. Showing the PIN still asks for it.",
             "changes": "Anyone can look; changing something needs the PIN (asked again after 5 minutes). Locking again never asks.",
-            "open": "A lock screen until the PIN is entered. Locking again never asks."
+            "open": "A lock screen until the PIN is entered, and again after 5 minutes away from PlayGuard. Locking again never asks."
         },
         "no_pin": "Set a PIN first (Set or change the PIN).",
         "set": "Ask for the PIN: {}",
@@ -595,7 +612,6 @@
             "unconfirmed": "The console does not show the recovery this report describes."
         },
         "hint": {
-            "show_pin": "if you forgot it",
             "reset_pin": "choose a new one",
             "delete": "remove everything"
         },
@@ -881,7 +897,12 @@
             "restore": "Backup restored",
             "rescue": "Recovery used",
             "console_lock": "Console lock",
-            "bedtime": "Bedtime alarm"
+            "bedtime": "Bedtime alarm",
+            "pin_shown": "PIN shown",
+            "config_reset": "Settings reset (file unreadable)",
+            "outside_reset": "Play time started over (seen by PlayGuard)",
+            "outside_clock": "Console clock changed (seen by PlayGuard)",
+            "outside_limits": "Limits changed outside PlayGuard"
         },
         "sources": {
             "uniform": "Same limit every day",
@@ -916,5 +937,12 @@
         "limit_over": "The line is this week's limit for that day · ! in amber: played over it",
         "week_order": "Monday to Sunday, today underlined",
         "unsaved": "* in amber: changed, not saved yet"
+    },
+    "data_notice": {
+        "config_reset": "PlayGuard's settings could not be read and were reset; the damaged file was kept as config.json.bad.",
+        "config_stuck": "PlayGuard's settings could not be read, nor put aside: the defaults are used, and nothing will be saved for now so the file is not overwritten. Check the SD card.",
+        "history_reset": "The change history could not be read, so a new one was started; the damaged file was kept as history.json.bad.",
+        "history_stuck": "The change history could not be read, nor put aside: no change will be recorded in it for now. Check the SD card.",
+        "rescue_unreadable": "A report from the recovery sysmodule was found but could not be read, so PlayGuard cannot tell what it did. Check the PIN and the play timer."
     }
 }

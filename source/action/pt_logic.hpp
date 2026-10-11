@@ -50,6 +50,12 @@ bool can_stop_today(const PtState& pt, int weekday, bool read_only);
 // limit from before any extra time added earlier today, as for extra time).
 ExtraPlan plan_stop(uint16_t base, bool again, uint16_t recorded_base);
 
+// "No more play today", in `minutes` instead of now: today's limit becomes
+// the time played plus `minutes`, so the child can save first. -1 when that
+// would not be below today's limit, or the time played is not known (no
+// limit today, nothing counted yet).
+int stop_soon_limit(const PtState& pt, int weekday, int minutes);
+
 // What config remembers about extra time (config extra_*).
 struct ExtraRecord
 {

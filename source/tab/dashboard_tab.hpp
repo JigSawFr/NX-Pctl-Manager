@@ -2,7 +2,9 @@
 // warnings. Refreshed every 5 s while shown; A on a line opens the matching tab.
 // When the timer reports no time left (no game running yet, or no limit
 // today), today's play time comes from the activity log (play_data, read in
-// the background at most every few minutes).
+// the background at most every few minutes). Two amber notices: the console
+// not counting play time (action/timer_health) and changes seen outside
+// PlayGuard (action/outside_watch).
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #pragma once
 
@@ -34,6 +36,10 @@ class DashboardTab : public TabBase
     BRLS_BIND(brls::DetailCell, level,       "dash_level");
     BRLS_BIND(PtGauge,          gauge,       "dash_gauge");
     BRLS_BIND(brls::Label,      gauge_text,  "dash_gauge_text");
+    BRLS_BIND(brls::Label,      not_counting, "dash_not_counting");
+    BRLS_BIND(brls::Label,      home_hint,   "dash_home_hint");
+    BRLS_BIND(brls::Label,      outside_text, "dash_outside_text");
+    BRLS_BIND(brls::DetailCell, outside,     "dash_outside");
     BRLS_BIND(brls::DetailCell, today_limit, "dash_today_limit");
     BRLS_BIND(brls::DetailCell, extra,       "dash_extra");
     BRLS_BIND(brls::DetailCell, stop,        "dash_stop");

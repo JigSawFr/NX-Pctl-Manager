@@ -97,6 +97,7 @@
         "not_applied": "la console non ha accettato la modifica, quindi sono state ripristinate le impostazioni precedenti",
         "not_saved": "PlayGuard non è riuscito a salvare sulla scheda SD ciò che dovrà ripristinare in seguito, quindi non è stato scritto nulla",
         "next_step": "Se succede di nuovo, invia un rapporto: Strumenti › Invia un rapporto online.",
+        "pt_not_understood": "le impostazioni del tempo di gioco della console sono in un formato che PlayGuard non comprende, quindi non è stato modificato nulla. Invia un rapporto: Strumenti › Invia un rapporto online.",
         "pctl_0132": "codice 2142-0132, segnalato anche da altri durante la scrittura del timer di gioco; il suo significato non è ancora noto. Riavvia la console, poi riprova",
         "clock_not_set": "la console indica che il suo orologio di rete non ha un'ora valida (forse non è mai stato impostato); vedi la scheda Orologio di rete"
     },
@@ -109,7 +110,7 @@
     "fw_gate": {
         "title": "Firmware non ancora supportato",
         "headline": "Il firmware {} non è ancora supportato",
-        "body": "PlayGuard {} è stato verificato fino al firmware {}. Per sicurezza, non verrà modificato nulla finché non scegli come procedere. Puoi comunque consultare tutto.",
+        "body": "PlayGuard {} è stato testato su una console fino al firmware {}. Per sicurezza, non verrà modificato nulla finché non scegli come procedere. Puoi comunque consultare tutto.",
         "status_checking": "Ricerca di una versione di PlayGuard che lo supporti...",
         "status_supports": "PlayGuard {} supporta il firmware {}: aggiornalo per usare tutte le funzioni in sicurezza.",
         "status_no_support": "PlayGuard {} è disponibile, ma non supporta ancora il firmware {}.",
@@ -136,12 +137,12 @@
         "pc_off": "Non configurato",
         "pc_pin_only": "PIN impostato, nessuna limitazione",
         "pin": "PIN",
-        "pin_set": "Impostato ({} cifre)",
+        "pin_set": "Impostato",
         "level": "Livello limitazioni",
         "today_limit": "Limite di oggi ({})",
         "remaining": "Tempo rimanente oggi",
         "remaining_idle": "Mostrato durante il gioco",
-        "remaining_unlocked": "Non conteggiato",
+        "remaining_unlocked": "Forse non conteggiato",
         "gauge_known": "{} giocati su {}",
         "gauge_none": "Nessun limite di tempo di gioco oggi",
         "gauge_none_played": "Nessun limite di tempo di gioco oggi · {} giocati",
@@ -150,7 +151,7 @@
         "gauge_unknown": "Tempo di gioco non disponibile",
         "gauge_reached": "Il limite di oggi è stato raggiunto",
         "gauge_idle": "Il tempo rimanente viene indicato mentre un gioco è in esecuzione.",
-        "gauge_unlocked": "Il tempo di gioco non viene conteggiato mentre il filtro famiglia è sbloccato.",
+        "gauge_unlocked": "Il tempo di gioco potrebbe non essere conteggiato mentre il filtro famiglia è sbloccato.",
         "bedtime": "Sogni d'oro",
         "alarm_off": "Disattivato",
         "clock": "Orologio di rete",
@@ -183,7 +184,17 @@
         "stop_done": "Gioco interrotto per oggi.",
         "stop_restore_body": "Il {}, il limite di {} è stato impostato a {} solo per quel giorno. Vuoi riportarlo a {}?",
         "applet": "PlayGuard è in esecuzione come applet (aperto dall'album), con poca memoria: un'esportazione o un lungo elenco Attività potrebbero non riuscire. Per l'applicazione completa, aprila tenendo premuto R mentre avvii un gioco.",
-        "counted": "Aperto sopra un gioco, PlayGuard conta come quel gioco: la console aggiunge il suo tempo al timer di gioco e all'attività dell'utente scelto all'avvio. Aprilo con l'utente di un genitore, o dall'Album per un'occhiata veloce."
+        "counted": "Aperto sopra un gioco, PlayGuard conta come quel gioco: la console aggiunge il suo tempo al timer di gioco e all'attività dell'utente scelto all'avvio. Aprilo con l'utente di un genitore, o dall'Album per un'occhiata veloce.",
+        "home_counts": "Un gioco lasciato aperto nel menu HOME continua a essere conteggiato.",
+        "stop_now": "Adesso",
+        "stop_soon": "Tra 5 minuti",
+        "stop_soon_body": "Interrompere tra 5 minuti?\n\nIl limite di {} diventa {} per oggi: circa 5 minuti in più, il tempo di salvare. Dal giorno seguente, PlayGuard ti proporrà di riportarlo a {}.",
+        "stop_soon_body_auto": "Interrompere tra 5 minuti?\n\nIl limite di {} diventa {} per oggi: circa 5 minuti in più, il tempo di salvare. Dal giorno seguente, PlayGuard lo riporterà automaticamente a {}.",
+        "stop_soon_done": "Il gioco si interrompe tra circa 5 minuti.",
+        "outside_reset": "Il tempo di gioco di oggi è ripartito da zero verso le {} (orologio cambiato?).",
+        "outside_clock": "L'orologio della console è stato cambiato.",
+        "outside_limits": "I limiti sono stati cambiati al di fuori di PlayGuard, ad esempio dall'app per smartphone.",
+        "outside_dismiss": "Nascondi questo avviso"
     },
     "onboarding": {
         "title": "Primi passi",
@@ -200,7 +211,8 @@
         "step_alarm": "{}. Riattiva l'avviso \"Tempo scaduto\" (nulla avvisa allo scadere del tempo)",
         "at_start": "Mostra all'avvio finché non è impostato un PIN",
         "note": "Il PIN è quello della console; il limite viene verificato con l'orologio di rete, che deve quindi essere preciso. Apri PlayGuard con l'utente di un genitore: aperto sopra un gioco, il suo tempo conta come gioco.",
-        "close": "Chiudi"
+        "close": "Chiudi",
+        "step_protect": "{}. Proteggi PlayGuard: richiedi il PIN"
     },
     "compat": {
         "ok": "Verificato",
@@ -215,8 +227,8 @@
             "active": "Timer attivo",
             "inactive": "Timer disattivato",
             "remaining_short": "Ancora {} oggi",
-            "unlocked_short": "sbloccato temporaneamente, non conteggiato",
-            "reached_alert": "Il limite di oggi è stato raggiunto: il gioco è sospeso.",
+            "unlocked_short": "sbloccato temporaneamente, forse non conteggiato",
+            "reached_alert": "Il limite di oggi è stato raggiunto: la console mostra \"Tempo scaduto\". Se sospende anche il gioco dipende da un'impostazione che PlayGuard non può ancora leggere.",
             "not_set": "Nessun limite",
             "every_day": "{} ogni giorno",
             "today_per_day": "{} oggi (varia in base al giorno)",
@@ -261,7 +273,7 @@
         "bedtime_value_on": "{} (attivato)",
         "bedtime_value_off": "{} (disattivato)",
         "bedtime_reset": "Si può giocare di nuovo dalle",
-        "bedtime_note": "Vale per ogni giorno. All'ora di andare a letto la console mostra l'avviso, o sospende il software se l'app è impostata così, finché non si può giocare di nuovo. PlayGuard verifica che la console indichi il nuovo orario e, in caso contrario, ripristina le impostazioni precedenti.",
+        "bedtime_note": "Vale per ogni giorno. All'ora di andare a letto la console mostra l'avviso, e potrebbe anche sospendere il software (un'impostazione dell'app per smartphone che PlayGuard non può ancora leggere), finché non si può giocare di nuovo. PlayGuard verifica che la console indichi il nuovo orario e, in caso contrario, ripristina le impostazioni precedenti.",
         "bedtime_title": "Sogni d'oro, ogni giorno",
         "bedtime_end_title": "Si può giocare di nuovo dalle (ogni giorno)",
         "bedtime_summary": "{}, si può giocare di nuovo dalle {}",
@@ -278,7 +290,7 @@
         "alarm_on_body": "Riattivare l'avviso \"Tempo scaduto\"?\n\nQuando verrà raggiunto il limite di tempo di gioco, la console mostrerà di nuovo l'avviso, come fa in modo predefinito.",
         "alarm_on_confirm": "Attiva",
         "alarm_on_done": "Avviso \"Tempo scaduto\" attivato.",
-        "alarm_off_body": "Disattivare l'allarme «tempo scaduto»?\n\nQuando sarà raggiunto il limite di tempo di gioco, la console non lo segnalerà più: il gioco verrà sospeso solo al blocco successivo.",
+        "alarm_off_body": "Disattivare l'allarme «tempo scaduto»?\n\nQuando sarà raggiunto il limite di tempo di gioco, la console non lo segnalerà più. Se è impostata per sospendere il gioco, lo farà senza preavviso.",
         "alarm_off_confirm": "Disattiva",
         "pause": "Metti in pausa il conteggio",
         "resume": "Riprendi il conteggio",
@@ -333,7 +345,10 @@
         "written_days": "Limiti per giorno applicati.",
         "write_err": "Impossibile applicare il limite di tempo di gioco",
         "removed": "Limite di tempo di gioco rimosso.",
-        "remove_err": "Impossibile rimuovere il limite di tempo di gioco"
+        "remove_err": "Impossibile rimuovere il limite di tempo di gioco",
+        "not_counting": "La console non sta conteggiando il tempo di gioco in questo momento. Cause probabili: l'orologio è stato portato indietro (riprenderà a contare più tardi), l'orologio di rete non è mai stato impostato (scheda Orologio di rete), oppure è appena stato scritto un limite (avvia un gioco per un minuto, poi controlla).",
+        "limit_note": "Al limite la console mostra \"Tempo scaduto\". Sulla console su cui è stato provato PlayGuard ha anche sospeso il gioco. Se l'app per smartphone è stata impostata almeno una volta su \"solo avviso\", la console potrebbe limitarsi ad avvisare: PlayGuard non può ancora leggere né modificare questa impostazione.",
+        "unsaved": "I progressi non salvati potrebbero andare persi: lascia prima salvare il bambino."
     },
     "activity": {
         "section_totals": "Tempo di gioco",
@@ -539,7 +554,9 @@
         "delete_err": "Impossibile eliminare il filtro famiglia",
         "pin_ok": "PIN aggiornato.",
         "pin_err": "Impossibile aggiornare il PIN",
-        "rescue_note": "Il sysmodule di recupero è installato: chiunque possa modificare la scheda SD può così sbloccare la console o eliminare il filtro famiglia al prossimo avvio. Rimuovilo quando non ti serve più (cartella atmosphere/contents/4200000000505247)."
+        "rescue_note": "Il sysmodule di recupero è installato: chiunque possa modificare la scheda SD può così sbloccare la console o eliminare il filtro famiglia al prossimo avvio. Rimuovilo quando non ti serve più (cartella atmosphere/contents/4200000000505247).",
+        "show_pin_change_body": "Cambiare il PIN ora?\n\nQualcun altro potrebbe averlo visto.",
+        "show_pin_change_confirm": "Cambia"
     },
     "pin_lock": {
         "title": "Richiedi il PIN",
@@ -551,7 +568,7 @@
         "notes": {
             "off": "Chiunque abbia in mano la console può modificare le impostazioni qui. Per mostrare il PIN viene comunque chiesto.",
             "changes": "Tutti possono consultare; solo il genitore può modificare (il PIN viene richiesto di nuovo dopo 5 minuti). Per bloccare di nuovo non viene mai richiesto.",
-            "open": "Una schermata di blocco fino all'inserimento del PIN. Per bloccare di nuovo non viene mai richiesto."
+            "open": "Una schermata di blocco fino all'inserimento del PIN, e di nuovo dopo 5 minuti fuori da PlayGuard. Per bloccare di nuovo non viene mai richiesto."
         },
         "no_pin": "Prima imposta un PIN (Sicurezza e app › Imposta o cambia il PIN).",
         "set": "Richiedi il PIN: {}",
@@ -595,7 +612,6 @@
             "unconfirmed": "La console non mostra il recupero descritto da questo rapporto."
         },
         "hint": {
-            "show_pin": "se l'hai dimenticato",
             "reset_pin": "scegline uno nuovo",
             "delete": "rimuovi tutto"
         },
@@ -881,7 +897,12 @@
             "restore": "Backup ripristinato",
             "rescue": "Recupero usato",
             "console_lock": "Blocco della console",
-            "bedtime": "Sogni d'oro"
+            "bedtime": "Sogni d'oro",
+            "pin_shown": "PIN mostrato",
+            "config_reset": "Preferenze ripristinate (file illeggibile)",
+            "outside_reset": "Tempo di gioco ripartito da zero (visto da PlayGuard)",
+            "outside_clock": "Orologio della console cambiato (visto da PlayGuard)",
+            "outside_limits": "Limiti cambiati al di fuori di PlayGuard"
         },
         "sources": {
             "uniform": "Stesso limite ogni giorno",
@@ -916,5 +937,12 @@
         "limit_over": "La linea è il limite di questa settimana per quel giorno · ! in ambra: superato",
         "week_order": "Da lunedì a domenica, oggi sottolineato",
         "unsaved": "* in ambra: modificato, non ancora salvato"
+    },
+    "data_notice": {
+        "config_reset": "Non è stato possibile leggere le preferenze di PlayGuard, che sono state ripristinate. Il file danneggiato è stato conservato come config.json.bad.",
+        "config_stuck": "Non è stato possibile leggere né mettere da parte le preferenze di PlayGuard: vengono usati i valori predefiniti e per ora non verrà salvato nulla, per non sovrascrivere il file. Controlla la scheda SD.",
+        "history_reset": "Non è stato possibile leggere la cronologia delle modifiche, quindi ne è stata iniziata una nuova. Il file danneggiato è stato conservato come history.json.bad.",
+        "history_stuck": "Non è stato possibile leggere né mettere da parte la cronologia delle modifiche: per ora non vi verrà registrata alcuna modifica. Controlla la scheda SD.",
+        "rescue_unreadable": "È stato trovato un rapporto del sysmodule di recupero, ma non è stato possibile leggerlo, quindi PlayGuard non può sapere cosa ha fatto. Controlla il PIN e il tempo di gioco."
     }
 }
