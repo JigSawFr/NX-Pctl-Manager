@@ -6,7 +6,8 @@
      "time's up" alarm is off (turn it back on), one once a PIN is set (Ask
      for the PIN, Security's choice), and whether the screen opens
      by itself at start-up; below Close, Support PlayGuard (the funding QR
-     codes).
+     codes). Under the note, on emuMMC (or on sysMMC with an emuMMC set up),
+     that the other system has its own parental controls.
      Shown at start-up while no PIN is set; Overview › First steps and
      Tools › First steps bring it back. Filled by onboarding_activity.cpp. -->
 
@@ -41,6 +42,7 @@
             <brls:DetailCell id="ob_alarm"/>
             <brls:DetailCell id="ob_protect"/>
             <brls:Label id="ob_note" text="@i18n/playguard/onboarding/note" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
+            <brls:Label id="ob_storage_note" text="" fontSize="20" marginTop="4" marginBottom="6" textColor="@theme/brand/warn"/>
             <brls:BooleanCell id="ob_at_start" marginTop="16"/>
             <brls:DetailCell id="ob_close" title="@i18n/playguard/onboarding/close"/>
             <brls:DetailCell id="ob_support" title="@i18n/playguard/about/section_support" marginTop="24"/>

@@ -44,6 +44,10 @@ static std::string hint_for(Result rc)
     switch (rc) {
         case 0xF601: return "playguard/error/session_closed"_i18n;
         case 0xF80E: return "playguard/error/bad_pin_format"_i18n;
+        // 2142-0132: reported writing the play timer on 22.1 (NX-Pctl-Manager #5); meaning unknown.
+        case 0x1088E: return "playguard/error/pctl_0132"_i18n;
+        // 2116-0102 (switchbrew: OffsetInvalid): switch-time saw it reading a never-set network clock.
+        case 0xCC74: return "playguard/error/clock_not_set"_i18n;
         default: break;
     }
     if ((rc & 0x1FF) == 142) return "playguard/error/pctl_refused"_i18n;   // pctl module

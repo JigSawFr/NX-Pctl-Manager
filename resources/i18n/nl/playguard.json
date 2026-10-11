@@ -97,7 +97,9 @@
         "not_applied": "de console heeft de wijziging niet overgenomen, dus de vorige instellingen zijn teruggezet",
         "not_saved": "PlayGuard kon niet op de SD-kaart opslaan wat het later moet terugzetten, dus er is niets weggeschreven",
         "next_step": "Gebeurt dit opnieuw, verstuur dan een rapport: Tools › Rapport online versturen.",
-        "pt_not_understood": "de speeltijdinstellingen van de console hebben een indeling die PlayGuard niet begrijpt, dus er is niets gewijzigd. Verstuur een rapport: Tools › Rapport online versturen."
+        "pt_not_understood": "de speeltijdinstellingen van de console hebben een indeling die PlayGuard niet begrijpt, dus er is niets gewijzigd. Verstuur een rapport: Tools › Rapport online versturen.",
+        "pctl_0132": "code 2142-0132, ook door anderen gemeld bij het schrijven van de speeltimer; de betekenis is nog niet bekend. Start de console opnieuw op en probeer het dan nog eens",
+        "clock_not_set": "de console meldt dat de netwerkklok geen geldige tijd heeft (misschien is die nooit ingesteld); zie het tabblad Netwerkklok"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -182,7 +184,7 @@
         "stop_done": "Er wordt vandaag niet meer gespeeld.",
         "stop_restore_body": "Op {} is de limiet voor {} alleen voor die dag op {} gezet. Terugzetten naar {}?",
         "applet": "PlayGuard draait als applet (geopend vanuit het album), met weinig geheugen: een export of een lange activiteitenlijst kan mislukken. Open PlayGuard voor de volledige app door R ingedrukt te houden terwijl je een game start.",
-        "counted": "Over een spel geopend telt PlayGuard als dat spel: de console telt de tijd mee voor de speeltimer en de activiteit van de gebruiker die bij het starten is gekozen (het tabblad Activiteit van PlayGuard laat die weg). Open PlayGuard met de gebruiker van een ouder, of via het Album voor een snelle blik.",
+        "counted": "Over een spel geopend telt PlayGuard als dat spel: de console telt de tijd mee voor de speeltimer en de activiteit van de gebruiker die bij het starten is gekozen. Open PlayGuard met de gebruiker van een ouder, of via het Album voor een snelle blik.",
         "home_counts": "Een game die open blijft in het HOME-menu, telt gewoon door.",
         "stop_now": "Nu",
         "stop_soon": "Over 5 minuten",
@@ -519,7 +521,8 @@
         "unlinked": "Smartphone-app ontkoppeld.",
         "unlink_err": "Kan de smartphone-app niet ontkoppelen",
         "note": "Zolang de console gekoppeld blijft, overschrijft de smartphone-app bij de volgende synchronisatie de instellingen die hier zijn gemaakt.",
-        "unlink_dev_note": "Ontwikkelaarstools: Speeltijdblok vergelijken heeft een console nodig die nog gekoppeld is. Sla eerst de referentie op als je een instelling wilt ontcijferen."
+        "decode": "Vóór het ontkoppelen: twee instellingen ontcijferen",
+        "decode_note": "Vóór het ontkoppelen kan deze console helpen 'alleen alarm' en bedtijd per dag te ontcijferen (Beveiliging & app, 2 min): na het ontkoppelen kan dat niet meer."
     },
     "security": {
         "section_status": "Status",
@@ -708,7 +711,9 @@
         "flag_read_only": "alleen-lezen",
         "flag_dev": "ontwikkelaar",
         "upload": "Rapport online versturen",
-        "upload_note": "Verstuurt een rapport naar bpa.st, of naar een geheime gist als je bij GitHub bent aangemeld, en toont de link met een QR-code: geef hem aan wie je helpt, of open er een bugmelding mee."
+        "upload_note": "Verstuurt een rapport naar bpa.st, of naar een geheime gist als je bij GitHub bent aangemeld, en toont de link met een QR-code: geef hem aan wie je helpt, of open er een bugmelding mee.",
+        "storage_note_emummc": "Dit is de emuMMC: de sysMMC heeft een eigen ouderlijk toezicht, dat PlayGuard van hieruit niet kan zien. Stel het daar ook in, of verberg het opstartmenu van hekate.",
+        "storage_note_sysmmc": "Dit is de sysMMC, en op deze SD-kaart is een emuMMC ingesteld: die heeft een eigen ouderlijk toezicht, dat PlayGuard van hieruit niet kan zien. Stel het daar ook in, of verberg het opstartmenu van hekate."
     },
     "about": {
         "section_changelog": "Nieuw in {}",
@@ -928,8 +933,8 @@
     },
     "chart": {
         "last_days": "De laatste 7 dagen, vandaag rechts",
-        "limit_line": "De lijn over een balk is de limiet van die dag",
-        "limit_over": "De lijn is de limiet van die dag · ! in oranje: langer gespeeld",
+        "limit_line": "De lijn over een balk is de limiet van deze week voor die dag",
+        "limit_over": "De lijn is de limiet van deze week voor die dag · ! in oranje: langer gespeeld",
         "week_order": "Maandag tot zondag, vandaag onderstreept",
         "unsaved": "* in oranje: gewijzigd, nog niet opgeslagen"
     },

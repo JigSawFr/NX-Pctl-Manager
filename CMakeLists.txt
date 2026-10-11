@@ -144,7 +144,8 @@ target_link_options(${PROJECT_NAME} PRIVATE ${APP_PLATFORM_LINK_OPTION})
 # Resources: borealis built-ins first, then ours on top. On the Switch the
 # bundled fonts and demo assets are dropped (the system shared font is used).
 # en-GB reuses the English strings, already in British spelling (borealis looks
-# the locale up verbatim).
+# the locale up verbatim), except the quoted system menu labels, spelt as on a
+# US console ("Synchronize Clock via Internet").
 set(BOREALIS_RESOURCES ${BOREALIS_LIBRARY}/../resources)
 set(MERGED_RESOURCES ${CMAKE_BINARY_DIR}/resources)
 set(ASSEMBLE_RESOURCES

@@ -97,7 +97,9 @@
         "not_applied": "o console não aceitou a alteração, então as configurações anteriores foram restauradas",
         "not_saved": "o PlayGuard não conseguiu salvar no cartão SD o que precisará restaurar depois, então nada foi gravado",
         "next_step": "Se acontecer de novo, envie um relatório: Ferramentas › Enviar um relatório online.",
-        "pt_not_understood": "as configurações de tempo de jogo do console estão em um formato que o PlayGuard não entende, então nada foi alterado. Envie um relatório: Ferramentas › Enviar um relatório online."
+        "pt_not_understood": "as configurações de tempo de jogo do console estão em um formato que o PlayGuard não entende, então nada foi alterado. Envie um relatório: Ferramentas › Enviar um relatório online.",
+        "pctl_0132": "código 2142-0132, também relatado por outros ao gravar o temporizador de jogo; o significado ainda não é conhecido. Reinicie o console e tente novamente",
+        "clock_not_set": "o console indica que o relógio de rede não tem uma hora válida (talvez nunca tenha sido acertado); veja a aba Relógio de rede"
     },
     "init_error": {
         "title": "PlayGuard",
@@ -182,7 +184,7 @@
         "stop_done": "Jogo encerrado por hoje.",
         "stop_restore_body": "Em {}, o limite de {} foi definido como {} só para aquele dia. Voltar para {}?",
         "applet": "O PlayGuard está rodando como applet (aberto pelo álbum), com pouca memória: uma exportação ou uma lista longa de Atividade pode falhar. Para o app completo, abra-o segurando R ao iniciar um jogo.",
-        "counted": "Aberto sobre um jogo, o PlayGuard conta como esse jogo: o console soma o tempo ao temporizador e à atividade do usuário escolhido ao iniciar (a aba Atividade do PlayGuard o desconta). Abra-o com o usuário de um adulto, ou pelo Álbum para uma olhada rápida.",
+        "counted": "Aberto sobre um jogo, o PlayGuard conta como esse jogo: o console soma o tempo ao temporizador e à atividade do usuário escolhido ao iniciar. Abra-o com o usuário de um adulto, ou pelo Álbum para uma olhada rápida.",
         "home_counts": "Um jogo deixado aberto no menu HOME continua sendo contado.",
         "stop_now": "Agora",
         "stop_soon": "Daqui a 5 minutos",
@@ -519,7 +521,8 @@
         "unlinked": "App do celular desvinculado.",
         "unlink_err": "Não foi possível desvincular o app do celular",
         "note": "Enquanto o console estiver vinculado, o app do celular substitui as configurações feitas aqui na próxima sincronização.",
-        "unlink_dev_note": "Ferramentas de desenvolvedor: Comparar bloco do tempo de jogo precisa de um console ainda vinculado. Salve antes a referência se quiser decifrar uma configuração."
+        "decode": "Antes de desvincular: decifre duas configurações",
+        "decode_note": "Antes de desvincular, este console pode ajudar a decifrar “só alarme” e a hora de dormir por dia (Segurança e app, 2 min): depois de desvinculado, não pode mais."
     },
     "security": {
         "section_status": "Status",
@@ -708,7 +711,9 @@
         "flag_read_only": "somente leitura",
         "flag_dev": "desenvolvedor",
         "upload": "Enviar um relatório online",
-        "upload_note": "Envia um relatório para o bpa.st, ou para um gist secreto se você estiver conectado ao GitHub, e mostra o link com um código QR: passe-o para quem está ajudando você, ou abra um relatório de bug com ele."
+        "upload_note": "Envia um relatório para o bpa.st, ou para um gist secreto se você estiver conectado ao GitHub, e mostra o link com um código QR: passe-o para quem está ajudando você, ou abra um relatório de bug com ele.",
+        "storage_note_emummc": "Você está na emuMMC: a sysMMC tem seu próprio controle dos pais, que o PlayGuard não consegue ver daqui. Configure-o lá também ou oculte o menu de inicialização do hekate.",
+        "storage_note_sysmmc": "Você está na sysMMC e há uma emuMMC configurada neste cartão SD: ela tem seu próprio controle dos pais, que o PlayGuard não consegue ver daqui. Configure-o lá também ou oculte o menu de inicialização do hekate."
     },
     "about": {
         "section_changelog": "Novidades da {}",
@@ -928,8 +933,8 @@
     },
     "chart": {
         "last_days": "Os últimos 7 dias, hoje à direita",
-        "limit_line": "A linha sobre uma barra é o limite desse dia",
-        "limit_over": "A linha é o limite do dia · ! em âmbar: jogou mais do que isso",
+        "limit_line": "A linha sobre uma barra é o limite desta semana para esse dia",
+        "limit_over": "A linha é o limite desta semana para esse dia · ! em âmbar: jogou mais do que isso",
         "week_order": "De segunda a domingo, hoje sublinhado",
         "unsaved": "* em âmbar: alterado, ainda não salvo"
     },

@@ -26,15 +26,21 @@ void OnboardingActivity::onContentAvailable()
 {
     headline->setSingleLine(false);
     note->setSingleLine(false);
+    // Not a step: the other system's controls are out of reach from here.
+    SysInfo si;
+    sysinfo_get(&si);
+    const std::string other = ui::other_storage_note(si);
+    storage_note->setSingleLine(false);
+    storage_note->setText(other);
+    ui::set_visible(storage_note.getView(), !other.empty());
     at_start->init("playguard/onboarding/at_start"_i18n, config::get().onboarding_at_start, [](bool on) {
         config::get().onboarding_at_start = on;
         ui::save_config();
     });
     unlink->registerClickAction([this](brls::View*) {
         if (ui::refuse_read_only()) return true;
-        // Developer tools: the block comparison needs the link, so say it goes.
-        std::string body = "playguard/pairing/unlink_body"_i18n;
-        if (config::get().dev_mode) body += "\n\n" + "playguard/pairing/unlink_dev_note"_i18n;
+        // The block comparison needs the link: last chance to help decode the settings.
+        const std::string body = "playguard/pairing/unlink_body"_i18n + "\n\n" + "playguard/pairing/decode_note"_i18n;
         ui::confirm_danger(body, "playguard/pairing/unlink_confirm"_i18n, [this]() {
             Result rc = pctl_delete_pairing();
             if (R_SUCCEEDED(rc)) history_flow::record_event("unlink", "first_steps");

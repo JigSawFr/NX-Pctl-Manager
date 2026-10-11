@@ -46,6 +46,12 @@ report is left.
    `switch/playguard/RESCUE` (or `RESCUE.txt`; to delete everything instead,
    write `delete` on a line of its own), put the card back, turn the
    console on. Open PlayGuard and finish from the recovery screen.
+3. Remove `atmosphere/contents/4200000000505247` when you no longer need it:
+   while it is installed, anyone who can edit the SD card can use it.
+
+Prefer the empty `RESCUE` file, then *Delete all parental controls* on the
+recovery screen, to the `delete` request: PlayGuard saves a backup of the
+settings first, while `delete` erases everything at boot with no backup.
 
 ## What it is not
 

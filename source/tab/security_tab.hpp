@@ -34,6 +34,7 @@ class SecurityTab : public TabBase
     BRLS_BIND(brls::Label,      console_lock_note, "sc_console_lock_note");
     BRLS_BIND(brls::DetailCell, pr_active,      "pr_active");
     BRLS_BIND(brls::DetailCell, pr_updated,     "pr_updated");
+    BRLS_BIND(brls::DetailCell, pr_decode,      "pr_decode");
     BRLS_BIND(brls::DetailCell, pr_unlink,      "pr_unlink");
     BRLS_BIND(brls::Label,      pr_note,        "pr_note");
     BRLS_BIND(brls::Header,     danger_header,  "sc_danger_header");

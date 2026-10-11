@@ -40,6 +40,7 @@ ToolsTab::ToolsTab()
 {
     export_note->setSingleLine(false);
     backup_note->setSingleLine(false);
+    storage_note->setSingleLine(false);
     serial_note->setSingleLine(false);
     patches_note->setSingleLine(false);
 
@@ -190,6 +191,8 @@ void ToolsTab::refresh()
     compat->setDetailTextColor(c);
 
     storage->setDetailText(ui::storage_text(si));
+    const std::string other = ui::other_storage_note(si);
+    storage_note->setText(other);
     c = ui::color_neutral();
     blank->setDetailText(ui::blank_text(si, &c));
     blank->setDetailTextColor(c);
@@ -209,7 +212,8 @@ void ToolsTab::refresh()
     const std::string note = ui::patches_note(report, si, &warn);
     patches_note->setText(note);
     patches_note->setTextColor(warn ? ui::color_warn() : ui::color_note());
-    ui::set_visible_all({ { serial_note.getView(), ui::serial_warning(si) },
+    ui::set_visible_all({ { storage_note.getView(), !other.empty() },
+                          { serial_note.getView(), ui::serial_warning(si) },
                           { patches_note.getView(), !note.empty() },
                           { dev_header.getView(), dev },
                           { dev_mode.getView(), dev },

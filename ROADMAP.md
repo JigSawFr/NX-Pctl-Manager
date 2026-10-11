@@ -15,9 +15,11 @@ side is in [docs/parental-controls.md](docs/parental-controls.md).
 ## Waiting on data from a console
 
 These need a finding before any code: most of them a play-timer block
-compared before and after a change made from the phone app (*Developer tools ›
-Compare the play-timer block*), on a console still linked to it. A report
-attached to an issue is the most useful contribution right now.
+compared before and after a change made from the phone app, on a console
+still linked to it: *Security & app › Before unlinking: help decode…* (shown
+while linked, for everyone) or *Developer tools › Compare the play-timer
+block*. A report attached to an issue is the most useful contribution right
+now.
 
 - **Alarm only, or suspend the software** when the time is up. The setting
   parents ask for most after the limit itself; its byte in the block's header

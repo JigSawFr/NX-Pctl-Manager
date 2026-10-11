@@ -64,6 +64,11 @@ Module module_state(const Ini& ini, const std::string& section);
 // `root` is the SD card root ("/" on the console). `fw` is "23.0.1".
 Report detect(const std::string& root, const std::string& fw, bool emummc);
 
+// An emuMMC is set up on this SD card: [emummc] enabled=1 in emummc/emummc.ini,
+// the file fusee reads at boot (hekate writes the same one). From sysMMC, it
+// says the other system, with its own parental controls, is one boot away.
+bool emummc_configured(const std::string& root);
+
 Status status(const Report& r);
 Issue  issue(const Report& r);
 std::vector<std::string> unpatched(const Report& r);   // of "fs", "ldr", "es"
