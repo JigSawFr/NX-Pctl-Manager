@@ -2,11 +2,13 @@
 #include "ntp_client.hpp"
 #include "ntp_packet.h"
 
+#include <algorithm>
 #include <cerrno>
 #include <cstring>
 #include <memory>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <poll.h>
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <unistd.h>
@@ -15,6 +17,8 @@
 
 namespace ntp {
 namespace {
+constexpr int POLL_SLICE_MS = 100;
+
 class Socket {
 public:
     explicit Socket(int descriptor) : descriptor_(descriptor) {}
@@ -45,9 +49,15 @@ bool make_cookie(std::uint8_t cookie[NTP_COOKIE_SIZE], std::string& error)
 }
 }
 
-Reply fetch(const std::string& host, int timeout_ms, unsigned max_addresses)
+Reply fetch(const std::string& host, int timeout_ms, unsigned max_addresses, bool (*stop)())
 {
     Reply reply;
+    const auto stopped = [&reply, stop]() {
+        if (!stop || !stop()) return false;
+        reply.kind = Error::Timeout;
+        reply.error = "Stopped: PlayGuard is quitting";
+        return true;
+    };
     if (host.empty() || host.find('\0') != std::string::npos) {
         reply.kind = Error::BadHost;
         reply.error = "Enter an NTP hostname or IP address.";
@@ -59,6 +69,7 @@ Reply fetch(const std::string& host, int timeout_ms, unsigned max_addresses)
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_protocol = IPPROTO_UDP;
     addrinfo* resolved = nullptr;
+    if (stopped()) return reply;
     const int resolve_result = ::getaddrinfo(host.c_str(), "123", &hints, &resolved);
     // Own a non-null list even on a resolver error, so all paths release it.
     std::unique_ptr<addrinfo, decltype(&::freeaddrinfo)> addresses(resolved, &::freeaddrinfo);
@@ -73,6 +84,7 @@ Reply fetch(const std::string& host, int timeout_ms, unsigned max_addresses)
     unsigned tried = 0;
     for (const addrinfo* address = addresses.get(); address != nullptr && tried < max_addresses;
          address = address->ai_next, ++tried) {
+        if (stopped()) return reply;
         Socket socket(::socket(address->ai_family, address->ai_socktype, address->ai_protocol));
         if (socket.get() < 0) {
             reply.kind = Error::Network;
@@ -107,8 +119,25 @@ Reply fetch(const std::string& host, int timeout_ms, unsigned max_addresses)
             continue;
         }
 
+        // Waited for in short slices, so that quitting does not wait for the
+        // whole timeout (the app gives its threads 3 s at exit).
         std::uint8_t response[512];
-        const ssize_t received = ::recv(socket.get(), response, sizeof(response), 0);
+        ssize_t received = -1;
+        errno = ETIMEDOUT;
+        for (int waited = 0; waited < timeout_ms;) {
+            if (stopped()) return reply;
+            pollfd ready{ socket.get(), POLLIN, 0 };
+            const int slice = std::min(POLL_SLICE_MS, timeout_ms - waited);
+            const int n = ::poll(&ready, 1, slice);
+            if (n < 0) break;
+            if (n == 0) {
+                waited += slice;
+                errno = ETIMEDOUT;
+                continue;
+            }
+            received = ::recv(socket.get(), response, sizeof(response), 0);
+            break;
+        }
         const auto received_at = std::chrono::steady_clock::now();
         if (received < 0) {
             reply.kind = Error::Timeout;

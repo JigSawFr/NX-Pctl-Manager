@@ -136,7 +136,9 @@ size_t playlog_for_account(const PlayLogEvent *events, size_t n, const uint64_t 
         switch (e->kind) {
             case PlayLogEv_Focus:
                 if (focused == e->app_id && playing) break;   // repeated
-                if (playing) emit(out, &count, max, PlayLogEv_Away, 0, e);
+                // Another game's focus ends the one played (playlog_fold_days):
+                // one event out per event in, so `out` may be `events`.
+                if (playing && !(open && e->app_id)) emit(out, &count, max, PlayLogEv_Away, 0, e);
                 focused = e->app_id;
                 playing = open && focused;
                 if (playing) emit(out, &count, max, PlayLogEv_Focus, focused, e);

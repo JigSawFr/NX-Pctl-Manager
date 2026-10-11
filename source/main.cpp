@@ -37,6 +37,7 @@
 #include "util/config.hpp"
 #include "util/http.hpp"
 #include "util/paths.hpp"
+#include "util/pctl_ops_c.hpp"
 #include "view/made_in_france.hpp"
 #include "view/scroll_view.hpp"
 #include "view/play_days.hpp"
@@ -172,6 +173,12 @@ int main(int argc, char* argv[])
     }
 
     pt_log_flow::apply();   // Developer › Record the play timer, when on
+
+    // Game icons kept between runs, next to the play data cache.
+    playstats_set_icon_dir((paths::data_dir() + "/cache/icons").c_str());
+    // borealis joins its task thread before mainLoop() returns: a play-data
+    // or icon read running there stops now, not after every game is read.
+    brls::Application::getExitEvent()->subscribe([]() { playstats_cancel(); });
 
     while (brls::Application::mainLoop())
         ;

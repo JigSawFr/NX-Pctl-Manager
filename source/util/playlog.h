@@ -70,7 +70,8 @@ size_t playlog_fold_days(const PlayLogEvent *events, size_t n, uint64_t now,
 // events are rewritten at the moments both hold, so playlog_fold_days() on the
 // result gives that account's time. Several accounts open at once (local
 // multiplayer) each get the whole time, as the system's own per-account
-// statistics do. Returns the number of events written to `out` (at most `n`).
+// statistics do. Returns the number of events written to `out` (at most `n`,
+// never more than read so far: `out` may be `events`, filtered in place).
 size_t playlog_for_account(const PlayLogEvent *events, size_t n, const uint64_t uid[2],
                            PlayLogEvent *out, size_t max);
 

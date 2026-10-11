@@ -32,6 +32,7 @@
 // Game patches are read from ./playguard_data/sd/ (the simulated SD card root).
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #define _POSIX_C_SOURCE 200809L
+#include <stdatomic.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -564,6 +565,13 @@ void playstats_fetch_for(PlayStats *out, const PlayAccount *account)
         g->first_played = out->now - 30ULL * 86400;
     }
 }
+
+// The made-up games have their names already; no SD card icons either.
+void playstats_remember(const PlayStats *known) { (void)known; }
+void playstats_set_icon_dir(const char *dir) { (void)dir; }
+static atomic_bool s_cancel;
+void playstats_cancel(void) { atomic_store(&s_cancel, true); }
+bool playstats_cancelled(void) { return atomic_load(&s_cancel); }
 
 void playstats_icons(PlayIcon *icons, size_t count)
 {
