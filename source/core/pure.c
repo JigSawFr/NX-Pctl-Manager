@@ -147,18 +147,6 @@ void pt_bedtime_encode(u16 c[PT_U16_COUNT], const PtBedtime in[7])
     }
 }
 
-const char *pctl_safety_level_name(u32 level)
-{
-    switch (level) {
-        case PctlSafetyLevel_None:       return "None";
-        case PctlSafetyLevel_Custom:     return "Custom";
-        case PctlSafetyLevel_YoungChild: return "Young Child";
-        case PctlSafetyLevel_Child:      return "Child";
-        case PctlSafetyLevel_Teen:       return "Teen";
-        default:                         return "Unknown";
-    }
-}
-
 const char *pctl_rating_org_name(u32 org)
 {
     // nn::ns::RatingOrganization

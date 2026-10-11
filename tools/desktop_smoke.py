@@ -27,7 +27,8 @@ and the clock tab must say why the network clock cannot be set.
 
 Usage: tools/desktop_smoke.py <out-dir> [gate|errors|rescue|forged|lock|devbuild|library]   (needs DISPLAY, xdotool, ImageMagick)
 Environment knobs of the simulated backend (PLAYGUARD_SIM_*) are passed through;
-the console time is fixed (PLAYGUARD_SIM_NOW, TZ) unless set.
+the console time is fixed (PLAYGUARD_SIM_NOW, TZ) and the focus glow still
+(PLAYGUARD_SIM_STILL_FOCUS) unless set.
 """
 import json
 import os
@@ -62,6 +63,8 @@ env = dict(os.environ, LIBGL_ALWAYS_SOFTWARE="1")
 # 8 October 2026, 16:00 UTC. Only the footer clock follows the host.
 env.setdefault("PLAYGUARD_SIM_NOW", "1791475200")
 env.setdefault("TZ", "UTC")
+# And the focus highlight without its moving glow (ui/theme.cpp).
+env.setdefault("PLAYGUARD_SIM_STILL_FOCUS", "1")
 if GATE:
     env.setdefault("PLAYGUARD_SIM_FW", "24.0.0")
     env.setdefault("PLAYGUARD_SIM_LATEST", "1.1.0:24.0.0")
@@ -232,6 +235,21 @@ for _ in range(60):
     time.sleep(0.5)
 else:
     fail("no window after 30 s")
+# The window exists before its first frame: wait until the screen is drawn
+# (not all black), else the first screenshot can catch an empty window on a
+# slow runner. Then a moment more for the first screen to settle.
+probe = os.path.join(OUT, "_first_frame.png")
+for _ in range(40):
+    subprocess.run(["import", "-window", "root", probe], env=env)
+    mean = subprocess.run(["convert", probe, "-format", "%[fx:mean]", "info:"], capture_output=True, text=True).stdout
+    if mean and float(mean) > 0.05:
+        break
+    if not alive():
+        fail("app exited during start-up")
+    time.sleep(0.5)
+else:
+    fail("the window stayed black for 20 s")
+os.remove(probe)
 time.sleep(2)
 
 tabs = ["dashboard", "play_timer", "activity", "restrictions", "clock", "security", "preferences", "tools", "about"]

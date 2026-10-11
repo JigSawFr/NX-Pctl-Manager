@@ -8,7 +8,8 @@ the console's time (PLAYGUARD_SIM_NOW, TZ), so only the footer clock follows
 the host (borealis reads it): it is redrawn at the console's time, 16:00:00,
 in the clock's own font, colours and place, in the references as in the
 screenshots compared with them. A pixel counts as changed when its colour moves by
-more than --fuzz (15 %: the focus highlight's animated glow stays below that);
+more than --fuzz (15 %: anti-aliasing noise stays below that; the smoke test draws
+the focus highlight without its moving glow, PLAYGUARD_SIM_STILL_FOCUS);
 a screen fails when more than --max-pixels pixels change (100: two runs differ
 by a few dozen at most, a value going from "2 h" to "2 h 1" by about 200). For
 each failing screen, <shots-dir>/visual_diff/NAME.png shows the reference, the

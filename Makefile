@@ -14,8 +14,8 @@
 # release zips, so the same commit gives the same zip.
 # CMAKE_C_COMPILER_LAUNCHER / CMAKE_CXX_COMPILER_LAUNCHER=ccache in the
 # environment are picked up by CMake (CI uses them). CMAKE_ARGS=... is passed
-# to the configure step of `make` and `make desktop` (CI:
-# CMAKE_ARGS=-DPLAYGUARD_WERROR=ON, warnings as errors).
+# to the configure step of `make` (so `make dist`) and `make desktop` (CI
+# builds both with CMAKE_ARGS=-DPLAYGUARD_WERROR=ON, warnings as errors).
 
 TARGET  := playguard
 BUILD   := build
