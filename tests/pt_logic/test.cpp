@@ -139,6 +139,28 @@ static void test_stop()
     pt = counting();
     pt.day_min[3] = 0;
     CHECK(pt_logic::restore_action(rec, "2026-10-08", pt, false) == pt_logic::Restore::Offer);
+
+    // "In 5 minutes": the time played (75 min) plus 5, below the 2 h limit.
+    pt = counting();
+    CHECK(pt_logic::stop_soon_limit(pt, 3, 5) == 80);
+    pt.remaining_ns = 4 * MIN_NS;                        // 116 played: 121 would not stop sooner
+    CHECK(pt_logic::stop_soon_limit(pt, 3, 5) == -1);
+    pt.remaining_ns = 6 * MIN_NS;
+    CHECK(pt_logic::stop_soon_limit(pt, 3, 5) == 119);
+    pt.remaining_ns = 0;                                 // nothing counted yet: now only
+    CHECK(pt_logic::stop_soon_limit(pt, 3, 5) == -1);
+    pt = counting();
+    pt.restricted = true;                                // already reached
+    CHECK(pt_logic::stop_soon_limit(pt, 3, 5) == -1);
+    pt = counting();
+    pt.day_min[3] = PT_DAY_NOLIMIT;
+    CHECK(pt_logic::stop_soon_limit(pt, 3, 5) == -1);
+    CHECK(pt_logic::stop_soon_limit(counting(), 3, 0) == -1);
+    // Put back the next day like "no more play": the record holds 80.
+    rec.value = 80;
+    pt = counting();
+    pt.day_min[3] = 80;
+    CHECK(pt_logic::restore_action(rec, "2026-10-08", pt, false) == pt_logic::Restore::Offer);
 }
 
 static void test_restore()

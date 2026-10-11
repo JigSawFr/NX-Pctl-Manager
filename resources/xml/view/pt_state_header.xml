@@ -2,7 +2,7 @@
 
 <!-- PtStateHeader: the play-timer state in one line ("Active · 45 min left ·
      2 h today · School week") and, only when the day's limit is reached, a
-     warning line. Filled by source/view/pt_state_header.cpp. -->
+     warning line; another while the console is not counting play time. Filled by source/view/pt_state_header.cpp. -->
 
 <brls:Box
     width="auto"
@@ -13,5 +13,6 @@
 
     <brls:Label id="pt_summary" text="—" fontSize="20"/>
     <brls:Label id="pt_alert" text="" fontSize="20" marginTop="6" textColor="@theme/brand/bad"/>
+    <brls:Label id="pt_health" text="@i18n/playguard/play_timer/not_counting" fontSize="20" marginTop="6" textColor="@theme/brand/warn"/>
 
 </brls:Box>

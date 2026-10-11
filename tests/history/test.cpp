@@ -66,6 +66,13 @@ static void test_round_trip()
     odd = all[1];
     odd.kind = "something";
     CHECK(!history::undoable(odd));
+    // Limits changed outside PlayGuard (outside_watch): recorded with the
+    // week before and after, never put back from the history.
+    odd = all[2];
+    odd.kind = "outside_limits";
+    odd.before = odd.after;
+    odd.before[0] = 60;
+    CHECK(!history::undoable(odd));
 }
 
 static void test_value_ranges()

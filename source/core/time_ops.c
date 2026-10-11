@@ -172,6 +172,17 @@ const TimeRule *time_console_rule(void)
     return &rule;
 }
 
+Result time_steady_now(u64 *seconds, u8 source_id[16])
+{
+    TimeSteadyClockTimePoint tp;
+    memset(&tp, 0, sizeof(tp));
+    const Result rc = timeGetStandardSteadyClockTimePoint(&tp);
+    if (R_FAILED(rc)) return rc;
+    if (seconds) *seconds = tp.time_point > 0 ? (u64)tp.time_point : 0;
+    if (source_id) memcpy(source_id, &tp.source_id, 16);
+    return 0;
+}
+
 bool time_local_now(u64 *posix, LocalTime *local)
 {
     u64 now = 0;

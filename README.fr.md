@@ -27,6 +27,7 @@ PlayGuard est un homebrew qui ramène sur la console, hors ligne, les réglages 
 - [Premiers pas](#premiers-pas)
 - [Les fonctions, onglet par onglet](#les-fonctions-onglet-par-onglet)
 - [Sûr par conception](#sûr-par-conception)
+- [Ce qui compte comme temps de jeu](#ce-qui-compte-comme-temps-de-jeu)
 - [Console bloquée ?](#console-bloquée--console-doccasion-code-pin-oublié)
 - [PlayGuard ou un sysmodule de remplacement ?](#playguard-ou-un-sysmodule-de-remplacement-)
 - [Signaler un bug](#signaler-un-bug)
@@ -123,11 +124,14 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 <details>
 <summary><b>Vue d'ensemble</b> — la journée en un coup d'œil</summary>
 
-- **D'abord la journée :** jauge du temps de jeu (quand aucun jeu ne tourne, le temps lu dans le journal d'activité, marqué ≈), limite du jour, temps restant, alarme du coucher. L'alarme « temps écoulé » apparaît en orange tant qu'elle est désactivée — Ⓐ la réactive.
+- **D'abord la journée :** jauge du temps de jeu (quand aucun jeu ne tourne, le temps lu dans le journal d'activité, marqué ≈), limite du jour, temps restant, alarme du coucher. L'alarme « temps écoulé » apparaît en orange tant qu'elle est désactivée — Ⓐ la réactive. Sous la jauge, un rappel : un jeu laissé ouvert sur le menu HOME continue d'être décompté (voir [Ce qui compte comme temps de jeu](#ce-qui-compte-comme-temps-de-jeu)).
+- **La console décompte-t-elle ?** Le temps de PlayGuard lui-même compte quand il tourne comme une application : avec une limite aujourd'hui, le temps restant doit donc baisser tant qu'il est ouvert. S'il n'a pas bougé pendant environ 90 s à l'écran (minuteur actif, limite aujourd'hui, pas de déverrouillage, pas d'ouverture depuis l'album), une ligne orange indique *La console ne décompte pas le temps de jeu en ce moment*, avec les causes probables : l'horloge a été reculée (le décompte reprendra plus tard), l'horloge réseau n'a jamais été réglée (onglet *Horloge réseau*), ou une limite vient d'être écrite (lancez un jeu une minute, puis vérifiez). Elle disparaît dès que le temps restant bouge de nouveau. La ligne d'état de Temps de jeu l'indique aussi.
+- **Modifié en dehors de PlayGuard :** le temps de jeu du jour reparti de zéro le même jour (un changement d'horloge fait cela), l'horloge de la console déplacée de plus de 5 minutes, des limites différentes de celles que PlayGuard a vues en dernier (l'application mobile, un autre outil). Un avis orange jusqu'à ce qu'il soit masqué ou jusqu'au lendemain, et une entrée dans l'historique des modifications. PlayGuard ne tourne pas en arrière-plan : il ne voit que ce qui a changé pendant qu'il était ouvert, ou depuis sa dernière ouverture, quand il relit la console.
+- **À la limite**, la console affiche « temps écoulé ». Sur la console où PlayGuard a été testé (22.0.0), elle a aussi suspendu le jeu, sans « continuer ». Si l'application mobile a déjà été réglée sur « alarme seulement », la console peut se contenter de prévenir : PlayGuard ne peut pas encore lire ni modifier ce réglage ([détails, en anglais](docs/parental-controls.md#when-the-time-runs-out)).
 - **Puis l'état :** contrôle parental, code PIN (*Défini* ou *Non défini*, jamais sa longueur), niveau de restriction.
 - **Puis ce qui demande attention :** précision de l'horloge réseau, association de l'application mobile (en orange tant qu'elle est associée), firmware / compatibilité seulement en cas de problème, avertissements sur le masquage du numéro de série et les patchs de jeux.
 - Les lignes qui ouvrent un autre onglet se terminent par un chevron (›). Ⓐ sur *Limite d'aujourd'hui* la modifie sur place ; Ⓐ sur *Horloge réseau › Imprécise* mesure et règle l'horloge directement.
-- **Temps en plus aujourd'hui** (+15 min, +30 min, +1 h par défaut) et **Plus de jeu aujourd'hui** (limite à 0 pour aujourd'hui seulement ; le jeu en cours est suspendu au reverrouillage, ce que la confirmation signale). Le lendemain — au lancement, ou à minuit si l'application est ouverte — PlayGuard propose de remettre la limite habituelle, ou le fait de lui-même (*Préférences › Remettre d'office la limite habituelle le lendemain*).
+- **Temps en plus aujourd'hui** (+15 min, +30 min, +1 h par défaut) et **Plus de jeu aujourd'hui** (limite à 0 pour aujourd'hui seulement, *maintenant* ou *dans 5 minutes* quand le temps joué est connu : la limite devient alors le temps joué + 5 min, le temps de sauvegarder ; au reverrouillage, le « temps écoulé » de la console apparaît, et la progression non sauvegardée peut être perdue — la confirmation le signale). Le lendemain — au lancement, ou à minuit si l'application est ouverte — PlayGuard propose de remettre la limite habituelle, ou le fait de lui-même (*Préférences › Remettre d'office la limite habituelle le lendemain*).
 - Un bandeau **Verrouiller maintenant** tant que le contrôle parental est déverrouillé temporairement.
 - Tant qu'aucun code PIN n'est défini, une ligne **Premiers pas** ouvre le guide en trois étapes, qui s'affiche aussi au lancement.
 - Actualisation toutes les 5 s, avec l'heure de la dernière actualisation (Ⓧ pour actualiser tout de suite).
@@ -141,6 +145,7 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 - **Même limite tous les jours :** liste rapide ou valeur libre, en minutes (`90`, `90 min`) ou en heures (`1:30`, `1h30`).
 - **Limite différente selon le jour :** jours non enregistrés en orange et marqués \*, valeurs rapides, préréglages lundi–vendredi / week-end, « pas de limite » par jour ; **+** enregistre depuis n'importe où.
 - **Suppression de la limite**, **temps en plus aujourd'hui**, **plus de jeu aujourd'hui** (comme dans la Vue d'ensemble).
+- Une note sous la limite quotidienne dit ce que fait la console à la limite (comme dans la Vue d'ensemble). Pendant un déverrouillage temporaire du contrôle parental, le temps de jeu n'est *peut-être* pas décompté : la question reste ouverte ([docs, en anglais](docs/parental-controls.md#still-open)).
 - **Profils** enregistrés sur la carte SD : appliquer, modifier, renommer ou supprimer un profil ; enregistrer les limites actuelles ou en créer un nouveau. N'importe quel nom, dans n'importe quelle écriture (*École*, *周末*, *Выходные* …) — un nom sans lettres latines reçoit son propre nom de fichier, et deux noms qui donneraient le même fichier sont repérés.
 - Chaque confirmation dessine la semaine telle qu'elle sera, les jours qui changent en orange.
 - **Alarme du coucher** : l'heure de l'alarme (16:00 à 23:45, ou désactivée) et l'heure où le jeu est de nouveau permis (05:00 à 09:00), la même tous les jours. Sa place dans les réglages du minuteur a été déduite des réglages de l'application mobile, pas lue sur une console où une heure du coucher était réglée : PlayGuard ne la modifie que si la console indique ce qu'il y lit, vérifie la réponse de la console après la modification et remet les réglages précédents si elle diffère. Avancé, sur activation : alarme « temps écoulé », pause / reprise du décompte.
@@ -222,6 +227,20 @@ L'application est organisée en onglets, comme les paramètres de la console. Cl
 **Plus de plantage en 22.5.** `pctl:a`, le service privilégié du contrôle parental, n'accepte **qu'une seule session**. Les anciennes versions de l'application d'origine la gardaient ouverte : l'écran PIN du menu HOME (ou l'applet PIN) ne pouvait pas l'obtenir et Atmosphère pouvait planter. PlayGuard ouvre la session pour chaque action et la libère aussitôt ; les rafraîchissements périodiques s'arrêtent quand l'application est en arrière-plan. *(Diagnostic du [fork d'anbingxi](https://github.com/anbingxi/NX-Pctl-Manager/tree/diag/fw22-5-readonly).)*
 
 **Rien ne tourne en arrière-plan.** La limite, le code PIN, les avertissements et la suspension sont ceux de la console ; PlayGuard ne change que leurs réglages.
+
+## Ce qui compte comme temps de jeu
+
+Le minuteur est celui de la console : PlayGuard le lit, il ne décompte rien lui-même. Ce que l'on sait, et avec quelle certitude ([docs/parental-controls.md](docs/parental-controls.md#time-spent-and-time-left), en anglais, donne les mesures) :
+
+| Situation | Décompté ? | Certitude |
+|---|---|---|
+| Un jeu en cours | Oui | mesuré (22.0.0) |
+| **Un jeu laissé ouvert sur le menu HOME** (suspendu en arrière-plan) | **Oui** : fermez-le, ou mettez la console en veille | rapporté par des parents ([Arqade](https://gaming.stackexchange.com/questions/398954/)) ; cohérent avec les mesures (la console décompte tant qu'une application est ouverte) |
+| Mode veille | Non | rapporté ([Arqade](https://gaming.stackexchange.com/questions/398954/)) ; pas mesuré par PlayGuard |
+| **PlayGuard ouvert par-dessus un jeu** (en application) | **Oui**, comme ce jeu | mesuré (22.0.0) : ouvrez-le avec un utilisateur parent, ou depuis l'album pour un coup d'œil |
+| PlayGuard ouvert depuis l'album (mode applet) | Non | déduit : ce n'est pas une application, et le temps hors des applications ne semblait pas décompté |
+| Pendant un déverrouillage temporaire du contrôle parental | Peut-être pas | pas mesuré : question ouverte |
+| Après un changement d'horloge | La journée repart de zéro ; après un retour en arrière, le décompte s'arrête jusqu'à ce que l'horloge dépasse l'ancienne heure | observé (22.0.0) ; la Vue d'ensemble indique quand la console ne décompte pas |
 
 ## Console bloquée ? (console d'occasion, code PIN oublié)
 

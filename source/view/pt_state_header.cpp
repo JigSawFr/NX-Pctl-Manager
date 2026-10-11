@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include "action/timer_health.hpp"
 #include "ui/ui.hpp"
 #include "util/profiles.hpp"
 
@@ -13,6 +14,8 @@ PtStateHeader::PtStateHeader()
     this->inflateFromXMLRes("xml/view/pt_state_header.xml");
     summary->setSingleLine(false);
     alert->setSingleLine(false);
+    health->setSingleLine(false);
+    ui::set_visible(health, false);   // until a reading says so
 }
 
 std::string PtStateHeader::configured_text(const PtState& pt)
@@ -52,6 +55,7 @@ void PtStateHeader::show(const PtState& pt)
 
     alert->setText(reached ? "playguard/play_timer/state/reached_alert"_i18n : "");
     ui::set_visible(alert, reached);
+    ui::set_visible(health, timer_health::observe(pt));
 }
 
 brls::View* PtStateHeader::create()

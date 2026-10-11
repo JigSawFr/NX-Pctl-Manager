@@ -83,7 +83,7 @@ jobs:
           - shard: states
             scenarios: gate errors rescue forged lock
           - shard: developer
-            scenarios: devbuild library
+            scenarios: devbuild library outside
     env:
       CMAKE_C_COMPILER_LAUNCHER: ccache
       CMAKE_CXX_COMPILER_LAUNCHER: ccache

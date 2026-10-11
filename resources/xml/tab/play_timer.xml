@@ -34,6 +34,7 @@
             <brls:DetailCell id="pt_per_day" title="@i18n/playguard/play_timer/per_day"/>
             <brls:DetailCell id="pt_remove" title="@i18n/playguard/play_timer/remove"/>
             <brls:DetailCell id="pt_profiles" title="@i18n/playguard/play_timer/profiles"/>
+            <brls:Label id="pt_limit_note" text="@i18n/playguard/play_timer/limit_note" fontSize="20" marginTop="10" marginBottom="6" textColor="@theme/brand/note"/>
             <brls:Header id="pt_bedtime_header" title="@i18n/playguard/play_timer/section_bedtime" marginTop="24" marginBottom="8"/>
             <brls:DetailCell id="pt_bedtime" title="@i18n/playguard/play_timer/bedtime"/>
             <brls:DetailCell id="pt_bedtime_reset" title="@i18n/playguard/play_timer/bedtime_reset"/>
