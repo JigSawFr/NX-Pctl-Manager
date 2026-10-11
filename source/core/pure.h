@@ -43,6 +43,15 @@
 // Sun..Sat minutes, or PT_DAY_NOLIMIT for a day without a flag.
 void pt_decode(const u16 c[PT_U16_COUNT], u16 days_min[7]);
 
+// Whether the block can be the layout above at all: in each day and in the
+// header's 8-byte rule (bytes 04..0B), the bedtime and limit switches 0 or 1,
+// hours below 24, minutes below 60, the limit 0..1440 minutes or
+// PT_DAY_NOLIMIT. The header's four mode bytes are not decoded: any value
+// passes. Only what that layout cannot hold is refused, so an unseen
+// companion-app setting does not stop every write; a block that fails is one
+// a firmware changed (or garbage), and nothing must be written from it.
+bool pt_plausible(const u16 c[PT_U16_COUNT]);
+
 // Turns the block read with 145601 into the one to write with 195101 for the
 // per-day limits `days_min`, changing as little as possible:
 //  - a day that keeps its limit gets the new minutes, nothing else changes;

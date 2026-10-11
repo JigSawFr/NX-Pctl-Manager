@@ -21,7 +21,7 @@ Clone with submodules (`git clone --recursive`, or `git submodule update --init`
 
 | Variable | Simulates |
 |---|---|
-| `PLAYGUARD_SIM_FW=20.5.0` | Another firmware (default 23.0.1) |
+| `PLAYGUARD_SIM_FW=20.5.0` | Another firmware (default 22.5.0, the newest verified on a console; above it, the firmware screen) |
 | `PLAYGUARD_SIM_NO_CFW=1` | No Atmosphère |
 | `PLAYGUARD_SIM_NOT_SET_UP=1` | Parental controls never set up (no PIN) |
 | `PLAYGUARD_SIM_TIMER_OFF=1` | No play-time limit |

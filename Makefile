@@ -88,6 +88,7 @@ test:
 	$(CC) -std=c11 $(CWARN) -Isource/core source/core/rescue.c tests/rescue/test.c -o $(TESTOUT)/rescue && $(TESTOUT)/rescue
 	$(CC) -std=c11 $(CWARN) -Isource/util source/util/ntp_packet.c tests/ntp_packet/test.c -o $(TESTOUT)/ntp && $(TESTOUT)/ntp
 	$(CC) -std=c11 $(CWARN) -Isource/util source/util/playlog.c tests/playlog/test.c -o $(TESTOUT)/playlog && $(TESTOUT)/playlog
+	$(CC) -std=gnu11 $(CWARN) -DNX_HOST_TEST -Itests/playstats -Isource/core source/core/playstats_logic.c tests/playstats/test.c -lz -o $(TESTOUT)/playstats && $(TESTOUT)/playstats
 	$(CXX) -std=c++17 $(CWARN) -Isource source/util/paths.cpp source/util/patches.cpp tests/patches/test.cpp -o $(TESTOUT)/patches && $(TESTOUT)/patches
 	$(CXX) -std=c++17 $(CWARN) -Isource source/util/duration.cpp tests/duration/test.cpp -o $(TESTOUT)/duration && $(TESTOUT)/duration
 	$(CXX) -std=c++17 $(CWARN) -Isource source/util/changelog.cpp tests/changelog/test.cpp -o $(TESTOUT)/changelog && $(TESTOUT)/changelog

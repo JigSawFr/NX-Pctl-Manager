@@ -96,7 +96,8 @@
         "relock_failed": "de console is ontgrendeld maar kon niet opnieuw worden vergrendeld: vergrendel hem nu (Beveiliging & app › Nu vergrendelen)",
         "not_applied": "de console heeft de wijziging niet overgenomen, dus de vorige instellingen zijn teruggezet",
         "not_saved": "PlayGuard kon niet op de SD-kaart opslaan wat het later moet terugzetten, dus er is niets weggeschreven",
-        "next_step": "Gebeurt dit opnieuw, verstuur dan een rapport: Tools › Rapport online versturen."
+        "next_step": "Gebeurt dit opnieuw, verstuur dan een rapport: Tools › Rapport online versturen.",
+        "pt_not_understood": "de speeltijdinstellingen van de console hebben een indeling die PlayGuard niet begrijpt, dus er is niets gewijzigd. Verstuur een rapport: Tools › Rapport online versturen."
     },
     "init_error": {
         "title": "PlayGuard",
@@ -107,7 +108,7 @@
     "fw_gate": {
         "title": "Firmware nog niet ondersteund",
         "headline": "Firmware {} wordt nog niet ondersteund",
-        "body": "PlayGuard {} is gecontroleerd tot en met firmware {}. Voor de veiligheid wordt er niets gewijzigd totdat je kiest hoe je verdergaat. Alles kan nog wel worden bekeken.",
+        "body": "PlayGuard {} is op een console getest tot en met firmware {}. Voor de veiligheid wordt er niets gewijzigd totdat je kiest hoe je verdergaat. Alles kan nog wel worden bekeken.",
         "status_checking": "Zoeken naar een PlayGuard-versie die deze firmware ondersteunt...",
         "status_supports": "PlayGuard {} ondersteunt firmware {}: werk bij om alle functies veilig te gebruiken.",
         "status_no_support": "PlayGuard {} is beschikbaar, maar ondersteunt firmware {} nog niet.",
@@ -134,7 +135,7 @@
         "pc_off": "Niet ingesteld",
         "pc_pin_only": "Pincode ingesteld, geen beperking",
         "pin": "Pincode",
-        "pin_set": "Ingesteld ({} cijfers)",
+        "pin_set": "Ingesteld",
         "level": "Beperkingsniveau",
         "today_limit": "Limiet vandaag ({})",
         "remaining": "Resterende tijd vandaag",
@@ -198,7 +199,8 @@
         "step_alarm": "{}. Alarm \"Tijd is om\" weer inschakelen (niets waarschuwt als de tijd om is)",
         "at_start": "Bij het opstarten tonen zolang er geen pincode is",
         "note": "De pincode is die van de console zelf; de limiet wordt gecontroleerd met de netwerkklok, die dus nauwkeurig moet zijn. Open PlayGuard met de gebruiker van een ouder: over een spel geopend telt de tijd als speeltijd.",
-        "close": "Sluiten"
+        "close": "Sluiten",
+        "step_protect": "{}. PlayGuard beveiligen: om pincode vragen"
     },
     "compat": {
         "ok": "Gecontroleerd",
@@ -536,7 +538,9 @@
         "delete_err": "Kan het ouderlijk toezicht niet verwijderen",
         "pin_ok": "Pincode bijgewerkt.",
         "pin_err": "Kan de pincode niet bijwerken",
-        "rescue_note": "De herstel-sysmodule is geïnstalleerd: iedereen die de SD-kaart kan bewerken, kan daarmee bij de volgende start de console ontgrendelen of het ouderlijk toezicht volledig wissen. Verwijder hem wanneer u hem niet meer nodig hebt (map atmosphere/contents/4200000000505247)."
+        "rescue_note": "De herstel-sysmodule is geïnstalleerd: iedereen die de SD-kaart kan bewerken, kan daarmee bij de volgende start de console ontgrendelen of het ouderlijk toezicht volledig wissen. Verwijder hem wanneer u hem niet meer nodig hebt (map atmosphere/contents/4200000000505247).",
+        "show_pin_change_body": "Pincode nu wijzigen?\n\nIemand anders kan hem hebben gezien.",
+        "show_pin_change_confirm": "Wijzigen"
     },
     "pin_lock": {
         "title": "Om pincode vragen",
@@ -548,7 +552,7 @@
         "notes": {
             "off": "Iedereen die de console vasthoudt, kan hier de instellingen wijzigen. Voor het tonen van de pincode wordt er nog steeds om gevraagd.",
             "changes": "Iedereen kan kijken; alleen de ouder kan iets wijzigen (na 5 minuten wordt opnieuw gevraagd). Voor opnieuw vergrendelen is nooit een pincode nodig.",
-            "open": "Een vergrendelscherm totdat de pincode is ingevoerd. Voor opnieuw vergrendelen is nooit een pincode nodig."
+            "open": "Een vergrendelscherm totdat de pincode is ingevoerd, en opnieuw na 5 minuten buiten PlayGuard. Voor opnieuw vergrendelen is nooit een pincode nodig."
         },
         "no_pin": "Stel eerst een pincode in (Pincode instellen of wijzigen).",
         "set": "Om pincode vragen: {}",
@@ -592,7 +596,6 @@
             "unconfirmed": "De console toont het herstel dat dit rapport beschrijft niet."
         },
         "hint": {
-            "show_pin": "als u hem vergeten bent",
             "reset_pin": "een nieuwe kiezen",
             "delete": "alles verwijderen"
         },
@@ -876,7 +879,9 @@
             "restore": "Back-up teruggezet",
             "rescue": "Herstel gebruikt",
             "console_lock": "Consolevergrendeling",
-            "bedtime": "Bedtijdalarm"
+            "bedtime": "Bedtijdalarm",
+            "pin_shown": "Pincode getoond",
+            "config_reset": "Voorkeuren teruggezet (bestand onleesbaar)"
         },
         "sources": {
             "uniform": "Elke dag dezelfde limiet",
@@ -911,5 +916,12 @@
         "limit_over": "De lijn is de limiet van die dag · ! in oranje: langer gespeeld",
         "week_order": "Maandag tot zondag, vandaag onderstreept",
         "unsaved": "* in oranje: gewijzigd, nog niet opgeslagen"
+    },
+    "data_notice": {
+        "config_reset": "De voorkeuren van PlayGuard konden niet worden gelezen en zijn teruggezet. Het beschadigde bestand is bewaard als config.json.bad.",
+        "config_stuck": "De voorkeuren van PlayGuard konden niet worden gelezen of opzijgezet: de standaardwaarden worden gebruikt en er wordt voorlopig niets opgeslagen, zodat het bestand niet wordt overschreven. Controleer de SD-kaart.",
+        "history_reset": "De wijzigingsgeschiedenis kon niet worden gelezen, dus er is een nieuwe begonnen. Het beschadigde bestand is bewaard als history.json.bad.",
+        "history_stuck": "De wijzigingsgeschiedenis kon niet worden gelezen of opzijgezet: er worden voorlopig geen wijzigingen in vastgelegd. Controleer de SD-kaart.",
+        "rescue_unreadable": "Er is een rapport van de herstel-sysmodule gevonden, maar het kon niet worden gelezen, dus PlayGuard weet niet wat die heeft gedaan. Controleer de pincode en de speeltijdtimer."
     }
 }

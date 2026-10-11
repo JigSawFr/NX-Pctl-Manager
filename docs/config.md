@@ -9,8 +9,19 @@ The code is the reference: `source/util/config.hpp` (fields and defaults) and
 
 ## How the file is read
 
-- **A missing file, or one that is not JSON, gives the defaults.** PlayGuard
-  writes the whole file again at the next change.
+- **A missing file gives the defaults**, silently (a first run). PlayGuard
+  writes the whole file at the next change.
+- **A file that is there but cannot be read, or is not a JSON object, is kept
+  as `config.json.bad`** before anything is saved (PlayGuard saves by itself
+  at start-up), and the defaults are used. A `config.json.bad` already there
+  becomes `config.json.bad.1` (an older `.bad.1` is deleted): the two most
+  recent damaged files are kept. PlayGuard says so once, at start-up (*the
+  settings could not be read and were reset*), and the change history
+  records *Settings reset*. What the old file held (the console lock's saved
+  limits, a pending relock or extra time, the firmware choice …) is not
+  carried over: check those settings, or copy values back from the `.bad`
+  file by hand. Should the file not be movable either, nothing is saved
+  until the next start, so it is never overwritten.
 - **Each key is read on its own.** A missing key keeps its default; a key of
   the wrong type keeps its default too, and the others are still read.
   Types are strict: `true`, not `1`; `90`, not `90.5` or `"90"`.
@@ -47,10 +58,12 @@ The code is the reference: `source/util/config.hpp` (fields and defaults) and
 | Value | In the app | What it does |
 |---|---|---|
 | `"off"` | Never | Nothing is asked, except before *Show the PIN* (the PIN opens everything else). |
-| `"changes"` | Before a change | Anyone can look; the first change (or *Show the PIN*) asks for the PIN, then nothing is asked for 5 minutes. The default. |
-| `"open"` | To open PlayGuard | A lock screen first; the right PIN opens the app, B quits. |
+| `"changes"` | Before a change | Anyone can look; the first change asks for the PIN, then nothing is asked for 5 minutes. The default. |
+| `"open"` | To open PlayGuard | A lock screen first; the right PIN opens the app, B quits. It comes back when PlayGuard returns after 5 minutes or more out of focus. |
 
 - With no PIN on the console, nothing is asked whatever the value.
+- *Show the PIN* asks for it every time, whatever the value, even within the
+  5 minutes.
 - A missing file, a missing key or a value not in the list gives `"changes"`:
   a damaged file never turns the prompt off. Only `"off"` written on purpose
   does.
@@ -58,8 +71,8 @@ The code is the reference: `source/util/config.hpp` (fields and defaults) and
   protected: it keeps a child out of PlayGuard, not someone who edits the SD
   card.
 - **PIN forgotten while this is `"changes"` or `"open"`:** put the SD card in a
-  computer and set `"pin_lock": "off"`. *Show the PIN* still asks for it: the
-  recovery sysmodule's screen is the way to see it again.
+  computer and set `"pin_lock": "off"`. *Show the PIN* still asks for it, and
+  the recovery sysmodule's screen sets a new one rather than showing it.
 
 ## Network clock
 

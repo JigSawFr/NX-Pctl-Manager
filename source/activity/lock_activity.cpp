@@ -3,6 +3,7 @@
 
 #include "action/pin_lock.hpp"
 #include "activity/main_activity.hpp"
+#include "activity/rescue_activity.hpp"
 #include "ui/ui.hpp"
 
 using namespace brls::literals;
@@ -27,6 +28,17 @@ void LockActivity::try_unlock()
         ui::notify(pin_lock::refusal_text());
         return;
     }
-    // The main screen in place of this one (nothing to come back to).
-    ui::replace_screen(new MainActivity());
+    // Back to the screens it covered, or the main screen in place of this
+    // one (nothing to come back to).
+    if (over) brls::Application::popActivity(brls::TransitionAnimation::NONE);
+    else ui::replace_screen(new MainActivity());
+}
+
+void LockActivity::lock_again()
+{
+    // The recovery screen is where a forgotten PIN is fixed: never covered.
+    for (brls::Activity* a : brls::Application::getActivitiesStack())
+        if (dynamic_cast<LockActivity*>(a) || dynamic_cast<RescueActivity*>(a)) return;
+    brls::Logger::info("pin_lock: back after a while away, locked again");
+    brls::Application::pushActivity(new LockActivity(true), brls::TransitionAnimation::NONE);
 }

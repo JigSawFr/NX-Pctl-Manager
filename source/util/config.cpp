@@ -11,8 +11,10 @@ namespace config
 {
 
 static Config s_config;
+static Loaded s_loaded = Loaded::Missing;
 
 Config& get() { return s_config; }
+Loaded loaded() { return s_loaded; }
 
 namespace
 {
@@ -146,18 +148,36 @@ void sanitize(Config& c)
     if (!prev_ok) c.console_lock_prev.clear();
 }
 
+// There but not readable as settings: defaults, and the file is put aside
+// before anything (support_flow, fw_gate save by themselves at start-up)
+// writes the defaults over relock_pending, the console lock's saved limits,
+// the extra-time record...
+static void damaged()
+{
+    s_config = Config{};
+    s_loaded = paths::put_aside(paths::config_file()) ? Loaded::PutAside : Loaded::Stuck;
+}
+
 void load()
 {
     s_config = Config{};
+    s_loaded = Loaded::Missing;
     std::string text;
-    if (!paths::read_file(paths::config_file(), text)) return;
+    if (!paths::read_file(paths::config_file(), text)) {
+        if (paths::exists(paths::config_file())) damaged();   // missing: a first run, silently
+        return;
+    }
     nlohmann::json j;
     try {
         j = nlohmann::json::parse(text);
     } catch (...) {
-        return;   // not JSON at all: defaults
+        j = nullptr;   // not JSON at all
     }
-    if (!j.is_object()) return;
+    if (!j.is_object()) {
+        damaged();
+        return;
+    }
+    s_loaded = Loaded::Read;
 
     Config& c = s_config;
     read_string(j, "language", c.language);
@@ -210,6 +230,7 @@ void load()
 
 bool save()
 {
+    if (s_loaded == Loaded::Stuck) return false;   // it would overwrite the unreadable file
     nlohmann::json j;
     j["schema"]          = SCHEMA;
     j["language"]        = s_config.language;

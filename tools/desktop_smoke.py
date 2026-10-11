@@ -453,7 +453,7 @@ if FORGED:
     finish()
 if RESCUE:
     shot("01_recovery")        # the recovery screen, in place of the usual first screen
-    key("Down", 3)             # past Show the PIN / Set a new PIN / Delete: Open PlayGuard
+    key("Down", 2)             # past Set a new PIN / Delete: Open PlayGuard
     key("Return")              # proceed to the app
     shot("02_opened")          # the Overview: the app opened after the rescue
     if not alive():

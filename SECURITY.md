@@ -32,7 +32,7 @@ The latest release. Fixes are not backported.
   or a download that did not come from this repository's releases, or, in developer mode
   (*Install another build*), from this repository's own CI builds of `main` and of pull
   requests from its branches (pull requests from forks are never offered).
-- **The recovery screen** — reaching its actions (show the PIN, delete everything) from a
+- **The recovery screen** — reaching its actions (set a new PIN, delete everything) from a
   `rescue_report.txt` the console's state does not confirm, or without the recovery
   sysmodule installed.
 

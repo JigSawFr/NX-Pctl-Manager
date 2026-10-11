@@ -100,9 +100,16 @@ void fetch(const PlayAccount* account)
     e.busy = true;
     const bool one = account != nullptr;
     const PlayAccount who = one ? *account : PlayAccount{};
-    brls::async([key, one, who]() {
+    // The last read (this run's, or the SD card's): the names it holds are
+    // not read from each game again.
+    const std::shared_ptr<const PlayStats> known = e.stats;
+    brls::async([key, one, who, known]() {
         auto data = std::make_shared<PlayStats>();
+        playstats_remember(known.get());
         playstats_fetch_for(data.get(), one ? &who : nullptr);
+        // Quitting: cut short, so neither kept nor shown.
+        if (playstats_cancelled()) return;
+        if (data->approximate) brls::Logger::info("play_data: only the newest part of the log was read (clock set back?)");
         // Kept for the next run from here, off the UI thread: a slow SD card
         // must not hold a frame (one file per account, one read at a time).
         save(key, *data);

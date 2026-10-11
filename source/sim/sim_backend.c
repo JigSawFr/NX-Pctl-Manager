@@ -32,6 +32,7 @@
 // Game patches are read from ./playguard_data/sd/ (the simulated SD card root).
 // Copyright (C) 2026 JigSawFr, (C) 2026 Taylor.  GPLv3-or-later (see LICENSE).
 #define _POSIX_C_SOURCE 200809L
+#include <stdatomic.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -97,7 +98,7 @@ static void sim_init(void)
 {
     if (S.init) return;
     S.init = true;
-    S.hos = MAKEHOSVERSION(23, 0, 1);
+    S.hos = PCTL_FW_TESTED_MAX;   // the newest verified one: no firmware gate
     const char *fw = getenv("PLAYGUARD_SIM_FW");
     unsigned a, b, c;
     if (fw && sscanf(fw, "%u.%u.%u", &a, &b, &c) == 3) S.hos = MAKEHOSVERSION(a, b, c);
@@ -199,7 +200,8 @@ Result pctl_unlock_restriction_temporarily(void)
 Result pctl_get_pin(char *out, size_t out_size)
 {
     if (out && out_size) memset(out, 0, out_size);
-    RO_GUARD();
+    Result g = core_reveal_allowed();
+    if (R_FAILED(g)) return g;
     FAIL_IF("pin");
     if (!out || out_size < 5) return NXM_RC_INVALID_ARGUMENT;
     if (!S.pin_length) return NXM_RC_STATE_UNKNOWN;
@@ -264,6 +266,9 @@ void pctl_play_timer_query(PtState *o)
     o->session_valid = true;
     if (fails("timer")) {
         o->config_rc = SIM_FAIL_RC;
+    } else if (!pt_plausible(S.block)) {   // as pctl_ops.c (only pt_encode writes it here)
+        o->config_rc = NXM_RC_PT_NOT_UNDERSTOOD;
+        memcpy(o->block, S.block, sizeof(o->block));
     } else {
         o->valid = true;
         pt_decode(S.block, o->day_min);
@@ -560,6 +565,13 @@ void playstats_fetch_for(PlayStats *out, const PlayAccount *account)
         g->first_played = out->now - 30ULL * 86400;
     }
 }
+
+// The made-up games have their names already; no SD card icons either.
+void playstats_remember(const PlayStats *known) { (void)known; }
+void playstats_set_icon_dir(const char *dir) { (void)dir; }
+static atomic_bool s_cancel;
+void playstats_cancel(void) { atomic_store(&s_cancel, true); }
+bool playstats_cancelled(void) { return atomic_load(&s_cancel); }
 
 void playstats_icons(PlayIcon *icons, size_t count)
 {

@@ -21,6 +21,10 @@ using pin_lock_logic::MODES;
 using pin_lock_logic::rank;
 
 std::chrono::steady_clock::time_point s_confirmed_until, s_refused_until;
+std::chrono::steady_clock::time_point s_pin_at;        // when the PIN was last entered
+std::chrono::steady_clock::time_point s_reveal_until;  // before_show_pin() just asked
+std::chrono::steady_clock::time_point s_away_since;    // out of focus since (s_away)
+bool s_away = false;
 Result s_last_rc = 0;   // what the last ask() got
 
 // The service layer's change check (write_guard.h). Runs on the UI thread,
@@ -37,11 +41,43 @@ bool check()
     s_refused_until = std::chrono::steady_clock::now() + pin_lock_logic::REFUSAL_HOLDS;
     return false;
 }
+
+// The service layer's reveal check: the PIN every time, whatever the mode,
+// the grace or the lock screen let through. Whoever may see the PIN knows it.
+bool reveal_check()
+{
+    const auto now = std::chrono::steady_clock::now();
+    if (now < s_reveal_until) {   // asked by before_show_pin() a moment ago: once
+        s_reveal_until = {};
+        return true;
+    }
+    return ask();
+}
 }   // namespace
 
 void install()
 {
     core_set_change_check(check);
+    core_set_reveal_check(reveal_check);
+}
+
+void watch_focus(std::function<void()> lock)
+{
+    brls::Application::getWindowFocusChangedEvent()->subscribe([lock](bool focused) {
+        const auto now = std::chrono::steady_clock::now();
+        if (!focused) {
+            if (!s_away) s_away_since = now;
+            s_away = true;
+            return;
+        }
+        if (!s_away) return;
+        s_away = false;
+        const auto since = s_away_since;
+        // After this frame: a PIN screen that took the focus has returned by then.
+        brls::sync([lock, since, now]() {
+            if (pin_lock_logic::lock_again(config::get().pin_lock, since, now, s_pin_at)) lock();
+        });
+    });
 }
 
 bool at_start()
@@ -55,7 +91,8 @@ bool ask()
     s_last_rc = rc;
     brls::Logger::info("pctl_ask_pin returned 0x{:08X}", (unsigned)rc);
     if (R_SUCCEEDED(rc)) {
-        s_confirmed_until = std::chrono::steady_clock::now() + pin_lock_logic::GRACE;
+        s_pin_at = std::chrono::steady_clock::now();
+        s_confirmed_until = s_pin_at + pin_lock_logic::GRACE;
         return true;
     }
     return rc == NXM_RC_NO_PIN;   // nothing to ask for
@@ -63,10 +100,13 @@ bool ask()
 
 bool before_show_pin()
 {
-    if (config::get().pin_lock != "off") return true;   // the change check asks
-    if (ask()) return true;
-    ui::notify(refusal_text());
-    return false;
+    if (!ask()) {
+        ui::notify(refusal_text());
+        return false;
+    }
+    // The read that follows at once does not ask a second time.
+    s_reveal_until = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+    return true;
 }
 
 std::string refusal_text()
